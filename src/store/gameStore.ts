@@ -11,6 +11,8 @@ import {
   Quest,
   RedeemCode,
   WorldPosition,
+  ExplorationPoint,
+  ExplorationArea,
 } from "../types/game";
 import { gameService } from "../services/gameService";
 import { playNotificationSound } from "../utils/soundManager";
@@ -27,6 +29,15 @@ interface GameStore extends GameState {
   setCurrentPlanet: (
     planet: { id: string; name: string; color: string } | null,
   ) => void;
+
+  // Exploration system
+  currentExplorationPoint: ExplorationPoint | null;
+  currentExplorationArea: ExplorationArea | null;
+  explorationPoints: ExplorationPoint[];
+  setCurrentExplorationPoint: (point: ExplorationPoint | null) => void;
+  setCurrentExplorationArea: (area: ExplorationArea | null) => void;
+  generateExplorationPoints: (planetId: string) => ExplorationPoint[];
+  getExplorationArea: (pointId: string) => ExplorationArea;
 
   // World editing mode
   isWorldEditMode: boolean;
