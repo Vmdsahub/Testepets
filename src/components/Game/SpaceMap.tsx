@@ -584,7 +584,12 @@ const SpaceMapComponent: React.FC = () => {
     const currentTime = Date.now();
 
     // Don't spawn if max asteroids reached
-    if (asteroidsRef.current.length >= MAX_ASTEROIDS) return;
+    if (asteroidsRef.current.length >= MAX_ASTEROIDS) {
+      console.log(
+        `Max asteroids reached: ${asteroidsRef.current.length}/${MAX_ASTEROIDS}`,
+      );
+      return;
+    }
 
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -658,7 +663,12 @@ const SpaceMapComponent: React.FC = () => {
       attempts++;
     } while (isInsideBarrier(x, y) && attempts < 50);
 
-    if (attempts >= 50) return; // Could not find suitable position
+    if (attempts >= 50) {
+      console.log(
+        "Failed to find suitable position for asteroid after 50 attempts",
+      );
+      return; // Could not find suitable position
+    }
 
     // Random velocity (slow drift)
     const velocityAngle = Math.random() * Math.PI * 2;
@@ -679,6 +689,12 @@ const SpaceMapComponent: React.FC = () => {
     };
 
     asteroidsRef.current.push(newAsteroid);
+    console.log(
+      `New asteroid created at (${Math.round(x)}, ${Math.round(y)}). Total asteroids: ${asteroidsRef.current.length}`,
+    );
+
+    // Force a re-render to ensure asteroid appears
+    // This isn't typically needed in React but can help debug render issues
   }, [isInsideBarrier, generateId, normalizeCoord, gameState.camera]);
 
   // Create xenocoin when asteroid is destroyed
@@ -1387,7 +1403,7 @@ const SpaceMapComponent: React.FC = () => {
         size: 0.4 + Math.random() * 0.7, // Ainda menores para camada mais próxima
         opacity: 0.3 + Math.random() * 0.3, // Mais transparentes
         speed: Math.random() * 0.008 + 0.003, // Muito lento
-        parallax: 2.2, // Máximo paralaxe
+        parallax: 2.2, // M��ximo paralaxe
         twinkle: Math.random() * 100,
         color: Math.random() < 0.92 ? "#ffffff" : generateRandomStarColor(),
         type: Math.random() < 0.1 ? "bright" : "normal", // Principalmente normais
