@@ -577,22 +577,82 @@ const SpaceMapComponent: React.FC = () => {
     return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   }, []);
 
-  // Create new asteroid outside barrier
+  // Create new asteroid outside visible screen margins
   const createAsteroid = useCallback(() => {
     const currentTime = Date.now();
 
     // Don't spawn if max asteroids reached
     if (asteroidsRef.current.length >= MAX_ASTEROIDS) return;
 
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    // Get current camera position and screen dimensions
+    const cameraX = gameState.camera.x;
+    const cameraY = gameState.camera.y;
+    const screenWidth = canvas.width;
+    const screenHeight = canvas.height;
+    const spawnMargin = 300; // Spawn 300 pixels outside visible area
+
     let attempts = 0;
     let x, y;
 
-    // Find position outside barrier
+    // Find position outside visible screen and outside barrier
     do {
-      const angle = Math.random() * Math.PI * 2;
-      const distance = BARRIER_RADIUS + 100 + Math.random() * 1000; // Start outside barrier
-      x = CENTER_X + Math.cos(angle) * distance;
-      y = CENTER_Y + Math.sin(angle) * distance;
+      // Choose a random edge (0=top, 1=right, 2=bottom, 3=left)
+      const edge = Math.floor(Math.random() * 4);
+
+      switch (edge) {
+        case 0: // Top edge
+          x =
+            cameraX -
+            screenWidth / 2 -
+            spawnMargin +
+            Math.random() * (screenWidth + 2 * spawnMargin);
+          y =
+            cameraY -
+            screenHeight / 2 -
+            spawnMargin -
+            Math.random() * spawnMargin;
+          break;
+        case 1: // Right edge
+          x =
+            cameraX +
+            screenWidth / 2 +
+            spawnMargin +
+            Math.random() * spawnMargin;
+          y =
+            cameraY -
+            screenHeight / 2 -
+            spawnMargin +
+            Math.random() * (screenHeight + 2 * spawnMargin);
+          break;
+        case 2: // Bottom edge
+          x =
+            cameraX -
+            screenWidth / 2 -
+            spawnMargin +
+            Math.random() * (screenWidth + 2 * spawnMargin);
+          y =
+            cameraY +
+            screenHeight / 2 +
+            spawnMargin +
+            Math.random() * spawnMargin;
+          break;
+        case 3: // Left edge
+          x =
+            cameraX -
+            screenWidth / 2 -
+            spawnMargin -
+            Math.random() * spawnMargin;
+          y =
+            cameraY -
+            screenHeight / 2 -
+            spawnMargin +
+            Math.random() * (screenHeight + 2 * spawnMargin);
+          break;
+      }
+
       attempts++;
     } while (isInsideBarrier(x, y) && attempts < 50);
 
@@ -3545,7 +3605,7 @@ const SpaceMapComponent: React.FC = () => {
         {user?.isAdmin && isWorldEditMode ? (
           <>
             <div className="text-yellow-400 font-bold mb-1">
-              ��� MODO EDIÇÃO
+              ��� MODO EDIÇ��O
             </div>
             <div>�� 1º Click: Selecionar mundo</div>
             <div>
