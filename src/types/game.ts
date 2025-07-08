@@ -205,6 +205,25 @@ export interface WorldPosition {
   updatedAt: Date;
 }
 
+export interface ExplorationPoint {
+  id: string;
+  planetId: string;
+  name: string;
+  x: number; // Position on planet screen (percentage 0-100)
+  y: number; // Position on planet screen (percentage 0-100)
+  imageUrl: string;
+  description?: string;
+  discovered: boolean;
+}
+
+export interface ExplorationArea {
+  id: string;
+  pointId: string;
+  name: string;
+  imageUrl: string;
+  description?: string;
+}
+
 export interface Asteroid {
   id: string;
   x: number;
@@ -244,6 +263,8 @@ export interface GameState {
   notifications: Notification[];
   language: string;
   currentScreen: string;
+  currentExplorationPoint?: ExplorationPoint;
+  currentExplorationArea?: ExplorationArea;
   achievements: Achievement[];
   collectibles: Collectible[];
   quests: Quest[];
