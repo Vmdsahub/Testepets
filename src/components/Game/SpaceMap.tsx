@@ -579,6 +579,35 @@ const SpaceMapComponent: React.FC = () => {
     return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   }, []);
 
+  // Generate a deterministic random seed based on coordinates
+  const getSeededRandom = useCallback(
+    (x: number, y: number, salt: number = 0) => {
+      const seed =
+        Math.floor(x / 1000) * 73856093 +
+        Math.floor(y / 1000) * 19349663 +
+        salt * 83492791;
+      const rnd = Math.sin(seed) * 10000;
+      return rnd - Math.floor(rnd);
+    },
+    [],
+  );
+
+  // Check if a chunk should have asteroids based on deterministic generation
+  const shouldChunkHaveAsteroid = useCallback(
+    (chunkX: number, chunkY: number) => {
+      // Skip chunks that are inside or too close to barrier
+      const centerDistanceFromBarrier = Math.sqrt(
+        Math.pow(chunkX * 1000 - CENTER_X, 2) +
+          Math.pow(chunkY * 1000 - CENTER_Y, 2),
+      );
+      if (centerDistanceFromBarrier < BARRIER_RADIUS + 200) return false;
+
+      // Use deterministic random to decide if chunk has asteroids (30% chance)
+      return getSeededRandom(chunkX, chunkY, 1) < 0.3;
+    },
+    [getSeededRandom],
+  );
+
   // Create new asteroid outside visible screen margins
   const createAsteroid = useCallback(() => {
     const currentTime = Date.now();
