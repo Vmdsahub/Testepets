@@ -1403,7 +1403,7 @@ const SpaceMapComponent: React.FC = () => {
         size: 0.4 + Math.random() * 0.7, // Ainda menores para camada mais próxima
         opacity: 0.3 + Math.random() * 0.3, // Mais transparentes
         speed: Math.random() * 0.008 + 0.003, // Muito lento
-        parallax: 2.2, // M��ximo paralaxe
+        parallax: 2.2, // Máximo paralaxe
         twinkle: Math.random() * 100,
         color: Math.random() < 0.92 ? "#ffffff" : generateRandomStarColor(),
         type: Math.random() < 0.1 ? "bright" : "normal", // Principalmente normais
@@ -2489,6 +2489,7 @@ const SpaceMapComponent: React.FC = () => {
 
         // Check if asteroid entered barrier (remove if it did)
         if (isInsideBarrier(asteroid.x, asteroid.y)) {
+          console.log(`Asteroid ${asteroid.id} removed: entered barrier`);
           asteroids.splice(i, 1);
           continue;
         }
@@ -2527,6 +2528,9 @@ const SpaceMapComponent: React.FC = () => {
 
             if (asteroid.health <= 0) {
               // Asteroid destroyed - create xenocoin
+              console.log(
+                `Asteroid ${asteroid.id} destroyed by projectile - creating xenocoin`,
+              );
               createXenoCoin(asteroid.x, asteroid.y);
               asteroids.splice(i, 1);
               break;
