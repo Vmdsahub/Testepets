@@ -2826,6 +2826,14 @@ const SpaceMapComponent: React.FC = () => {
         );
         asteroid.rotation += asteroid.rotationSpeed * projectileDeltaTime;
 
+        // Check collision with ship
+        if (checkShipAsteroidCollision(gameState.ship, asteroid)) {
+          console.log(`Ship hit by asteroid ${asteroid.id}! Taking damage...`);
+          damageShip();
+          // Create damage particles at ship position
+          createDamageParticles(gameState.ship.x, gameState.ship.y);
+        }
+
         // Check if asteroid entered barrier (explode and remove)
         if (isInsideBarrier(asteroid.x, asteroid.y)) {
           console.log(`Asteroid ${asteroid.id} exploded: hit barrier`);
@@ -3930,7 +3938,7 @@ const SpaceMapComponent: React.FC = () => {
           {/* Interaction Radius Control */}
           <div className="mb-3">
             <label className="block text-xs font-medium text-gray-700 mb-1">
-              ����rea de Pouso:{" "}
+              ������rea de Pouso:{" "}
               {Math.round(
                 planetsRef.current.find((p) => p.id === selectedWorldId)
                   ?.interactionRadius || 90,
