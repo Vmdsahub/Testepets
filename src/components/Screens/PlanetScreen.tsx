@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Globe, Star } from "lucide-react";
+import { ArrowLeft, Globe, Star, MapPin } from "lucide-react";
 import { useGameStore } from "../../store/gameStore";
+import { ExplorationPoint } from "../../types/game";
 
 interface Planet {
   id: string;
@@ -10,11 +11,30 @@ interface Planet {
 }
 
 export const PlanetScreen: React.FC = () => {
-  const { currentPlanet, setCurrentScreen } = useGameStore();
+  const {
+    currentPlanet,
+    setCurrentScreen,
+    explorationPoints,
+    generateExplorationPoints,
+    setCurrentExplorationPoint,
+  } = useGameStore();
 
   if (!currentPlanet) {
     return null;
   }
+
+  // Generate exploration points for this planet
+  useEffect(() => {
+    if (currentPlanet) {
+      generateExplorationPoints(currentPlanet.id);
+    }
+  }, [currentPlanet.id, generateExplorationPoints]);
+
+  // Handle exploration point click
+  const handleExplorationPointClick = (point: ExplorationPoint) => {
+    setCurrentExplorationPoint(point);
+    setCurrentScreen("exploration");
+  };
 
   // Gerar uma imagem placeholder baseada na cor do planeta
   const generatePlanetImage = (color: string) => {
@@ -36,6 +56,40 @@ export const PlanetScreen: React.FC = () => {
             alt={`Superfície de ${currentPlanet.name}`}
             className="w-full h-full object-cover"
           />
+
+          {/* Exploration Points */}
+          {explorationPoints
+            .filter((point) => point.planetId === currentPlanet.id)
+            .map((point, index) => (
+              <motion.button
+                key={point.id}
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.8 + index * 0.2, duration: 0.4 }}
+                onClick={() => handleExplorationPointClick(point)}
+                className="absolute transform -translate-x-1/2 -translate-y-1/2 group"
+                style={{
+                  left: `${point.x}%`,
+                  top: `${point.y}%`,
+                }}
+                whileHover={{ scale: 1.2 }}
+                whileTap={{ scale: 0.9 }}
+              >
+                {/* Pulsing background effect */}
+                <div className="absolute inset-0 bg-blue-400 rounded-full opacity-50 animate-ping"></div>
+
+                {/* Main point */}
+                <div className="relative w-6 h-6 bg-blue-500 rounded-full border-2 border-white shadow-lg flex items-center justify-center">
+                  <MapPin className="w-3 h-3 text-white" />
+                </div>
+
+                {/* Tooltip */}
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-black bg-opacity-80 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
+                  {point.name}
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-black border-opacity-80"></div>
+                </div>
+              </motion.button>
+            ))}
         </div>
 
         <div className="flex justify-center mt-4">
