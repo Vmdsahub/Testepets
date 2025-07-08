@@ -346,6 +346,9 @@ const SpaceMapComponent: React.FC = () => {
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [barrierFlashTime, setBarrierFlashTime] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
+  const [shipHP, setShipHP] = useState(3);
+  const [lastDamageTime, setLastDamageTime] = useState(0);
+  const [showHPBar, setShowHPBar] = useState(false);
 
   // Helper function for seamless wrapping distance calculation
   const getWrappedDistance = useCallback(
