@@ -599,7 +599,7 @@ const SpaceMapComponent: React.FC = () => {
     const cameraY = gameState.camera.y;
     const screenWidth = canvas.width;
     const screenHeight = canvas.height;
-    const spawnMargin = 300; // Spawn 300 pixels outside visible area
+    const spawnMargin = 600; // Spawn 600 pixels outside visible area (área maior)
 
     let attempts = 0;
     let x, y;
