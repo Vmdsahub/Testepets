@@ -1662,7 +1662,11 @@ const SpaceMapComponent: React.FC = () => {
   useEffect(() => {
     generateRichStarField();
     loadWorldPositions();
-  }, [generateRichStarField, loadWorldPositions]);
+    // Initial asteroid loading
+    setTimeout(() => {
+      loadAsteroidsAroundCamera();
+    }, 100);
+  }, [generateRichStarField, loadWorldPositions, loadAsteroidsAroundCamera]);
 
   // Update planets when worldPositions from store change
   useEffect(() => {
