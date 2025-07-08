@@ -2470,6 +2470,27 @@ const SpaceMapComponent: React.FC = () => {
           continue;
         }
 
+        // Remove asteroids that are too far from visible screen
+        const canvas = canvasRef.current;
+        if (canvas) {
+          const cameraX = gameState.camera.x;
+          const cameraY = gameState.camera.y;
+          const screenWidth = canvas.width;
+          const screenHeight = canvas.height;
+          const cleanupMargin = 800; // Remove when 800 pixels away from screen
+
+          const dx = getWrappedDistance(asteroid.x, cameraX);
+          const dy = getWrappedDistance(asteroid.y, cameraY);
+
+          if (
+            Math.abs(dx) > screenWidth / 2 + cleanupMargin ||
+            Math.abs(dy) > screenHeight / 2 + cleanupMargin
+          ) {
+            asteroids.splice(i, 1);
+            continue;
+          }
+        }
+
         // Check projectile collisions
         const projectiles = projectilesRef.current;
         for (let j = projectiles.length - 1; j >= 0; j--) {
