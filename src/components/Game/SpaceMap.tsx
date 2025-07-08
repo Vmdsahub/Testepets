@@ -194,8 +194,8 @@ const SpaceMapComponent: React.FC = () => {
   const lastStarUpdateTime = useRef(0);
   const lastAsteroidSpawnTime = useRef(0);
   const STAR_UPDATE_INTERVAL = 200; // 5 FPS = 200ms interval
-  const ASTEROID_SPAWN_INTERVAL = 2000; // Spawn asteroid every 2 seconds (mais frequente ainda)
-  const MAX_ASTEROIDS = 40; // Maximum asteroids on screen (mais asteroides para conta da área maior)
+  const ASTEROID_SPAWN_INTERVAL = 5000; // Check for chunk loading every 5 seconds
+  const MAX_ASTEROIDS = 200; // Much higher limit for natural world distribution
   const lastRadarCheckRef = useRef<Set<string>>(new Set());
   const shootingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const lastFrameTimeRef = useRef(performance.now());
