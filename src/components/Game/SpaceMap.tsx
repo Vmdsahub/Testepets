@@ -1071,6 +1071,113 @@ const SpaceMapComponent: React.FC = () => {
     [],
   );
 
+  // Draw ship HP bar
+  const drawHPBar = useCallback(
+    (
+      ctx: CanvasRenderingContext2D,
+      shipScreenX: number,
+      shipScreenY: number,
+    ) => {
+      if (!showHPBar) return;
+
+      const barWidth = 60;
+      const barHeight = 8;
+      const barX = shipScreenX - barWidth / 2;
+      const barY = shipScreenY + 35; // Below the ship
+
+      ctx.save();
+
+      // Background bar
+      ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+      ctx.fillRect(barX - 2, barY - 2, barWidth + 4, barHeight + 4);
+
+      // Empty bar (red background)
+      ctx.fillStyle = "#FF4444";
+      ctx.fillRect(barX, barY, barWidth, barHeight);
+
+      // Filled bar (green for HP)
+      const hpRatio = shipHP / 3;
+      const fillWidth = barWidth * hpRatio;
+
+      // Color based on HP level
+      if (hpRatio > 0.66) {
+        ctx.fillStyle = "#44FF44"; // Green
+      } else if (hpRatio > 0.33) {
+        ctx.fillStyle = "#FFAA44"; // Orange
+      } else {
+        ctx.fillStyle = "#FF6644"; // Red
+      }
+
+      ctx.fillRect(barX, barY, fillWidth, barHeight);
+
+      // Border
+      ctx.strokeStyle = "#FFFFFF";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(barX, barY, barWidth, barHeight);
+
+      // HP Text
+      ctx.fillStyle = "#FFFFFF";
+      ctx.font = "12px monospace";
+      ctx.textAlign = "center";
+      ctx.fillText(`${shipHP}/3`, shipScreenX, barY + barHeight + 15);
+
+      ctx.restore();
+    },
+    [showHPBar, shipHP],
+  );
+
+  // Handle ship damage
+  const damageShip = useCallback(() => {
+    const currentTime = Date.now();
+
+    // Damage immunity for 2 seconds after taking damage
+    if (currentTime - lastDamageTime < 2000) return;
+
+    setShipHP((prev) => {
+      const newHP = prev - 1;
+
+      if (newHP <= 0) {
+        // Ship destroyed - respawn at center
+        console.log("Ship destroyed! Respawning at center...");
+
+        setGameState((prevState) => ({
+          ...prevState,
+          ship: {
+            ...prevState.ship,
+            x: CENTER_X,
+            y: CENTER_Y,
+            vx: 0,
+            vy: 0,
+          },
+          camera: {
+            x: CENTER_X,
+            y: CENTER_Y,
+          },
+        }));
+
+        // Reset HP and hide bar after respawn
+        setTimeout(() => {
+          setShowHPBar(false);
+        }, 3000);
+
+        return 3; // Reset to full HP
+      }
+
+      return newHP;
+    });
+
+    setLastDamageTime(currentTime);
+    setShowHPBar(true);
+
+    // Hide HP bar after 5 seconds if not taking more damage
+    setTimeout(() => {
+      if (Date.now() - lastDamageTime >= 4900) {
+        // Almost 5 seconds
+        setShowHPBar(false);
+      }
+    }, 5000);
+  }, [lastDamageTime, setGameState]);
+
   // Helper function to draw directional radar pulse
   const drawRadarPulse = useCallback(
     (
@@ -1782,7 +1889,7 @@ const SpaceMapComponent: React.FC = () => {
     ];
 
     const planetNames = [
-      "Estaç��o Gal��ctica",
+      "Estaç���o Gal��ctica",
       "Base Orbital",
       "Mundo Alienígena",
       "Terra Verdejante",
