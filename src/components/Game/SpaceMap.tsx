@@ -2539,6 +2539,15 @@ const SpaceMapComponent: React.FC = () => {
                 console.log(
                   `Successfully added ${xenoCoin.value} xenocoins to player account`,
                 );
+                // Add notification for successful collection
+                addNotification({
+                  id: `xenocoin-${Date.now()}`,
+                  type: "success",
+                  title: "Xenocoin Coletada!",
+                  message: `+${xenoCoin.value} Xenocoin adicionada ao seu saldo`,
+                  isRead: false,
+                  createdAt: new Date(),
+                });
               } else {
                 console.error("Failed to update xenocoins in database");
               }
