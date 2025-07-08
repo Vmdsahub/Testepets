@@ -2008,7 +2008,7 @@ const SpaceMapComponent: React.FC = () => {
               setIsDragging(false);
               setDragOffset({ x: 0, y: 0 });
             } else if (selectedWorldId === planet.id && !isDragging) {
-              // Se já est������� selecionado mas não dragging, inicie o drag
+              // Se já est��������� selecionado mas não dragging, inicie o drag
               setIsDragging(true);
               setDragOffset({ x: dx, y: dy });
             } else {
@@ -2802,6 +2802,31 @@ const SpaceMapComponent: React.FC = () => {
 
           // Optional: Play collection sound or show visual feedback
           // playCollectionSound().catch(() => {});
+        }
+      }
+
+      // Update particles
+      const particles = particlesRef.current;
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const particle = particles[i];
+
+        // Update position and life
+        particle.x = normalizeCoord(
+          particle.x + particle.vx * projectileDeltaTime,
+        );
+        particle.y = normalizeCoord(
+          particle.y + particle.vy * projectileDeltaTime,
+        );
+        particle.rotation += particle.rotationSpeed * projectileDeltaTime;
+        particle.life -= projectileDeltaTime;
+
+        // Apply physics (slow down over time)
+        particle.vx *= 0.98;
+        particle.vy *= 0.98;
+
+        // Remove dead particles
+        if (particle.life <= 0) {
+          particles.splice(i, 1);
         }
       }
 
