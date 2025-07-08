@@ -962,6 +962,17 @@ const SpaceMapComponent: React.FC = () => {
     [],
   );
 
+  // Check collision between ship and asteroid
+  const checkShipAsteroidCollision = useCallback(
+    (ship: { x: number; y: number }, asteroid: Asteroid) => {
+      const dx = getWrappedDistance(ship.x, asteroid.x);
+      const dy = getWrappedDistance(ship.y, asteroid.y);
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      return distance < asteroid.size + 20; // Ship collision radius
+    },
+    [],
+  );
+
   // Draw asteroid
   const drawAsteroid = useCallback(
     (
