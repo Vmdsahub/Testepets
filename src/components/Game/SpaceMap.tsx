@@ -184,11 +184,16 @@ const SpaceMapComponent: React.FC = () => {
   const shootingStarsRef = useRef<ShootingStar[]>([]);
   const radarPulsesRef = useRef<RadarPulse[]>([]);
   const trailPointsRef = useRef<TrailPoint[]>([]);
+  const asteroidsRef = useRef<Asteroid[]>([]);
+  const xenoCoinsRef = useRef<XenoCoin[]>([]);
   const lastTrailTime = useRef<number>(0);
   const lastShootingStarTime = useRef(0);
   const lastShootTime = useRef(0);
   const lastStarUpdateTime = useRef(0);
+  const lastAsteroidSpawnTime = useRef(0);
   const STAR_UPDATE_INTERVAL = 200; // 5 FPS = 200ms interval
+  const ASTEROID_SPAWN_INTERVAL = 8000; // Spawn asteroid every 8 seconds
+  const MAX_ASTEROIDS = 15; // Maximum asteroids on screen
   const lastRadarCheckRef = useRef<Set<string>>(new Set());
   const shootingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const lastFrameTimeRef = useRef(performance.now());
