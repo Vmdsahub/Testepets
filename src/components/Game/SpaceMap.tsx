@@ -563,6 +563,216 @@ const SpaceMapComponent: React.FC = () => {
     });
   }, []);
 
+  // Check if point is inside barrier (asteroids cannot enter)
+  const isInsideBarrier = useCallback((x: number, y: number) => {
+    const distanceFromCenter = Math.sqrt(
+      Math.pow(getWrappedDistance(CENTER_X, x), 2) +
+        Math.pow(getWrappedDistance(CENTER_Y, y), 2),
+    );
+    return distanceFromCenter <= BARRIER_RADIUS;
+  }, []);
+
+  // Generate unique ID for asteroids and xenocoins
+  const generateId = useCallback(() => {
+    return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  }, []);
+
+  // Create new asteroid outside barrier
+  const createAsteroid = useCallback(() => {
+    const currentTime = Date.now();
+
+    // Don't spawn if max asteroids reached
+    if (asteroidsRef.current.length >= MAX_ASTEROIDS) return;
+
+    let attempts = 0;
+    let x, y;
+
+    // Find position outside barrier
+    do {
+      const angle = Math.random() * Math.PI * 2;
+      const distance = BARRIER_RADIUS + 100 + Math.random() * 1000; // Start outside barrier
+      x = CENTER_X + Math.cos(angle) * distance;
+      y = CENTER_Y + Math.sin(angle) * distance;
+      attempts++;
+    } while (isInsideBarrier(x, y) && attempts < 50);
+
+    if (attempts >= 50) return; // Could not find suitable position
+
+    // Random velocity (slow drift)
+    const velocityAngle = Math.random() * Math.PI * 2;
+    const speed = 10 + Math.random() * 20; // pixels per second
+
+    const newAsteroid: Asteroid = {
+      id: generateId(),
+      x: normalizeCoordinate(x),
+      y: normalizeCoordinate(y),
+      vx: Math.cos(velocityAngle) * speed,
+      vy: Math.sin(velocityAngle) * speed,
+      size: 15 + Math.random() * 25, // 15-40 pixel radius
+      health: 10,
+      maxHealth: 10,
+      rotation: Math.random() * Math.PI * 2,
+      rotationSpeed: (Math.random() - 0.5) * 2, // Random rotation speed
+      createdAt: currentTime,
+    };
+
+    asteroidsRef.current.push(newAsteroid);
+  }, [isInsideBarrier, generateId, normalizeCoordinate]);
+
+  // Create xenocoin when asteroid is destroyed
+  const createXenoCoin = useCallback(
+    (x: number, y: number) => {
+      const newXenoCoin: XenoCoin = {
+        id: generateId(),
+        x: normalizeCoordinate(x),
+        y: normalizeCoordinate(y),
+        vx: 0,
+        vy: 0,
+        size: 8,
+        value: 1,
+        rotation: 0,
+        rotationSpeed: 3, // Faster rotation for visibility
+        pulsatePhase: Math.random() * Math.PI * 2,
+        createdAt: Date.now(),
+        lifespan: 30000, // 30 seconds before disappearing
+      };
+
+      xenoCoinsRef.current.push(newXenoCoin);
+    },
+    [generateId, normalizeCoordinate],
+  );
+
+  // Check collision between projectile and asteroid
+  const checkProjectileAsteroidCollision = useCallback(
+    (projectile: Projectile, asteroid: Asteroid) => {
+      const dx = getWrappedDistance(projectile.x, asteroid.x);
+      const dy = getWrappedDistance(projectile.y, asteroid.y);
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      return distance < asteroid.size;
+    },
+    [],
+  );
+
+  // Check collision between ship and xenocoin
+  const checkShipXenoCoinCollision = useCallback(
+    (ship: { x: number; y: number }, xenoCoin: XenoCoin) => {
+      const dx = getWrappedDistance(ship.x, xenoCoin.x);
+      const dy = getWrappedDistance(ship.y, xenoCoin.y);
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      return distance < xenoCoin.size + 15; // Ship collection radius
+    },
+    [],
+  );
+
+  // Draw asteroid
+  const drawAsteroid = useCallback(
+    (
+      ctx: CanvasRenderingContext2D,
+      asteroid: Asteroid,
+      screenX: number,
+      screenY: number,
+    ) => {
+      ctx.save();
+      ctx.translate(screenX, screenY);
+      ctx.rotate(asteroid.rotation);
+
+      // Draw asteroid shape (irregular rock)
+      const sides = 8;
+      const baseSize = asteroid.size;
+
+      ctx.beginPath();
+      for (let i = 0; i < sides; i++) {
+        const angle = (i / sides) * Math.PI * 2;
+        const radiusVariation = 0.7 + Math.random() * 0.6; // 0.7 to 1.3
+        const radius = baseSize * radiusVariation;
+        const x = Math.cos(angle) * radius;
+        const y = Math.sin(angle) * radius;
+
+        if (i === 0) {
+          ctx.moveTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
+        }
+      }
+      ctx.closePath();
+
+      // Health-based color (red = damaged, gray = healthy)
+      const healthRatio = asteroid.health / asteroid.maxHealth;
+      const red = Math.floor(100 + 155 * (1 - healthRatio));
+      const green = Math.floor(60 + 40 * healthRatio);
+      const blue = Math.floor(60 + 40 * healthRatio);
+
+      ctx.fillStyle = `rgb(${red}, ${green}, ${blue})`;
+      ctx.fill();
+      ctx.strokeStyle = "#333";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Add some surface details
+      ctx.fillStyle = `rgba(${red * 0.8}, ${green * 0.8}, ${blue * 0.8}, 0.7)`;
+      ctx.beginPath();
+      ctx.arc(
+        -baseSize * 0.3,
+        -baseSize * 0.2,
+        baseSize * 0.15,
+        0,
+        Math.PI * 2,
+      );
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(baseSize * 0.2, baseSize * 0.3, baseSize * 0.1, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
+    },
+    [],
+  );
+
+  // Draw xenocoin
+  const drawXenoCoin = useCallback(
+    (
+      ctx: CanvasRenderingContext2D,
+      xenoCoin: XenoCoin,
+      screenX: number,
+      screenY: number,
+    ) => {
+      const currentTime = Date.now();
+      const age = currentTime - xenoCoin.createdAt;
+      const lifeRatio = Math.max(0, 1 - age / xenoCoin.lifespan);
+
+      // Pulsating effect
+      const pulsate =
+        0.8 + 0.2 * Math.sin(currentTime * 0.005 + xenoCoin.pulsatePhase);
+      const size = xenoCoin.size * pulsate * lifeRatio;
+
+      ctx.save();
+      ctx.translate(screenX, screenY);
+      ctx.rotate(xenoCoin.rotation);
+
+      // Draw golden coin
+      ctx.beginPath();
+      ctx.arc(0, 0, size, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255, 215, 0, ${lifeRatio})`;
+      ctx.fill();
+      ctx.strokeStyle = `rgba(255, 165, 0, ${lifeRatio})`;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Draw X symbol
+      ctx.strokeStyle = `rgba(139, 69, 19, ${lifeRatio})`;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(-size * 0.4, -size * 0.4);
+      ctx.lineTo(size * 0.4, size * 0.4);
+      ctx.moveTo(size * 0.4, -size * 0.4);
+      ctx.lineTo(-size * 0.4, size * 0.4);
+      ctx.stroke();
+
+      ctx.restore();
+    },
+    [],
+  );
+
   // Helper function to draw directional radar pulse
   const drawRadarPulse = useCallback(
     (
