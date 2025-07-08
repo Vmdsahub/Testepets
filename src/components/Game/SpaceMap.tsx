@@ -2705,9 +2705,11 @@ const SpaceMapComponent: React.FC = () => {
         );
         asteroid.rotation += asteroid.rotationSpeed * projectileDeltaTime;
 
-        // Check if asteroid entered barrier (remove if it did)
+        // Check if asteroid entered barrier (explode and remove)
         if (isInsideBarrier(asteroid.x, asteroid.y)) {
-          console.log(`Asteroid ${asteroid.id} removed: entered barrier`);
+          console.log(`Asteroid ${asteroid.id} exploded: hit barrier`);
+          // Create barrier explosion particles
+          createExplosionParticles(asteroid.x, asteroid.y, true);
           asteroids.splice(i, 1);
           continue;
         }
@@ -2731,14 +2733,18 @@ const SpaceMapComponent: React.FC = () => {
             // Remove projectile
             projectiles.splice(j, 1);
 
+            // Create damage particles
+            createDamageParticles(asteroid.x, asteroid.y);
+
             // Damage asteroid
             asteroid.health -= 1;
 
             if (asteroid.health <= 0) {
-              // Asteroid destroyed - create xenocoin
+              // Asteroid destroyed - create explosion and xenocoin
               console.log(
-                `Asteroid ${asteroid.id} destroyed by projectile - creating xenocoin`,
+                `Asteroid ${asteroid.id} destroyed by projectile - creating explosion and xenocoin`,
               );
+              createExplosionParticles(asteroid.x, asteroid.y, false);
               createXenoCoin(asteroid.x, asteroid.y);
               asteroids.splice(i, 1);
               break;
