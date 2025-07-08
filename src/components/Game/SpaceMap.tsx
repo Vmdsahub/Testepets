@@ -3149,6 +3149,32 @@ const SpaceMapComponent: React.FC = () => {
         }
       }
 
+      // Render particles
+      const particlesForRender = particlesRef.current;
+      for (let i = 0; i < particlesForRender.length; i++) {
+        const particle = particlesForRender[i];
+        const wrappedDeltaX = getWrappedDistance(
+          particle.x,
+          gameState.camera.x,
+        );
+        const wrappedDeltaY = getWrappedDistance(
+          particle.y,
+          gameState.camera.y,
+        );
+        const screenX = centerX + wrappedDeltaX;
+        const screenY = centerY + wrappedDeltaY;
+
+        // Only render if on screen (with some margin for effects)
+        if (
+          screenX >= -50 &&
+          screenX <= canvas.width + 50 &&
+          screenY >= -50 &&
+          screenY <= canvas.height + 50
+        ) {
+          drawParticle(ctx, particle, screenX, screenY);
+        }
+      }
+
       // Render projectiles as bright energy beams - optimized with for loop
       const projectilesForRender = projectilesRef.current;
       for (let i = 0; i < projectilesForRender.length; i++) {
