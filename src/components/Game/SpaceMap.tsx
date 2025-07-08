@@ -194,8 +194,8 @@ const SpaceMapComponent: React.FC = () => {
   const lastStarUpdateTime = useRef(0);
   const lastAsteroidSpawnTime = useRef(0);
   const STAR_UPDATE_INTERVAL = 200; // 5 FPS = 200ms interval
-  const ASTEROID_SPAWN_INTERVAL = 3000; // Spawn asteroid every 3 seconds (mais frequente)
-  const MAX_ASTEROIDS = 25; // Maximum asteroids on screen (mais asteroides)
+  const ASTEROID_SPAWN_INTERVAL = 2000; // Spawn asteroid every 2 seconds (mais frequente ainda)
+  const MAX_ASTEROIDS = 40; // Maximum asteroids on screen (mais asteroides para conta da área maior)
   const lastRadarCheckRef = useRef<Set<string>>(new Set());
   const shootingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const lastFrameTimeRef = useRef(performance.now());
@@ -1564,7 +1564,7 @@ const SpaceMapComponent: React.FC = () => {
     ];
 
     const planetNames = [
-      "Estaç����o Gal��ctica",
+      "Estaç��o Gal��ctica",
       "Base Orbital",
       "Mundo Alienígena",
       "Terra Verdejante",
@@ -2494,28 +2494,15 @@ const SpaceMapComponent: React.FC = () => {
           continue;
         }
 
-        // Remove asteroids that are too far from visible screen
-        const canvas = canvasRef.current;
-        if (canvas) {
-          const cameraX = gameState.camera.x;
-          const cameraY = gameState.camera.y;
-          const screenWidth = canvas.width;
-          const screenHeight = canvas.height;
-          const cleanupMargin = 800; // Remove when 800 pixels away from screen
-
-          const dx = getWrappedDistance(asteroid.x, cameraX);
-          const dy = getWrappedDistance(asteroid.y, cameraY);
-
-          if (
-            Math.abs(dx) > screenWidth / 2 + cleanupMargin ||
-            Math.abs(dy) > screenHeight / 2 + cleanupMargin
-          ) {
-            console.log(
-              `Asteroid ${asteroid.id} removed: too far from screen (${Math.round(Math.abs(dx))}, ${Math.round(Math.abs(dy))})`,
-            );
-            asteroids.splice(i, 1);
-            continue;
-          }
+        // Remove asteroids after 1 minute lifespan
+        const age = currentTime - asteroid.createdAt;
+        if (age > 60000) {
+          // 60 seconds = 1 minute
+          console.log(
+            `Asteroid ${asteroid.id} removed: exceeded 1 minute lifespan`,
+          );
+          asteroids.splice(i, 1);
+          continue;
         }
 
         // Check projectile collisions
