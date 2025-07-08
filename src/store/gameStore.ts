@@ -784,6 +784,94 @@ export const useGameStore = create<GameStore>()(
         set({ isBarrierCollisionEnabled: enabled });
       },
 
+      // Exploration system
+      setCurrentExplorationPoint: (point) =>
+        set({ currentExplorationPoint: point }),
+      setCurrentExplorationArea: (area) =>
+        set({ currentExplorationArea: area }),
+
+      generateExplorationPoints: (planetId) => {
+        // Generate 5 predetermined exploration points for each planet
+        const points: ExplorationPoint[] = [
+          {
+            id: `${planetId}_point_1`,
+            planetId,
+            name: "Cratera Misteriosa",
+            x: 20, // 20% from left
+            y: 30, // 30% from top
+            imageUrl:
+              "https://cdn.builder.io/api/v1/image/assets%2F6b84993f22904beeb2e1d8d2f128c032%2Faaff2921868f4bbfb24be01b9fdfa6a1?format=webp&width=800",
+            description: "Uma antiga cratera com formações rochosas únicas",
+            discovered: false,
+          },
+          {
+            id: `${planetId}_point_2`,
+            planetId,
+            name: "Vale Dourado",
+            x: 70,
+            y: 25,
+            imageUrl:
+              "https://cdn.builder.io/api/v1/image/assets%2F6b84993f22904beeb2e1d8d2f128c032%2Faaff2921868f4bbfb24be01b9fdfa6a1?format=webp&width=800",
+            description: "Um vale brilhante com depósitos minerais",
+            discovered: false,
+          },
+          {
+            id: `${planetId}_point_3`,
+            planetId,
+            name: "Cavernas Cristalinas",
+            x: 45,
+            y: 60,
+            imageUrl:
+              "https://cdn.builder.io/api/v1/image/assets%2F6b84993f22904beeb2e1d8d2f128c032%2Faaff2921868f4bbfb24be01b9fdfa6a1?format=webp&width=800",
+            description: "Complexo de cavernas com cristais luminosos",
+            discovered: false,
+          },
+          {
+            id: `${planetId}_point_4`,
+            planetId,
+            name: "Planalto Rochoso",
+            x: 80,
+            y: 70,
+            imageUrl:
+              "https://cdn.builder.io/api/v1/image/assets%2F6b84993f22904beeb2e1d8d2f128c032%2Faaff2921868f4bbfb24be01b9fdfa6a1?format=webp&width=800",
+            description: "Elevação rochosa com vista panorâmica",
+            discovered: false,
+          },
+          {
+            id: `${planetId}_point_5`,
+            planetId,
+            name: "Abismo Profundo",
+            x: 25,
+            y: 80,
+            imageUrl:
+              "https://cdn.builder.io/api/v1/image/assets%2F6b84993f22904beeb2e1d8d2f128c032%2Faaff2921868f4bbfb24be01b9fdfa6a1?format=webp&width=800",
+            description: "Uma fenda profunda no solo planetário",
+            discovered: false,
+          },
+        ];
+
+        set({ explorationPoints: points });
+        return points;
+      },
+
+      getExplorationArea: (pointId) => {
+        // Generate exploration area data based on point ID
+        const point = get().explorationPoints.find((p) => p.id === pointId);
+        if (!point) {
+          throw new Error("Exploration point not found");
+        }
+
+        const area: ExplorationArea = {
+          id: `${pointId}_area`,
+          pointId,
+          name: `Interior de ${point.name}`,
+          imageUrl: point.imageUrl,
+          description: `Vista detalhada de ${point.name}. ${point.description}`,
+        };
+
+        return area;
+      },
+
       // Egg selection and hatching actions
       setSelectedEggForHatching: (eggData) =>
         set({ selectedEggForHatching: eggData }),
