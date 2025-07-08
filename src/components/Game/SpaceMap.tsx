@@ -3607,6 +3607,9 @@ const SpaceMapComponent: React.FC = () => {
         }
 
         ctx.restore();
+
+        // Draw HP bar below ship
+        drawHPBar(ctx, centerX, centerY);
       }
       ctx.globalAlpha = 1;
 
