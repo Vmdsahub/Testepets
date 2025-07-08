@@ -791,64 +791,102 @@ export const useGameStore = create<GameStore>()(
         set({ currentExplorationArea: area }),
 
       generateExplorationPoints: (planetId) => {
-        // Generate 5 predetermined exploration points for each planet
-        const points: ExplorationPoint[] = [
-          {
-            id: `${planetId}_point_1`,
-            planetId,
-            name: "Cratera Misteriosa",
-            x: 20, // 20% from left
-            y: 30, // 30% from top
-            imageUrl:
-              "https://cdn.builder.io/api/v1/image/assets%2F6b84993f22904beeb2e1d8d2f128c032%2Faaff2921868f4bbfb24be01b9fdfa6a1?format=webp&width=800",
-            description: "Uma antiga cratera com formações rochosas únicas",
-            discovered: false,
-          },
-          {
-            id: `${planetId}_point_2`,
-            planetId,
-            name: "Vale Dourado",
-            x: 70,
-            y: 25,
-            imageUrl:
-              "https://cdn.builder.io/api/v1/image/assets%2F6b84993f22904beeb2e1d8d2f128c032%2Faaff2921868f4bbfb24be01b9fdfa6a1?format=webp&width=800",
-            description: "Um vale brilhante com depósitos minerais",
-            discovered: false,
-          },
-          {
-            id: `${planetId}_point_3`,
-            planetId,
-            name: "Cavernas Cristalinas",
-            x: 45,
-            y: 60,
-            imageUrl:
-              "https://cdn.builder.io/api/v1/image/assets%2F6b84993f22904beeb2e1d8d2f128c032%2Faaff2921868f4bbfb24be01b9fdfa6a1?format=webp&width=800",
-            description: "Complexo de cavernas com cristais luminosos",
-            discovered: false,
-          },
-          {
-            id: `${planetId}_point_4`,
-            planetId,
-            name: "Planalto Rochoso",
-            x: 80,
-            y: 70,
-            imageUrl:
-              "https://cdn.builder.io/api/v1/image/assets%2F6b84993f22904beeb2e1d8d2f128c032%2Faaff2921868f4bbfb24be01b9fdfa6a1?format=webp&width=800",
-            description: "Elevação rochosa com vista panorâmica",
-            discovered: false,
-          },
-          {
-            id: `${planetId}_point_5`,
-            planetId,
-            name: "Abismo Profundo",
-            x: 25,
-            y: 80,
-            imageUrl:
-              "https://cdn.builder.io/api/v1/image/assets%2F6b84993f22904beeb2e1d8d2f128c032%2Faaff2921868f4bbfb24be01b9fdfa6a1?format=webp&width=800",
-            description: "Uma fenda profunda no solo planetário",
-            discovered: false,
-          },
+        // Generate unique exploration points for each planet using deterministic generation
+        const pointTemplates = [
+          // Set 1 - Geological features
+          [
+            "Cratera Meteórica",
+            "Formação Vulcânica",
+            "Mesa Rochosa",
+            "Cânion Profundo",
+            "Campo de Lava",
+          ],
+          // Set 2 - Crystal formations
+          [
+            "Cavernas Cristalinas",
+            "Jardim de Quartzo",
+            "Depósitos Minerais",
+            "Geodo Gigante",
+            "Cristais Luminosos",
+          ],
+          // Set 3 - Water/Ice features
+          [
+            "Lagos Congelados",
+            "Fontes Termais",
+            "Geleiras Antigas",
+            "Oásis Mineral",
+            "Rios Subterrâneos",
+          ],
+          // Set 4 - Underground features
+          [
+            "Túneis Profundos",
+            "Cavernas Ecoantes",
+            "Abismo Sem Fim",
+            "Galerias Minerais",
+            "Labirinto Subterrâneo",
+          ],
+          // Set 5 - Atmospheric features
+          [
+            "Vale dos Ventos",
+            "Planalto Nebuloso",
+            "Picos Nevados",
+            "Desfiladeiro Sombrio",
+            "Planície Dourada",
+          ],
+          // Set 6 - Organic features
+          [
+            "Floresta Petrificada",
+            "Jardim de Esporos",
+            "Bosque Cristalizado",
+            "Pântano Fóssil",
+            "Recife Mineral",
+          ],
+          // Set 7 - Energy features
+          [
+            "Campo Magnético",
+            "Zona Radioativa",
+            "Núcleo Energético",
+            "Fonte de Plasma",
+            "Portal Dimensional",
+          ],
+          // Set 8 - Ancient features
+          [
+            "Ruínas Antigas",
+            "Monólitos Perdidos",
+            "Templo Esquecido",
+            "Artefatos Alienígenas",
+            "Cidade Abandonada",
+          ],
         ];
+
+        // Generate deterministic hash from planetId to select consistent set
+        let hash = 0;
+        for (let i = 0; i < planetId.length; i++) {
+          hash = ((hash << 5) - hash + planetId.charCodeAt(i)) & 0xffffffff;
+        }
+        const setIndex = Math.abs(hash) % pointTemplates.length;
+        const selectedNames = pointTemplates[setIndex];
+
+        // Fixed positions for consistency
+        const positions = [
+          { x: 20, y: 30 },
+          { x: 70, y: 25 },
+          { x: 45, y: 60 },
+          { x: 80, y: 70 },
+          { x: 25, y: 80 },
+        ];
+
+        const points: ExplorationPoint[] = selectedNames.map((name, index) => ({
+          id: `${planetId}_point_${index + 1}`,
+          planetId,
+          name,
+          x: positions[index].x,
+          y: positions[index].y,
+          imageUrl:
+            "https://cdn.builder.io/api/v1/image/assets%2F6b84993f22904beeb2e1d8d2f128c032%2Faaff2921868f4bbfb24be01b9fdfa6a1?format=webp&width=800",
+          description: `Uma área fascinante conhecida como ${name}. Este local oferece uma experiência única de exploração.`,
+          discovered: false,
+        }));
 
         set({ explorationPoints: points });
         return points;

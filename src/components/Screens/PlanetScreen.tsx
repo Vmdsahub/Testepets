@@ -75,9 +75,6 @@ export const PlanetScreen: React.FC = () => {
                 whileHover={{ scale: 1.2 }}
                 whileTap={{ scale: 0.9 }}
               >
-                {/* Pulsing background effect */}
-                <div className="absolute inset-0 bg-blue-400 rounded-full opacity-50 animate-ping"></div>
-
                 {/* Main point */}
                 <div className="relative w-6 h-6 bg-blue-500 rounded-full border-2 border-white shadow-lg flex items-center justify-center">
                   <MapPin className="w-3 h-3 text-white" />
