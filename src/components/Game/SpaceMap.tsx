@@ -608,123 +608,125 @@ const SpaceMapComponent: React.FC = () => {
     [getSeededRandom],
   );
 
-  // Create new asteroid outside visible screen margins
-  const createAsteroid = useCallback(() => {
-    const currentTime = Date.now();
+  // Generate asteroids for a specific world chunk (1000x1000 area)
+  const generateAsteroidsForChunk = useCallback(
+    (chunkX: number, chunkY: number) => {
+      if (!shouldChunkHaveAsteroid(chunkX, chunkY)) return [];
 
-    // Don't spawn if max asteroids reached
-    if (asteroidsRef.current.length >= MAX_ASTEROIDS) {
-      console.log(
-        `Max asteroids reached: ${asteroidsRef.current.length}/${MAX_ASTEROIDS}`,
-      );
-      return;
-    }
+      const asteroids: Asteroid[] = [];
+      const chunkWorldX = chunkX * 1000;
+      const chunkWorldY = chunkY * 1000;
 
+      // Deterministic number of asteroids per chunk (1-3)
+      const asteroidCount =
+        Math.floor(getSeededRandom(chunkX, chunkY, 2) * 3) + 1;
+
+      for (let i = 0; i < asteroidCount; i++) {
+        // Deterministic position within chunk
+        const localX = getSeededRandom(chunkX, chunkY, i * 10 + 3) * 1000;
+        const localY = getSeededRandom(chunkX, chunkY, i * 10 + 4) * 1000;
+        const worldX = chunkWorldX + localX;
+        const worldY = chunkWorldY + localY;
+
+        // Skip if too close to barrier
+        const distanceFromCenter = Math.sqrt(
+          Math.pow(worldX - CENTER_X, 2) + Math.pow(worldY - CENTER_Y, 2),
+        );
+        if (distanceFromCenter < BARRIER_RADIUS + 100) continue;
+
+        // Deterministic properties
+        const velocityAngle =
+          getSeededRandom(chunkX, chunkY, i * 10 + 5) * Math.PI * 2;
+        const speed = 5 + getSeededRandom(chunkX, chunkY, i * 10 + 6) * 15; // 5-20 pixels per second
+        const size = 15 + getSeededRandom(chunkX, chunkY, i * 10 + 7) * 25; // 15-40 pixel radius
+
+        const asteroid: Asteroid = {
+          id: `chunk_${chunkX}_${chunkY}_${i}`,
+          x: normalizeCoord(worldX),
+          y: normalizeCoord(worldY),
+          vx: Math.cos(velocityAngle) * speed,
+          vy: Math.sin(velocityAngle) * speed,
+          size: size,
+          health: 10,
+          maxHealth: 10,
+          rotation: getSeededRandom(chunkX, chunkY, i * 10 + 8) * Math.PI * 2,
+          rotationSpeed:
+            (getSeededRandom(chunkX, chunkY, i * 10 + 9) - 0.5) * 2,
+          createdAt: Date.now(),
+        };
+
+        asteroids.push(asteroid);
+      }
+
+      return asteroids;
+    },
+    [shouldChunkHaveAsteroid, getSeededRandom, normalizeCoord],
+  );
+
+  // Load asteroids around current camera position
+  const loadAsteroidsAroundCamera = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    // Get current camera position and screen dimensions
     const cameraX = gameState.camera.x;
     const cameraY = gameState.camera.y;
-    const screenWidth = canvas.width;
-    const screenHeight = canvas.height;
-    const spawnMargin = 600; // Spawn 600 pixels outside visible area (área maior)
+    const loadRadius = Math.max(canvas.width, canvas.height) + 1000; // Load area larger than screen
 
-    let attempts = 0;
-    let x, y;
+    // Calculate chunk range to load
+    const chunkSize = 1000;
+    const minChunkX = Math.floor((cameraX - loadRadius) / chunkSize);
+    const maxChunkX = Math.floor((cameraX + loadRadius) / chunkSize);
+    const minChunkY = Math.floor((cameraY - loadRadius) / chunkSize);
+    const maxChunkY = Math.floor((cameraY + loadRadius) / chunkSize);
 
-    // Find position outside visible screen and outside barrier
-    do {
-      // Choose a random edge (0=top, 1=right, 2=bottom, 3=left)
-      const edge = Math.floor(Math.random() * 4);
+    // Track which chunks should have asteroids loaded
+    const requiredChunks = new Set<string>();
 
-      switch (edge) {
-        case 0: // Top edge
-          x =
-            cameraX -
-            screenWidth / 2 -
-            spawnMargin +
-            Math.random() * (screenWidth + 2 * spawnMargin);
-          y =
-            cameraY -
-            screenHeight / 2 -
-            spawnMargin -
-            Math.random() * (spawnMargin * 2);
-          break;
-        case 1: // Right edge
-          x =
-            cameraX +
-            screenWidth / 2 +
-            spawnMargin +
-            Math.random() * (spawnMargin * 2);
-          y =
-            cameraY -
-            screenHeight / 2 -
-            spawnMargin +
-            Math.random() * (screenHeight + 2 * spawnMargin);
-          break;
-        case 2: // Bottom edge
-          x =
-            cameraX -
-            screenWidth / 2 -
-            spawnMargin +
-            Math.random() * (screenWidth + 2 * spawnMargin);
-          y =
-            cameraY +
-            screenHeight / 2 +
-            spawnMargin +
-            Math.random() * (spawnMargin * 2);
-          break;
-        case 3: // Left edge
-          x =
-            cameraX -
-            screenWidth / 2 -
-            spawnMargin -
-            Math.random() * (spawnMargin * 2);
-          y =
-            cameraY -
-            screenHeight / 2 -
-            spawnMargin +
-            Math.random() * (screenHeight + 2 * spawnMargin);
-          break;
+    for (let chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
+      for (let chunkY = minChunkY; chunkY <= maxChunkY; chunkY++) {
+        if (shouldChunkHaveAsteroid(chunkX, chunkY)) {
+          requiredChunks.add(`${chunkX}_${chunkY}`);
+        }
       }
-
-      attempts++;
-    } while (isInsideBarrier(x, y) && attempts < 50);
-
-    if (attempts >= 50) {
-      console.log(
-        "Failed to find suitable position for asteroid after 50 attempts",
-      );
-      return; // Could not find suitable position
     }
 
-    // Random velocity (slow drift)
-    const velocityAngle = Math.random() * Math.PI * 2;
-    const speed = 10 + Math.random() * 20; // pixels per second
+    // Remove asteroids from chunks that are no longer needed
+    const beforeCount = asteroidsRef.current.length;
+    asteroidsRef.current = asteroidsRef.current.filter((asteroid) => {
+      if (!asteroid.id.startsWith("chunk_")) return true; // Keep non-chunk asteroids
 
-    const newAsteroid: Asteroid = {
-      id: generateId(),
-      x: normalizeCoord(x),
-      y: normalizeCoord(y),
-      vx: Math.cos(velocityAngle) * speed,
-      vy: Math.sin(velocityAngle) * speed,
-      size: 15 + Math.random() * 25, // 15-40 pixel radius
-      health: 10,
-      maxHealth: 10,
-      rotation: Math.random() * Math.PI * 2,
-      rotationSpeed: (Math.random() - 0.5) * 2, // Random rotation speed
-      createdAt: currentTime,
-    };
+      const [, chunkX, chunkY] = asteroid.id.split("_");
+      const chunkKey = `${chunkX}_${chunkY}`;
+      return requiredChunks.has(chunkKey);
+    });
 
-    asteroidsRef.current.push(newAsteroid);
-    console.log(
-      `New asteroid created at (${Math.round(x)}, ${Math.round(y)}). Total asteroids: ${asteroidsRef.current.length}`,
+    // Add asteroids for chunks that need them
+    const existingChunks = new Set(
+      asteroidsRef.current
+        .filter((a) => a.id.startsWith("chunk_"))
+        .map((a) => {
+          const [, chunkX, chunkY] = a.id.split("_");
+          return `${chunkX}_${chunkY}`;
+        }),
     );
 
-    // Force a re-render to ensure asteroid appears
-    // This isn't typically needed in React but can help debug render issues
-  }, [isInsideBarrier, generateId, normalizeCoord, gameState.camera]);
+    let newAsteroidsAdded = 0;
+    for (const chunkKey of requiredChunks) {
+      if (!existingChunks.has(chunkKey)) {
+        const [chunkX, chunkY] = chunkKey.split("_").map(Number);
+        const newAsteroids = generateAsteroidsForChunk(chunkX, chunkY);
+        asteroidsRef.current.push(...newAsteroids);
+        newAsteroidsAdded += newAsteroids.length;
+      }
+    }
+
+    const afterCount = asteroidsRef.current.length;
+    if (beforeCount !== afterCount) {
+      console.log(
+        `Asteroid chunks updated: ${beforeCount} -> ${afterCount} (${newAsteroidsAdded} added, ${beforeCount - afterCount + newAsteroidsAdded} removed)`,
+      );
+    }
+  }, [gameState.camera, shouldChunkHaveAsteroid, generateAsteroidsForChunk]);
 
   // Create xenocoin when asteroid is destroyed
   const createXenoCoin = useCallback(
