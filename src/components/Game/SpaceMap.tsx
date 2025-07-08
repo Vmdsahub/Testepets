@@ -620,14 +620,14 @@ const SpaceMapComponent: React.FC = () => {
             cameraY -
             screenHeight / 2 -
             spawnMargin -
-            Math.random() * spawnMargin;
+            Math.random() * (spawnMargin * 2);
           break;
         case 1: // Right edge
           x =
             cameraX +
             screenWidth / 2 +
             spawnMargin +
-            Math.random() * spawnMargin;
+            Math.random() * (spawnMargin * 2);
           y =
             cameraY -
             screenHeight / 2 -
@@ -644,14 +644,14 @@ const SpaceMapComponent: React.FC = () => {
             cameraY +
             screenHeight / 2 +
             spawnMargin +
-            Math.random() * spawnMargin;
+            Math.random() * (spawnMargin * 2);
           break;
         case 3: // Left edge
           x =
             cameraX -
             screenWidth / 2 -
             spawnMargin -
-            Math.random() * spawnMargin;
+            Math.random() * (spawnMargin * 2);
           y =
             cameraY -
             screenHeight / 2 -
