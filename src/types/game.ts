@@ -214,6 +214,8 @@ export interface ExplorationPoint {
   imageUrl: string;
   description?: string;
   discovered: boolean;
+  size?: number; // Size multiplier (default 1.0)
+  active?: boolean; // Whether point is active/visible (default true)
 }
 
 export interface ExplorationArea {

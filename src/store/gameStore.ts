@@ -39,6 +39,15 @@ interface GameStore extends GameState {
   generateExplorationPoints: (planetId: string) => ExplorationPoint[];
   getExplorationArea: (pointId: string) => ExplorationArea;
 
+  // Planet editing mode (admin only)
+  isPlanetEditMode: boolean;
+  setPlanetEditMode: (enabled: boolean) => void;
+  updateExplorationPoint: (
+    pointId: string,
+    updates: Partial<ExplorationPoint>,
+  ) => void;
+  toggleExplorationPointActive: (pointId: string) => void;
+
   // World editing mode
   isWorldEditMode: boolean;
   setWorldEditMode: (enabled: boolean) => void;
@@ -720,6 +729,9 @@ export const useGameStore = create<GameStore>()(
       currentExplorationArea: null,
       explorationPoints: [],
 
+      // Planet editing state
+      isPlanetEditMode: false,
+
       // Egg selection and hatching state
       selectedEggForHatching: null,
       isHatchingInProgress: false,
@@ -886,6 +898,8 @@ export const useGameStore = create<GameStore>()(
             "https://cdn.builder.io/api/v1/image/assets%2F6b84993f22904beeb2e1d8d2f128c032%2Faaff2921868f4bbfb24be01b9fdfa6a1?format=webp&width=800",
           description: `Uma área fascinante conhecida como ${name}. Este local oferece uma experiência única de exploração.`,
           discovered: false,
+          size: 1.0,
+          active: true,
         }));
 
         set({ explorationPoints: points });
@@ -908,6 +922,28 @@ export const useGameStore = create<GameStore>()(
         };
 
         return area;
+      },
+
+      // Planet editing functions (admin only)
+      setPlanetEditMode: (enabled) => {
+        console.log("🌍 Planet edit mode:", enabled ? "enabled" : "disabled");
+        set({ isPlanetEditMode: enabled });
+      },
+
+      updateExplorationPoint: (pointId, updates) => {
+        set((state) => ({
+          explorationPoints: state.explorationPoints.map((point) =>
+            point.id === pointId ? { ...point, ...updates } : point,
+          ),
+        }));
+      },
+
+      toggleExplorationPointActive: (pointId) => {
+        set((state) => ({
+          explorationPoints: state.explorationPoints.map((point) =>
+            point.id === pointId ? { ...point, active: !point.active } : point,
+          ),
+        }));
       },
 
       // Egg selection and hatching actions
