@@ -1646,6 +1646,21 @@ const SpaceMapComponent: React.FC = () => {
     };
   }, []);
 
+  // Load asteroid image
+  useEffect(() => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.src =
+      "https://cdn.builder.io/api/v1/image/assets%2F6b84993f22904beeb2e1d8d2f128c032%2Faaff2921868f4bbfb24be01b9fdfa6a1?format=webp&width=800";
+    img.onload = () => {
+      asteroidImageRef.current = img;
+      console.log("Asteroid image loaded successfully");
+    };
+    img.onerror = () => {
+      console.error("Failed to load asteroid image");
+    };
+  }, []);
+
   // Initialize game objects once
   useEffect(() => {
     generateRichStarField();
