@@ -172,6 +172,7 @@ const SpaceMapComponent: React.FC = () => {
     worldPositions,
     loadWorldPositions,
     updateWorldPosition,
+    addNotification,
   } = useGameStore();
   const { saveShipState, forceSaveShipState } = useShipStatePersistence();
   const canvasRef = useRef<HTMLCanvasElement>(null);
