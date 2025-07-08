@@ -2719,6 +2719,58 @@ const SpaceMapComponent: React.FC = () => {
         }
       });
 
+      // Render asteroids
+      const asteroidsForRender = asteroidsRef.current;
+      for (let i = 0; i < asteroidsForRender.length; i++) {
+        const asteroid = asteroidsForRender[i];
+        const wrappedDeltaX = getWrappedDistance(
+          asteroid.x,
+          gameState.camera.x,
+        );
+        const wrappedDeltaY = getWrappedDistance(
+          asteroid.y,
+          gameState.camera.y,
+        );
+        const screenX = centerX + wrappedDeltaX;
+        const screenY = centerY + wrappedDeltaY;
+
+        // Only render if on screen
+        if (
+          screenX >= -asteroid.size &&
+          screenX <= canvas.width + asteroid.size &&
+          screenY >= -asteroid.size &&
+          screenY <= canvas.height + asteroid.size
+        ) {
+          drawAsteroid(ctx, asteroid, screenX, screenY);
+        }
+      }
+
+      // Render xenocoins
+      const xenoCoinsForRender = xenoCoinsRef.current;
+      for (let i = 0; i < xenoCoinsForRender.length; i++) {
+        const xenoCoin = xenoCoinsForRender[i];
+        const wrappedDeltaX = getWrappedDistance(
+          xenoCoin.x,
+          gameState.camera.x,
+        );
+        const wrappedDeltaY = getWrappedDistance(
+          xenoCoin.y,
+          gameState.camera.y,
+        );
+        const screenX = centerX + wrappedDeltaX;
+        const screenY = centerY + wrappedDeltaY;
+
+        // Only render if on screen
+        if (
+          screenX >= -xenoCoin.size * 2 &&
+          screenX <= canvas.width + xenoCoin.size * 2 &&
+          screenY >= -xenoCoin.size * 2 &&
+          screenY <= canvas.height + xenoCoin.size * 2
+        ) {
+          drawXenoCoin(ctx, xenoCoin, screenX, screenY);
+        }
+      }
+
       // Render projectiles as bright energy beams - optimized with for loop
       const projectilesForRender = projectilesRef.current;
       for (let i = 0; i < projectilesForRender.length; i++) {
