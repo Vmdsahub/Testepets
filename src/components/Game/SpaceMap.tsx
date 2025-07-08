@@ -207,6 +207,7 @@ const SpaceMapComponent: React.FC = () => {
   });
   const lastRadarPulseTime = useRef<Map<string, number>>(new Map());
   const planetImagesRef = useRef<Map<string, HTMLImageElement>>(new Map());
+  const asteroidImageRef = useRef<HTMLImageElement | null>(null);
   const shipImageRef = useRef<HTMLImageElement | null>(null);
   const movementSoundActiveRef = useRef<boolean>(false);
   const shouldHideShipRef = useRef<boolean>(false);
@@ -781,58 +782,45 @@ const SpaceMapComponent: React.FC = () => {
       screenX: number,
       screenY: number,
     ) => {
+      const img = asteroidImageRef.current;
+
+      if (!img || !img.complete) {
+        // Fallback to simple circle if image not loaded
+        ctx.save();
+        ctx.translate(screenX, screenY);
+
+        // Health-based color (red = damaged, gray = healthy)
+        const healthRatio = asteroid.health / asteroid.maxHealth;
+        const red = Math.floor(100 + 155 * (1 - healthRatio));
+        const green = Math.floor(60 + 40 * healthRatio);
+        const blue = Math.floor(60 + 40 * healthRatio);
+
+        ctx.fillStyle = `rgb(${red}, ${green}, ${blue})`;
+        ctx.beginPath();
+        ctx.arc(0, 0, asteroid.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "#333";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.restore();
+        return;
+      }
+
       ctx.save();
       ctx.translate(screenX, screenY);
       ctx.rotate(asteroid.rotation);
 
-      // Draw asteroid shape (irregular rock)
-      const sides = 8;
-      const baseSize = asteroid.size;
-
-      ctx.beginPath();
-      for (let i = 0; i < sides; i++) {
-        const angle = (i / sides) * Math.PI * 2;
-        // Use deterministic variation based on asteroid ID and vertex index
-        const seed = asteroid.id.charCodeAt(i % asteroid.id.length);
-        const radiusVariation = 0.7 + ((seed + i * 7) % 60) / 100; // 0.7 to 1.3
-        const radius = baseSize * radiusVariation;
-        const x = Math.cos(angle) * radius;
-        const y = Math.sin(angle) * radius;
-
-        if (i === 0) {
-          ctx.moveTo(x, y);
-        } else {
-          ctx.lineTo(x, y);
-        }
-      }
-      ctx.closePath();
-
-      // Health-based color (red = damaged, gray = healthy)
+      // Health-based tinting (damaged asteroids become more red)
       const healthRatio = asteroid.health / asteroid.maxHealth;
-      const red = Math.floor(100 + 155 * (1 - healthRatio));
-      const green = Math.floor(60 + 40 * healthRatio);
-      const blue = Math.floor(60 + 40 * healthRatio);
+      if (healthRatio < 1) {
+        const damageAmount = 1 - healthRatio;
+        ctx.filter = `hue-rotate(${damageAmount * 30}deg) brightness(${1 - damageAmount * 0.3})`;
+      }
 
-      ctx.fillStyle = `rgb(${red}, ${green}, ${blue})`;
-      ctx.fill();
-      ctx.strokeStyle = "#333";
-      ctx.lineWidth = 2;
-      ctx.stroke();
-
-      // Add some surface details
-      ctx.fillStyle = `rgba(${red * 0.8}, ${green * 0.8}, ${blue * 0.8}, 0.7)`;
-      ctx.beginPath();
-      ctx.arc(
-        -baseSize * 0.3,
-        -baseSize * 0.2,
-        baseSize * 0.15,
-        0,
-        Math.PI * 2,
-      );
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(baseSize * 0.2, baseSize * 0.3, baseSize * 0.1, 0, Math.PI * 2);
-      ctx.fill();
+      // Draw asteroid image scaled to asteroid size
+      const imageSize = asteroid.size * 2; // Diameter
+      ctx.drawImage(img, -imageSize / 2, -imageSize / 2, imageSize, imageSize);
 
       ctx.restore();
     },
