@@ -715,6 +715,11 @@ export const useGameStore = create<GameStore>()(
       // World positions state
       worldPositions: [],
 
+      // Exploration system state
+      currentExplorationPoint: null,
+      currentExplorationArea: null,
+      explorationPoints: [],
+
       // Egg selection and hatching state
       selectedEggForHatching: null,
       isHatchingInProgress: false,
