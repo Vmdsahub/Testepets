@@ -80,6 +80,35 @@ interface ShootingStar {
   tailLength: number;
 }
 
+interface Asteroid {
+  id: string;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  size: number;
+  health: number;
+  maxHealth: number;
+  rotation: number;
+  rotationSpeed: number;
+  createdAt: number;
+}
+
+interface XenoCoin {
+  id: string;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  size: number;
+  value: number;
+  rotation: number;
+  rotationSpeed: number;
+  pulsatePhase: number;
+  createdAt: number;
+  lifespan: number;
+}
+
 interface RadarPulse {
   planetId: string;
   radius: number;

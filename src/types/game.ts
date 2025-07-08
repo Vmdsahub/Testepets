@@ -205,6 +205,35 @@ export interface WorldPosition {
   updatedAt: Date;
 }
 
+export interface Asteroid {
+  id: string;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  size: number;
+  health: number;
+  maxHealth: number;
+  rotation: number;
+  rotationSpeed: number;
+  createdAt: number;
+}
+
+export interface XenoCoin {
+  id: string;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  size: number;
+  value: number;
+  rotation: number;
+  rotationSpeed: number;
+  pulsatePhase: number;
+  createdAt: number;
+  lifespan: number;
+}
+
 export interface GameState {
   user: User | null;
   activePet: Pet | null;
@@ -229,6 +258,8 @@ export interface GameState {
     cameraX: number;
     cameraY: number;
   };
+  asteroids?: Asteroid[];
+  xenoCoins?: XenoCoin[];
 }
 
 export interface Notification {
