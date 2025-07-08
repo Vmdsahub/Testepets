@@ -1564,7 +1564,7 @@ const SpaceMapComponent: React.FC = () => {
     ];
 
     const planetNames = [
-      "Estaç��o Gal��ctica",
+      "Estaç����o Gal��ctica",
       "Base Orbital",
       "Mundo Alienígena",
       "Terra Verdejante",
@@ -2510,6 +2510,9 @@ const SpaceMapComponent: React.FC = () => {
             Math.abs(dx) > screenWidth / 2 + cleanupMargin ||
             Math.abs(dy) > screenHeight / 2 + cleanupMargin
           ) {
+            console.log(
+              `Asteroid ${asteroid.id} removed: too far from screen (${Math.round(Math.abs(dx))}, ${Math.round(Math.abs(dy))})`,
+            );
             asteroids.splice(i, 1);
             continue;
           }
