@@ -677,7 +677,7 @@ const SpaceMapComponent: React.FC = () => {
     };
 
     asteroidsRef.current.push(newAsteroid);
-  }, [isInsideBarrier, generateId, normalizeCoord]);
+  }, [isInsideBarrier, generateId, normalizeCoord, gameState.camera]);
 
   // Create xenocoin when asteroid is destroyed
   const createXenoCoin = useCallback(
