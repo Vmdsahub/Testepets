@@ -124,10 +124,42 @@ export const PlanetScreen: React.FC = () => {
   return (
     <div className="max-w-2xl mx-auto pb-24">
       <div className="bg-white rounded-3xl shadow-xl p-4">
-        <h1 className="text-2xl font-bold text-gray-800 mb-4 text-center">
-          {currentPlanet.name}
-        </h1>
-        <div className="w-full h-[calc(100vh-280px)] sm:h-[calc(100vh-300px)] md:h-[calc(100vh-320px)] lg:h-[calc(100vh-340px)] relative rounded-2xl overflow-hidden">
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-2xl font-bold text-gray-800 text-center flex-1">
+            {currentPlanet.name}
+          </h1>
+
+          {/* Admin Edit Button */}
+          {user?.isAdmin && (
+            <motion.button
+              onClick={() => setPlanetEditMode(!isPlanetEditMode)}
+              className={`p-2 rounded-full transition-colors ${
+                isPlanetEditMode
+                  ? "bg-green-100 text-green-600 hover:bg-green-200"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+            >
+              {isPlanetEditMode ? (
+                <Save className="w-5 h-5" />
+              ) : (
+                <Edit3 className="w-5 h-5" />
+              )}
+            </motion.button>
+          )}
+        </div>
+        <div
+          ref={containerRef}
+          className={`w-full h-[calc(100vh-280px)] sm:h-[calc(100vh-300px)] md:h-[calc(100vh-320px)] lg:h-[calc(100vh-340px)] relative rounded-2xl overflow-hidden ${
+            isPlanetEditMode
+              ? "border-2 border-dashed border-blue-400 bg-blue-50/20"
+              : ""
+          }`}
+          onMouseMove={handleDrag}
+          onMouseUp={handleDragEnd}
+          onMouseLeave={handleDragEnd}
+        >
           <motion.img
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -137,36 +169,109 @@ export const PlanetScreen: React.FC = () => {
             className="w-full h-full object-cover"
           />
 
+          {/* Edit mode overlay */}
+          {isPlanetEditMode && (
+            <div className="absolute top-2 left-2 bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+              Modo de Edição
+            </div>
+          )}
+
           {/* Exploration Points */}
           {explorationPoints
             .filter((point) => point.planetId === currentPlanet.id)
-            .map((point, index) => (
-              <motion.button
-                key={point.id}
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.8 + index * 0.2, duration: 0.4 }}
-                onClick={() => handleExplorationPointClick(point)}
-                className="absolute transform -translate-x-1/2 -translate-y-1/2 group"
-                style={{
-                  left: `${point.x}%`,
-                  top: `${point.y}%`,
-                }}
-                whileHover={{ scale: 1.2 }}
-                whileTap={{ scale: 0.9 }}
-              >
-                {/* Main point */}
-                <div className="relative w-6 h-6 bg-blue-500 rounded-full border-2 border-white shadow-lg flex items-center justify-center">
-                  <MapPin className="w-3 h-3 text-white" />
-                </div>
+            .filter((point) => isPlanetEditMode || point.active !== false) // Show all in edit mode, only active in normal mode
+            .map((point, index) => {
+              const size = point.size || 1.0;
+              const isActive = point.active !== false;
+              const isDragging = draggedPoint === point.id;
 
-                {/* Tooltip */}
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-black bg-opacity-80 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
-                  {point.name}
-                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-black border-opacity-80"></div>
+              return (
+                <div
+                  key={point.id}
+                  className="absolute transform -translate-x-1/2 -translate-y-1/2"
+                  style={{
+                    left: `${point.x}%`,
+                    top: `${point.y}%`,
+                  }}
+                >
+                  {/* Main exploration point */}
+                  <motion.button
+                    initial={{ opacity: 0, scale: 0 }}
+                    animate={{
+                      opacity: isPlanetEditMode ? (isActive ? 1 : 0.5) : 1,
+                      scale: size,
+                    }}
+                    transition={{ delay: 0.8 + index * 0.2, duration: 0.4 }}
+                    onClick={() => handleExplorationPointClick(point)}
+                    onMouseDown={(e) => handleDragStart(e, point)}
+                    className={`group relative ${isPlanetEditMode ? "cursor-move" : "cursor-pointer"} ${
+                      isDragging ? "z-50" : ""
+                    }`}
+                    whileHover={!isPlanetEditMode ? { scale: size * 1.2 } : {}}
+                    whileTap={!isPlanetEditMode ? { scale: size * 0.9 } : {}}
+                    style={{
+                      transform: isDragging ? "scale(1.1)" : undefined,
+                    }}
+                  >
+                    {/* Main point */}
+                    <div
+                      className={`relative w-6 h-6 rounded-full border-2 border-white shadow-lg flex items-center justify-center ${
+                        isActive ? "bg-blue-500" : "bg-gray-400"
+                      } ${isPlanetEditMode ? "ring-2 ring-blue-300" : ""}`}
+                    >
+                      <MapPin className="w-3 h-3 text-white" />
+                    </div>
+
+                    {/* Tooltip */}
+                    {!isPlanetEditMode && (
+                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-black bg-opacity-80 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
+                        {point.name}
+                        <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-black border-opacity-80"></div>
+                      </div>
+                    )}
+                  </motion.button>
+
+                  {/* Edit controls */}
+                  {isPlanetEditMode && (
+                    <div className="absolute top-8 left-1/2 transform -translate-x-1/2 bg-white rounded-lg shadow-lg p-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-auto">
+                      {/* Size controls */}
+                      <button
+                        onClick={() => handleSizeChange(point.id, -0.1)}
+                        className="p-1 hover:bg-gray-100 rounded"
+                        title="Diminuir"
+                      >
+                        <Minus className="w-3 h-3" />
+                      </button>
+
+                      <span className="text-xs font-mono px-1">
+                        {(size * 100).toFixed(0)}%
+                      </span>
+
+                      <button
+                        onClick={() => handleSizeChange(point.id, 0.1)}
+                        className="p-1 hover:bg-gray-100 rounded"
+                        title="Aumentar"
+                      >
+                        <Plus className="w-3 h-3" />
+                      </button>
+
+                      {/* Active toggle */}
+                      <button
+                        onClick={() => handleToggleActive(point.id)}
+                        className={`p-1 rounded ${isActive ? "text-green-600 hover:bg-green-100" : "text-gray-400 hover:bg-gray-100"}`}
+                        title={isActive ? "Desativar" : "Ativar"}
+                      >
+                        {isActive ? (
+                          <Eye className="w-3 h-3" />
+                        ) : (
+                          <EyeOff className="w-3 h-3" />
+                        )}
+                      </button>
+                    </div>
+                  )}
                 </div>
-              </motion.button>
-            ))}
+              );
+            })}
         </div>
 
         <div className="flex justify-center mt-4">
