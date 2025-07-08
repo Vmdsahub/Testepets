@@ -617,7 +617,7 @@ const SpaceMapComponent: React.FC = () => {
     };
 
     asteroidsRef.current.push(newAsteroid);
-  }, [isInsideBarrier, generateId, normalizeCoordinate]);
+  }, [isInsideBarrier, generateId, normalizeCoord]);
 
   // Create xenocoin when asteroid is destroyed
   const createXenoCoin = useCallback(
@@ -639,7 +639,7 @@ const SpaceMapComponent: React.FC = () => {
 
       xenoCoinsRef.current.push(newXenoCoin);
     },
-    [generateId, normalizeCoordinate],
+    [generateId, normalizeCoord],
   );
 
   // Check collision between projectile and asteroid
@@ -2396,10 +2396,10 @@ const SpaceMapComponent: React.FC = () => {
         const asteroid = asteroids[i];
 
         // Update position
-        asteroid.x = normalizeCoordinate(
+        asteroid.x = normalizeCoord(
           asteroid.x + asteroid.vx * projectileDeltaTime,
         );
-        asteroid.y = normalizeCoordinate(
+        asteroid.y = normalizeCoord(
           asteroid.y + asteroid.vy * projectileDeltaTime,
         );
         asteroid.rotation += asteroid.rotationSpeed * projectileDeltaTime;
