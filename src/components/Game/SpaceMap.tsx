@@ -2530,8 +2530,28 @@ const SpaceMapComponent: React.FC = () => {
         // Check collection by ship
         if (checkShipXenoCoinCollision(gameState.ship, xenoCoin)) {
           // Collect xenocoin
-          updateCurrency("xenocoins", xenoCoin.value);
+          console.log(`Collecting xenocoin worth ${xenoCoin.value} xenocoins`);
+
+          // Use the updateCurrency function from gameStore
+          updateCurrency("xenocoins", xenoCoin.value)
+            .then((success) => {
+              if (success) {
+                console.log(
+                  `Successfully added ${xenoCoin.value} xenocoins to player account`,
+                );
+              } else {
+                console.error("Failed to update xenocoins in database");
+              }
+            })
+            .catch((error) => {
+              console.error("Error updating xenocoins:", error);
+            });
+
+          // Remove xenocoin immediately for responsive gameplay
           xenoCoins.splice(i, 1);
+
+          // Optional: Play collection sound or show visual feedback
+          // playCollectionSound().catch(() => {});
         }
       }
 
