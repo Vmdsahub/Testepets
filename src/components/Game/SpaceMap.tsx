@@ -683,7 +683,9 @@ const SpaceMapComponent: React.FC = () => {
       ctx.beginPath();
       for (let i = 0; i < sides; i++) {
         const angle = (i / sides) * Math.PI * 2;
-        const radiusVariation = 0.7 + Math.random() * 0.6; // 0.7 to 1.3
+        // Use deterministic variation based on asteroid ID and vertex index
+        const seed = asteroid.id.charCodeAt(i % asteroid.id.length);
+        const radiusVariation = 0.7 + ((seed + i * 7) % 60) / 100; // 0.7 to 1.3
         const radius = baseSize * radiusVariation;
         const x = Math.cos(angle) * radius;
         const y = Math.sin(angle) * radius;
