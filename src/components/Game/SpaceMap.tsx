@@ -604,8 +604,8 @@ const SpaceMapComponent: React.FC = () => {
 
     const newAsteroid: Asteroid = {
       id: generateId(),
-      x: normalizeCoordinate(x),
-      y: normalizeCoordinate(y),
+      x: normalizeCoord(x),
+      y: normalizeCoord(y),
       vx: Math.cos(velocityAngle) * speed,
       vy: Math.sin(velocityAngle) * speed,
       size: 15 + Math.random() * 25, // 15-40 pixel radius
@@ -624,8 +624,8 @@ const SpaceMapComponent: React.FC = () => {
     (x: number, y: number) => {
       const newXenoCoin: XenoCoin = {
         id: generateId(),
-        x: normalizeCoordinate(x),
-        y: normalizeCoordinate(y),
+        x: normalizeCoord(x),
+        y: normalizeCoord(y),
         vx: 0,
         vy: 0,
         size: 8,
