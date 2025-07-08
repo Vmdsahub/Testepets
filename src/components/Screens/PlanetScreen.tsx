@@ -274,9 +274,45 @@ export const PlanetScreen: React.FC = () => {
             })}
         </div>
 
+        {/* Edit mode info panel */}
+        {isPlanetEditMode && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4"
+          >
+            <h4 className="font-semibold text-blue-900 mb-2">
+              Modo de Edição Ativo
+            </h4>
+            <div className="text-blue-800 text-sm space-y-1">
+              <p>
+                • <strong>Arrastar:</strong> Clique e arraste os ícones para
+                reposicionar
+              </p>
+              <p>
+                • <strong>Redimensionar:</strong> Use + / - nos controles que
+                aparecem ao passar o mouse
+              </p>
+              <p>
+                • <strong>Ativar/Desativar:</strong> Use o ícone de olho para
+                mostrar/ocultar pontos
+              </p>
+              <p>
+                • <strong>Salvar:</strong> Clique no ícone de salvar no
+                cabeçalho para sair do modo de edição
+              </p>
+            </div>
+          </motion.div>
+        )}
+
         <div className="flex justify-center mt-4">
           <motion.button
-            onClick={() => setCurrentScreen("world")}
+            onClick={() => {
+              if (isPlanetEditMode) {
+                setPlanetEditMode(false);
+              }
+              setCurrentScreen("world");
+            }}
             className="p-3 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors"
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
