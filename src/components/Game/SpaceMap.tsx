@@ -2490,17 +2490,12 @@ const SpaceMapComponent: React.FC = () => {
       // Update NPC ship
       npcShip.updateShip(projectileDeltaTime * 1000); // Convert to milliseconds
 
-      // Spawn asteroids periodically
+      // Load asteroids around camera (chunk-based system)
       if (
         currentTime - lastAsteroidSpawnTime.current >
         ASTEROID_SPAWN_INTERVAL
       ) {
-        const beforeCount = asteroidsRef.current.length;
-        createAsteroid();
-        const afterCount = asteroidsRef.current.length;
-        console.log(
-          `Asteroid spawn attempt: ${beforeCount} -> ${afterCount} (Max: ${MAX_ASTEROIDS})`,
-        );
+        loadAsteroidsAroundCamera();
         lastAsteroidSpawnTime.current = currentTime;
       }
 
