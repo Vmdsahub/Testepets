@@ -109,6 +109,22 @@ interface XenoCoin {
   lifespan: number;
 }
 
+interface Particle {
+  id: string;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  size: number;
+  life: number;
+  maxLife: number;
+  color: string;
+  type: "damage" | "explosion" | "debris";
+  opacity: number;
+  rotation: number;
+  rotationSpeed: number;
+}
+
 interface RadarPulse {
   planetId: string;
   radius: number;
@@ -188,6 +204,7 @@ const SpaceMapComponent: React.FC = () => {
   const trailPointsRef = useRef<TrailPoint[]>([]);
   const asteroidsRef = useRef<Asteroid[]>([]);
   const xenoCoinsRef = useRef<XenoCoin[]>([]);
+  const particlesRef = useRef<Particle[]>([]);
   const lastTrailTime = useRef<number>(0);
   const lastShootingStarTime = useRef(0);
   const lastShootTime = useRef(0);
@@ -579,6 +596,174 @@ const SpaceMapComponent: React.FC = () => {
   const generateId = useCallback(() => {
     return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   }, []);
+
+  // Create damage particles when asteroid takes damage
+  const createDamageParticles = useCallback(
+    (x: number, y: number) => {
+      const particleCount = 3 + Math.random() * 4; // 3-7 particles
+
+      for (let i = 0; i < particleCount; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 30 + Math.random() * 50; // pixels per second
+        const size = 2 + Math.random() * 3;
+
+        const particle: Particle = {
+          id: generateId(),
+          x: normalizeCoord(x + (Math.random() - 0.5) * 20),
+          y: normalizeCoord(y + (Math.random() - 0.5) * 20),
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          size: size,
+          life: 0.5 + Math.random() * 0.5, // 0.5-1 second
+          maxLife: 0.5 + Math.random() * 0.5,
+          color: "#FFD700", // Golden color for damage
+          type: "damage",
+          opacity: 1,
+          rotation: Math.random() * Math.PI * 2,
+          rotationSpeed: (Math.random() - 0.5) * 10,
+        };
+
+        particlesRef.current.push(particle);
+      }
+    },
+    [generateId, normalizeCoord],
+  );
+
+  // Create explosion particles when asteroid is destroyed
+  const createExplosionParticles = useCallback(
+    (x: number, y: number, isBarrierExplosion: boolean = false) => {
+      const particleCount = isBarrierExplosion
+        ? 15 + Math.random() * 10
+        : 8 + Math.random() * 7; // More particles for barrier explosion
+
+      for (let i = 0; i < particleCount; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = isBarrierExplosion
+          ? 80 + Math.random() * 120
+          : 50 + Math.random() * 80;
+        const size = isBarrierExplosion
+          ? 3 + Math.random() * 6
+          : 2 + Math.random() * 4;
+        const lifespan = isBarrierExplosion
+          ? 1 + Math.random() * 1
+          : 0.8 + Math.random() * 0.7;
+
+        // Mix of colors for explosion
+        const colors = isBarrierExplosion
+          ? ["#FF6B35", "#FF8E53", "#FF4500", "#FFD700", "#FFA500"]
+          : ["#FF6B35", "#FF8E53", "#FFD700", "#C0C0C0"];
+        const color = colors[Math.floor(Math.random() * colors.length)];
+
+        const particle: Particle = {
+          id: generateId(),
+          x: normalizeCoord(x + (Math.random() - 0.5) * 30),
+          y: normalizeCoord(y + (Math.random() - 0.5) * 30),
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          size: size,
+          life: lifespan,
+          maxLife: lifespan,
+          color: color,
+          type: isBarrierExplosion ? "explosion" : "debris",
+          opacity: 1,
+          rotation: Math.random() * Math.PI * 2,
+          rotationSpeed: (Math.random() - 0.5) * 15,
+        };
+
+        particlesRef.current.push(particle);
+      }
+
+      // Add a few larger debris pieces for destruction
+      if (!isBarrierExplosion) {
+        for (let i = 0; i < 3; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const speed = 20 + Math.random() * 40;
+
+          const debris: Particle = {
+            id: generateId(),
+            x: normalizeCoord(x),
+            y: normalizeCoord(y),
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            size: 4 + Math.random() * 3,
+            life: 1.5 + Math.random() * 1,
+            maxLife: 1.5 + Math.random() * 1,
+            color: "#8B4513", // Brown debris
+            type: "debris",
+            opacity: 1,
+            rotation: Math.random() * Math.PI * 2,
+            rotationSpeed: (Math.random() - 0.5) * 8,
+          };
+
+          particlesRef.current.push(debris);
+        }
+      }
+    },
+    [generateId, normalizeCoord],
+  );
+
+  // Draw particle
+  const drawParticle = useCallback(
+    (
+      ctx: CanvasRenderingContext2D,
+      particle: Particle,
+      screenX: number,
+      screenY: number,
+    ) => {
+      const lifeRatio = particle.life / particle.maxLife;
+      const alpha = particle.opacity * lifeRatio;
+
+      if (alpha <= 0) return;
+
+      ctx.save();
+      ctx.translate(screenX, screenY);
+      ctx.rotate(particle.rotation);
+      ctx.globalAlpha = alpha;
+
+      if (particle.type === "explosion") {
+        // Explosion particles with glow
+        ctx.shadowColor = particle.color;
+        ctx.shadowBlur = particle.size * 2;
+        ctx.fillStyle = particle.color;
+        ctx.beginPath();
+        ctx.arc(0, 0, particle.size * lifeRatio, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Inner bright core
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = "#FFFFFF";
+        ctx.beginPath();
+        ctx.arc(0, 0, particle.size * lifeRatio * 0.4, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (particle.type === "damage") {
+        // Sparkling damage particles
+        ctx.fillStyle = particle.color;
+        ctx.shadowColor = particle.color;
+        ctx.shadowBlur = particle.size;
+
+        // Draw as small diamond
+        ctx.beginPath();
+        ctx.moveTo(0, -particle.size);
+        ctx.lineTo(particle.size, 0);
+        ctx.lineTo(0, particle.size);
+        ctx.lineTo(-particle.size, 0);
+        ctx.closePath();
+        ctx.fill();
+      } else {
+        // Debris particles
+        ctx.fillStyle = particle.color;
+        ctx.fillRect(
+          -particle.size / 2,
+          -particle.size / 2,
+          particle.size,
+          particle.size,
+        );
+      }
+
+      ctx.restore();
+    },
+    [],
+  );
 
   // Generate a deterministic random seed based on coordinates
   const getSeededRandom = useCallback(
