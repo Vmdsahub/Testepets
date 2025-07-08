@@ -2379,6 +2379,79 @@ const SpaceMapComponent: React.FC = () => {
       // Update NPC ship
       npcShip.updateShip(projectileDeltaTime * 1000); // Convert to milliseconds
 
+      // Spawn asteroids periodically
+      if (
+        currentTime - lastAsteroidSpawnTime.current >
+        ASTEROID_SPAWN_INTERVAL
+      ) {
+        createAsteroid();
+        lastAsteroidSpawnTime.current = currentTime;
+      }
+
+      // Update asteroids
+      const asteroids = asteroidsRef.current;
+      for (let i = asteroids.length - 1; i >= 0; i--) {
+        const asteroid = asteroids[i];
+
+        // Update position
+        asteroid.x = normalizeCoordinate(
+          asteroid.x + asteroid.vx * projectileDeltaTime,
+        );
+        asteroid.y = normalizeCoordinate(
+          asteroid.y + asteroid.vy * projectileDeltaTime,
+        );
+        asteroid.rotation += asteroid.rotationSpeed * projectileDeltaTime;
+
+        // Check if asteroid entered barrier (remove if it did)
+        if (isInsideBarrier(asteroid.x, asteroid.y)) {
+          asteroids.splice(i, 1);
+          continue;
+        }
+
+        // Check projectile collisions
+        const projectiles = projectilesRef.current;
+        for (let j = projectiles.length - 1; j >= 0; j--) {
+          const projectile = projectiles[j];
+          if (checkProjectileAsteroidCollision(projectile, asteroid)) {
+            // Remove projectile
+            projectiles.splice(j, 1);
+
+            // Damage asteroid
+            asteroid.health -= 1;
+
+            if (asteroid.health <= 0) {
+              // Asteroid destroyed - create xenocoin
+              createXenoCoin(asteroid.x, asteroid.y);
+              asteroids.splice(i, 1);
+              break;
+            }
+          }
+        }
+      }
+
+      // Update xenocoins
+      const xenoCoins = xenoCoinsRef.current;
+      for (let i = xenoCoins.length - 1; i >= 0; i--) {
+        const xenoCoin = xenoCoins[i];
+
+        // Update rotation and animation
+        xenoCoin.rotation += xenoCoin.rotationSpeed * projectileDeltaTime;
+
+        // Check lifespan
+        const age = currentTime - xenoCoin.createdAt;
+        if (age > xenoCoin.lifespan) {
+          xenoCoins.splice(i, 1);
+          continue;
+        }
+
+        // Check collection by ship
+        if (checkShipXenoCoinCollision(gameState.ship, xenoCoin)) {
+          // Collect xenocoin
+          updateCurrency("xenocoins", xenoCoin.value);
+          xenoCoins.splice(i, 1);
+        }
+      }
+
       // Create shooting stars less frequently for better performance - even less for large canvas
       const shootingStarInterval = isLargeCanvas
         ? 25000 + Math.random() * 35000
