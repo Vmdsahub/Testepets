@@ -1,6 +1,18 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Globe, Star, MapPin } from "lucide-react";
+import {
+  ArrowLeft,
+  Globe,
+  Star,
+  MapPin,
+  Edit3,
+  Save,
+  X,
+  Plus,
+  Minus,
+  Eye,
+  EyeOff,
+} from "lucide-react";
 import { useGameStore } from "../../store/gameStore";
 import { ExplorationPoint } from "../../types/game";
 
@@ -17,7 +29,16 @@ export const PlanetScreen: React.FC = () => {
     explorationPoints,
     generateExplorationPoints,
     setCurrentExplorationPoint,
+    user,
+    isPlanetEditMode,
+    setPlanetEditMode,
+    updateExplorationPoint,
+    toggleExplorationPointActive,
   } = useGameStore();
+
+  const [draggedPoint, setDraggedPoint] = useState<string | null>(null);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const containerRef = useRef<HTMLDivElement>(null);
 
   if (!currentPlanet) {
     return null;
@@ -32,8 +53,67 @@ export const PlanetScreen: React.FC = () => {
 
   // Handle exploration point click
   const handleExplorationPointClick = (point: ExplorationPoint) => {
+    if (isPlanetEditMode) return; // Don't navigate in edit mode
     setCurrentExplorationPoint(point);
     setCurrentScreen("exploration");
+  };
+
+  // Handle drag start
+  const handleDragStart = (e: React.MouseEvent, point: ExplorationPoint) => {
+    if (!isPlanetEditMode || !user?.isAdmin) return;
+
+    e.preventDefault();
+    setDraggedPoint(point.id);
+
+    const container = containerRef.current;
+    if (container) {
+      const rect = container.getBoundingClientRect();
+      const pointX = (point.x / 100) * rect.width;
+      const pointY = (point.y / 100) * rect.height;
+
+      setDragOffset({
+        x: e.clientX - rect.left - pointX,
+        y: e.clientY - rect.top - pointY,
+      });
+    }
+  };
+
+  // Handle drag
+  const handleDrag = (e: React.MouseEvent) => {
+    if (!draggedPoint || !containerRef.current) return;
+
+    e.preventDefault();
+    const container = containerRef.current;
+    const rect = container.getBoundingClientRect();
+
+    const newX = ((e.clientX - rect.left - dragOffset.x) / rect.width) * 100;
+    const newY = ((e.clientY - rect.top - dragOffset.y) / rect.height) * 100;
+
+    // Clamp to container bounds
+    const clampedX = Math.max(0, Math.min(100, newX));
+    const clampedY = Math.max(0, Math.min(100, newY));
+
+    updateExplorationPoint(draggedPoint, { x: clampedX, y: clampedY });
+  };
+
+  // Handle drag end
+  const handleDragEnd = () => {
+    setDraggedPoint(null);
+    setDragOffset({ x: 0, y: 0 });
+  };
+
+  // Handle size change
+  const handleSizeChange = (pointId: string, delta: number) => {
+    const point = explorationPoints.find((p) => p.id === pointId);
+    if (point) {
+      const newSize = Math.max(0.5, Math.min(2.0, (point.size || 1.0) + delta));
+      updateExplorationPoint(pointId, { size: newSize });
+    }
+  };
+
+  // Handle toggle active
+  const handleToggleActive = (pointId: string) => {
+    toggleExplorationPointActive(pointId);
   };
 
   // Gerar uma imagem placeholder baseada na cor do planeta
