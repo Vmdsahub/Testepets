@@ -47,6 +47,16 @@ interface GameStore extends GameState {
     updates: Partial<ExplorationPoint>,
   ) => void;
   toggleExplorationPointActive: (pointId: string) => void;
+  addExplorationPoint: (
+    planetId: string,
+    x: number,
+    y: number,
+  ) => ExplorationPoint;
+  removeExplorationPoint: (pointId: string) => void;
+  saveExplorationPoints: (planetId: string) => Promise<boolean>;
+  loadExplorationPointsFromStorage: (
+    planetId: string,
+  ) => ExplorationPoint[] | null;
 
   // World editing mode
   isWorldEditMode: boolean;
@@ -803,6 +813,12 @@ export const useGameStore = create<GameStore>()(
         set({ currentExplorationArea: area }),
 
       generateExplorationPoints: (planetId) => {
+        // First try to load from storage
+        const stored = get().loadExplorationPointsFromStorage(planetId);
+        if (stored && stored.length > 0) {
+          return stored;
+        }
+
         // Generate unique exploration points for each planet using deterministic generation
         const pointTemplates = [
           // Set 1 - Geological features
@@ -936,6 +952,17 @@ export const useGameStore = create<GameStore>()(
             point.id === pointId ? { ...point, ...updates } : point,
           ),
         }));
+
+        // Save to localStorage for persistence
+        const state = get();
+        localStorage.setItem(
+          `explorationPoints_${state.currentPlanet?.id}`,
+          JSON.stringify(
+            state.explorationPoints.filter(
+              (p) => p.planetId === state.currentPlanet?.id,
+            ),
+          ),
+        );
       },
 
       toggleExplorationPointActive: (pointId) => {
@@ -944,6 +971,101 @@ export const useGameStore = create<GameStore>()(
             point.id === pointId ? { ...point, active: !point.active } : point,
           ),
         }));
+
+        // Save to localStorage for persistence
+        const state = get();
+        localStorage.setItem(
+          `explorationPoints_${state.currentPlanet?.id}`,
+          JSON.stringify(
+            state.explorationPoints.filter(
+              (p) => p.planetId === state.currentPlanet?.id,
+            ),
+          ),
+        );
+      },
+
+      addExplorationPoint: (planetId: string, x: number, y: number) => {
+        const newPoint: ExplorationPoint = {
+          id: `${planetId}_custom_${Date.now()}`,
+          planetId,
+          name: `Novo Local ${Date.now().toString().slice(-4)}`,
+          x,
+          y,
+          imageUrl:
+            "https://cdn.builder.io/api/v1/image/assets%2F6b84993f22904beeb2e1d8d2f128c032%2Faaff2921868f4bbfb24be01b9fdfa6a1?format=webp&width=800",
+          description: "Um novo local de exploração descoberto recentemente.",
+          discovered: false,
+          size: 1.0,
+          active: true,
+        };
+
+        set((state) => ({
+          explorationPoints: [...state.explorationPoints, newPoint],
+        }));
+
+        // Save to localStorage for persistence
+        const state = get();
+        localStorage.setItem(
+          `explorationPoints_${planetId}`,
+          JSON.stringify(
+            state.explorationPoints.filter((p) => p.planetId === planetId),
+          ),
+        );
+
+        return newPoint;
+      },
+
+      removeExplorationPoint: (pointId: string) => {
+        const state = get();
+        const point = state.explorationPoints.find((p) => p.id === pointId);
+
+        if (point) {
+          set((state) => ({
+            explorationPoints: state.explorationPoints.filter(
+              (p) => p.id !== pointId,
+            ),
+          }));
+
+          // Save to localStorage for persistence
+          localStorage.setItem(
+            `explorationPoints_${point.planetId}`,
+            JSON.stringify(
+              state.explorationPoints.filter(
+                (p) => p.planetId === point.planetId && p.id !== pointId,
+              ),
+            ),
+          );
+        }
+      },
+
+      saveExplorationPoints: async (planetId: string) => {
+        // This could save to a backend in the future
+        console.log("Exploration points saved for planet:", planetId);
+        return true;
+      },
+
+      loadExplorationPointsFromStorage: (planetId: string) => {
+        const stored = localStorage.getItem(`explorationPoints_${planetId}`);
+        if (stored) {
+          try {
+            const points: ExplorationPoint[] = JSON.parse(stored);
+            set((state) => ({
+              explorationPoints: [
+                ...state.explorationPoints.filter(
+                  (p) => p.planetId !== planetId,
+                ),
+                ...points,
+              ],
+            }));
+            return points;
+          } catch (error) {
+            console.error(
+              "Error loading exploration points from storage:",
+              error,
+            );
+          }
+        }
+        return null;
       },
 
       // Egg selection and hatching actions
