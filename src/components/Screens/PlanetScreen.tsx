@@ -44,6 +44,7 @@ export const PlanetScreen: React.FC = () => {
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [editingName, setEditingName] = useState<string | null>(null);
   const [editingValue, setEditingValue] = useState<string>("");
+  const [selectedPoint, setSelectedPoint] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   if (!currentPlanet) {
@@ -59,7 +60,12 @@ export const PlanetScreen: React.FC = () => {
 
   // Handle exploration point click
   const handleExplorationPointClick = (point: ExplorationPoint) => {
-    if (isPlanetEditMode) return; // Don't navigate in edit mode
+    if (isPlanetEditMode) {
+      // In edit mode, select point for editing
+      setSelectedPoint(selectedPoint === point.id ? null : point.id);
+      return;
+    }
+    // In normal mode, navigate to exploration
     setCurrentExplorationPoint(point);
     setCurrentScreen("exploration");
   };
@@ -138,6 +144,9 @@ export const PlanetScreen: React.FC = () => {
   const handleAddPoint = (e: React.MouseEvent) => {
     if (!isPlanetEditMode || !currentPlanet) return;
 
+    // If clicking on empty area, deselect current point
+    setSelectedPoint(null);
+
     const container = containerRef.current;
     if (container) {
       const rect = container.getBoundingClientRect();
@@ -148,7 +157,13 @@ export const PlanetScreen: React.FC = () => {
       const clampedX = Math.max(5, Math.min(95, x));
       const clampedY = Math.max(5, Math.min(95, y));
 
-      addExplorationPoint(currentPlanet.id, clampedX, clampedY);
+      const newPoint = addExplorationPoint(
+        currentPlanet.id,
+        clampedX,
+        clampedY,
+      );
+      // Auto-select the newly created point
+      setSelectedPoint(newPoint.id);
     }
   };
 
@@ -250,6 +265,7 @@ export const PlanetScreen: React.FC = () => {
               const size = point.size || 1.0;
               const isActive = point.active !== false;
               const isDragging = draggedPoint === point.id;
+              const isSelected = selectedPoint === point.id;
 
               return (
                 <div
@@ -291,7 +307,7 @@ export const PlanetScreen: React.FC = () => {
                     <div
                       className={`relative w-6 h-6 rounded-full border-2 border-white shadow-lg flex items-center justify-center ${
                         isActive ? "bg-blue-500" : "bg-gray-400"
-                      } ${isPlanetEditMode ? "ring-2 ring-blue-300" : ""}`}
+                      } ${isPlanetEditMode ? (isSelected ? "ring-2 ring-yellow-400" : "ring-2 ring-blue-300") : ""}`}
                     >
                       <MapPin className="w-3 h-3 text-white" />
                     </div>
@@ -304,100 +320,118 @@ export const PlanetScreen: React.FC = () => {
                       <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-black border-opacity-80"></div>
                     </div>
                   ) : (
-                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 bg-white rounded-lg shadow-lg p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-auto min-w-[150px] z-50">
-                      {editingName === point.id ? (
-                        <div className="flex items-center gap-1">
-                          <input
-                            type="text"
-                            value={editingValue}
-                            onChange={(e) => setEditingValue(e.target.value)}
-                            className="flex-1 px-2 py-1 text-xs border rounded"
-                            autoFocus
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") handleSaveName(point.id);
-                              if (e.key === "Escape") handleCancelEdit();
-                            }}
-                          />
-                          <button
-                            onClick={() => handleSaveName(point.id)}
-                            className="p-1 text-green-600 hover:bg-green-100 rounded"
-                          >
-                            <Save className="w-3 h-3" />
-                          </button>
-                          <button
-                            onClick={handleCancelEdit}
-                            className="p-1 text-gray-600 hover:bg-gray-100 rounded"
-                          >
-                            <X className="w-3 h-3" />
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-1">
-                          <span className="text-xs font-medium">
-                            {point.name}
-                          </span>
-                          {point.id.includes("custom") && (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleStartEditName(point.id, point.name);
-                              }}
-                              className="p-1 text-blue-600 hover:bg-blue-100 rounded"
-                              title="Editar nome"
-                            >
-                              <Edit3 className="w-3 h-3" />
-                            </button>
-                          )}
-                        </div>
-                      )}
+                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-black bg-opacity-80 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
+                      {isSelected
+                        ? "Clique para desselecionar"
+                        : "Clique para editar"}
+                      <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-black border-opacity-80"></div>
                     </div>
                   )}
 
                   {/* Edit controls */}
-                  {isPlanetEditMode && (
-                    <div className="absolute top-8 left-1/2 transform -translate-x-1/2 bg-white rounded-lg shadow-lg p-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-auto z-50">
-                      {/* Size controls */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleSizeChange(point.id, -0.1);
-                        }}
-                        className="p-1 hover:bg-gray-100 rounded"
-                        title="Diminuir"
-                      >
-                        <Minus className="w-3 h-3" />
-                      </button>
-
-                      <span className="text-xs font-mono px-1 min-w-[32px] text-center">
-                        {((point.size || 1.0) * 100).toFixed(0)}%
-                      </span>
-
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleSizeChange(point.id, 0.1);
-                        }}
-                        className="p-1 hover:bg-gray-100 rounded"
-                        title="Aumentar"
-                      >
-                        <Plus className="w-3 h-3" />
-                      </button>
-
-                      {/* Active toggle */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleToggleActive(point.id);
-                        }}
-                        className={`p-1 rounded ${isActive ? "text-green-600 hover:bg-green-100" : "text-gray-400 hover:bg-gray-100"}`}
-                        title={isActive ? "Desativar" : "Ativar"}
-                      >
-                        {isActive ? (
-                          <Eye className="w-3 h-3" />
+                  {isPlanetEditMode && isSelected && (
+                    <div className="absolute top-8 left-1/2 transform -translate-x-1/2 bg-white rounded-lg shadow-lg p-3 flex flex-col gap-2 pointer-events-auto z-50 min-w-[200px]">
+                      {/* Name editing section */}
+                      <div className="border-b pb-2">
+                        {editingName === point.id ? (
+                          <div className="flex items-center gap-1">
+                            <input
+                              type="text"
+                              value={editingValue}
+                              onChange={(e) => setEditingValue(e.target.value)}
+                              className="flex-1 px-2 py-1 text-xs border rounded"
+                              autoFocus
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") handleSaveName(point.id);
+                                if (e.key === "Escape") handleCancelEdit();
+                              }}
+                            />
+                            <button
+                              onClick={() => handleSaveName(point.id)}
+                              className="p-1 text-green-600 hover:bg-green-100 rounded"
+                              title="Salvar"
+                            >
+                              <Save className="w-3 h-3" />
+                            </button>
+                            <button
+                              onClick={handleCancelEdit}
+                              className="p-1 text-gray-600 hover:bg-gray-100 rounded"
+                              title="Cancelar"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
                         ) : (
-                          <EyeOff className="w-3 h-3" />
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-medium">
+                              {point.name}
+                            </span>
+                            {point.id.includes("custom") && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleStartEditName(point.id, point.name);
+                                }}
+                                className="p-1 text-blue-600 hover:bg-blue-100 rounded"
+                                title="Editar nome"
+                              >
+                                <Edit3 className="w-3 h-3" />
+                              </button>
+                            )}
+                          </div>
                         )}
-                      </button>
+                      </div>
+
+                      {/* Controls section */}
+                      <div className="flex items-center justify-between gap-2">
+                        {/* Size controls */}
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleSizeChange(point.id, -0.1);
+                            }}
+                            className="p-1 hover:bg-gray-100 rounded"
+                            title="Diminuir"
+                          >
+                            <Minus className="w-3 h-3" />
+                          </button>
+
+                          <span className="text-xs font-mono px-2 min-w-[40px] text-center">
+                            {((point.size || 1.0) * 100).toFixed(0)}%
+                          </span>
+
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleSizeChange(point.id, 0.1);
+                            }}
+                            className="p-1 hover:bg-gray-100 rounded"
+                            title="Aumentar"
+                          >
+                            <Plus className="w-3 h-3" />
+                          </button>
+                        </div>
+
+                        {/* Active toggle */}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleToggleActive(point.id);
+                          }}
+                          className={`p-1 rounded flex items-center gap-1 ${isActive ? "text-green-600 hover:bg-green-100" : "text-gray-400 hover:bg-gray-100"}`}
+                          title={isActive ? "Desativar" : "Ativar"}
+                        >
+                          {isActive ? (
+                            <Eye className="w-3 h-3" />
+                          ) : (
+                            <EyeOff className="w-3 h-3" />
+                          )}
+                          <span className="text-xs">
+                            {isActive ? "Ativo" : "Inativo"}
+                          </span>
+                        </button>
+                      </div>
 
                       {/* Delete button */}
                       <button
@@ -405,10 +439,11 @@ export const PlanetScreen: React.FC = () => {
                           e.stopPropagation();
                           handleDeletePoint(point.id);
                         }}
-                        className="p-1 text-red-600 hover:bg-red-100 rounded"
+                        className="w-full p-2 text-red-600 hover:bg-red-100 rounded flex items-center justify-center gap-1"
                         title="Excluir"
                       >
                         <Trash2 className="w-3 h-3" />
+                        <span className="text-xs">Excluir Ponto</span>
                       </button>
                     </div>
                   )}
