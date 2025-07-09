@@ -3065,41 +3065,32 @@ const SpaceMapComponent: React.FC = () => {
         }
       }
 
-      // Update smoke particles with more realistic physics
+      // Update smoke particles with simple frame-based system
       const smokeParticles = smokeParticlesRef.current;
       for (let i = smokeParticles.length - 1; i >= 0; i--) {
         const smoke = smokeParticles[i];
 
-        // Update position with drift and air resistance
-        smoke.x += smoke.vx + smoke.drift.x;
-        smoke.y += smoke.vy + smoke.drift.y;
-        smoke.life -= deltaTime;
+        // Simple position update
+        smoke.x += smoke.vx;
+        smoke.y += smoke.vy;
+        smoke.life -= 1; // Decrease by 1 frame
 
-        // Apply air resistance to slow down particles
-        smoke.vx *= 0.995;
-        smoke.vy *= 0.995;
+        // Simple air resistance
+        smoke.vx *= 0.99;
+        smoke.vy *= 0.99;
 
-        // Fade out over time with stable transition
+        // Simple fade calculation (no deltaTime dependency)
         const fadeRatio = smoke.life / smoke.maxLife;
-        const ageRatio = 1 - fadeRatio;
+        smoke.opacity = smoke.initialOpacity * fadeRatio;
 
-        // Stable opacity calculation using initial opacity
-        smoke.opacity = Math.max(0, smoke.initialOpacity * fadeRatio);
+        // Simple size expansion
+        const expansionRatio = 1 - fadeRatio;
+        smoke.size = smoke.initialSize + expansionRatio * 3;
 
-        // Expand size over time to simulate smoke dispersing (reduced rate)
-        smoke.size += 0.008; // Constant, slower expansion
+        // Simple upward drift
+        smoke.vy -= 0.005;
 
-        // Controlled drift increases over time (less random)
-        if (Math.random() < 0.1) {
-          // Only 10% chance per frame to add drift
-          smoke.drift.x += (Math.random() - 0.5) * 0.01;
-          smoke.drift.y += (Math.random() - 0.5) * 0.01;
-        }
-
-        // Slight upward buoyancy
-        smoke.vy -= 0.008;
-
-        // Remove dead smoke particles
+        // Remove dead particles
         if (smoke.life <= 0) {
           smokeParticles.splice(i, 1);
         }
