@@ -390,10 +390,34 @@ const SpaceMapComponent: React.FC = () => {
     isPaused: showNPCModal,
   });
 
+  // Function to create smoke particles
+  const createSmokeParticle = useCallback((x: number, y: number) => {
+    const newSmokeParticle: SmokeParticle = {
+      x: x + (Math.random() - 0.5) * 10,
+      y: y + (Math.random() - 0.5) * 10,
+      vx: (Math.random() - 0.5) * 0.5,
+      vy: (Math.random() - 0.5) * 0.5 - 0.3, // Slight upward drift
+      life: 2000 + Math.random() * 1000, // 2-3 seconds
+      maxLife: 2000 + Math.random() * 1000,
+      size: 3 + Math.random() * 4, // 3-7 pixels
+      opacity: 0.3 + Math.random() * 0.4, // 0.3-0.7
+      drift: {
+        x: (Math.random() - 0.5) * 0.1,
+        y: (Math.random() - 0.5) * 0.1,
+      },
+    };
+    smokeParticlesRef.current.push(newSmokeParticle);
+  }, []);
+
   // Função de tiro que pode ser reutilizada
   const shootProjectile = useCallback(() => {
     const currentTime = Date.now();
     const SHOOT_COOLDOWN = 333; // 333ms entre tiros (3 tiros/segundo)
+
+    // Check if ship can shoot (HP must be > 0)
+    if (shipHP <= 0) {
+      return false; // Cannot shoot when HP is 0
+    }
 
     // Verificar cooldown
     if (currentTime - lastShootTime.current >= SHOOT_COOLDOWN) {
@@ -3953,7 +3977,7 @@ const SpaceMapComponent: React.FC = () => {
                       updateWorldPosition(selectedWorldId, {
                         size: newSize,
                       });
-                      console.log("���� Size saved successfully");
+                      console.log("📏 Size saved successfully");
                     } catch (error) {
                       console.error("📏 Error saving size:", error);
                     }
