@@ -146,9 +146,13 @@ export const ShipActionsModal: React.FC<ShipActionsModalProps> = ({
     const handleAddToShipInventory = (event: CustomEvent) => {
       const { item } = event.detail;
       if (user) {
-        const currentInventory = [...shipInventory];
+        const savedInventory = localStorage.getItem(
+          `ship-inventory-${user.id}`,
+        );
+        let currentInventory = savedInventory ? JSON.parse(savedInventory) : [];
+
         const existingItemIndex = currentInventory.findIndex(
-          (inv) => inv.name === item.name,
+          (inv: any) => inv.name === item.name,
         );
 
         if (existingItemIndex >= 0) {
@@ -158,34 +162,24 @@ export const ShipActionsModal: React.FC<ShipActionsModalProps> = ({
             id: item.id || Date.now().toString(),
             name: item.name,
             description: item.description,
-            icon: Wrench,
             quantity: 1,
-            effect: () => {
-              if (item.name === "Chave de fenda" && shipHP < 3) {
-                onRepairShip();
-                // Remove one item from inventory
-                const updatedInventory = currentInventory
-                  .map((invItem) =>
-                    invItem.id === item.id
-                      ? { ...invItem, quantity: invItem.quantity - 1 }
-                      : invItem,
-                  )
-                  .filter((invItem) => invItem.quantity > 0);
-                setShipInventory(updatedInventory);
-                localStorage.setItem(
-                  `ship-inventory-${user.id}`,
-                  JSON.stringify(updatedInventory),
-                );
-              }
-            },
           });
         }
 
-        setShipInventory(currentInventory);
         localStorage.setItem(
           `ship-inventory-${user.id}`,
           JSON.stringify(currentInventory),
         );
+
+        // Update current state if modal is open
+        if (isOpen) {
+          setShipInventory(
+            currentInventory.map((item: any) => ({
+              ...item,
+              icon: Wrench,
+            })),
+          );
+        }
       }
     };
 
@@ -200,7 +194,7 @@ export const ShipActionsModal: React.FC<ShipActionsModalProps> = ({
         handleAddToShipInventory as EventListener,
       );
     };
-  }, [user, shipInventory, shipHP, onRepairShip]);
+  }, [user, isOpen]);
 
   return (
     <AnimatePresence>
