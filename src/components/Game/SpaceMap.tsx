@@ -3086,16 +3086,16 @@ const SpaceMapComponent: React.FC = () => {
         }
       }
 
-      // Create smoke particles if ship HP is 0 and not in landing animation
+      // Create smoke trail if ship HP is 0 and not in landing animation
       if (shipHP <= 0 && !isLandingAnimationActive) {
-        // Create smoke every 150ms when damaged
-        if (currentTime - lastSmokeTime.current > 150) {
-          createSmokeParticle(gameState.ship.x, gameState.ship.y);
-          lastSmokeTime.current = currentTime;
-          console.log(
-            "Creating smoke particle, current smoke count:",
-            smokeParticlesRef.current.length,
+        // Create smoke trail every 100ms when damaged
+        if (currentTime - lastSmokeTime.current > 100) {
+          createSmokeTrail(
+            gameState.ship.x,
+            gameState.ship.y,
+            gameState.ship.angle,
           );
+          lastSmokeTime.current = currentTime;
         }
       }
 
