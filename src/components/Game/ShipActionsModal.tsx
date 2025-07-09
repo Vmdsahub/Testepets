@@ -66,24 +66,6 @@ export const ShipActionsModal: React.FC<ShipActionsModalProps> = ({
             inventory.map((item: any) => ({
               ...item,
               icon: Wrench, // Default icon for tools
-              effect: () => {
-                if (item.name === "Chave de fenda" && shipHP < 3) {
-                  onRepairShip();
-                  // Remove one item from inventory
-                  const updatedInventory = shipInventory
-                    .map((invItem) =>
-                      invItem.id === item.id
-                        ? { ...invItem, quantity: invItem.quantity - 1 }
-                        : invItem,
-                    )
-                    .filter((invItem) => invItem.quantity > 0);
-                  setShipInventory(updatedInventory);
-                  localStorage.setItem(
-                    `ship-inventory-${user.id}`,
-                    JSON.stringify(updatedInventory),
-                  );
-                }
-              },
             })),
           );
         } catch (e) {
