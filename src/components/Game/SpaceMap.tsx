@@ -3074,19 +3074,24 @@ const SpaceMapComponent: React.FC = () => {
         smoke.vx *= 0.995;
         smoke.vy *= 0.995;
 
-        // Fade out over time with more gradual transition
+        // Fade out over time with stable transition
         const fadeRatio = smoke.life / smoke.maxLife;
         const ageRatio = 1 - fadeRatio;
 
-        // Opacity fades more naturally
-        smoke.opacity = Math.max(0, fadeRatio * (0.7 - ageRatio * 0.2));
+        // Stable opacity calculation without random fluctuations
+        const baseOpacity = smoke.opacity || 0.7; // Use initial opacity or default
+        const currentOpacity = baseOpacity * fadeRatio;
+        smoke.opacity = Math.max(0, currentOpacity);
 
-        // Expand size over time to simulate smoke dispersing
-        smoke.size += 0.015 * (1 + ageRatio); // Expansion accelerates over time
+        // Expand size over time to simulate smoke dispersing (reduced rate)
+        smoke.size += 0.008; // Constant, slower expansion
 
-        // Random drift increases over time (turbulence)
-        smoke.drift.x += (Math.random() - 0.5) * 0.02 * ageRatio;
-        smoke.drift.y += (Math.random() - 0.5) * 0.02 * ageRatio;
+        // Controlled drift increases over time (less random)
+        if (Math.random() < 0.1) {
+          // Only 10% chance per frame to add drift
+          smoke.drift.x += (Math.random() - 0.5) * 0.01;
+          smoke.drift.y += (Math.random() - 0.5) * 0.01;
+        }
 
         // Slight upward buoyancy
         smoke.vy -= 0.008;
