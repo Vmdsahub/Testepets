@@ -1,12 +1,24 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Search, Package, RefreshCw } from "lucide-react";
+import { X, Search, Package, RefreshCw, ArrowLeft, Wrench } from "lucide-react";
+import { useGameStore } from "../../store/gameStore";
 
 interface ShipActionsModalProps {
   isOpen: boolean;
   onClose: () => void;
   shipX: number;
   shipY: number;
+  shipHP: number;
+  onRepairShip: () => void;
+}
+
+interface ShipInventoryItem {
+  id: string;
+  name: string;
+  description: string;
+  icon: React.ComponentType<any>;
+  quantity: number;
+  effect: () => void;
 }
 
 const ACTIONS = [
