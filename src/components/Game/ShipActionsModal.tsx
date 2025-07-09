@@ -55,22 +55,66 @@ export const ShipActionsModal: React.FC<ShipActionsModalProps> = ({
   const [currentView, setCurrentView] = useState<ModalView>("main");
   const [shipInventory, setShipInventory] = useState<ShipInventoryItem[]>([]);
   const { user } = useGameStore();
-  // Handle ESC key
+  // Load ship inventory from localStorage
+  useEffect(() => {
+    if (isOpen && user) {
+      const savedInventory = localStorage.getItem(`ship-inventory-${user.id}`);
+      if (savedInventory) {
+        try {
+          const inventory = JSON.parse(savedInventory);
+          setShipInventory(
+            inventory.map((item: any) => ({
+              ...item,
+              icon: Wrench, // Default icon for tools
+              effect: () => {
+                if (item.name === "Chave de fenda" && shipHP < 3) {
+                  onRepairShip();
+                  // Remove one item from inventory
+                  const updatedInventory = shipInventory
+                    .map((invItem) =>
+                      invItem.id === item.id
+                        ? { ...invItem, quantity: invItem.quantity - 1 }
+                        : invItem,
+                    )
+                    .filter((invItem) => invItem.quantity > 0);
+                  setShipInventory(updatedInventory);
+                  localStorage.setItem(
+                    `ship-inventory-${user.id}`,
+                    JSON.stringify(updatedInventory),
+                  );
+                }
+              },
+            })),
+          );
+        } catch (e) {
+          console.error("Error loading ship inventory:", e);
+        }
+      }
+    }
+  }, [isOpen, user, shipHP, onRepairShip, shipInventory]);
+
+  // Handle ESC key and reset modal state
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        onClose();
+        if (currentView !== "main") {
+          setCurrentView("main");
+        } else {
+          onClose();
+        }
       }
     };
 
     if (isOpen) {
       document.addEventListener("keydown", handleKeyDown);
+    } else {
+      setCurrentView("main"); // Reset view when modal closes
     }
 
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, currentView]);
 
   const handleActionClick = (actionId: string) => {
     // TODO: Implement specific actions
