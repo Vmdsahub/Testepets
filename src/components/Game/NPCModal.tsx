@@ -99,6 +99,55 @@ export const NPCModal: React.FC<NPCModalProps> = ({ isOpen, onClose }) => {
     };
   }, [isOpen, onClose]);
 
+  // Purchase item function
+  const purchaseItem = async (item: ShopItem) => {
+    if (!user) return;
+
+    if (xenocoins < item.price) {
+      addNotification({
+        type: "error",
+        message: "Xenocoins insuficientes!",
+      });
+      return;
+    }
+
+    try {
+      // Deduct currency
+      const success = await updateCurrency(item.currency, -item.price);
+
+      if (success) {
+        // Add item to ship inventory
+        const shipItem = {
+          id: item.id,
+          name: item.name,
+          description: item.description,
+        };
+
+        // Dispatch custom event to add to ship inventory
+        const event = new CustomEvent("addToShipInventory", {
+          detail: { item: shipItem },
+        });
+        window.dispatchEvent(event);
+
+        addNotification({
+          type: "success",
+          message: `${item.name} adicionado ao inventário da nave!`,
+        });
+      } else {
+        addNotification({
+          type: "error",
+          message: "Erro ao processar compra.",
+        });
+      }
+    } catch (error) {
+      console.error("Purchase error:", error);
+      addNotification({
+        type: "error",
+        message: "Erro ao processar compra.",
+      });
+    }
+  };
+
   return (
     <AnimatePresence>
       {isOpen && (
