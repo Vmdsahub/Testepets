@@ -2185,18 +2185,20 @@ const SpaceMapComponent: React.FC = () => {
         return;
       }
 
-      // Check if click was on player ship
-      const clickedOnPlayerShip = isClickOnPlayerShip(
-        clickX,
-        clickY,
-        canvas.width,
-        canvas.height,
-      );
+      // Check if click was on player ship (only if not on planet screen)
+      if (currentScreen !== "planet") {
+        const clickedOnPlayerShip = isClickOnPlayerShip(
+          clickX,
+          clickY,
+          canvas.width,
+          canvas.height,
+        );
 
-      if (clickedOnPlayerShip) {
-        setShipModalPosition({ x: clickX, y: clickY });
-        setShowShipActionsModal(true);
-        return;
+        if (clickedOnPlayerShip) {
+          setShipModalPosition({ x: clickX, y: clickY });
+          setShowShipActionsModal(true);
+          return;
+        }
       }
 
       // Check if click was on a planet
@@ -3158,7 +3160,7 @@ const SpaceMapComponent: React.FC = () => {
 
       // Rotaç��o lenta baseada no tempo
       const rotationTime = currentTime * 0.0005; // Muito lenta
-      const dashOffset = (rotationTime * 50) % 20; // Offset dos tra��os para simular rotação
+      const dashOffset = (rotationTime * 50) % 20; // Offset dos tra��os para simular rotaç��o
 
       ctx.setLineDash([10, 10]);
       ctx.lineDashOffset = -dashOffset; // Anima os traços
