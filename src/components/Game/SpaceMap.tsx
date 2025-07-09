@@ -4,7 +4,7 @@ import { useShipStatePersistence } from "../../hooks/useShipStatePersistence";
 import { PlanetLandingModal } from "./PlanetLandingModal";
 import { useNPCShip } from "./NPCShip";
 import { NPCModal } from "./NPCModal";
-import { gameService } from "../../services/gameService";
+
 import { FinalWebGLStars } from "./FinalWebGLStars";
 import {
   playLaserShootSound,
