@@ -3046,6 +3046,42 @@ const SpaceMapComponent: React.FC = () => {
         }
       }
 
+      // Update smoke particles
+      const smokeParticles = smokeParticlesRef.current;
+      for (let i = smokeParticles.length - 1; i >= 0; i--) {
+        const smoke = smokeParticles[i];
+
+        // Update position with drift
+        smoke.x += smoke.vx + smoke.drift.x;
+        smoke.y += smoke.vy + smoke.drift.y;
+        smoke.life -= deltaTime;
+
+        // Fade out over time
+        const fadeRatio = smoke.life / smoke.maxLife;
+        smoke.opacity = Math.max(0, fadeRatio * 0.4); // Max opacity of 0.4 for subtlety
+
+        // Expand size slightly over time
+        smoke.size += 0.02;
+
+        // Apply slight upward drift
+        smoke.vy -= 0.001;
+
+        // Remove dead smoke particles
+        if (smoke.life <= 0) {
+          smokeParticles.splice(i, 1);
+        }
+      }
+
+      // Create smoke particles if ship HP is 0 and not in landing animation
+      if (
+        shipHP <= 0 &&
+        !isLandingAnimationActive &&
+        currentTime % 200 < deltaTime
+      ) {
+        // Create smoke every ~200ms when damaged
+        createSmokeParticle(gameState.ship.x, gameState.ship.y);
+      }
+
       // Create shooting stars less frequently for better performance - even less for large canvas
       const shootingStarInterval = isLargeCanvas
         ? 25000 + Math.random() * 35000
@@ -4190,7 +4226,7 @@ const SpaceMapComponent: React.FC = () => {
               • 2º Click: {isDragging ? "Confirmar posição" : "Ativar arrastar"}
             </div>
             <div>• ESC: Cancelar</div>
-            <div>• Painel: Tamanho/Rotação</div>
+            <div>• Painel: Tamanho/Rota��ão</div>
           </>
         ) : (
           <>
