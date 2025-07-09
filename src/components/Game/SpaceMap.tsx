@@ -4,6 +4,7 @@ import { useShipStatePersistence } from "../../hooks/useShipStatePersistence";
 import { PlanetLandingModal } from "./PlanetLandingModal";
 import { useNPCShip } from "./NPCShip";
 import { NPCModal } from "./NPCModal";
+import { ShipActionsModal } from "./ShipActionsModal";
 
 import { FinalWebGLStars } from "./FinalWebGLStars";
 import {
@@ -288,6 +289,8 @@ const SpaceMapComponent: React.FC = () => {
   const [showLandingModal, setShowLandingModal] = useState(false);
   const [selectedPlanet, setSelectedPlanet] = useState<Planet | null>(null);
   const [showNPCModal, setShowNPCModal] = useState(false);
+  const [showShipActionsModal, setShowShipActionsModal] = useState(false);
+  const [shipModalPosition, setShipModalPosition] = useState({ x: 0, y: 0 });
 
   // Landing animation state
   const [isLandingAnimationActive, setIsLandingAnimationActive] =
@@ -338,9 +341,17 @@ const SpaceMapComponent: React.FC = () => {
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [barrierFlashTime, setBarrierFlashTime] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
-  const [shipHP, setShipHP] = useState(3);
+  const [shipHP, setShipHP] = useState(() => {
+    const savedHP = localStorage.getItem("ship-hp");
+    return savedHP ? parseInt(savedHP, 10) : 3;
+  });
   const [lastDamageTime, setLastDamageTime] = useState(0);
   const [showHPBar, setShowHPBar] = useState(false);
+
+  // Persist ship HP to localStorage
+  useEffect(() => {
+    localStorage.setItem("ship-hp", shipHP.toString());
+  }, [shipHP]);
 
   // Helper function for seamless wrapping distance calculation
   const getWrappedDistance = useCallback(
@@ -1170,6 +1181,26 @@ const SpaceMapComponent: React.FC = () => {
     }, 5000);
   }, [lastDamageTime, setGameState]);
 
+  // Repair ship function
+  const repairShip = useCallback(() => {
+    setShipHP((prev) => {
+      const newHP = Math.min(prev + 1, 3);
+      setShowHPBar(true);
+
+      addNotification({
+        type: "success",
+        message: `Nave reparada! HP: ${newHP}/3`,
+      });
+
+      // Hide HP bar after 3 seconds
+      setTimeout(() => {
+        setShowHPBar(false);
+      }, 3000);
+
+      return newHP;
+    });
+  }, [addNotification]);
+
   // Helper function to draw directional radar pulse
   const drawRadarPulse = useCallback(
     (
@@ -1565,7 +1596,7 @@ const SpaceMapComponent: React.FC = () => {
         color: Math.random() < 0.92 ? "#ffffff" : generateRandomStarColor(),
         type: "normal",
         drift: {
-          x: 0, // Movimento será calculado via seno/cosseno
+          x: 0, // Movimento ser�� calculado via seno/cosseno
           y: 0,
         },
         pulse: Math.random() * 100,
@@ -2090,6 +2121,31 @@ const SpaceMapComponent: React.FC = () => {
     setMouseInWindow(true);
   }, []);
 
+  // Check if click is on player ship
+  const isClickOnPlayerShip = useCallback(
+    (
+      clickX: number,
+      clickY: number,
+      canvasWidth: number,
+      canvasHeight: number,
+    ): boolean => {
+      const centerX = canvasWidth / 2;
+      const centerY = canvasHeight / 2;
+
+      // Player ship is always at center of screen
+      const shipScreenX = centerX;
+      const shipScreenY = centerY;
+      const shipSize = 30; // Same as defined in render function
+
+      const distance = Math.sqrt(
+        Math.pow(clickX - shipScreenX, 2) + Math.pow(clickY - shipScreenY, 2),
+      );
+
+      return distance <= shipSize / 2;
+    },
+    [],
+  );
+
   // Handle shooting and world editing
   const handleClick = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -2157,6 +2213,22 @@ const SpaceMapComponent: React.FC = () => {
         return;
       }
 
+      // Check if click was on player ship (only if not on planet screen)
+      if (currentScreen !== "planet") {
+        const clickedOnPlayerShip = isClickOnPlayerShip(
+          clickX,
+          clickY,
+          canvas.width,
+          canvas.height,
+        );
+
+        if (clickedOnPlayerShip) {
+          setShipModalPosition({ x: clickX, y: clickY });
+          setShowShipActionsModal(true);
+          return;
+        }
+      }
+
       // Check if click was on a planet
       let clickedOnPlanet = false;
 
@@ -2195,6 +2267,8 @@ const SpaceMapComponent: React.FC = () => {
       setSelectedPlanet,
       setShowLandingModal,
       npcShip.isClickOnShip,
+      isClickOnPlayerShip,
+      currentScreen,
     ],
   );
 
@@ -3695,6 +3769,15 @@ const SpaceMapComponent: React.FC = () => {
 
       <NPCModal isOpen={showNPCModal} onClose={() => setShowNPCModal(false)} />
 
+      <ShipActionsModal
+        isOpen={showShipActionsModal}
+        onClose={() => setShowShipActionsModal(false)}
+        shipX={shipModalPosition.x}
+        shipY={shipModalPosition.y}
+        shipHP={shipHP}
+        onRepairShip={repairShip}
+      />
+
       {/* Final WebGL Stars */}
       <FinalWebGLStars
         stars={starsRef.current}
@@ -3851,7 +3934,7 @@ const SpaceMapComponent: React.FC = () => {
                 e.preventDefault();
                 e.stopPropagation();
                 const newSize = Number(e.target.value);
-                console.log("📏 Size control changed to:", newSize);
+                console.log("���� Size control changed to:", newSize);
 
                 // Update immediately for responsive feedback
                 planetsRef.current = planetsRef.current.map((planet) =>

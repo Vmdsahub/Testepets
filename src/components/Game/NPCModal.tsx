@@ -1,9 +1,19 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Wrench } from "lucide-react";
+import { useGameStore } from "../../store/gameStore";
 
 interface NPCModalProps {
   isOpen: boolean;
   onClose: () => void;
+}
+
+interface ShopItem {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  currency: "xenocoins" | "cash";
 }
 
 const DIALOGUE_TEXT =
@@ -16,6 +26,16 @@ const generateAlienChar = () => {
   return ALIEN_CHARS[Math.floor(Math.random() * ALIEN_CHARS.length)];
 };
 
+const SHOP_ITEMS: ShopItem[] = [
+  {
+    id: "screwdriver",
+    name: "Chave de fenda",
+    description: "Restaura 1 HP da nave",
+    price: 20,
+    currency: "xenocoins",
+  },
+];
+
 export const NPCModal: React.FC<NPCModalProps> = ({ isOpen, onClose }) => {
   const [displayedText, setDisplayedText] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -23,6 +43,7 @@ export const NPCModal: React.FC<NPCModalProps> = ({ isOpen, onClose }) => {
   const [currentAlienChar, setCurrentAlienChar] = useState("");
   const [isShowingAlien, setIsShowingAlien] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const { user, xenocoins, updateCurrency, addNotification } = useGameStore();
 
   // Typewriter effect with alien translation
   useEffect(() => {
@@ -77,6 +98,55 @@ export const NPCModal: React.FC<NPCModalProps> = ({ isOpen, onClose }) => {
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, [isOpen, onClose]);
+
+  // Purchase item function
+  const purchaseItem = async (item: ShopItem) => {
+    if (!user) return;
+
+    if (xenocoins < item.price) {
+      addNotification({
+        type: "error",
+        message: "Xenocoins insuficientes!",
+      });
+      return;
+    }
+
+    try {
+      // Deduct currency
+      const success = await updateCurrency(item.currency, -item.price);
+
+      if (success) {
+        // Add item to ship inventory
+        const shipItem = {
+          id: item.id,
+          name: item.name,
+          description: item.description,
+        };
+
+        // Dispatch custom event to add to ship inventory
+        const event = new CustomEvent("addToShipInventory", {
+          detail: { item: shipItem },
+        });
+        window.dispatchEvent(event);
+
+        addNotification({
+          type: "success",
+          message: `${item.name} adicionado ao inventário da nave!`,
+        });
+      } else {
+        addNotification({
+          type: "error",
+          message: "Erro ao processar compra.",
+        });
+      }
+    } catch (error) {
+      console.error("Purchase error:", error);
+      addNotification({
+        type: "error",
+        message: "Erro ao processar compra.",
+      });
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -149,9 +219,59 @@ export const NPCModal: React.FC<NPCModalProps> = ({ isOpen, onClose }) => {
                 </div>
               </div>
 
-              {/* Blank field for future implementation */}
-              <div className="bg-white border border-gray-200 rounded-xl p-4 min-h-[100px]">
-                {/* Empty space for future features */}
+              {/* Shop Items */}
+              <div className="bg-white border border-gray-200 rounded-xl p-4">
+                <h3 className="font-semibold text-gray-800 mb-3 text-sm">
+                  Itens à venda
+                </h3>
+                <div className="space-y-3">
+                  {SHOP_ITEMS.map((item) => (
+                    <div
+                      key={item.id}
+                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Wrench className="w-5 h-5 text-gray-600" />
+                        <div>
+                          <div className="font-medium text-sm text-gray-800">
+                            {item.name}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {item.description}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="text-right">
+                          <div className="text-sm font-semibold text-gray-800">
+                            {item.price}
+                          </div>
+                          <div className="text-xs text-gray-500 flex items-center gap-1">
+                            <img
+                              src="https://cdn.builder.io/api/v1/image/assets%2Ff481900009a94cda953c032479392a30%2F3e6c6cb85c6a4d2ba05acb245bfbc214?format=webp&width=800"
+                              alt="Xenocoins"
+                              className="w-3 h-3"
+                            />
+                            Xenocoins
+                          </div>
+                        </div>
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => purchaseItem(item)}
+                          disabled={xenocoins < item.price}
+                          className={`px-3 py-1 text-xs rounded-md font-medium transition-colors ${
+                            xenocoins >= item.price
+                              ? "bg-green-600 text-white hover:bg-green-700"
+                              : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                          }`}
+                        >
+                          Comprar
+                        </motion.button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
 
               {/* Action buttons */}
