@@ -107,10 +107,10 @@ export const ShipActionsModal: React.FC<ShipActionsModalProps> = ({
                   return (
                     <motion.button
                       key={action.id}
-                      whileHover={{ scale: 1.02 }}
+                      whileHover={{ scale: 1.02, x: 2 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => handleActionClick(action.id)}
-                      className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors text-left group"
+                      className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-blue-50 hover:border-blue-100 border border-transparent transition-all duration-200 text-left group shadow-sm hover:shadow-md"
                     >
                       <div className="flex-shrink-0">
                         <IconComponent className="w-4 h-4 text-gray-600 group-hover:text-blue-600 transition-colors" />
