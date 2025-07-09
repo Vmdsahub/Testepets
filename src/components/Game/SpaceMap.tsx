@@ -242,6 +242,16 @@ const SpaceMapComponent: React.FC = () => {
     completed: boolean;
   } | null>(null);
 
+  // Handle screen transitions safely outside of render
+  useEffect(() => {
+    const transition = pendingScreenTransition.current;
+    if (transition && transition.completed) {
+      setCurrentPlanet(transition.planet);
+      setCurrentScreen("planet");
+      pendingScreenTransition.current = null;
+    }
+  });
+
   // Initialize state from store or use defaults
   const getInitialGameState = useCallback((): GameState => {
     const savedState = getShipState();
