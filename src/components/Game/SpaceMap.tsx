@@ -225,7 +225,7 @@ const SpaceMapComponent: React.FC = () => {
   const shootingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const lastFrameTimeRef = useRef(performance.now());
   const frameCounter = useRef(0);
-  const lastSmokeTime = useRef(0);
+  const lastSmokeFrame = useRef(0);
   const [isMousePressed, setIsMousePressed] = useState(false);
   const [canvasDimensions, setCanvasDimensions] = useState({
     width: window.innerWidth,
@@ -3098,14 +3098,14 @@ const SpaceMapComponent: React.FC = () => {
 
       // Create smoke trail if ship HP is 0 and not in landing animation
       if (shipHP <= 0 && !isLandingAnimationActive) {
-        // Create smoke trail every 100ms when damaged
-        if (currentTime - lastSmokeTime.current > 100) {
+        // Create smoke trail every 6 frames (10 times per second at 60fps)
+        if (frameCounter.current - lastSmokeFrame.current >= 6) {
           createSmokeTrail(
             gameState.ship.x,
             gameState.ship.y,
             gameState.ship.angle,
           );
-          lastSmokeTime.current = currentTime;
+          lastSmokeFrame.current = frameCounter.current;
         }
       }
 
