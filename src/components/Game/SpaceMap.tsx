@@ -2494,7 +2494,7 @@ const SpaceMapComponent: React.FC = () => {
 
           newState.ship.angle = Math.atan2(dy, dx);
 
-          if (mouseInWindow && distance > 10) {
+          if (mouseInWindow && distance > 50) {
             const speedMultiplier = Math.min(distance / 300, 1);
             const targetSpeed = SHIP_MAX_SPEED * speedMultiplier;
             newState.ship.vx += (dx / distance) * targetSpeed * 0.04;
