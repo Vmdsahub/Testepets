@@ -394,17 +394,17 @@ const SpaceMapComponent: React.FC = () => {
   // Function to create smoke particles
   const createSmokeParticle = useCallback((x: number, y: number) => {
     const newSmokeParticle: SmokeParticle = {
-      x: x + (Math.random() - 0.5) * 15,
-      y: y + (Math.random() - 0.5) * 15,
-      vx: (Math.random() - 0.5) * 0.8,
-      vy: (Math.random() - 0.5) * 0.8 - 0.5, // More upward drift
-      life: 3000 + Math.random() * 2000, // 3-5 seconds
-      maxLife: 3000 + Math.random() * 2000,
-      size: 4 + Math.random() * 6, // 4-10 pixels
-      opacity: 0.6 + Math.random() * 0.4, // 0.6-1.0
+      x: x + (Math.random() - 0.5) * 20,
+      y: y + (Math.random() - 0.5) * 20,
+      vx: (Math.random() - 0.5) * 1.2,
+      vy: (Math.random() - 0.5) * 1.2 - 0.8, // More upward drift
+      life: 4000 + Math.random() * 2000, // 4-6 seconds
+      maxLife: 4000 + Math.random() * 2000,
+      size: 8 + Math.random() * 8, // 8-16 pixels (much larger)
+      opacity: 0.8 + Math.random() * 0.2, // 0.8-1.0 (much more visible)
       drift: {
-        x: (Math.random() - 0.5) * 0.2,
-        y: (Math.random() - 0.5) * 0.2,
+        x: (Math.random() - 0.5) * 0.3,
+        y: (Math.random() - 0.5) * 0.3,
       },
     };
     smokeParticlesRef.current.push(newSmokeParticle);
@@ -3466,9 +3466,9 @@ const SpaceMapComponent: React.FC = () => {
             screenY,
             smoke.size,
           );
-          gradient.addColorStop(0, "#aaaaaa");
-          gradient.addColorStop(0.5, "#777777");
-          gradient.addColorStop(1, "rgba(85, 85, 85, 0.3)");
+          gradient.addColorStop(0, "#dddddd"); // Much brighter center
+          gradient.addColorStop(0.5, "#999999");
+          gradient.addColorStop(1, "rgba(120, 120, 120, 0.5)"); // Brighter edges
 
           ctx.fillStyle = gradient;
           ctx.beginPath();
