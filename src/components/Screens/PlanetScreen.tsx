@@ -247,8 +247,16 @@ export const PlanetScreen: React.FC = () => {
                       scale: size,
                     }}
                     transition={{ delay: 0.8 + index * 0.2, duration: 0.4 }}
-                    onClick={() => handleExplorationPointClick(point)}
-                    onMouseDown={(e) => handleDragStart(e, point)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleExplorationPointClick(point);
+                    }}
+                    onMouseDown={(e) => {
+                      e.stopPropagation();
+                      if (isPlanetEditMode) {
+                        handleDragStart(e, point);
+                      }
+                    }}
                     className={`group relative ${isPlanetEditMode ? "cursor-move" : "cursor-pointer"} ${
                       isDragging ? "z-50" : ""
                     }`}
