@@ -440,7 +440,7 @@ const SpaceMapComponent: React.FC = () => {
       return true; // Tiro disparado
     }
     return false; // Cooldown ainda ativo
-  }, [gameState.ship.x, gameState.ship.y, gameState.ship.angle]);
+  }, [gameState.ship.x, gameState.ship.y, gameState.ship.angle, shipHP]);
 
   // Function to check if click is on visible pixel of planet image
   const isClickOnPlanetPixel = useCallback(
