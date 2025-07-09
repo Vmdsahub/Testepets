@@ -396,8 +396,8 @@ const SpaceMapComponent: React.FC = () => {
   // Function to create smoke trail particles behind the ship
   const createSmokeTrail = useCallback(
     (shipX: number, shipY: number, shipAngle: number) => {
-      // Create fewer particles for lighter smoke trail
-      for (let i = 0; i < 2; i++) {
+      // Create single particle for subtle smoke trail
+      for (let i = 0; i < 1; i++) {
         // Position particles behind the ship
         const trailDistance = 15 + i * 8; // Spread them out behind the ship
         const baseX = shipX - Math.cos(shipAngle) * trailDistance;
@@ -406,19 +406,19 @@ const SpaceMapComponent: React.FC = () => {
         const initialOpacity = 0.7;
         const initialSize = 3 + Math.random() * 2; // 3-5 pixels
         const newSmokeParticle: SmokeParticle = {
-          x: baseX + (Math.random() - 0.5) * 8,
-          y: baseY + (Math.random() - 0.5) * 8,
-          vx: (Math.random() - 0.5) * 0.4 - Math.cos(shipAngle) * 0.3,
-          vy: (Math.random() - 0.5) * 0.4 - Math.sin(shipAngle) * 0.3,
-          life: 120, // Frame-based: 120 frames = ~2 seconds at 60fps
-          maxLife: 120,
+          x: baseX + (Math.random() - 0.5) * 6,
+          y: baseY + (Math.random() - 0.5) * 6,
+          vx: (Math.random() - 0.5) * 0.2 - Math.cos(shipAngle) * 0.1, // Slower, opposite to ship direction
+          vy: (Math.random() - 0.5) * 0.2 - Math.sin(shipAngle) * 0.1, // Slower, opposite to ship direction
+          life: 90, // Frame-based: 90 frames = ~1.5 seconds at 60fps
+          maxLife: 90,
           size: initialSize,
           opacity: initialOpacity,
           initialOpacity: initialOpacity,
           initialSize: initialSize,
           drift: {
-            x: (Math.random() - 0.5) * 0.1,
-            y: (Math.random() - 0.5) * 0.1,
+            x: (Math.random() - 0.5) * 0.05,
+            y: (Math.random() - 0.5) * 0.05,
           },
         };
         smokeParticlesRef.current.push(newSmokeParticle);
@@ -3087,8 +3087,10 @@ const SpaceMapComponent: React.FC = () => {
         const expansionRatio = 1 - fadeRatio;
         smoke.size = smoke.initialSize + expansionRatio * 3;
 
-        // Simple upward drift
-        smoke.vy -= 0.005;
+        // Very slight random drift instead of always upward
+        if (Math.random() < 0.05) {
+          smoke.vy -= 0.002;
+        }
 
         // Remove dead particles
         if (smoke.life <= 0) {
@@ -3098,8 +3100,8 @@ const SpaceMapComponent: React.FC = () => {
 
       // Create smoke trail if ship HP is 0 and not in landing animation
       if (shipHP <= 0 && !isLandingAnimationActive) {
-        // Create smoke trail every 10 frames (6 times per second at 60fps)
-        if (frameCounter.current - lastSmokeFrame.current >= 10) {
+        // Create smoke trail every 15 frames (4 times per second at 60fps)
+        if (frameCounter.current - lastSmokeFrame.current >= 15) {
           createSmokeTrail(
             gameState.ship.x,
             gameState.ship.y,
