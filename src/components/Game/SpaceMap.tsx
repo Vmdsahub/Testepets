@@ -4,6 +4,7 @@ import { useShipStatePersistence } from "../../hooks/useShipStatePersistence";
 import { PlanetLandingModal } from "./PlanetLandingModal";
 import { useNPCShip } from "./NPCShip";
 import { NPCModal } from "./NPCModal";
+import { ShipActionsModal } from "./ShipActionsModal";
 
 import { FinalWebGLStars } from "./FinalWebGLStars";
 import {
