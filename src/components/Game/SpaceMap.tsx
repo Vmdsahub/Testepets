@@ -2093,6 +2093,31 @@ const SpaceMapComponent: React.FC = () => {
     setMouseInWindow(true);
   }, []);
 
+  // Check if click is on player ship
+  const isClickOnPlayerShip = useCallback(
+    (
+      clickX: number,
+      clickY: number,
+      canvasWidth: number,
+      canvasHeight: number,
+    ): boolean => {
+      const centerX = canvasWidth / 2;
+      const centerY = canvasHeight / 2;
+
+      // Player ship is always at center of screen
+      const shipScreenX = centerX;
+      const shipScreenY = centerY;
+      const shipSize = 30; // Same as defined in render function
+
+      const distance = Math.sqrt(
+        Math.pow(clickX - shipScreenX, 2) + Math.pow(clickY - shipScreenY, 2),
+      );
+
+      return distance <= shipSize / 2;
+    },
+    [],
+  );
+
   // Handle shooting and world editing
   const handleClick = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement>) => {
