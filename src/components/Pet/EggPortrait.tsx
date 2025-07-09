@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import { Clock, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -13,7 +13,7 @@ interface EggPortraitProps {
   isHatching: boolean;
 }
 
-export const EggPortrait: React.FC<EggPortraitProps> = ({
+export const EggPortrait: React.FC<EggPortraitProps> = memo(({
   eggData,
   timeRemainingSeconds,
   isHatching,
