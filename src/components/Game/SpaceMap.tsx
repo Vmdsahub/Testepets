@@ -237,6 +237,10 @@ const SpaceMapComponent: React.FC = () => {
   const shipImageRef = useRef<HTMLImageElement | null>(null);
   const movementSoundActiveRef = useRef<boolean>(false);
   const shouldHideShipRef = useRef<boolean>(false);
+  const pendingScreenTransition = useRef<{
+    planet: Planet;
+    completed: boolean;
+  } | null>(null);
 
   // Initialize state from store or use defaults
   const getInitialGameState = useCallback((): GameState => {
