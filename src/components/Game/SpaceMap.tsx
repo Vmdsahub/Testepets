@@ -2240,6 +2240,7 @@ const SpaceMapComponent: React.FC = () => {
       setShowLandingModal,
       npcShip.isClickOnShip,
       isClickOnPlayerShip,
+      currentScreen,
     ],
   );
 
@@ -3160,7 +3161,7 @@ const SpaceMapComponent: React.FC = () => {
 
       // Rotaç��o lenta baseada no tempo
       const rotationTime = currentTime * 0.0005; // Muito lenta
-      const dashOffset = (rotationTime * 50) % 20; // Offset dos tra��os para simular rotaç��o
+      const dashOffset = (rotationTime * 50) % 20; // Offset dos tra��os para simular rotação
 
       ctx.setLineDash([10, 10]);
       ctx.lineDashOffset = -dashOffset; // Anima os traços
