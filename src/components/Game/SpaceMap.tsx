@@ -3081,10 +3081,8 @@ const SpaceMapComponent: React.FC = () => {
         const fadeRatio = smoke.life / smoke.maxLife;
         const ageRatio = 1 - fadeRatio;
 
-        // Stable opacity calculation without random fluctuations
-        const baseOpacity = smoke.opacity || 0.7; // Use initial opacity or default
-        const currentOpacity = baseOpacity * fadeRatio;
-        smoke.opacity = Math.max(0, currentOpacity);
+        // Stable opacity calculation using initial opacity
+        smoke.opacity = Math.max(0, smoke.initialOpacity * fadeRatio);
 
         // Expand size over time to simulate smoke dispersing (reduced rate)
         smoke.size += 0.008; // Constant, slower expansion
