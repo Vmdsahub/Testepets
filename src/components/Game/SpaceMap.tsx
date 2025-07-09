@@ -223,6 +223,7 @@ const SpaceMapComponent: React.FC = () => {
   const shootingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const lastFrameTimeRef = useRef(performance.now());
   const frameCounter = useRef(0);
+  const lastSmokeTime = useRef(0);
   const [isMousePressed, setIsMousePressed] = useState(false);
   const [canvasDimensions, setCanvasDimensions] = useState({
     width: window.innerWidth,
@@ -393,17 +394,17 @@ const SpaceMapComponent: React.FC = () => {
   // Function to create smoke particles
   const createSmokeParticle = useCallback((x: number, y: number) => {
     const newSmokeParticle: SmokeParticle = {
-      x: x + (Math.random() - 0.5) * 10,
-      y: y + (Math.random() - 0.5) * 10,
-      vx: (Math.random() - 0.5) * 0.5,
-      vy: (Math.random() - 0.5) * 0.5 - 0.3, // Slight upward drift
-      life: 2000 + Math.random() * 1000, // 2-3 seconds
-      maxLife: 2000 + Math.random() * 1000,
-      size: 3 + Math.random() * 4, // 3-7 pixels
-      opacity: 0.3 + Math.random() * 0.4, // 0.3-0.7
+      x: x + (Math.random() - 0.5) * 15,
+      y: y + (Math.random() - 0.5) * 15,
+      vx: (Math.random() - 0.5) * 0.8,
+      vy: (Math.random() - 0.5) * 0.8 - 0.5, // More upward drift
+      life: 3000 + Math.random() * 2000, // 3-5 seconds
+      maxLife: 3000 + Math.random() * 2000,
+      size: 4 + Math.random() * 6, // 4-10 pixels
+      opacity: 0.6 + Math.random() * 0.4, // 0.6-1.0
       drift: {
-        x: (Math.random() - 0.5) * 0.1,
-        y: (Math.random() - 0.5) * 0.1,
+        x: (Math.random() - 0.5) * 0.2,
+        y: (Math.random() - 0.5) * 0.2,
       },
     };
     smokeParticlesRef.current.push(newSmokeParticle);
@@ -4253,7 +4254,7 @@ const SpaceMapComponent: React.FC = () => {
               • 2º Click: {isDragging ? "Confirmar posição" : "Ativar arrastar"}
             </div>
             <div>• ESC: Cancelar</div>
-            <div>• Painel: Tamanho/Rota��ão</div>
+            <div>• Painel: Tamanho/Rota���ão</div>
           </>
         ) : (
           <>
