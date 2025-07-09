@@ -113,13 +113,13 @@ export const ShipActionsModal: React.FC<ShipActionsModalProps> = ({
                       className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-blue-50 hover:border-blue-100 border border-transparent transition-all duration-200 text-left group shadow-sm hover:shadow-md"
                     >
                       <div className="flex-shrink-0">
-                        <IconComponent className="w-4 h-4 text-gray-600 group-hover:text-blue-600 transition-colors" />
+                        <IconComponent className="w-4 h-4 text-gray-600 group-hover:text-blue-600 transition-colors duration-200" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="font-medium text-sm text-gray-800 group-hover:text-blue-800 transition-colors">
+                        <div className="font-medium text-sm text-gray-800 group-hover:text-blue-900 transition-colors duration-200">
                           {action.label}
                         </div>
-                        <div className="text-xs text-gray-500 truncate">
+                        <div className="text-xs text-gray-500 group-hover:text-blue-600 transition-colors duration-200 truncate">
                           {action.description}
                         </div>
                       </div>
