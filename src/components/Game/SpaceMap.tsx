@@ -3564,7 +3564,15 @@ const SpaceMapComponent: React.FC = () => {
       if (shouldRenderShip && shipScale > 0 && currentScreen !== "planet") {
         ctx.save();
         ctx.translate(shipScreenX, shipScreenY);
-        ctx.rotate(shipAngle);
+
+        // Add subtle vibration/idle oscillation
+        const time = Date.now() * 0.003; // Slow oscillation
+        const vibrationX = Math.sin(time * 2.1) * 0.3; // Subtle horizontal sway
+        const vibrationY = Math.sin(time * 1.7) * 0.2; // Subtle vertical bob
+        const vibrationAngle = Math.sin(time * 2.4) * 0.015; // Tiny angular vibration
+
+        ctx.translate(vibrationX, vibrationY);
+        ctx.rotate(shipAngle + vibrationAngle);
         ctx.scale(shipScale, shipScale);
         ctx.globalAlpha = 1;
 
