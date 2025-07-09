@@ -131,7 +131,7 @@ export const ShipActionsModal: React.FC<ShipActionsModalProps> = ({
 
             {/* Arrow pointing to ship */}
             <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
-              <div className="w-3 h-3 bg-white border-r border-b border-gray-200 transform rotate-45"></div>
+              <div className="w-3 h-3 bg-white border-r border-b border-gray-200 transform rotate-45 shadow-md"></div>
             </div>
           </motion.div>
         </>
