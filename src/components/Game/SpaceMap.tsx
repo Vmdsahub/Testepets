@@ -1,17 +1,10 @@
-import React, {
-  useRef,
-  useEffect,
-  useState,
-  useCallback,
-  useMemo,
-  memo,
-} from "react";
+import React, { useRef, useEffect, useState, useCallback, memo } from "react";
 import { useGameStore } from "../../store/gameStore";
 import { useShipStatePersistence } from "../../hooks/useShipStatePersistence";
 import { PlanetLandingModal } from "./PlanetLandingModal";
 import { useNPCShip } from "./NPCShip";
 import { NPCModal } from "./NPCModal";
-import { gameService } from "../../services/gameService";
+
 import { FinalWebGLStars } from "./FinalWebGLStars";
 import {
   playLaserShootSound,
@@ -170,7 +163,6 @@ const RENDER_BUFFER = 200;
 
 // Trail constants
 const TRAIL_MAX_POINTS = 25;
-const TRAIL_POINT_DISTANCE = 6;
 const TRAIL_LIFETIME = 1200; // milliseconds
 const TRAIL_WIDTH = 12;
 
@@ -2494,7 +2486,7 @@ const SpaceMapComponent: React.FC = () => {
 
           newState.ship.angle = Math.atan2(dy, dx);
 
-          if (mouseInWindow && distance > 10) {
+          if (mouseInWindow && distance > 50) {
             const speedMultiplier = Math.min(distance / 300, 1);
             const targetSpeed = SHIP_MAX_SPEED * speedMultiplier;
             newState.ship.vx += (dx / distance) * targetSpeed * 0.04;
@@ -3564,7 +3556,15 @@ const SpaceMapComponent: React.FC = () => {
       if (shouldRenderShip && shipScale > 0 && currentScreen !== "planet") {
         ctx.save();
         ctx.translate(shipScreenX, shipScreenY);
-        ctx.rotate(shipAngle);
+
+        // Add subtle vibration/idle oscillation
+        const time = Date.now() * 0.003; // Slow oscillation
+        const vibrationX = Math.sin(time * 2.1) * 0.3; // Subtle horizontal sway
+        const vibrationY = Math.sin(time * 1.7) * 0.2; // Subtle vertical bob
+        const vibrationAngle = Math.sin(time * 2.4) * 0.015; // Tiny angular vibration
+
+        ctx.translate(vibrationX, vibrationY);
+        ctx.rotate(shipAngle + vibrationAngle);
         ctx.scale(shipScale, shipScale);
         ctx.globalAlpha = 1;
 
