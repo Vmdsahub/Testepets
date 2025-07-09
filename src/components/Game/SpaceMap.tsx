@@ -146,6 +146,7 @@ interface SmokeParticle {
   size: number;
   opacity: number;
   initialOpacity: number;
+  initialSize: number;
   drift: { x: number; y: number };
 }
 
