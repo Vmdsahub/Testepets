@@ -26,6 +26,16 @@ const generateAlienChar = () => {
   return ALIEN_CHARS[Math.floor(Math.random() * ALIEN_CHARS.length)];
 };
 
+const SHOP_ITEMS: ShopItem[] = [
+  {
+    id: "screwdriver",
+    name: "Chave de fenda",
+    description: "Restaura 1 HP da nave",
+    price: 20,
+    currency: "xenocoins",
+  },
+];
+
 export const NPCModal: React.FC<NPCModalProps> = ({ isOpen, onClose }) => {
   const [displayedText, setDisplayedText] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -33,6 +43,7 @@ export const NPCModal: React.FC<NPCModalProps> = ({ isOpen, onClose }) => {
   const [currentAlienChar, setCurrentAlienChar] = useState("");
   const [isShowingAlien, setIsShowingAlien] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const { user, xenocoins, updateCurrency, addNotification } = useGameStore();
 
   // Typewriter effect with alien translation
   useEffect(() => {
