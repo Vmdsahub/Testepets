@@ -2580,7 +2580,10 @@ const SpaceMapComponent: React.FC = () => {
 
           if (mouseInWindow && distance > 50) {
             const speedMultiplier = Math.min(distance / 300, 1);
-            const targetSpeed = SHIP_MAX_SPEED * speedMultiplier;
+            // Apply speed reduction if ship HP is 0 (85% reduction = 15% of original speed)
+            const hpSpeedModifier = shipHP <= 0 ? 0.15 : 1.0;
+            const targetSpeed =
+              SHIP_MAX_SPEED * speedMultiplier * hpSpeedModifier;
             newState.ship.vx += (dx / distance) * targetSpeed * 0.04;
             newState.ship.vy += (dy / distance) * targetSpeed * 0.04;
           }
