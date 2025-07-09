@@ -3766,6 +3766,8 @@ const SpaceMapComponent: React.FC = () => {
         onClose={() => setShowShipActionsModal(false)}
         shipX={shipModalPosition.x}
         shipY={shipModalPosition.y}
+        shipHP={shipHP}
+        onRepairShip={repairShip}
       />
 
       {/* Final WebGL Stars */}
