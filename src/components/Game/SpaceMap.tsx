@@ -3737,6 +3737,13 @@ const SpaceMapComponent: React.FC = () => {
 
       <NPCModal isOpen={showNPCModal} onClose={() => setShowNPCModal(false)} />
 
+      <ShipActionsModal
+        isOpen={showShipActionsModal}
+        onClose={() => setShowShipActionsModal(false)}
+        shipX={shipModalPosition.x}
+        shipY={shipModalPosition.y}
+      />
+
       {/* Final WebGL Stars */}
       <FinalWebGLStars
         stars={starsRef.current}
