@@ -117,9 +117,29 @@ export const ShipActionsModal: React.FC<ShipActionsModalProps> = ({
   }, [isOpen, onClose, currentView]);
 
   const handleActionClick = (actionId: string) => {
-    // TODO: Implement specific actions
-    console.log(`Ação selecionada: ${actionId}`);
-    onClose();
+    switch (actionId) {
+      case "inspect":
+        setCurrentView("inspect");
+        break;
+      case "inventory":
+        setCurrentView("inventory");
+        break;
+      case "change":
+        // TODO: Implement ship change functionality
+        console.log("Trocar nave - funcionalidade futura");
+        onClose();
+        break;
+      default:
+        onClose();
+    }
+  };
+
+  const handleBackToMain = () => {
+    setCurrentView("main");
+  };
+
+  const useInventoryItem = (item: ShipInventoryItem) => {
+    item.effect();
   };
 
   return (
