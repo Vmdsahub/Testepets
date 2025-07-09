@@ -1173,6 +1173,26 @@ const SpaceMapComponent: React.FC = () => {
     }, 5000);
   }, [lastDamageTime, setGameState]);
 
+  // Repair ship function
+  const repairShip = useCallback(() => {
+    setShipHP((prev) => {
+      const newHP = Math.min(prev + 1, 3);
+      setShowHPBar(true);
+
+      addNotification({
+        type: "success",
+        message: `Nave reparada! HP: ${newHP}/3`,
+      });
+
+      // Hide HP bar after 3 seconds
+      setTimeout(() => {
+        setShowHPBar(false);
+      }, 3000);
+
+      return newHP;
+    });
+  }, [addNotification]);
+
   // Helper function to draw directional radar pulse
   const drawRadarPulse = useCallback(
     (
