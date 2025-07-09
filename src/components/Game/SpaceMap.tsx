@@ -136,6 +136,18 @@ interface TrailPoint {
   intensity: number;
 }
 
+interface SmokeParticle {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  life: number;
+  maxLife: number;
+  size: number;
+  opacity: number;
+  drift: { x: number; y: number };
+}
+
 interface GameState {
   ship: {
     x: number;
@@ -198,6 +210,7 @@ const SpaceMapComponent: React.FC = () => {
   const asteroidsRef = useRef<Asteroid[]>([]);
   const xenoCoinsRef = useRef<XenoCoin[]>([]);
   const particlesRef = useRef<Particle[]>([]);
+  const smokeParticlesRef = useRef<SmokeParticle[]>([]);
   const lastTrailTime = useRef<number>(0);
   const lastShootingStarTime = useRef(0);
   const lastShootTime = useRef(0);
