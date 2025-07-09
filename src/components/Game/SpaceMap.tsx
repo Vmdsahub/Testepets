@@ -3717,9 +3717,11 @@ const SpaceMapComponent: React.FC = () => {
             },
           }));
 
-          // Immediate transition to prevent visual glitches
-          setCurrentPlanet(planetData);
-          setCurrentScreen("planet");
+          // Schedule transition for next render cycle to prevent setState during render
+          pendingScreenTransition.current = {
+            planet: planetData,
+            completed: true,
+          };
         } else {
           // Calculate orbital animation
           const planet = landingAnimationData.planet;
