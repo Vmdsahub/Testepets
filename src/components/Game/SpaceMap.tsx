@@ -403,20 +403,22 @@ const SpaceMapComponent: React.FC = () => {
         const baseX = shipX - Math.cos(shipAngle) * trailDistance;
         const baseY = shipY - Math.sin(shipAngle) * trailDistance;
 
-        const initialOpacity = 0.6 + Math.random() * 0.3; // 0.6-0.9
+        const initialOpacity = 0.7;
+        const initialSize = 3 + Math.random() * 2; // 3-5 pixels
         const newSmokeParticle: SmokeParticle = {
           x: baseX + (Math.random() - 0.5) * 8,
           y: baseY + (Math.random() - 0.5) * 8,
-          vx: (Math.random() - 0.5) * 0.4 - Math.cos(shipAngle) * 0.3, // Inherit some ship direction
+          vx: (Math.random() - 0.5) * 0.4 - Math.cos(shipAngle) * 0.3,
           vy: (Math.random() - 0.5) * 0.4 - Math.sin(shipAngle) * 0.3,
-          life: 2000 + Math.random() * 1500, // 2-3.5 seconds
-          maxLife: 2000 + Math.random() * 1500,
-          size: 2 + Math.random() * 3, // Small particles 2-5 pixels
+          life: 180, // Frame-based: 180 frames = ~3 seconds at 60fps
+          maxLife: 180,
+          size: initialSize,
           opacity: initialOpacity,
           initialOpacity: initialOpacity,
+          initialSize: initialSize,
           drift: {
-            x: (Math.random() - 0.5) * 0.2,
-            y: (Math.random() - 0.5) * 0.2,
+            x: (Math.random() - 0.5) * 0.1,
+            y: (Math.random() - 0.5) * 0.1,
           },
         };
         smokeParticlesRef.current.push(newSmokeParticle);
