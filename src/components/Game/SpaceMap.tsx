@@ -2237,6 +2237,7 @@ const SpaceMapComponent: React.FC = () => {
       setSelectedPlanet,
       setShowLandingModal,
       npcShip.isClickOnShip,
+      isClickOnPlayerShip,
     ],
   );
 
