@@ -42,12 +42,19 @@ const ACTIONS = [
   },
 ];
 
+type ModalView = "main" | "inspect" | "inventory";
+
 export const ShipActionsModal: React.FC<ShipActionsModalProps> = ({
   isOpen,
   onClose,
   shipX,
   shipY,
+  shipHP,
+  onRepairShip,
 }) => {
+  const [currentView, setCurrentView] = useState<ModalView>("main");
+  const [shipInventory, setShipInventory] = useState<ShipInventoryItem[]>([]);
+  const { user } = useGameStore();
   // Handle ESC key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
