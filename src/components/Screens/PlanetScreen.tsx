@@ -12,6 +12,7 @@ import {
   Minus,
   Eye,
   EyeOff,
+  Trash2,
 } from "lucide-react";
 import { useGameStore } from "../../store/gameStore";
 import { ExplorationPoint } from "../../types/game";
@@ -34,6 +35,9 @@ export const PlanetScreen: React.FC = () => {
     setPlanetEditMode,
     updateExplorationPoint,
     toggleExplorationPointActive,
+    addExplorationPoint,
+    removeExplorationPoint,
+    saveExplorationPoints,
   } = useGameStore();
 
   const [draggedPoint, setDraggedPoint] = useState<string | null>(null);
@@ -106,14 +110,52 @@ export const PlanetScreen: React.FC = () => {
   const handleSizeChange = (pointId: string, delta: number) => {
     const point = explorationPoints.find((p) => p.id === pointId);
     if (point) {
-      const newSize = Math.max(0.5, Math.min(2.0, (point.size || 1.0) + delta));
+      const currentSize = point.size || 1.0;
+      const newSize = Math.max(0.5, Math.min(2.0, currentSize + delta));
+      console.log(
+        `Changing size from ${currentSize} to ${newSize} for point ${pointId}`,
+      );
       updateExplorationPoint(pointId, { size: newSize });
     }
   };
 
   // Handle toggle active
   const handleToggleActive = (pointId: string) => {
+    console.log(`Toggling active state for point ${pointId}`);
     toggleExplorationPointActive(pointId);
+  };
+
+  // Handle delete point
+  const handleDeletePoint = (pointId: string) => {
+    if (confirm("Tem certeza que deseja excluir este ponto de exploração?")) {
+      removeExplorationPoint(pointId);
+    }
+  };
+
+  // Handle add new point
+  const handleAddPoint = (e: React.MouseEvent) => {
+    if (!isPlanetEditMode || !currentPlanet) return;
+
+    const container = containerRef.current;
+    if (container) {
+      const rect = container.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+
+      // Clamp to container bounds
+      const clampedX = Math.max(5, Math.min(95, x));
+      const clampedY = Math.max(5, Math.min(95, y));
+
+      addExplorationPoint(currentPlanet.id, clampedX, clampedY);
+    }
+  };
+
+  // Handle save changes
+  const handleSave = async () => {
+    if (currentPlanet) {
+      await saveExplorationPoints(currentPlanet.id);
+      setPlanetEditMode(false);
+    }
   };
 
   // Gerar uma imagem placeholder baseada na cor do planeta
@@ -132,7 +174,9 @@ export const PlanetScreen: React.FC = () => {
           {/* Admin Edit Button */}
           {user?.isAdmin && (
             <motion.button
-              onClick={() => setPlanetEditMode(!isPlanetEditMode)}
+              onClick={
+                isPlanetEditMode ? handleSave : () => setPlanetEditMode(true)
+              }
               className={`p-2 rounded-full transition-colors ${
                 isPlanetEditMode
                   ? "bg-green-100 text-green-600 hover:bg-green-200"
@@ -153,12 +197,13 @@ export const PlanetScreen: React.FC = () => {
           ref={containerRef}
           className={`w-full h-[calc(100vh-280px)] sm:h-[calc(100vh-300px)] md:h-[calc(100vh-320px)] lg:h-[calc(100vh-340px)] relative rounded-2xl overflow-hidden ${
             isPlanetEditMode
-              ? "border-2 border-dashed border-blue-400 bg-blue-50/20"
+              ? "border-2 border-dashed border-blue-400 bg-blue-50/20 cursor-crosshair"
               : ""
           }`}
           onMouseMove={handleDrag}
           onMouseUp={handleDragEnd}
           onMouseLeave={handleDragEnd}
+          onClick={isPlanetEditMode ? handleAddPoint : undefined}
         >
           <motion.img
             initial={{ opacity: 0, scale: 0.9 }}
@@ -233,22 +278,28 @@ export const PlanetScreen: React.FC = () => {
 
                   {/* Edit controls */}
                   {isPlanetEditMode && (
-                    <div className="absolute top-8 left-1/2 transform -translate-x-1/2 bg-white rounded-lg shadow-lg p-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-auto">
+                    <div className="absolute top-8 left-1/2 transform -translate-x-1/2 bg-white rounded-lg shadow-lg p-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-auto z-50">
                       {/* Size controls */}
                       <button
-                        onClick={() => handleSizeChange(point.id, -0.1)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleSizeChange(point.id, -0.1);
+                        }}
                         className="p-1 hover:bg-gray-100 rounded"
                         title="Diminuir"
                       >
                         <Minus className="w-3 h-3" />
                       </button>
 
-                      <span className="text-xs font-mono px-1">
-                        {(size * 100).toFixed(0)}%
+                      <span className="text-xs font-mono px-1 min-w-[32px] text-center">
+                        {((point.size || 1.0) * 100).toFixed(0)}%
                       </span>
 
                       <button
-                        onClick={() => handleSizeChange(point.id, 0.1)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleSizeChange(point.id, 0.1);
+                        }}
                         className="p-1 hover:bg-gray-100 rounded"
                         title="Aumentar"
                       >
@@ -257,7 +308,10 @@ export const PlanetScreen: React.FC = () => {
 
                       {/* Active toggle */}
                       <button
-                        onClick={() => handleToggleActive(point.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleToggleActive(point.id);
+                        }}
                         className={`p-1 rounded ${isActive ? "text-green-600 hover:bg-green-100" : "text-gray-400 hover:bg-gray-100"}`}
                         title={isActive ? "Desativar" : "Ativar"}
                       >
@@ -266,6 +320,18 @@ export const PlanetScreen: React.FC = () => {
                         ) : (
                           <EyeOff className="w-3 h-3" />
                         )}
+                      </button>
+
+                      {/* Delete button */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeletePoint(point.id);
+                        }}
+                        className="p-1 text-red-600 hover:bg-red-100 rounded"
+                        title="Excluir"
+                      >
+                        <Trash2 className="w-3 h-3" />
                       </button>
                     </div>
                   )}
@@ -286,6 +352,10 @@ export const PlanetScreen: React.FC = () => {
             </h4>
             <div className="text-blue-800 text-sm space-y-1">
               <p>
+                • <strong>Criar:</strong> Clique em qualquer lugar da imagem
+                para adicionar um novo ponto
+              </p>
+              <p>
                 • <strong>Arrastar:</strong> Clique e arraste os ícones para
                 reposicionar
               </p>
@@ -298,8 +368,12 @@ export const PlanetScreen: React.FC = () => {
                 mostrar/ocultar pontos
               </p>
               <p>
+                • <strong>Excluir:</strong> Use o ícone de lixeira para remover
+                pontos
+              </p>
+              <p>
                 • <strong>Salvar:</strong> Clique no ícone de salvar no
-                cabeçalho para sair do modo de edição
+                cabeçalho para confirmar alterações
               </p>
             </div>
           </motion.div>
