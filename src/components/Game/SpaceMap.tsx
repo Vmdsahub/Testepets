@@ -1153,30 +1153,11 @@ const SpaceMapComponent: React.FC = () => {
       const newHP = prev - 1;
 
       if (newHP <= 0) {
-        // Ship destroyed - respawn at center
-        console.log("Ship destroyed! Respawning at center...");
-
-        setGameState((prevState) => ({
-          ...prevState,
-          ship: {
-            ...prevState.ship,
-            x: CENTER_X,
-            y: CENTER_Y,
-            vx: 0,
-            vy: 0,
-          },
-          camera: {
-            x: CENTER_X,
-            y: CENTER_Y,
-          },
-        }));
-
-        // Reset HP and hide bar after respawn
-        setTimeout(() => {
-          setShowHPBar(false);
-        }, 3000);
-
-        return 3; // Reset to full HP
+        // Ship at 0 HP - no respawn, just log the damage state
+        console.log(
+          "Ship critically damaged! Speed reduced, weapons disabled.",
+        );
+        return 0; // Keep at 0 HP
       }
 
       return newHP;
@@ -3972,7 +3953,7 @@ const SpaceMapComponent: React.FC = () => {
                       updateWorldPosition(selectedWorldId, {
                         size: newSize,
                       });
-                      console.log("📏 Size saved successfully");
+                      console.log("���� Size saved successfully");
                     } catch (error) {
                       console.error("📏 Error saving size:", error);
                     }
