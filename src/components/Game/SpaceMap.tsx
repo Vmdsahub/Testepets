@@ -1180,11 +1180,13 @@ const SpaceMapComponent: React.FC = () => {
       if (newHP <= 0) {
         // Ship at 0 HP - no respawn, just log the damage state
         console.log(
-          "Ship critically damaged! Speed reduced, weapons disabled.",
+          "Ship critically damaged! Speed reduced, weapons disabled. HP:",
+          newHP,
         );
         return 0; // Keep at 0 HP
       }
 
+      console.log("Ship damaged! HP:", newHP);
       return newHP;
     });
 
@@ -3248,7 +3250,7 @@ const SpaceMapComponent: React.FC = () => {
         ctx.lineWidth = 2;
       }
 
-      // Rotaç��o lenta baseada no tempo
+      // Rotaç���o lenta baseada no tempo
       const rotationTime = currentTime * 0.0005; // Muito lenta
       const dashOffset = (rotationTime * 50) % 20; // Offset dos tra��os para simular rotação
 
