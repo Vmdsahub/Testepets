@@ -142,6 +142,67 @@ export const ShipActionsModal: React.FC<ShipActionsModalProps> = ({
     item.effect();
   };
 
+  // Function to add items to ship inventory (will be called from NPCModal)
+  React.useEffect(() => {
+    const handleAddToShipInventory = (event: CustomEvent) => {
+      const { item } = event.detail;
+      if (user) {
+        const currentInventory = [...shipInventory];
+        const existingItemIndex = currentInventory.findIndex(
+          (inv) => inv.name === item.name,
+        );
+
+        if (existingItemIndex >= 0) {
+          currentInventory[existingItemIndex].quantity += 1;
+        } else {
+          currentInventory.push({
+            id: item.id || Date.now().toString(),
+            name: item.name,
+            description: item.description,
+            icon: Wrench,
+            quantity: 1,
+            effect: () => {
+              if (item.name === "Chave de fenda" && shipHP < 3) {
+                onRepairShip();
+                // Remove one item from inventory
+                const updatedInventory = currentInventory
+                  .map((invItem) =>
+                    invItem.id === item.id
+                      ? { ...invItem, quantity: invItem.quantity - 1 }
+                      : invItem,
+                  )
+                  .filter((invItem) => invItem.quantity > 0);
+                setShipInventory(updatedInventory);
+                localStorage.setItem(
+                  `ship-inventory-${user.id}`,
+                  JSON.stringify(updatedInventory),
+                );
+              }
+            },
+          });
+        }
+
+        setShipInventory(currentInventory);
+        localStorage.setItem(
+          `ship-inventory-${user.id}`,
+          JSON.stringify(currentInventory),
+        );
+      }
+    };
+
+    window.addEventListener(
+      "addToShipInventory",
+      handleAddToShipInventory as EventListener,
+    );
+
+    return () => {
+      window.removeEventListener(
+        "addToShipInventory",
+        handleAddToShipInventory as EventListener,
+      );
+    };
+  }, [user, shipInventory, shipHP, onRepairShip]);
+
   return (
     <AnimatePresence>
       {isOpen && (
