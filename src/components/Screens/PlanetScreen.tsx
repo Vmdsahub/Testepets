@@ -254,20 +254,23 @@ export const PlanetScreen: React.FC = () => {
               return (
                 <div
                   key={point.id}
-                  className="absolute transform -translate-x-1/2 -translate-y-1/2"
+                  className={`absolute transform -translate-x-1/2 -translate-y-1/2 group ${
+                    isDragging ? "z-50" : ""
+                  }`}
                   style={{
                     left: `${point.x}%`,
                     top: `${point.y}%`,
                   }}
                 >
                   {/* Main exploration point */}
-                  <motion.button
+                  <motion.div
                     initial={{ opacity: 0, scale: 0 }}
                     animate={{
                       opacity: isPlanetEditMode ? (isActive ? 1 : 0.5) : 1,
                       scale: size,
                     }}
                     transition={{ delay: 0.8 + index * 0.2, duration: 0.4 }}
+                    className={`relative ${isPlanetEditMode ? "cursor-move" : "cursor-pointer"}`}
                     onClick={(e) => {
                       e.stopPropagation();
                       handleExplorationPointClick(point);
@@ -278,9 +281,6 @@ export const PlanetScreen: React.FC = () => {
                         handleDragStart(e, point);
                       }
                     }}
-                    className={`group relative ${isPlanetEditMode ? "cursor-move" : "cursor-pointer"} ${
-                      isDragging ? "z-50" : ""
-                    }`}
                     whileHover={!isPlanetEditMode ? { scale: size * 1.2 } : {}}
                     whileTap={!isPlanetEditMode ? { scale: size * 0.9 } : {}}
                     style={{
@@ -295,63 +295,63 @@ export const PlanetScreen: React.FC = () => {
                     >
                       <MapPin className="w-3 h-3 text-white" />
                     </div>
+                  </motion.div>
 
-                    {/* Tooltip / Name Editor */}
-                    {!isPlanetEditMode ? (
-                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-black bg-opacity-80 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
-                        {point.name}
-                        <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-black border-opacity-80"></div>
-                      </div>
-                    ) : (
-                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 bg-white rounded-lg shadow-lg p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-auto min-w-[150px]">
-                        {editingName === point.id ? (
-                          <div className="flex items-center gap-1">
-                            <input
-                              type="text"
-                              value={editingValue}
-                              onChange={(e) => setEditingValue(e.target.value)}
-                              className="flex-1 px-2 py-1 text-xs border rounded"
-                              autoFocus
-                              onKeyDown={(e) => {
-                                if (e.key === "Enter") handleSaveName(point.id);
-                                if (e.key === "Escape") handleCancelEdit();
+                  {/* Tooltip / Name Editor */}
+                  {!isPlanetEditMode ? (
+                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-black bg-opacity-80 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
+                      {point.name}
+                      <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-black border-opacity-80"></div>
+                    </div>
+                  ) : (
+                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 bg-white rounded-lg shadow-lg p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-auto min-w-[150px] z-50">
+                      {editingName === point.id ? (
+                        <div className="flex items-center gap-1">
+                          <input
+                            type="text"
+                            value={editingValue}
+                            onChange={(e) => setEditingValue(e.target.value)}
+                            className="flex-1 px-2 py-1 text-xs border rounded"
+                            autoFocus
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") handleSaveName(point.id);
+                              if (e.key === "Escape") handleCancelEdit();
+                            }}
+                          />
+                          <button
+                            onClick={() => handleSaveName(point.id)}
+                            className="p-1 text-green-600 hover:bg-green-100 rounded"
+                          >
+                            <Save className="w-3 h-3" />
+                          </button>
+                          <button
+                            onClick={handleCancelEdit}
+                            className="p-1 text-gray-600 hover:bg-gray-100 rounded"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1">
+                          <span className="text-xs font-medium">
+                            {point.name}
+                          </span>
+                          {point.id.includes("custom") && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleStartEditName(point.id, point.name);
                               }}
-                            />
-                            <button
-                              onClick={() => handleSaveName(point.id)}
-                              className="p-1 text-green-600 hover:bg-green-100 rounded"
+                              className="p-1 text-blue-600 hover:bg-blue-100 rounded"
+                              title="Editar nome"
                             >
-                              <Save className="w-3 h-3" />
+                              <Edit3 className="w-3 h-3" />
                             </button>
-                            <button
-                              onClick={handleCancelEdit}
-                              className="p-1 text-gray-600 hover:bg-gray-100 rounded"
-                            >
-                              <X className="w-3 h-3" />
-                            </button>
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-1">
-                            <span className="text-xs font-medium">
-                              {point.name}
-                            </span>
-                            {point.id.includes("custom") && (
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleStartEditName(point.id, point.name);
-                                }}
-                                className="p-1 text-blue-600 hover:bg-blue-100 rounded"
-                                title="Editar nome"
-                              >
-                                <Edit3 className="w-3 h-3" />
-                              </button>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </motion.button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   {/* Edit controls */}
                   {isPlanetEditMode && (
