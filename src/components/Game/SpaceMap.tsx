@@ -3471,35 +3471,57 @@ const SpaceMapComponent: React.FC = () => {
           screenY >= -50 &&
           screenY <= canvas.height + 50
         ) {
-          // Draw smoke particle with more visibility
+          // Draw realistic smoke particle
           ctx.save();
-          ctx.globalAlpha = smoke.opacity;
 
-          // Add a subtle glow effect
-          ctx.shadowColor = "#888888";
-          ctx.shadowBlur = 8;
+          // Calculate age-based properties
+          const ageRatio = 1 - smoke.life / smoke.maxLife;
+          const finalOpacity = smoke.opacity * (0.9 - ageRatio * 0.4);
 
-          // Create gradient for more realistic smoke
+          ctx.globalAlpha = finalOpacity;
+
+          // Create realistic smoke gradient
           const gradient = ctx.createRadialGradient(
             screenX,
             screenY,
             0,
             screenX,
             screenY,
-            smoke.size,
+            smoke.size * 1.2,
           );
-          gradient.addColorStop(0, "#dddddd"); // Much brighter center
-          gradient.addColorStop(0.5, "#999999");
-          gradient.addColorStop(1, "rgba(120, 120, 120, 0.5)"); // Brighter edges
+
+          // Color shifts from dark to light as smoke ages
+          const centerColor = ageRatio < 0.3 ? "#666666" : "#888888";
+          const midColor = ageRatio < 0.5 ? "#555555" : "#777777";
+          const edgeColor = `rgba(${Math.floor(80 + ageRatio * 60)}, ${Math.floor(80 + ageRatio * 60)}, ${Math.floor(80 + ageRatio * 60)}, 0.1)`;
+
+          gradient.addColorStop(0, centerColor);
+          gradient.addColorStop(0.4, midColor);
+          gradient.addColorStop(0.7, edgeColor);
+          gradient.addColorStop(1, "rgba(100, 100, 100, 0)");
 
           ctx.fillStyle = gradient;
+
+          // Draw main smoke particle
           ctx.beginPath();
           ctx.arc(screenX, screenY, smoke.size, 0, Math.PI * 2);
           ctx.fill();
 
-          // Reset shadow
-          ctx.shadowColor = "transparent";
-          ctx.shadowBlur = 0;
+          // Add wispy effect for older particles
+          if (ageRatio > 0.4) {
+            ctx.globalAlpha = finalOpacity * 0.3;
+            ctx.fillStyle = `rgba(120, 120, 120, ${0.1 * (ageRatio - 0.4)})`;
+            ctx.beginPath();
+            ctx.arc(
+              screenX + smoke.drift.x * 20,
+              screenY + smoke.drift.y * 20,
+              smoke.size * 0.6,
+              0,
+              Math.PI * 2,
+            );
+            ctx.fill();
+          }
+
           ctx.restore();
         }
       }
