@@ -435,7 +435,7 @@ const SpaceMapComponent: React.FC = () => {
 
       // Tocar som de laser
       playLaserShootSound().catch(() => {
-        // Som não é crítico, ignora erro
+        // Som n��o é crítico, ignora erro
       });
 
       return true; // Tiro disparado
@@ -3079,6 +3079,10 @@ const SpaceMapComponent: React.FC = () => {
         if (currentTime - lastSmokeTime.current > 150) {
           createSmokeParticle(gameState.ship.x, gameState.ship.y);
           lastSmokeTime.current = currentTime;
+          console.log(
+            "Creating smoke particle, current smoke count:",
+            smokeParticlesRef.current.length,
+          );
         }
       }
 
