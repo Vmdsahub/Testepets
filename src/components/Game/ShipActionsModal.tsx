@@ -80,9 +80,9 @@ export const ShipActionsModal: React.FC<ShipActionsModalProps> = ({
             transition={{ type: "spring", damping: 30, stiffness: 400 }}
             className="fixed z-50 pointer-events-none"
             style={{
-              left: `${shipX + 30}px`,
-              top: `${shipY - 10}px`,
-              transform: "translate(-50%, -100%)",
+              left: `${Math.min(Math.max(shipX, 140), window.innerWidth - 140)}px`,
+              top: `${Math.max(shipY - 180, 20)}px`,
+              transform: "translate(-50%, 0)",
             }}
           >
             <div className="bg-white rounded-xl shadow-2xl border border-gray-200 w-64 pointer-events-auto">
