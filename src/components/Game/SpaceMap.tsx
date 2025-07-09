@@ -3427,6 +3427,33 @@ const SpaceMapComponent: React.FC = () => {
         }
       }
 
+      // Render smoke particles
+      const smokeParticlesForRender = smokeParticlesRef.current;
+      for (let i = 0; i < smokeParticlesForRender.length; i++) {
+        const smoke = smokeParticlesForRender[i];
+        const wrappedDeltaX = getWrappedDistance(smoke.x, gameState.camera.x);
+        const wrappedDeltaY = getWrappedDistance(smoke.y, gameState.camera.y);
+        const screenX = centerX + wrappedDeltaX;
+        const screenY = centerY + wrappedDeltaY;
+
+        // Only render if on screen
+        if (
+          screenX >= -50 &&
+          screenX <= canvas.width + 50 &&
+          screenY >= -50 &&
+          screenY <= canvas.height + 50
+        ) {
+          // Draw subtle smoke particle
+          ctx.save();
+          ctx.globalAlpha = smoke.opacity;
+          ctx.fillStyle = "#555555"; // Dark gray smoke
+          ctx.beginPath();
+          ctx.arc(screenX, screenY, smoke.size, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+      }
+
       // Render projectiles as bright energy beams - optimized with for loop
       const projectilesForRender = projectilesRef.current;
       for (let i = 0; i < projectilesForRender.length; i++) {
