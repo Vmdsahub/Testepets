@@ -15,6 +15,7 @@ import { OtherUserCollectiblesScreen } from "./components/Screens/OtherUserColle
 import { AdminPanel } from "./components/Admin/AdminPanel";
 import { SpaceMap } from "./components/Game/SpaceMap";
 import { PlanetScreen } from "./components/Screens/PlanetScreen";
+import { ExplorationScreen } from "./components/Screens/ExplorationScreen";
 import { useAuthStore } from "./store/authStore";
 import { useGameStore } from "./store/gameStore";
 import { preloadAllSounds } from "./utils/soundManager";
@@ -137,6 +138,8 @@ function App() {
         return <OtherUserCollectiblesScreen />;
       case "planet":
         return <PlanetScreen />;
+      case "exploration":
+        return <ExplorationScreen />;
       default:
         return <PetScreen />;
     }

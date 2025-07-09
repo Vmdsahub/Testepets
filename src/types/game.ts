@@ -205,6 +205,56 @@ export interface WorldPosition {
   updatedAt: Date;
 }
 
+export interface ExplorationPoint {
+  id: string;
+  planetId: string;
+  name: string;
+  x: number; // Position on planet screen (percentage 0-100)
+  y: number; // Position on planet screen (percentage 0-100)
+  imageUrl: string;
+  description?: string;
+  discovered: boolean;
+  size?: number; // Size multiplier (default 1.0)
+  active?: boolean; // Whether point is active/visible (default true)
+}
+
+export interface ExplorationArea {
+  id: string;
+  pointId: string;
+  name: string;
+  imageUrl: string;
+  description?: string;
+}
+
+export interface Asteroid {
+  id: string;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  size: number;
+  health: number;
+  maxHealth: number;
+  rotation: number;
+  rotationSpeed: number;
+  createdAt: number;
+}
+
+export interface XenoCoin {
+  id: string;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  size: number;
+  value: number;
+  rotation: number;
+  rotationSpeed: number;
+  pulsatePhase: number;
+  createdAt: number;
+  lifespan: number;
+}
+
 export interface GameState {
   user: User | null;
   activePet: Pet | null;
@@ -215,6 +265,8 @@ export interface GameState {
   notifications: Notification[];
   language: string;
   currentScreen: string;
+  currentExplorationPoint?: ExplorationPoint;
+  currentExplorationArea?: ExplorationArea;
   achievements: Achievement[];
   collectibles: Collectible[];
   quests: Quest[];
@@ -229,6 +281,8 @@ export interface GameState {
     cameraX: number;
     cameraY: number;
   };
+  asteroids?: Asteroid[];
+  xenoCoins?: XenoCoin[];
 }
 
 export interface Notification {

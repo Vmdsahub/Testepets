@@ -80,6 +80,51 @@ interface ShootingStar {
   tailLength: number;
 }
 
+interface Asteroid {
+  id: string;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  size: number;
+  health: number;
+  maxHealth: number;
+  rotation: number;
+  rotationSpeed: number;
+  createdAt: number;
+}
+
+interface XenoCoin {
+  id: string;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  size: number;
+  value: number;
+  rotation: number;
+  rotationSpeed: number;
+  pulsatePhase: number;
+  createdAt: number;
+  lifespan: number;
+}
+
+interface Particle {
+  id: string;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  size: number;
+  life: number;
+  maxLife: number;
+  color: string;
+  type: "damage" | "explosion" | "debris";
+  opacity: number;
+  rotation: number;
+  rotationSpeed: number;
+}
+
 interface RadarPulse {
   planetId: string;
   radius: number;
@@ -143,6 +188,8 @@ const SpaceMapComponent: React.FC = () => {
     worldPositions,
     loadWorldPositions,
     updateWorldPosition,
+    addNotification,
+    updateCurrency,
   } = useGameStore();
   const { saveShipState, forceSaveShipState } = useShipStatePersistence();
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -155,11 +202,17 @@ const SpaceMapComponent: React.FC = () => {
   const shootingStarsRef = useRef<ShootingStar[]>([]);
   const radarPulsesRef = useRef<RadarPulse[]>([]);
   const trailPointsRef = useRef<TrailPoint[]>([]);
+  const asteroidsRef = useRef<Asteroid[]>([]);
+  const xenoCoinsRef = useRef<XenoCoin[]>([]);
+  const particlesRef = useRef<Particle[]>([]);
   const lastTrailTime = useRef<number>(0);
   const lastShootingStarTime = useRef(0);
   const lastShootTime = useRef(0);
   const lastStarUpdateTime = useRef(0);
+  const lastAsteroidSpawnTime = useRef(0);
   const STAR_UPDATE_INTERVAL = 200; // 5 FPS = 200ms interval
+  const ASTEROID_SPAWN_INTERVAL = 5000; // Check for chunk loading every 5 seconds
+  const MAX_ASTEROIDS = 200; // Much higher limit for natural world distribution
   const lastRadarCheckRef = useRef<Set<string>>(new Set());
   const shootingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const lastFrameTimeRef = useRef(performance.now());
@@ -171,6 +224,7 @@ const SpaceMapComponent: React.FC = () => {
   });
   const lastRadarPulseTime = useRef<Map<string, number>>(new Map());
   const planetImagesRef = useRef<Map<string, HTMLImageElement>>(new Map());
+  const asteroidImageRef = useRef<HTMLImageElement | null>(null);
   const shipImageRef = useRef<HTMLImageElement | null>(null);
   const movementSoundActiveRef = useRef<boolean>(false);
   const shouldHideShipRef = useRef<boolean>(false);
@@ -292,6 +346,9 @@ const SpaceMapComponent: React.FC = () => {
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [barrierFlashTime, setBarrierFlashTime] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
+  const [shipHP, setShipHP] = useState(3);
+  const [lastDamageTime, setLastDamageTime] = useState(0);
+  const [showHPBar, setShowHPBar] = useState(false);
 
   // Helper function for seamless wrapping distance calculation
   const getWrappedDistance = useCallback(
@@ -528,6 +585,598 @@ const SpaceMapComponent: React.FC = () => {
       console.warn("Failed to play sonar sound:", error);
     });
   }, []);
+
+  // Check if point is inside barrier (asteroids cannot enter)
+  const isInsideBarrier = useCallback((x: number, y: number) => {
+    const distanceFromCenter = Math.sqrt(
+      Math.pow(getWrappedDistance(CENTER_X, x), 2) +
+        Math.pow(getWrappedDistance(CENTER_Y, y), 2),
+    );
+    return distanceFromCenter <= BARRIER_RADIUS;
+  }, []);
+
+  // Generate unique ID for asteroids and xenocoins
+  const generateId = useCallback(() => {
+    return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  }, []);
+
+  // Create damage particles when asteroid takes damage
+  const createDamageParticles = useCallback(
+    (x: number, y: number) => {
+      const particleCount = 3 + Math.random() * 4; // 3-7 particles
+
+      for (let i = 0; i < particleCount; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 30 + Math.random() * 50; // pixels per second
+        const size = 2 + Math.random() * 3;
+
+        const particle: Particle = {
+          id: generateId(),
+          x: normalizeCoord(x + (Math.random() - 0.5) * 20),
+          y: normalizeCoord(y + (Math.random() - 0.5) * 20),
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          size: size,
+          life: 0.5 + Math.random() * 0.5, // 0.5-1 second
+          maxLife: 0.5 + Math.random() * 0.5,
+          color: "#FFD700", // Golden color for damage
+          type: "damage",
+          opacity: 1,
+          rotation: Math.random() * Math.PI * 2,
+          rotationSpeed: (Math.random() - 0.5) * 10,
+        };
+
+        particlesRef.current.push(particle);
+      }
+    },
+    [generateId, normalizeCoord],
+  );
+
+  // Create explosion particles when asteroid is destroyed
+  const createExplosionParticles = useCallback(
+    (x: number, y: number, isBarrierExplosion: boolean = false) => {
+      const particleCount = isBarrierExplosion
+        ? 15 + Math.random() * 10
+        : 8 + Math.random() * 7; // More particles for barrier explosion
+
+      for (let i = 0; i < particleCount; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = isBarrierExplosion
+          ? 80 + Math.random() * 120
+          : 50 + Math.random() * 80;
+        const size = isBarrierExplosion
+          ? 3 + Math.random() * 6
+          : 2 + Math.random() * 4;
+        const lifespan = isBarrierExplosion
+          ? 1 + Math.random() * 1
+          : 0.8 + Math.random() * 0.7;
+
+        // Mix of colors for explosion
+        const colors = isBarrierExplosion
+          ? ["#FF6B35", "#FF8E53", "#FF4500", "#FFD700", "#FFA500"]
+          : ["#FF6B35", "#FF8E53", "#FFD700", "#C0C0C0"];
+        const color = colors[Math.floor(Math.random() * colors.length)];
+
+        const particle: Particle = {
+          id: generateId(),
+          x: normalizeCoord(x + (Math.random() - 0.5) * 30),
+          y: normalizeCoord(y + (Math.random() - 0.5) * 30),
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          size: size,
+          life: lifespan,
+          maxLife: lifespan,
+          color: color,
+          type: isBarrierExplosion ? "explosion" : "debris",
+          opacity: 1,
+          rotation: Math.random() * Math.PI * 2,
+          rotationSpeed: (Math.random() - 0.5) * 15,
+        };
+
+        particlesRef.current.push(particle);
+      }
+
+      // Add a few larger debris pieces for destruction
+      if (!isBarrierExplosion) {
+        for (let i = 0; i < 3; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const speed = 20 + Math.random() * 40;
+
+          const debris: Particle = {
+            id: generateId(),
+            x: normalizeCoord(x),
+            y: normalizeCoord(y),
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            size: 4 + Math.random() * 3,
+            life: 1.5 + Math.random() * 1,
+            maxLife: 1.5 + Math.random() * 1,
+            color: "#8B4513", // Brown debris
+            type: "debris",
+            opacity: 1,
+            rotation: Math.random() * Math.PI * 2,
+            rotationSpeed: (Math.random() - 0.5) * 8,
+          };
+
+          particlesRef.current.push(debris);
+        }
+      }
+    },
+    [generateId, normalizeCoord],
+  );
+
+  // Draw particle
+  const drawParticle = useCallback(
+    (
+      ctx: CanvasRenderingContext2D,
+      particle: Particle,
+      screenX: number,
+      screenY: number,
+    ) => {
+      const lifeRatio = particle.life / particle.maxLife;
+      const alpha = particle.opacity * lifeRatio;
+
+      if (alpha <= 0) return;
+
+      ctx.save();
+      ctx.translate(screenX, screenY);
+      ctx.rotate(particle.rotation);
+      ctx.globalAlpha = alpha;
+
+      if (particle.type === "explosion") {
+        // Explosion particles with glow
+        ctx.shadowColor = particle.color;
+        ctx.shadowBlur = particle.size * 2;
+        ctx.fillStyle = particle.color;
+        ctx.beginPath();
+        ctx.arc(0, 0, particle.size * lifeRatio, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Inner bright core
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = "#FFFFFF";
+        ctx.beginPath();
+        ctx.arc(0, 0, particle.size * lifeRatio * 0.4, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (particle.type === "damage") {
+        // Sparkling damage particles
+        ctx.fillStyle = particle.color;
+        ctx.shadowColor = particle.color;
+        ctx.shadowBlur = particle.size;
+
+        // Draw as small diamond
+        ctx.beginPath();
+        ctx.moveTo(0, -particle.size);
+        ctx.lineTo(particle.size, 0);
+        ctx.lineTo(0, particle.size);
+        ctx.lineTo(-particle.size, 0);
+        ctx.closePath();
+        ctx.fill();
+      } else {
+        // Debris particles
+        ctx.fillStyle = particle.color;
+        ctx.fillRect(
+          -particle.size / 2,
+          -particle.size / 2,
+          particle.size,
+          particle.size,
+        );
+      }
+
+      ctx.restore();
+    },
+    [],
+  );
+
+  // Generate a deterministic random seed based on coordinates
+  const getSeededRandom = useCallback(
+    (x: number, y: number, salt: number = 0) => {
+      const seed =
+        Math.floor(x / 1000) * 73856093 +
+        Math.floor(y / 1000) * 19349663 +
+        salt * 83492791;
+      const rnd = Math.sin(seed) * 10000;
+      return rnd - Math.floor(rnd);
+    },
+    [],
+  );
+
+  // Check if a chunk should have asteroids based on deterministic generation
+  const shouldChunkHaveAsteroid = useCallback(
+    (chunkX: number, chunkY: number) => {
+      // Skip chunks that are inside or too close to barrier
+      const centerDistanceFromBarrier = Math.sqrt(
+        Math.pow(chunkX * 1000 - CENTER_X, 2) +
+          Math.pow(chunkY * 1000 - CENTER_Y, 2),
+      );
+      if (centerDistanceFromBarrier < BARRIER_RADIUS + 200) return false;
+
+      // Use deterministic random to decide if chunk has asteroids (30% chance)
+      return getSeededRandom(chunkX, chunkY, 1) < 0.3;
+    },
+    [getSeededRandom],
+  );
+
+  // Generate asteroids for a specific world chunk (1000x1000 area)
+  const generateAsteroidsForChunk = useCallback(
+    (chunkX: number, chunkY: number) => {
+      if (!shouldChunkHaveAsteroid(chunkX, chunkY)) return [];
+
+      const asteroids: Asteroid[] = [];
+      const chunkWorldX = chunkX * 1000;
+      const chunkWorldY = chunkY * 1000;
+
+      // Deterministic number of asteroids per chunk (1-3)
+      const asteroidCount =
+        Math.floor(getSeededRandom(chunkX, chunkY, 2) * 3) + 1;
+
+      for (let i = 0; i < asteroidCount; i++) {
+        // Deterministic position within chunk
+        const localX = getSeededRandom(chunkX, chunkY, i * 10 + 3) * 1000;
+        const localY = getSeededRandom(chunkX, chunkY, i * 10 + 4) * 1000;
+        const worldX = chunkWorldX + localX;
+        const worldY = chunkWorldY + localY;
+
+        // Skip if too close to barrier
+        const distanceFromCenter = Math.sqrt(
+          Math.pow(worldX - CENTER_X, 2) + Math.pow(worldY - CENTER_Y, 2),
+        );
+        if (distanceFromCenter < BARRIER_RADIUS + 100) continue;
+
+        // Deterministic properties
+        const velocityAngle =
+          getSeededRandom(chunkX, chunkY, i * 10 + 5) * Math.PI * 2;
+        const speed = 5 + getSeededRandom(chunkX, chunkY, i * 10 + 6) * 15; // 5-20 pixels per second
+        const size = 15 + getSeededRandom(chunkX, chunkY, i * 10 + 7) * 25; // 15-40 pixel radius
+
+        const asteroid: Asteroid = {
+          id: `chunk_${chunkX}_${chunkY}_${i}`,
+          x: normalizeCoord(worldX),
+          y: normalizeCoord(worldY),
+          vx: Math.cos(velocityAngle) * speed,
+          vy: Math.sin(velocityAngle) * speed,
+          size: size,
+          health: 10,
+          maxHealth: 10,
+          rotation: getSeededRandom(chunkX, chunkY, i * 10 + 8) * Math.PI * 2,
+          rotationSpeed:
+            (getSeededRandom(chunkX, chunkY, i * 10 + 9) - 0.5) * 2,
+          createdAt: Date.now(),
+        };
+
+        asteroids.push(asteroid);
+      }
+
+      return asteroids;
+    },
+    [shouldChunkHaveAsteroid, getSeededRandom, normalizeCoord],
+  );
+
+  // Load asteroids around current camera position
+  const loadAsteroidsAroundCamera = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const cameraX = gameState.camera.x;
+    const cameraY = gameState.camera.y;
+    const loadRadius = Math.max(canvas.width, canvas.height) + 1000; // Load area larger than screen
+
+    // Calculate chunk range to load
+    const chunkSize = 1000;
+    const minChunkX = Math.floor((cameraX - loadRadius) / chunkSize);
+    const maxChunkX = Math.floor((cameraX + loadRadius) / chunkSize);
+    const minChunkY = Math.floor((cameraY - loadRadius) / chunkSize);
+    const maxChunkY = Math.floor((cameraY + loadRadius) / chunkSize);
+
+    // Track which chunks should have asteroids loaded
+    const requiredChunks = new Set<string>();
+
+    for (let chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
+      for (let chunkY = minChunkY; chunkY <= maxChunkY; chunkY++) {
+        if (shouldChunkHaveAsteroid(chunkX, chunkY)) {
+          requiredChunks.add(`${chunkX}_${chunkY}`);
+        }
+      }
+    }
+
+    // Remove asteroids from chunks that are no longer needed
+    const beforeCount = asteroidsRef.current.length;
+    asteroidsRef.current = asteroidsRef.current.filter((asteroid) => {
+      if (!asteroid.id.startsWith("chunk_")) return true; // Keep non-chunk asteroids
+
+      const [, chunkX, chunkY] = asteroid.id.split("_");
+      const chunkKey = `${chunkX}_${chunkY}`;
+      return requiredChunks.has(chunkKey);
+    });
+
+    // Add asteroids for chunks that need them
+    const existingChunks = new Set(
+      asteroidsRef.current
+        .filter((a) => a.id.startsWith("chunk_"))
+        .map((a) => {
+          const [, chunkX, chunkY] = a.id.split("_");
+          return `${chunkX}_${chunkY}`;
+        }),
+    );
+
+    let newAsteroidsAdded = 0;
+    for (const chunkKey of requiredChunks) {
+      if (!existingChunks.has(chunkKey)) {
+        const [chunkX, chunkY] = chunkKey.split("_").map(Number);
+        const newAsteroids = generateAsteroidsForChunk(chunkX, chunkY);
+        asteroidsRef.current.push(...newAsteroids);
+        newAsteroidsAdded += newAsteroids.length;
+      }
+    }
+
+    const afterCount = asteroidsRef.current.length;
+    if (beforeCount !== afterCount) {
+      console.log(
+        `Asteroid chunks updated: ${beforeCount} -> ${afterCount} (${newAsteroidsAdded} added, ${beforeCount - afterCount + newAsteroidsAdded} removed)`,
+      );
+    }
+  }, [gameState.camera, shouldChunkHaveAsteroid, generateAsteroidsForChunk]);
+
+  // Create xenocoin when asteroid is destroyed
+  const createXenoCoin = useCallback(
+    (x: number, y: number) => {
+      const newXenoCoin: XenoCoin = {
+        id: generateId(),
+        x: normalizeCoord(x),
+        y: normalizeCoord(y),
+        vx: 0,
+        vy: 0,
+        size: 8,
+        value: 1,
+        rotation: 0,
+        rotationSpeed: 3, // Faster rotation for visibility
+        pulsatePhase: Math.random() * Math.PI * 2,
+        createdAt: Date.now(),
+        lifespan: 30000, // 30 seconds before disappearing
+      };
+
+      xenoCoinsRef.current.push(newXenoCoin);
+    },
+    [generateId, normalizeCoord],
+  );
+
+  // Check collision between projectile and asteroid
+  const checkProjectileAsteroidCollision = useCallback(
+    (projectile: Projectile, asteroid: Asteroid) => {
+      const dx = getWrappedDistance(projectile.x, asteroid.x);
+      const dy = getWrappedDistance(projectile.y, asteroid.y);
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      return distance < asteroid.size;
+    },
+    [],
+  );
+
+  // Check collision between ship and xenocoin
+  const checkShipXenoCoinCollision = useCallback(
+    (ship: { x: number; y: number }, xenoCoin: XenoCoin) => {
+      const dx = getWrappedDistance(ship.x, xenoCoin.x);
+      const dy = getWrappedDistance(ship.y, xenoCoin.y);
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      return distance < xenoCoin.size + 15; // Ship collection radius
+    },
+    [],
+  );
+
+  // Check collision between ship and asteroid
+  const checkShipAsteroidCollision = useCallback(
+    (ship: { x: number; y: number }, asteroid: Asteroid) => {
+      const dx = getWrappedDistance(ship.x, asteroid.x);
+      const dy = getWrappedDistance(ship.y, asteroid.y);
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      return distance < asteroid.size + 20; // Ship collision radius
+    },
+    [],
+  );
+
+  // Draw asteroid
+  const drawAsteroid = useCallback(
+    (
+      ctx: CanvasRenderingContext2D,
+      asteroid: Asteroid,
+      screenX: number,
+      screenY: number,
+    ) => {
+      const img = asteroidImageRef.current;
+
+      if (!img || !img.complete) {
+        // Fallback to simple circle if image not loaded
+        ctx.save();
+        ctx.translate(screenX, screenY);
+
+        // Health-based color (red = damaged, gray = healthy)
+        const healthRatio = asteroid.health / asteroid.maxHealth;
+        const red = Math.floor(100 + 155 * (1 - healthRatio));
+        const green = Math.floor(60 + 40 * healthRatio);
+        const blue = Math.floor(60 + 40 * healthRatio);
+
+        ctx.fillStyle = `rgb(${red}, ${green}, ${blue})`;
+        ctx.beginPath();
+        ctx.arc(0, 0, asteroid.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "#333";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.restore();
+        return;
+      }
+
+      ctx.save();
+      ctx.translate(screenX, screenY);
+      ctx.rotate(asteroid.rotation);
+
+      // Health-based tinting (damaged asteroids become more red)
+      const healthRatio = asteroid.health / asteroid.maxHealth;
+      if (healthRatio < 1) {
+        const damageAmount = 1 - healthRatio;
+        ctx.filter = `hue-rotate(${damageAmount * 30}deg) brightness(${1 - damageAmount * 0.3})`;
+      }
+
+      // Draw asteroid image scaled to asteroid size
+      const imageSize = asteroid.size * 2; // Diameter
+      ctx.drawImage(img, -imageSize / 2, -imageSize / 2, imageSize, imageSize);
+
+      ctx.restore();
+    },
+    [],
+  );
+
+  // Draw xenocoin
+  const drawXenoCoin = useCallback(
+    (
+      ctx: CanvasRenderingContext2D,
+      xenoCoin: XenoCoin,
+      screenX: number,
+      screenY: number,
+    ) => {
+      const currentTime = Date.now();
+      const age = currentTime - xenoCoin.createdAt;
+      const lifeRatio = Math.max(0, 1 - age / xenoCoin.lifespan);
+
+      // Pulsating effect
+      const pulsate =
+        0.8 + 0.2 * Math.sin(currentTime * 0.005 + xenoCoin.pulsatePhase);
+      const size = xenoCoin.size * pulsate * lifeRatio;
+
+      ctx.save();
+      ctx.translate(screenX, screenY);
+      ctx.rotate(xenoCoin.rotation);
+
+      // Draw golden coin
+      ctx.beginPath();
+      ctx.arc(0, 0, size, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255, 215, 0, ${lifeRatio})`;
+      ctx.fill();
+      ctx.strokeStyle = `rgba(255, 165, 0, ${lifeRatio})`;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Draw X symbol
+      ctx.strokeStyle = `rgba(139, 69, 19, ${lifeRatio})`;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(-size * 0.4, -size * 0.4);
+      ctx.lineTo(size * 0.4, size * 0.4);
+      ctx.moveTo(size * 0.4, -size * 0.4);
+      ctx.lineTo(-size * 0.4, size * 0.4);
+      ctx.stroke();
+
+      ctx.restore();
+    },
+    [],
+  );
+
+  // Draw ship HP bar
+  const drawHPBar = useCallback(
+    (
+      ctx: CanvasRenderingContext2D,
+      shipScreenX: number,
+      shipScreenY: number,
+    ) => {
+      if (!showHPBar) return;
+
+      const barWidth = 60;
+      const barHeight = 8;
+      const barX = shipScreenX - barWidth / 2;
+      const barY = shipScreenY + 35; // Below the ship
+
+      ctx.save();
+
+      // Background bar
+      ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+      ctx.fillRect(barX - 2, barY - 2, barWidth + 4, barHeight + 4);
+
+      // Empty bar (red background)
+      ctx.fillStyle = "#FF4444";
+      ctx.fillRect(barX, barY, barWidth, barHeight);
+
+      // Filled bar (green for HP)
+      const hpRatio = shipHP / 3;
+      const fillWidth = barWidth * hpRatio;
+
+      // Color based on HP level
+      if (hpRatio > 0.66) {
+        ctx.fillStyle = "#44FF44"; // Green
+      } else if (hpRatio > 0.33) {
+        ctx.fillStyle = "#FFAA44"; // Orange
+      } else {
+        ctx.fillStyle = "#FF6644"; // Red
+      }
+
+      ctx.fillRect(barX, barY, fillWidth, barHeight);
+
+      // Border
+      ctx.strokeStyle = "#FFFFFF";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(barX, barY, barWidth, barHeight);
+
+      // HP Text
+      ctx.fillStyle = "#FFFFFF";
+      ctx.font = "12px monospace";
+      ctx.textAlign = "center";
+      ctx.fillText(`${shipHP}/3`, shipScreenX, barY + barHeight + 15);
+
+      ctx.restore();
+    },
+    [showHPBar, shipHP],
+  );
+
+  // Handle ship damage
+  const damageShip = useCallback(() => {
+    const currentTime = Date.now();
+
+    // Damage immunity for 2 seconds after taking damage
+    if (currentTime - lastDamageTime < 2000) return;
+
+    setShipHP((prev) => {
+      const newHP = prev - 1;
+
+      if (newHP <= 0) {
+        // Ship destroyed - respawn at center
+        console.log("Ship destroyed! Respawning at center...");
+
+        setGameState((prevState) => ({
+          ...prevState,
+          ship: {
+            ...prevState.ship,
+            x: CENTER_X,
+            y: CENTER_Y,
+            vx: 0,
+            vy: 0,
+          },
+          camera: {
+            x: CENTER_X,
+            y: CENTER_Y,
+          },
+        }));
+
+        // Reset HP and hide bar after respawn
+        setTimeout(() => {
+          setShowHPBar(false);
+        }, 3000);
+
+        return 3; // Reset to full HP
+      }
+
+      return newHP;
+    });
+
+    setLastDamageTime(currentTime);
+    setShowHPBar(true);
+
+    // Hide HP bar after 5 seconds if not taking more damage
+    setTimeout(() => {
+      if (Date.now() - lastDamageTime >= 4900) {
+        // Almost 5 seconds
+        setShowHPBar(false);
+      }
+    }, 5000);
+  }, [lastDamageTime, setGameState]);
 
   // Helper function to draw directional radar pulse
   const drawRadarPulse = useCallback(
@@ -1240,7 +1889,7 @@ const SpaceMapComponent: React.FC = () => {
     ];
 
     const planetNames = [
-      "Estaç��o Gal��ctica",
+      "Estaç���o Gal��ctica",
       "Base Orbital",
       "Mundo Alienígena",
       "Terra Verdejante",
@@ -1303,11 +1952,30 @@ const SpaceMapComponent: React.FC = () => {
     };
   }, []);
 
+  // Load asteroid image
+  useEffect(() => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.src =
+      "https://cdn.builder.io/api/v1/image/assets%2F6b84993f22904beeb2e1d8d2f128c032%2Faaff2921868f4bbfb24be01b9fdfa6a1?format=webp&width=800";
+    img.onload = () => {
+      asteroidImageRef.current = img;
+      console.log("Asteroid image loaded successfully");
+    };
+    img.onerror = () => {
+      console.error("Failed to load asteroid image");
+    };
+  }, []);
+
   // Initialize game objects once
   useEffect(() => {
     generateRichStarField();
     loadWorldPositions();
-  }, [generateRichStarField, loadWorldPositions]);
+    // Initial asteroid loading
+    setTimeout(() => {
+      loadAsteroidsAroundCamera();
+    }, 100);
+  }, [generateRichStarField, loadWorldPositions, loadAsteroidsAroundCamera]);
 
   // Update planets when worldPositions from store change
   useEffect(() => {
@@ -1461,7 +2129,7 @@ const SpaceMapComponent: React.FC = () => {
               setIsDragging(false);
               setDragOffset({ x: 0, y: 0 });
             } else if (selectedWorldId === planet.id && !isDragging) {
-              // Se já est������� selecionado mas não dragging, inicie o drag
+              // Se já est��������� selecionado mas não dragging, inicie o drag
               setIsDragging(true);
               setDragOffset({ x: dx, y: dy });
             } else {
@@ -2135,6 +2803,162 @@ const SpaceMapComponent: React.FC = () => {
       // Update NPC ship
       npcShip.updateShip(projectileDeltaTime * 1000); // Convert to milliseconds
 
+      // Load asteroids around camera (chunk-based system)
+      if (
+        currentTime - lastAsteroidSpawnTime.current >
+        ASTEROID_SPAWN_INTERVAL
+      ) {
+        loadAsteroidsAroundCamera();
+        lastAsteroidSpawnTime.current = currentTime;
+      }
+
+      // Update asteroids
+      const asteroids = asteroidsRef.current;
+      for (let i = asteroids.length - 1; i >= 0; i--) {
+        const asteroid = asteroids[i];
+
+        // Update position
+        asteroid.x = normalizeCoord(
+          asteroid.x + asteroid.vx * projectileDeltaTime,
+        );
+        asteroid.y = normalizeCoord(
+          asteroid.y + asteroid.vy * projectileDeltaTime,
+        );
+        asteroid.rotation += asteroid.rotationSpeed * projectileDeltaTime;
+
+        // Check collision with ship
+        if (checkShipAsteroidCollision(gameState.ship, asteroid)) {
+          console.log(`Ship hit by asteroid ${asteroid.id}! Taking damage...`);
+          damageShip();
+          // Create damage particles at ship position
+          createDamageParticles(gameState.ship.x, gameState.ship.y);
+        }
+
+        // Check if asteroid entered barrier (explode and remove)
+        if (isInsideBarrier(asteroid.x, asteroid.y)) {
+          console.log(`Asteroid ${asteroid.id} exploded: hit barrier`);
+          // Create barrier explosion particles
+          createExplosionParticles(asteroid.x, asteroid.y, true);
+          asteroids.splice(i, 1);
+          continue;
+        }
+
+        // Remove asteroids after 1 minute lifespan
+        const age = currentTime - asteroid.createdAt;
+        if (age > 60000) {
+          // 60 seconds = 1 minute
+          console.log(
+            `Asteroid ${asteroid.id} removed: exceeded 1 minute lifespan`,
+          );
+          asteroids.splice(i, 1);
+          continue;
+        }
+
+        // Check projectile collisions
+        const projectiles = projectilesRef.current;
+        for (let j = projectiles.length - 1; j >= 0; j--) {
+          const projectile = projectiles[j];
+          if (checkProjectileAsteroidCollision(projectile, asteroid)) {
+            // Remove projectile
+            projectiles.splice(j, 1);
+
+            // Create damage particles
+            createDamageParticles(asteroid.x, asteroid.y);
+
+            // Damage asteroid
+            asteroid.health -= 1;
+
+            if (asteroid.health <= 0) {
+              // Asteroid destroyed - create explosion and xenocoin
+              console.log(
+                `Asteroid ${asteroid.id} destroyed by projectile - creating explosion and xenocoin`,
+              );
+              createExplosionParticles(asteroid.x, asteroid.y, false);
+              createXenoCoin(asteroid.x, asteroid.y);
+              asteroids.splice(i, 1);
+              break;
+            }
+          }
+        }
+      }
+
+      // Update xenocoins
+      const xenoCoins = xenoCoinsRef.current;
+      for (let i = xenoCoins.length - 1; i >= 0; i--) {
+        const xenoCoin = xenoCoins[i];
+
+        // Update rotation and animation
+        xenoCoin.rotation += xenoCoin.rotationSpeed * projectileDeltaTime;
+
+        // Check lifespan
+        const age = currentTime - xenoCoin.createdAt;
+        if (age > xenoCoin.lifespan) {
+          xenoCoins.splice(i, 1);
+          continue;
+        }
+
+        // Check collection by ship
+        if (checkShipXenoCoinCollision(gameState.ship, xenoCoin)) {
+          // Collect xenocoin
+          console.log(`Collecting xenocoin worth ${xenoCoin.value} xenocoins`);
+
+          // Use the updateCurrency function from gameStore
+          updateCurrency("xenocoins", xenoCoin.value)
+            .then((success) => {
+              if (success) {
+                console.log(
+                  `Successfully added ${xenoCoin.value} xenocoins to player account`,
+                );
+                // Add notification for successful collection
+                addNotification({
+                  id: `xenocoin-${Date.now()}`,
+                  type: "success",
+                  title: "Xenocoin Coletada!",
+                  message: `+${xenoCoin.value} Xenocoin adicionada ao seu saldo`,
+                  isRead: false,
+                  createdAt: new Date(),
+                });
+              } else {
+                console.error("Failed to update xenocoins in database");
+              }
+            })
+            .catch((error) => {
+              console.error("Error updating xenocoins:", error);
+            });
+
+          // Remove xenocoin immediately for responsive gameplay
+          xenoCoins.splice(i, 1);
+
+          // Optional: Play collection sound or show visual feedback
+          // playCollectionSound().catch(() => {});
+        }
+      }
+
+      // Update particles
+      const particles = particlesRef.current;
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const particle = particles[i];
+
+        // Update position and life
+        particle.x = normalizeCoord(
+          particle.x + particle.vx * projectileDeltaTime,
+        );
+        particle.y = normalizeCoord(
+          particle.y + particle.vy * projectileDeltaTime,
+        );
+        particle.rotation += particle.rotationSpeed * projectileDeltaTime;
+        particle.life -= projectileDeltaTime;
+
+        // Apply physics (slow down over time)
+        particle.vx *= 0.98;
+        particle.vy *= 0.98;
+
+        // Remove dead particles
+        if (particle.life <= 0) {
+          particles.splice(i, 1);
+        }
+      }
+
       // Create shooting stars less frequently for better performance - even less for large canvas
       const shootingStarInterval = isLargeCanvas
         ? 25000 + Math.random() * 35000
@@ -2401,6 +3225,84 @@ const SpaceMapComponent: React.FC = () => {
           }
         }
       });
+
+      // Render asteroids
+      const asteroidsForRender = asteroidsRef.current;
+      for (let i = 0; i < asteroidsForRender.length; i++) {
+        const asteroid = asteroidsForRender[i];
+        const wrappedDeltaX = getWrappedDistance(
+          asteroid.x,
+          gameState.camera.x,
+        );
+        const wrappedDeltaY = getWrappedDistance(
+          asteroid.y,
+          gameState.camera.y,
+        );
+        const screenX = centerX + wrappedDeltaX;
+        const screenY = centerY + wrappedDeltaY;
+
+        // Only render if on screen
+        if (
+          screenX >= -asteroid.size &&
+          screenX <= canvas.width + asteroid.size &&
+          screenY >= -asteroid.size &&
+          screenY <= canvas.height + asteroid.size
+        ) {
+          drawAsteroid(ctx, asteroid, screenX, screenY);
+        }
+      }
+
+      // Render xenocoins
+      const xenoCoinsForRender = xenoCoinsRef.current;
+      for (let i = 0; i < xenoCoinsForRender.length; i++) {
+        const xenoCoin = xenoCoinsForRender[i];
+        const wrappedDeltaX = getWrappedDistance(
+          xenoCoin.x,
+          gameState.camera.x,
+        );
+        const wrappedDeltaY = getWrappedDistance(
+          xenoCoin.y,
+          gameState.camera.y,
+        );
+        const screenX = centerX + wrappedDeltaX;
+        const screenY = centerY + wrappedDeltaY;
+
+        // Only render if on screen
+        if (
+          screenX >= -xenoCoin.size * 2 &&
+          screenX <= canvas.width + xenoCoin.size * 2 &&
+          screenY >= -xenoCoin.size * 2 &&
+          screenY <= canvas.height + xenoCoin.size * 2
+        ) {
+          drawXenoCoin(ctx, xenoCoin, screenX, screenY);
+        }
+      }
+
+      // Render particles
+      const particlesForRender = particlesRef.current;
+      for (let i = 0; i < particlesForRender.length; i++) {
+        const particle = particlesForRender[i];
+        const wrappedDeltaX = getWrappedDistance(
+          particle.x,
+          gameState.camera.x,
+        );
+        const wrappedDeltaY = getWrappedDistance(
+          particle.y,
+          gameState.camera.y,
+        );
+        const screenX = centerX + wrappedDeltaX;
+        const screenY = centerY + wrappedDeltaY;
+
+        // Only render if on screen (with some margin for effects)
+        if (
+          screenX >= -50 &&
+          screenX <= canvas.width + 50 &&
+          screenY >= -50 &&
+          screenY <= canvas.height + 50
+        ) {
+          drawParticle(ctx, particle, screenX, screenY);
+        }
+      }
 
       // Render projectiles as bright energy beams - optimized with for loop
       const projectilesForRender = projectilesRef.current;
@@ -2705,6 +3607,9 @@ const SpaceMapComponent: React.FC = () => {
         }
 
         ctx.restore();
+
+        // Draw HP bar below ship
+        drawHPBar(ctx, centerX, centerY);
       }
       ctx.globalAlpha = 1;
 
@@ -3036,7 +3941,7 @@ const SpaceMapComponent: React.FC = () => {
           {/* Interaction Radius Control */}
           <div className="mb-3">
             <label className="block text-xs font-medium text-gray-700 mb-1">
-              ����rea de Pouso:{" "}
+              ������rea de Pouso:{" "}
               {Math.round(
                 planetsRef.current.find((p) => p.id === selectedWorldId)
                   ?.interactionRadius || 90,
@@ -3174,7 +4079,7 @@ const SpaceMapComponent: React.FC = () => {
         {user?.isAdmin && isWorldEditMode ? (
           <>
             <div className="text-yellow-400 font-bold mb-1">
-              ��� MODO EDIÇÃO
+              ��� MODO EDIÇ��O
             </div>
             <div>�� 1º Click: Selecionar mundo</div>
             <div>
