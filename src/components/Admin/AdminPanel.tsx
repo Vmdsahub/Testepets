@@ -5,8 +5,6 @@ import {
   Users,
   Package,
   Trophy,
-  Gift,
-  Settings,
   Plus,
   Edit,
   Trash2,
@@ -14,8 +12,6 @@ import {
   X,
   Ticket,
   Copy,
-  Eye,
-  EyeOff,
   Calendar,
 } from "lucide-react";
 import { useGameStore } from "../../store/gameStore";
@@ -156,7 +152,7 @@ export const AdminPanel: React.FC = () => {
     addNotification({
       type: "success",
       title: "Copiado!",
-      message: "Código copiado para a área de transferência.",
+      message: "Código copiado para a área de transfer��ncia.",
     });
   };
 
