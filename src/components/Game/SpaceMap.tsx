@@ -396,8 +396,8 @@ const SpaceMapComponent: React.FC = () => {
   // Function to create smoke trail particles behind the ship
   const createSmokeTrail = useCallback(
     (shipX: number, shipY: number, shipAngle: number) => {
-      // Create multiple small particles for realistic smoke trail
-      for (let i = 0; i < 3; i++) {
+      // Create fewer particles for lighter smoke trail
+      for (let i = 0; i < 2; i++) {
         // Position particles behind the ship
         const trailDistance = 15 + i * 8; // Spread them out behind the ship
         const baseX = shipX - Math.cos(shipAngle) * trailDistance;
@@ -410,8 +410,8 @@ const SpaceMapComponent: React.FC = () => {
           y: baseY + (Math.random() - 0.5) * 8,
           vx: (Math.random() - 0.5) * 0.4 - Math.cos(shipAngle) * 0.3,
           vy: (Math.random() - 0.5) * 0.4 - Math.sin(shipAngle) * 0.3,
-          life: 180, // Frame-based: 180 frames = ~3 seconds at 60fps
-          maxLife: 180,
+          life: 120, // Frame-based: 120 frames = ~2 seconds at 60fps
+          maxLife: 120,
           size: initialSize,
           opacity: initialOpacity,
           initialOpacity: initialOpacity,
@@ -3098,8 +3098,8 @@ const SpaceMapComponent: React.FC = () => {
 
       // Create smoke trail if ship HP is 0 and not in landing animation
       if (shipHP <= 0 && !isLandingAnimationActive) {
-        // Create smoke trail every 6 frames (10 times per second at 60fps)
-        if (frameCounter.current - lastSmokeFrame.current >= 6) {
+        // Create smoke trail every 10 frames (6 times per second at 60fps)
+        if (frameCounter.current - lastSmokeFrame.current >= 10) {
           createSmokeTrail(
             gameState.ship.x,
             gameState.ship.y,
