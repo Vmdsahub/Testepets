@@ -326,7 +326,7 @@ const createEngineSound = () => {
     gain3.connect(masterGain);
     masterGain.connect(audioContext.destination);
 
-    // Configuração para som de nave espacial futurística
+    // Configuraç��o para som de nave espacial futurística
     osc1.type = "sine";
     osc2.type = "sine";
     osc3.type = "triangle";
@@ -662,21 +662,7 @@ const restartAudioContext = () => {
   }
 };
 
-// Keep empty functions for compatibility but use different approach
-export const startSpaceshipMovementSound = (): void => {
-  // Not used - will use playMovementSound instead
-};
-
-export const updateSpaceshipMovementSound = (
-  velocity: number,
-  maxVelocity: number,
-): void => {
-  // Not used - will use playMovementSound instead
-};
-
-export const stopSpaceshipMovementSound = (): void => {
-  // Not used - will use playMovementSound instead
-};
+// Legacy spaceship movement functions removed - using new continuous movement sound system
 
 export const playBarrierCollisionSound = (): Promise<void> => {
   return playCollisionSound().catch((error) => {
