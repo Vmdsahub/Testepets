@@ -3059,7 +3059,7 @@ const SpaceMapComponent: React.FC = () => {
 
         // Fade out over time
         const fadeRatio = smoke.life / smoke.maxLife;
-        smoke.opacity = Math.max(0, fadeRatio * 0.4); // Max opacity of 0.4 for subtlety
+        smoke.opacity = Math.max(0, fadeRatio * 0.8); // Max opacity of 0.8 for better visibility
 
         // Expand size slightly over time
         smoke.size += 0.02;
@@ -3443,13 +3443,35 @@ const SpaceMapComponent: React.FC = () => {
           screenY >= -50 &&
           screenY <= canvas.height + 50
         ) {
-          // Draw subtle smoke particle
+          // Draw smoke particle with more visibility
           ctx.save();
           ctx.globalAlpha = smoke.opacity;
-          ctx.fillStyle = "#555555"; // Dark gray smoke
+
+          // Add a subtle glow effect
+          ctx.shadowColor = "#888888";
+          ctx.shadowBlur = 8;
+
+          // Create gradient for more realistic smoke
+          const gradient = ctx.createRadialGradient(
+            screenX,
+            screenY,
+            0,
+            screenX,
+            screenY,
+            smoke.size,
+          );
+          gradient.addColorStop(0, "#aaaaaa");
+          gradient.addColorStop(0.5, "#777777");
+          gradient.addColorStop(1, "rgba(85, 85, 85, 0.3)");
+
+          ctx.fillStyle = gradient;
           ctx.beginPath();
           ctx.arc(screenX, screenY, smoke.size, 0, Math.PI * 2);
           ctx.fill();
+
+          // Reset shadow
+          ctx.shadowColor = "transparent";
+          ctx.shadowBlur = 0;
           ctx.restore();
         }
       }
