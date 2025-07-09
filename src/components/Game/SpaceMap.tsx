@@ -3060,25 +3060,36 @@ const SpaceMapComponent: React.FC = () => {
         }
       }
 
-      // Update smoke particles
+      // Update smoke particles with more realistic physics
       const smokeParticles = smokeParticlesRef.current;
       for (let i = smokeParticles.length - 1; i >= 0; i--) {
         const smoke = smokeParticles[i];
 
-        // Update position with drift
+        // Update position with drift and air resistance
         smoke.x += smoke.vx + smoke.drift.x;
         smoke.y += smoke.vy + smoke.drift.y;
         smoke.life -= deltaTime;
 
-        // Fade out over time
+        // Apply air resistance to slow down particles
+        smoke.vx *= 0.995;
+        smoke.vy *= 0.995;
+
+        // Fade out over time with more gradual transition
         const fadeRatio = smoke.life / smoke.maxLife;
-        smoke.opacity = Math.max(0, fadeRatio * 0.8); // Max opacity of 0.8 for better visibility
+        const ageRatio = 1 - fadeRatio;
 
-        // Expand size slightly over time
-        smoke.size += 0.02;
+        // Opacity fades more naturally
+        smoke.opacity = Math.max(0, fadeRatio * (0.7 - ageRatio * 0.2));
 
-        // Apply slight upward drift
-        smoke.vy -= 0.001;
+        // Expand size over time to simulate smoke dispersing
+        smoke.size += 0.015 * (1 + ageRatio); // Expansion accelerates over time
+
+        // Random drift increases over time (turbulence)
+        smoke.drift.x += (Math.random() - 0.5) * 0.02 * ageRatio;
+        smoke.drift.y += (Math.random() - 0.5) * 0.02 * ageRatio;
+
+        // Slight upward buoyancy
+        smoke.vy -= 0.008;
 
         // Remove dead smoke particles
         if (smoke.life <= 0) {
