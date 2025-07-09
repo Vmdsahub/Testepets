@@ -2185,6 +2185,20 @@ const SpaceMapComponent: React.FC = () => {
         return;
       }
 
+      // Check if click was on player ship
+      const clickedOnPlayerShip = isClickOnPlayerShip(
+        clickX,
+        clickY,
+        canvas.width,
+        canvas.height,
+      );
+
+      if (clickedOnPlayerShip) {
+        setShipModalPosition({ x: clickX, y: clickY });
+        setShowShipActionsModal(true);
+        return;
+      }
+
       // Check if click was on a planet
       let clickedOnPlanet = false;
 
