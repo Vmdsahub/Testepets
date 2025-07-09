@@ -168,12 +168,29 @@ export const ShipActionsModal: React.FC<ShipActionsModalProps> = ({
               transform: "translate(-50%, 0)",
             }}
           >
-            <div className="bg-white rounded-xl shadow-2xl border border-gray-200 w-64 pointer-events-auto backdrop-blur-sm">
+            <div
+              className={`bg-white rounded-xl shadow-2xl border border-gray-200 pointer-events-auto backdrop-blur-sm transition-all duration-300 ${
+                currentView === "main" ? "w-64" : "w-96"
+              }`}
+            >
               {/* Header */}
               <div className="flex items-center justify-between p-3 border-b border-gray-100">
-                <h3 className="font-semibold text-gray-800 text-sm">
-                  Ações da Nave
-                </h3>
+                <div className="flex items-center gap-2">
+                  {currentView !== "main" && (
+                    <button
+                      onClick={handleBackToMain}
+                      className="p-1 rounded-full hover:bg-gray-100 transition-colors"
+                      aria-label="Voltar"
+                    >
+                      <ArrowLeft className="w-4 h-4 text-gray-500" />
+                    </button>
+                  )}
+                  <h3 className="font-semibold text-gray-800 text-sm">
+                    {currentView === "main" && "Ações da Nave"}
+                    {currentView === "inspect" && "Inspeção da Nave"}
+                    {currentView === "inventory" && "Inventário da Nave"}
+                  </h3>
+                </div>
                 <button
                   onClick={onClose}
                   className="p-1 rounded-full hover:bg-gray-100 transition-colors"
@@ -183,32 +200,151 @@ export const ShipActionsModal: React.FC<ShipActionsModalProps> = ({
                 </button>
               </div>
 
-              {/* Actions list */}
-              <div className="p-2">
-                {ACTIONS.map((action) => {
-                  const IconComponent = action.icon;
-                  return (
-                    <motion.button
-                      key={action.id}
-                      whileHover={{ scale: 1.02, x: 2 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => handleActionClick(action.id)}
-                      className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-blue-50 hover:border-blue-100 border border-transparent transition-all duration-200 text-left group shadow-sm hover:shadow-md"
-                    >
-                      <div className="flex-shrink-0">
-                        <IconComponent className="w-4 h-4 text-gray-600 group-hover:text-blue-600 transition-colors duration-200" />
+              {/* Content */}
+              <div className="p-4">
+                {currentView === "main" && (
+                  <div className="space-y-2">
+                    {ACTIONS.map((action) => {
+                      const IconComponent = action.icon;
+                      return (
+                        <motion.button
+                          key={action.id}
+                          whileHover={{ scale: 1.02, x: 2 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={() => handleActionClick(action.id)}
+                          className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-blue-50 hover:border-blue-100 border border-transparent transition-all duration-200 text-left group shadow-sm hover:shadow-md"
+                        >
+                          <div className="flex-shrink-0">
+                            <IconComponent className="w-4 h-4 text-gray-600 group-hover:text-blue-600 transition-colors duration-200" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-sm text-gray-800 group-hover:text-blue-900 transition-colors duration-200">
+                              {action.label}
+                            </div>
+                            <div className="text-xs text-gray-500 group-hover:text-blue-600 transition-colors duration-200 truncate">
+                              {action.description}
+                            </div>
+                          </div>
+                        </motion.button>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {currentView === "inspect" && (
+                  <div className="space-y-4">
+                    {/* Ship Image */}
+                    <div className="flex justify-center">
+                      <img
+                        src="https://cdn.builder.io/api/v1/image/assets%2Ff93cc7cc605f420aa4fbb47a6557dbb5%2Fba62973afdca4d84ba54dad060a3e993?format=webp&width=800"
+                        alt="Nave do Jogador"
+                        className="w-32 h-32 object-contain bg-gray-50 rounded-lg border border-gray-200"
+                      />
+                    </div>
+
+                    {/* Ship Description */}
+                    <div className="space-y-3">
+                      <div>
+                        <h4 className="font-semibold text-gray-800 mb-1">
+                          Explorador Galáctico MK-7
+                        </h4>
+                        <p className="text-sm text-gray-600 leading-relaxed">
+                          Uma nave versátil projetada para exploração espacial
+                          de longo alcance. Equipada com propulsores iônicos
+                          avançados e sistema de navegação quântica, esta nave é
+                          ideal para aventuras intergalácticas.
+                        </p>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="font-medium text-sm text-gray-800 group-hover:text-blue-900 transition-colors duration-200">
-                          {action.label}
+
+                      {/* Ship Stats */}
+                      <div className="bg-gray-50 rounded-lg p-3 space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600">HP:</span>
+                          <span className="text-sm font-medium text-gray-800">
+                            {shipHP}/3
+                          </span>
                         </div>
-                        <div className="text-xs text-gray-500 group-hover:text-blue-600 transition-colors duration-200 truncate">
-                          {action.description}
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600">
+                            Velocidade:
+                          </span>
+                          <span className="text-sm font-medium text-gray-800">
+                            Média
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600">
+                            Blindagem:
+                          </span>
+                          <span className="text-sm font-medium text-gray-800">
+                            Leve
+                          </span>
                         </div>
                       </div>
-                    </motion.button>
-                  );
-                })}
+                    </div>
+                  </div>
+                )}
+
+                {currentView === "inventory" && (
+                  <div className="space-y-4">
+                    <div className="text-sm text-gray-600 mb-3">
+                      Itens equipados na sua nave
+                    </div>
+
+                    {shipInventory.length === 0 ? (
+                      <div className="text-center py-8">
+                        <Package className="w-12 h-12 text-gray-300 mx-auto mb-2" />
+                        <p className="text-gray-500 text-sm">
+                          Inventário vazio
+                        </p>
+                        <p className="text-gray-400 text-xs">
+                          Compre itens de NPCs para equipar sua nave
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        {shipInventory.map((item) => {
+                          const IconComponent = item.icon;
+                          return (
+                            <div
+                              key={item.id}
+                              className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200"
+                            >
+                              <div className="flex items-center gap-3">
+                                <IconComponent className="w-5 h-5 text-gray-600" />
+                                <div>
+                                  <div className="font-medium text-sm text-gray-800">
+                                    {item.name}
+                                  </div>
+                                  <div className="text-xs text-gray-500">
+                                    {item.description}
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <span className="text-xs text-gray-500">
+                                  x{item.quantity}
+                                </span>
+                                <motion.button
+                                  whileHover={{ scale: 1.05 }}
+                                  whileTap={{ scale: 0.95 }}
+                                  onClick={() => useInventoryItem(item)}
+                                  className="px-3 py-1 bg-blue-600 text-white text-xs rounded-md hover:bg-blue-700 transition-colors"
+                                  disabled={
+                                    item.name === "Chave de fenda" &&
+                                    shipHP >= 3
+                                  }
+                                >
+                                  Usar
+                                </motion.button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
