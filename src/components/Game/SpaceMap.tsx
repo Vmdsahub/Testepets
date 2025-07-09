@@ -1200,7 +1200,6 @@ const SpaceMapComponent: React.FC = () => {
         return 0; // Keep at 0 HP
       }
 
-      console.log("Ship damaged! HP:", newHP);
       return newHP;
     });
 
@@ -4302,7 +4301,7 @@ const SpaceMapComponent: React.FC = () => {
             <div className="text-yellow-400 font-bold mb-1">
               ��� MODO EDIÇ��O
             </div>
-            <div>�� 1º Click: Selecionar mundo</div>
+            <div>��� 1º Click: Selecionar mundo</div>
             <div>
               • 2º Click: {isDragging ? "Confirmar posição" : "Ativar arrastar"}
             </div>
