@@ -391,24 +391,35 @@ const SpaceMapComponent: React.FC = () => {
     isPaused: showNPCModal,
   });
 
-  // Function to create smoke particles
-  const createSmokeParticle = useCallback((x: number, y: number) => {
-    const newSmokeParticle: SmokeParticle = {
-      x: x + (Math.random() - 0.5) * 20,
-      y: y + (Math.random() - 0.5) * 20,
-      vx: (Math.random() - 0.5) * 1.2,
-      vy: (Math.random() - 0.5) * 1.2 - 0.8, // More upward drift
-      life: 4000 + Math.random() * 2000, // 4-6 seconds
-      maxLife: 4000 + Math.random() * 2000,
-      size: 8 + Math.random() * 8, // 8-16 pixels (much larger)
-      opacity: 0.8 + Math.random() * 0.2, // 0.8-1.0 (much more visible)
-      drift: {
-        x: (Math.random() - 0.5) * 0.3,
-        y: (Math.random() - 0.5) * 0.3,
-      },
-    };
-    smokeParticlesRef.current.push(newSmokeParticle);
-  }, []);
+  // Function to create smoke trail particles behind the ship
+  const createSmokeTrail = useCallback(
+    (shipX: number, shipY: number, shipAngle: number) => {
+      // Create multiple small particles for realistic smoke trail
+      for (let i = 0; i < 3; i++) {
+        // Position particles behind the ship
+        const trailDistance = 15 + i * 8; // Spread them out behind the ship
+        const baseX = shipX - Math.cos(shipAngle) * trailDistance;
+        const baseY = shipY - Math.sin(shipAngle) * trailDistance;
+
+        const newSmokeParticle: SmokeParticle = {
+          x: baseX + (Math.random() - 0.5) * 8,
+          y: baseY + (Math.random() - 0.5) * 8,
+          vx: (Math.random() - 0.5) * 0.4 - Math.cos(shipAngle) * 0.3, // Inherit some ship direction
+          vy: (Math.random() - 0.5) * 0.4 - Math.sin(shipAngle) * 0.3,
+          life: 2000 + Math.random() * 1500, // 2-3.5 seconds
+          maxLife: 2000 + Math.random() * 1500,
+          size: 2 + Math.random() * 3, // Small particles 2-5 pixels
+          opacity: 0.6 + Math.random() * 0.3, // 0.6-0.9
+          drift: {
+            x: (Math.random() - 0.5) * 0.2,
+            y: (Math.random() - 0.5) * 0.2,
+          },
+        };
+        smokeParticlesRef.current.push(newSmokeParticle);
+      }
+    },
+    [],
+  );
 
   // Função de tiro que pode ser reutilizada
   const shootProjectile = useCallback(() => {
