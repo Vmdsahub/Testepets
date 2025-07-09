@@ -1,9 +1,19 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Wrench } from "lucide-react";
+import { useGameStore } from "../../store/gameStore";
 
 interface NPCModalProps {
   isOpen: boolean;
   onClose: () => void;
+}
+
+interface ShopItem {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  currency: "xenocoins" | "cash";
 }
 
 const DIALOGUE_TEXT =
