@@ -348,6 +348,11 @@ const SpaceMapComponent: React.FC = () => {
   const [lastDamageTime, setLastDamageTime] = useState(0);
   const [showHPBar, setShowHPBar] = useState(false);
 
+  // Persist ship HP to localStorage
+  useEffect(() => {
+    localStorage.setItem("ship-hp", shipHP.toString());
+  }, [shipHP]);
+
   // Helper function for seamless wrapping distance calculation
   const getWrappedDistance = useCallback(
     (coord: number, cameraCoord: number) => {
@@ -3929,7 +3934,7 @@ const SpaceMapComponent: React.FC = () => {
                 e.preventDefault();
                 e.stopPropagation();
                 const newSize = Number(e.target.value);
-                console.log("📏 Size control changed to:", newSize);
+                console.log("���� Size control changed to:", newSize);
 
                 // Update immediately for responsive feedback
                 planetsRef.current = planetsRef.current.map((planet) =>
