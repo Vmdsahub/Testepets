@@ -281,4 +281,4 @@ export const PetPortrait: React.FC<PetPortraitProps> = memo(({ pet }) => {
       </motion.div>
     </motion.div>
   );
-};
+});
