@@ -341,7 +341,10 @@ const SpaceMapComponent: React.FC = () => {
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [barrierFlashTime, setBarrierFlashTime] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
-  const [shipHP, setShipHP] = useState(3);
+  const [shipHP, setShipHP] = useState(() => {
+    const savedHP = localStorage.getItem("ship-hp");
+    return savedHP ? parseInt(savedHP, 10) : 3;
+  });
   const [lastDamageTime, setLastDamageTime] = useState(0);
   const [showHPBar, setShowHPBar] = useState(false);
 
@@ -1588,7 +1591,7 @@ const SpaceMapComponent: React.FC = () => {
         color: Math.random() < 0.92 ? "#ffffff" : generateRandomStarColor(),
         type: "normal",
         drift: {
-          x: 0, // Movimento será calculado via seno/cosseno
+          x: 0, // Movimento ser�� calculado via seno/cosseno
           y: 0,
         },
         pulse: Math.random() * 100,
