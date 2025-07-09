@@ -44,7 +44,6 @@ function App() {
     setUser,
     initializeNewUser,
     loadUserData,
-    subscribeToRealtimeUpdates,
     unsubscribeFromRealtimeUpdates,
   } = useGameStore();
 
