@@ -3074,13 +3074,12 @@ const SpaceMapComponent: React.FC = () => {
       }
 
       // Create smoke particles if ship HP is 0 and not in landing animation
-      if (
-        shipHP <= 0 &&
-        !isLandingAnimationActive &&
-        currentTime % 200 < deltaTime
-      ) {
-        // Create smoke every ~200ms when damaged
-        createSmokeParticle(gameState.ship.x, gameState.ship.y);
+      if (shipHP <= 0 && !isLandingAnimationActive) {
+        // Create smoke every 150ms when damaged
+        if (currentTime - lastSmokeTime.current > 150) {
+          createSmokeParticle(gameState.ship.x, gameState.ship.y);
+          lastSmokeTime.current = currentTime;
+        }
       }
 
       // Create shooting stars less frequently for better performance - even less for large canvas
