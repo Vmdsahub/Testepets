@@ -121,7 +121,24 @@ export const ShipActionsModal: React.FC<ShipActionsModalProps> = ({
   };
 
   const useInventoryItem = (item: ShipInventoryItem) => {
-    item.effect();
+    if (item.name === "Chave de fenda" && shipHP < 3 && user) {
+      onRepairShip();
+
+      // Remove one item from inventory
+      const updatedInventory = shipInventory
+        .map((invItem) =>
+          invItem.id === item.id
+            ? { ...invItem, quantity: invItem.quantity - 1 }
+            : invItem,
+        )
+        .filter((invItem) => invItem.quantity > 0);
+
+      setShipInventory(updatedInventory);
+      localStorage.setItem(
+        `ship-inventory-${user.id}`,
+        JSON.stringify(updatedInventory),
+      );
+    }
   };
 
   // Function to add items to ship inventory (will be called from NPCModal)
