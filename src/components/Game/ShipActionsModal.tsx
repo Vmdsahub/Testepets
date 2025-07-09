@@ -85,7 +85,7 @@ export const ShipActionsModal: React.FC<ShipActionsModalProps> = ({
               transform: "translate(-50%, 0)",
             }}
           >
-            <div className="bg-white rounded-xl shadow-2xl border border-gray-200 w-64 pointer-events-auto">
+            <div className="bg-white rounded-xl shadow-2xl border border-gray-200 w-64 pointer-events-auto backdrop-blur-sm">
               {/* Header */}
               <div className="flex items-center justify-between p-3 border-b border-gray-100">
                 <h3 className="font-semibold text-gray-800 text-sm">
