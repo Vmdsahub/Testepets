@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import { Sword, Shield, Heart, Utensils, Smile, Zap, Star } from "lucide-react";
 import { Pet } from "../../types/game";
 import { motion } from "framer-motion";
@@ -7,7 +7,7 @@ interface PetPortraitProps {
   pet: Pet;
 }
 
-export const PetPortrait: React.FC<PetPortraitProps> = ({ pet }) => {
+export const PetPortrait: React.FC<PetPortraitProps> = memo(({ pet }) => {
   const getAttributeColor = (value: number, max: number = 10) => {
     const percentage = value / max;
     if (percentage >= 0.8) return "text-green-500";
