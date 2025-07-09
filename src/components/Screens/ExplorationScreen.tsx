@@ -106,6 +106,14 @@ export const ExplorationScreen: React.FC = () => {
                 <p className="text-blue-800 text-sm leading-relaxed">
                   {currentExplorationPoint.description}
                 </p>
+
+                {/* Show coordinates for custom points (for debugging/admin) */}
+                {currentExplorationPoint.id.includes("custom") && (
+                  <div className="mt-2 text-xs text-blue-600 opacity-75">
+                    Coordenadas: {currentExplorationPoint.x.toFixed(1)}%,{" "}
+                    {currentExplorationPoint.y.toFixed(1)}%
+                  </div>
+                )}
               </div>
             </div>
           </motion.div>
