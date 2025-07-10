@@ -4,7 +4,8 @@ import { AuthScreen } from "./components/Auth/AuthScreen";
 
 import { TopBar } from "./components/Layout/TopBar";
 import { BottomNavigation } from "./components/Layout/BottomNavigation";
-import { FloatingNavigation } from "./components/Layout/FloatingNavigation";
+import { TopPillNavigation } from "./components/Layout/TopPillNavigation";
+import { BottomPillNavigation } from "./components/Layout/BottomPillNavigation";
 
 import { PetScreen } from "./components/Screens/PetScreen";
 import { StoreScreen } from "./components/Store/StoreScreen";
@@ -168,9 +169,10 @@ function App() {
         <AudioPreloader />
 
         {currentScreen === "world" ? (
-          // Fullscreen layout for world screen with floating navigation
+          // Fullscreen layout for world screen with pill navigations
           <div className="fixed inset-0 overflow-hidden">
-            <FloatingNavigation />
+            <TopPillNavigation />
+            <BottomPillNavigation />
             {renderScreen}
           </div>
         ) : (
