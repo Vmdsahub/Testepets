@@ -4,6 +4,7 @@ import { AuthScreen } from "./components/Auth/AuthScreen";
 
 import { TopBar } from "./components/Layout/TopBar";
 import { BottomNavigation } from "./components/Layout/BottomNavigation";
+import { FloatingNavigation } from "./components/Layout/FloatingNavigation";
 
 import { PetScreen } from "./components/Screens/PetScreen";
 import { StoreScreen } from "./components/Store/StoreScreen";
@@ -165,37 +166,39 @@ function App() {
     <MusicProvider musicState={musicState}>
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 gpu-accelerated force-gpu-layer">
         <AudioPreloader />
-        <TopBar />
 
         {currentScreen === "world" ? (
-          // Expanded layout for world screen - full width, minimal vertical padding
-          <main className="absolute top-20 bottom-20 left-0 right-0 overflow-hidden">
+          // Fullscreen layout for world screen with floating navigation
+          <div className="fixed inset-0 overflow-hidden">
+            <FloatingNavigation />
             {renderScreen}
-          </main>
+          </div>
         ) : (
-          // Normal layout for other screens
-          <main className="pt-20 pb-8 px-4 min-h-screen composite-layer force-gpu-layer">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={currentScreen}
-                initial="initial"
-                animate="in"
-                exit="out"
-                variants={pageVariants}
-                transition={pageTransition}
-                className="smooth-animation force-gpu-layer"
-                style={{
-                  transform: "translate3d(0, 0, 0)",
-                  willChange: "transform, opacity",
-                }}
-              >
-                {renderScreen}
-              </motion.div>
-            </AnimatePresence>
-          </main>
+          // Normal layout for other screens with traditional navigation
+          <>
+            <TopBar />
+            <main className="pt-20 pb-8 px-4 min-h-screen composite-layer force-gpu-layer">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={currentScreen}
+                  initial="initial"
+                  animate="in"
+                  exit="out"
+                  variants={pageVariants}
+                  transition={pageTransition}
+                  className="smooth-animation force-gpu-layer"
+                  style={{
+                    transform: "translate3d(0, 0, 0)",
+                    willChange: "transform, opacity",
+                  }}
+                >
+                  {renderScreen}
+                </motion.div>
+              </AnimatePresence>
+            </main>
+            <BottomNavigation />
+          </>
         )}
-
-        <BottomNavigation />
       </div>
     </MusicProvider>
   );
