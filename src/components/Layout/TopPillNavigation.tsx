@@ -62,7 +62,7 @@ export const TopPillNavigation: React.FC = () => {
       {/* Top pill navigation */}
       <div className="fixed top-3 sm:top-4 left-1/2 transform -translate-x-1/2 z-50 px-2 sm:px-4">
         <motion.div
-          className="bg-white/90 backdrop-blur-xl rounded-full px-3 sm:px-6 lg:px-8 py-2 shadow-2xl border border-white/20 w-[calc(100vw-2rem)] max-w-[550px] min-w-[300px]"
+          className="bg-white/90 backdrop-blur-xl rounded-full px-6 sm:px-8 lg:px-12 py-1.5 shadow-2xl border border-white/20 w-[calc(100vw-2rem)] max-w-[650px] min-w-[400px]"
           initial={{ y: -100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ type: "spring", stiffness: 400, damping: 30 }}
@@ -71,17 +71,17 @@ export const TopPillNavigation: React.FC = () => {
             {/* Profile */}
             <div className="flex items-center">
               <div className="relative">
-                <div className="w-7 h-7 bg-gradient-to-br from-purple-500 via-blue-500 to-cyan-500 rounded-full flex items-center justify-center shadow-lg">
-                  <span className="text-white font-bold text-xs">
+                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 via-blue-500 to-cyan-500 rounded-full flex items-center justify-center shadow-lg">
+                  <span className="text-white font-bold text-sm">
                     {user?.username?.charAt(0) || "P"}
                   </span>
                 </div>
-                <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white"></div>
+                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
               </div>
             </div>
 
             {/* Currencies */}
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-6">
               {/* Xenocoins */}
               <motion.div
                 className="flex items-center space-x-2"
@@ -90,7 +90,7 @@ export const TopPillNavigation: React.FC = () => {
                 <img
                   src="https://cdn.builder.io/api/v1/image/assets%2Ff481900009a94cda953c032479392a30%2F3e6c6cb85c6a4d2ba05acb245bfbc214?format=webp&width=800"
                   alt="Xenocoins"
-                  className="w-5 h-5"
+                  className="w-6 h-6"
                 />
                 <span className="text-sm font-semibold text-yellow-600">
                   {xenocoins > 9999
@@ -107,16 +107,16 @@ export const TopPillNavigation: React.FC = () => {
                 <img
                   src="https://cdn.builder.io/api/v1/image/assets%2Fc013caa4db474e638dc2961a6085b60a%2F38a7eab3791441c7bc853afba8904317?format=webp&width=800"
                   alt="Xenocash"
-                  className="w-5 h-5"
+                  className="w-6 h-6"
                 />
-                <span className="text-sm font-semibold text-green-600">
+                <span className="text-sm font-semibold text-blue-600">
                   {cash > 9999 ? `${Math.floor(cash / 1000)}k` : cash}
                 </span>
               </motion.div>
             </div>
 
             {/* Action buttons */}
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-3">
               {/* Daily Check-in */}
               <div className="relative">
                 <motion.button
@@ -241,7 +241,7 @@ export const TopPillNavigation: React.FC = () => {
               <div className="overflow-y-auto flex-1">
                 {notifications.length === 0 ? (
                   <div className="p-4 text-center text-gray-500">
-                    <p>Nenhuma notificação</p>
+                    <p>Nenhuma notifica��ão</p>
                   </div>
                 ) : (
                   notifications.map((notification) => (
