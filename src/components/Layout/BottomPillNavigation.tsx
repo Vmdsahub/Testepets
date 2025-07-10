@@ -52,7 +52,7 @@ export const BottomPillNavigation: React.FC = () => {
         animate={{ y: 0, opacity: 1 }}
         transition={{ type: "spring", stiffness: 400, damping: 30 }}
       >
-        <div className="flex items-center justify-center space-x-1 sm:space-x-2">
+        <div className="flex items-center justify-center space-x-0.5 sm:space-x-2">
           {items.map(({ id, label, icon: Icon }) => {
             const isActive =
               currentScreen === id ||
@@ -63,7 +63,7 @@ export const BottomPillNavigation: React.FC = () => {
               <motion.button
                 key={id}
                 onClick={() => handleItemClick(id)}
-                className={`flex flex-col items-center px-3 sm:px-4 lg:px-6 py-2 sm:py-3 rounded-full transition-all duration-200 ${
+                className={`flex flex-col items-center px-2 sm:px-4 lg:px-6 py-2 sm:py-3 rounded-full transition-all duration-200 ${
                   isActive ? "bg-white shadow-md" : "hover:bg-white/50"
                 } ${id === "admin" ? "relative" : ""}`}
                 whileHover={{ scale: 1.05 }}
