@@ -47,12 +47,12 @@ export const BottomPillNavigation: React.FC = () => {
   return (
     <div className="fixed bottom-3 sm:bottom-4 left-1/2 transform -translate-x-1/2 z-50 px-2 sm:px-4">
       <motion.div
-        className="bg-white/90 backdrop-blur-xl rounded-full px-3 sm:px-4 lg:px-6 py-2 sm:py-3 shadow-2xl border border-white/20 max-w-[98vw] sm:max-w-[95vw]"
+        className="bg-white/90 backdrop-blur-xl rounded-full px-6 sm:px-8 lg:px-10 py-2 shadow-2xl border border-white/20 min-w-[400px] max-w-[600px] w-auto"
         initial={{ y: 100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ type: "spring", stiffness: 400, damping: 30 }}
       >
-        <div className="flex items-center justify-center space-x-0.5 sm:space-x-2">
+        <div className="flex items-center justify-center space-x-2">
           {items.map(({ id, label, icon: Icon }) => {
             const isActive =
               currentScreen === id ||
@@ -63,7 +63,7 @@ export const BottomPillNavigation: React.FC = () => {
               <motion.button
                 key={id}
                 onClick={() => handleItemClick(id)}
-                className={`flex flex-col items-center px-2 sm:px-4 lg:px-6 py-2 sm:py-3 rounded-full transition-all duration-200 ${
+                className={`flex flex-col items-center px-4 py-2 rounded-full transition-all duration-200 ${
                   isActive ? "bg-white shadow-md" : "hover:bg-white/50"
                 } ${id === "admin" ? "relative" : ""}`}
                 whileHover={{ scale: 1.05 }}
@@ -90,10 +90,10 @@ export const BottomPillNavigation: React.FC = () => {
                   }}
                   transition={{ duration: 0.2 }}
                 >
-                  <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
+                  <Icon className="w-5 h-5" />
                 </motion.div>
                 <span
-                  className={`text-xs font-medium mt-1 transition-colors hidden sm:block ${
+                  className={`text-xs font-medium mt-1 transition-colors ${
                     isActive ? "text-gray-900" : "text-gray-500"
                   }`}
                 >
