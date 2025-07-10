@@ -63,7 +63,7 @@ export const BottomPillNavigation: React.FC = () => {
               <motion.button
                 key={id}
                 onClick={() => handleItemClick(id)}
-                className={`flex flex-col items-center px-6 py-1.5 rounded-full transition-all duration-200 ${
+                className={`flex flex-col items-center px-4 py-1 rounded-full transition-all duration-200 ${
                   isActive ? "bg-white shadow-md" : "hover:bg-white/50"
                 } ${id === "admin" ? "relative" : ""}`}
                 whileHover={{ scale: 1.05 }}
