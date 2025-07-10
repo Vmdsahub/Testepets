@@ -62,7 +62,7 @@ export const TopPillNavigation: React.FC = () => {
       {/* Top pill navigation */}
       <div className="fixed top-3 sm:top-4 left-1/2 transform -translate-x-1/2 z-50 px-2 sm:px-4">
         <motion.div
-          className="bg-white/90 backdrop-blur-xl rounded-full px-4 sm:px-6 lg:px-8 py-2 shadow-2xl border border-white/20 min-w-[350px] max-w-[550px] w-auto"
+          className="bg-white/90 backdrop-blur-xl rounded-full px-3 sm:px-6 lg:px-8 py-2 shadow-2xl border border-white/20 w-[calc(100vw-2rem)] max-w-[550px] min-w-[300px]"
           initial={{ y: -100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ type: "spring", stiffness: 400, damping: 30 }}
