@@ -160,8 +160,8 @@ export const FloatingNavigation: React.FC = () => {
                   className="w-4 h-4 sm:w-5 sm:h-5"
                 />
                 <span className="text-xs sm:text-sm font-semibold text-yellow-800">
-                  {xenocoins > 999
-                    ? `${(xenocoins / 1000).toFixed(1)}k`
+                  {xenocoins > 9999
+                    ? `${Math.floor(xenocoins / 1000)}k`
                     : xenocoins.toLocaleString()}
                 </span>
               </motion.div>
@@ -177,7 +177,7 @@ export const FloatingNavigation: React.FC = () => {
                   className="w-4 h-4 sm:w-5 sm:h-5"
                 />
                 <span className="text-xs sm:text-sm font-semibold text-green-800">
-                  {cash > 999 ? `${(cash / 1000).toFixed(1)}k` : cash}
+                  {cash > 9999 ? `${Math.floor(cash / 1000)}k` : cash}
                 </span>
               </motion.div>
             </div>
