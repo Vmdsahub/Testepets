@@ -102,35 +102,35 @@ export const FloatingNavigation: React.FC = () => {
   return (
     <>
       {/* Floating pill navigation */}
-      <div className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50">
+      <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 px-4">
         <motion.div
-          className="bg-white/90 backdrop-blur-xl rounded-full px-6 py-3 shadow-2xl border border-white/20"
+          className="bg-white/90 backdrop-blur-xl rounded-full px-4 sm:px-6 py-2 sm:py-3 shadow-2xl border border-white/20 max-w-[95vw]"
           initial={{ y: -100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ type: "spring", stiffness: 400, damping: 30 }}
         >
-          <div className="flex items-center space-x-6">
+          <div className="flex items-center space-x-2 sm:space-x-4 lg:space-x-6">
             {/* Profile */}
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center">
               <div className="relative">
-                <div className="w-9 h-9 bg-gradient-to-br from-purple-500 via-blue-500 to-cyan-500 rounded-full flex items-center justify-center shadow-lg">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 bg-gradient-to-br from-purple-500 via-blue-500 to-cyan-500 rounded-full flex items-center justify-center shadow-lg">
                   <span className="text-white font-bold text-xs">
                     {user?.username?.charAt(0) || "P"}
                   </span>
                 </div>
-                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+                <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 sm:w-3 sm:h-3 bg-green-500 rounded-full border-2 border-white"></div>
               </div>
             </div>
 
             {/* Navigation Pills */}
-            <div className="flex items-center space-x-1 bg-gray-100/50 rounded-full p-1">
+            <div className="flex items-center space-x-0.5 sm:space-x-1 bg-gray-100/50 rounded-full p-0.5 sm:p-1">
               {items.map(({ id, label, icon: Icon }) => {
                 const isActive = currentScreen === id;
                 return (
                   <motion.button
                     key={id}
                     onClick={() => handleItemClick(id)}
-                    className={`flex items-center space-x-2 px-4 py-2 rounded-full transition-all duration-200 ${
+                    className={`flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 rounded-full transition-all duration-200 ${
                       isActive
                         ? "bg-white shadow-md text-gray-900"
                         : "text-gray-600 hover:text-gray-900 hover:bg-white/50"
@@ -138,8 +138,8 @@ export const FloatingNavigation: React.FC = () => {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    <Icon className="w-4 h-4" />
-                    <span className="text-sm font-medium hidden sm:block">
+                    <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                    <span className="text-xs sm:text-sm font-medium hidden md:block">
                       {label}
                     </span>
                   </motion.button>
@@ -148,45 +148,47 @@ export const FloatingNavigation: React.FC = () => {
             </div>
 
             {/* Currencies */}
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-1 sm:space-x-2">
               {/* Xenocoins */}
               <motion.div
-                className="flex items-center space-x-2 bg-gradient-to-r from-yellow-100/80 to-amber-100/80 px-3 py-1.5 rounded-full"
+                className="flex items-center space-x-1 sm:space-x-2 bg-gradient-to-r from-yellow-100/80 to-amber-100/80 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full"
                 whileHover={{ scale: 1.02 }}
               >
                 <img
                   src="https://cdn.builder.io/api/v1/image/assets%2Ff481900009a94cda953c032479392a30%2F3e6c6cb85c6a4d2ba05acb245bfbc214?format=webp&width=800"
                   alt="Xenocoins"
-                  className="w-5 h-5"
+                  className="w-4 h-4 sm:w-5 sm:h-5"
                 />
-                <span className="text-sm font-semibold text-yellow-800">
-                  {xenocoins.toLocaleString()}
+                <span className="text-xs sm:text-sm font-semibold text-yellow-800">
+                  {xenocoins > 999
+                    ? `${(xenocoins / 1000).toFixed(1)}k`
+                    : xenocoins.toLocaleString()}
                 </span>
               </motion.div>
 
               {/* Cash */}
               <motion.div
-                className="flex items-center space-x-2 bg-gradient-to-r from-green-100/80 to-emerald-100/80 px-3 py-1.5 rounded-full"
+                className="flex items-center space-x-1 sm:space-x-2 bg-gradient-to-r from-green-100/80 to-emerald-100/80 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full"
                 whileHover={{ scale: 1.02 }}
               >
                 <img
                   src="https://cdn.builder.io/api/v1/image/assets%2Fc013caa4db474e638dc2961a6085b60a%2F38a7eab3791441c7bc853afba8904317?format=webp&width=800"
                   alt="Xenocash"
-                  className="w-5 h-5"
+                  className="w-4 h-4 sm:w-5 sm:h-5"
                 />
-                <span className="text-sm font-semibold text-green-800">
-                  {cash}
+                <span className="text-xs sm:text-sm font-semibold text-green-800">
+                  {cash > 999 ? `${(cash / 1000).toFixed(1)}k` : cash}
                 </span>
               </motion.div>
             </div>
 
             {/* Action buttons */}
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-1 sm:space-x-2">
               {/* Daily Check-in */}
               <div className="relative">
                 <motion.button
                   onClick={() => setShowCheckin(!showCheckin)}
-                  className={`p-2 rounded-full transition-colors relative ${
+                  className={`p-1.5 sm:p-2 rounded-full transition-colors relative ${
                     canClaimDaily
                       ? "bg-blue-100/80 hover:bg-blue-200/80 text-blue-600"
                       : "hover:bg-gray-100/80 text-gray-600"
@@ -194,7 +196,7 @@ export const FloatingNavigation: React.FC = () => {
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                 >
-                  <Calendar className="w-4 h-4" />
+                  <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   {canClaimDaily && (
                     <motion.span
                       className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-medium"
@@ -223,7 +225,7 @@ export const FloatingNavigation: React.FC = () => {
               {/* Music */}
               <motion.button
                 onClick={() => setShowMusicModal(!showMusicModal)}
-                className={`p-2 rounded-full transition-colors ${
+                className={`p-1.5 sm:p-2 rounded-full transition-colors ${
                   showMusicModal
                     ? "bg-blue-100/80 text-blue-600"
                     : "hover:bg-gray-100/80 text-gray-600"
@@ -231,18 +233,18 @@ export const FloatingNavigation: React.FC = () => {
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
               >
-                <Music className="w-4 h-4" />
+                <Music className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </motion.button>
 
               {/* Notifications */}
               <div className="relative">
                 <motion.button
                   onClick={handleBellClick}
-                  className="p-2 hover:bg-gray-100/80 rounded-full transition-colors relative text-gray-600"
+                  className="p-1.5 sm:p-2 hover:bg-gray-100/80 rounded-full transition-colors relative text-gray-600"
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                 >
-                  <Bell className="w-4 h-4" />
+                  <Bell className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   {unreadCount > 0 && (
                     <motion.span
                       className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-medium"
