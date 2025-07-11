@@ -88,7 +88,7 @@ export const ModalManager: React.FC<ModalManagerProps> = ({
     },
     {
       id: "music",
-      title: "Música",
+      title: "",
       component: <MusicModal />,
     },
     ...(user?.isAdmin
