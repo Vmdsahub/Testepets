@@ -16,11 +16,13 @@ interface ModalConfig {
 interface ModalManagerProps {
   openModals: string[];
   onCloseModal: (modalId: string) => void;
+  modalOriginPositions?: Record<string, { x: number; y: number }>;
 }
 
 export const ModalManager: React.FC<ModalManagerProps> = ({
   openModals,
   onCloseModal,
+  modalOriginPositions = {},
 }) => {
   const { user } = useGameStore();
 
@@ -77,6 +79,7 @@ export const ModalManager: React.FC<ModalManagerProps> = ({
             title={config.title}
             modalId={config.id}
             defaultPosition={getModalPosition(config.id, index)}
+            originPosition={modalOriginPositions[config.id]}
           >
             {config.component}
           </DraggableModal>
