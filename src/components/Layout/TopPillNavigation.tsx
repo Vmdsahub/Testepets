@@ -66,13 +66,16 @@ export const TopPillNavigation: React.FC<TopPillNavigationProps> = ({
   return (
     <>
       {/* Minimalist top pill navigation */}
-      <div className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50">
+      <div className="fixed top-3 sm:top-6 left-1/2 transform -translate-x-1/2 z-50 px-4 sm:px-0">
         <motion.div
-          className="bg-white/95 backdrop-blur-2xl rounded-full px-8 py-3 shadow-lg border border-gray-100/50"
+          className="bg-white/95 backdrop-blur-2xl rounded-full px-4 sm:px-8 py-2 sm:py-3 shadow-lg border border-gray-100/50 w-full sm:w-auto max-w-sm sm:max-w-none"
           style={{
-            width: "480px",
-            height: "56px",
+            minWidth: "280px",
+            width: "100%",
+            maxWidth: "480px",
+            height: "48px",
           }}
+          data-responsive="true"
           initial={{ y: -50, opacity: 0, scale: 0.95 }}
           animate={{ y: 0, opacity: 1, scale: 1 }}
           transition={{
