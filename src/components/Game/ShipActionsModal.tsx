@@ -73,7 +73,7 @@ export const ShipActionsModal: React.FC<ShipActionsModalProps> = ({
         }
       }
     }
-  }, [isOpen, user, shipHP, onRepairShip, shipInventory]);
+  }, [isOpen, user]);
 
   // Handle ESC key and reset modal state
   useEffect(() => {
