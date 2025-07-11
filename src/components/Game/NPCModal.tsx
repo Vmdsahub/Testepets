@@ -35,7 +35,7 @@ const SHOP_ITEMS: ShopItem[] = [
     price: 20,
     currency: "xenocoins",
     imageUrl:
-      "https://cdn.builder.io/api/v1/image/assets%2F374f0317fa034d00bf28d60f517709e5%2Fe8409e2c94574b3fb58f5461edf22c87?format=webp&width=800",
+      "https://cdn.builder.io/api/v1/image/assets%2F374f0317fa034d00bf28d60f517709e5%2Fee180bf68c2747bc9236599bba53c46f?format=webp&width=800",
   },
 ];
 
@@ -239,7 +239,7 @@ export const NPCModal: React.FC<NPCModalProps> = ({ isOpen, onClose }) => {
                           <img
                             src={item.imageUrl}
                             alt={item.name}
-                            className="w-12 h-12 object-contain"
+                            className="w-16 h-16 object-contain"
                           />
                         ) : (
                           <Wrench className="w-8 h-8 text-gray-600" />
