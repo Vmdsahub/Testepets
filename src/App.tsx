@@ -153,10 +153,20 @@ function App() {
   }, [isAuthenticated, currentScreen]);
 
   const renderScreen = useMemo(() => {
+    console.log("🖥️ App.tsx renderScreen executado:", {
+      currentScreen,
+      currentPlanet,
+      isAuthenticated,
+    });
     if (!isAuthenticated) {
+      console.log("🔒 Usuário não autenticado, mostrando AuthScreen");
       return <AuthScreen />;
     }
 
+    console.log(
+      "✅ Usuário autenticado, processando currentScreen:",
+      currentScreen,
+    );
     switch (currentScreen) {
       case "world":
         return (
