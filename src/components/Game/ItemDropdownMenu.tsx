@@ -71,14 +71,14 @@ export const ItemDropdownMenu: React.FC<ItemDropdownMenuProps> = ({
             className="absolute right-0 top-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50 min-w-[140px]"
           >
             <button
-              onClick={() => handleAction(onInspect)}
+              onClick={handleAction(onInspect)}
               className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
             >
               <Eye className="w-4 h-4" />
               Inspecionar
             </button>
             <button
-              onClick={() => handleAction(onUse)}
+              onClick={handleAction(onUse)}
               className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
               disabled={disabled}
             >
@@ -86,7 +86,7 @@ export const ItemDropdownMenu: React.FC<ItemDropdownMenuProps> = ({
               Usar
             </button>
             <button
-              onClick={() => handleAction(onDiscard)}
+              onClick={handleAction(onDiscard)}
               className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
             >
               <Trash2 className="w-4 h-4" />
