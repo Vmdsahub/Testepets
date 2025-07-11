@@ -59,18 +59,16 @@ export const MusicModal: React.FC = () => {
       <div className="flex items-center gap-2">
         <Volume2 className="w-4 h-4 text-blue-600 flex-shrink-0" />
 
-        <motion.button
+        <button
           onClick={togglePlayPause}
-          className="w-6 h-6 rounded-full bg-blue-500 hover:bg-blue-600 transition-colors flex items-center justify-center flex-shrink-0"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+          className="w-6 h-6 rounded bg-blue-500 hover:bg-blue-600 transition-colors flex items-center justify-center flex-shrink-0"
         >
           {isPlaying ? (
             <Pause className="w-3 h-3 text-white" />
           ) : (
             <Play className="w-3 h-3 text-white ml-0.5" />
           )}
-        </motion.button>
+        </button>
 
         <div className="flex-1 relative">
           <div className="w-full h-1.5 bg-gray-200 rounded-full">
@@ -89,7 +87,12 @@ export const MusicModal: React.FC = () => {
             max="1"
             step="0.05"
             value={volume}
-            onChange={(e) => setVolume(Number(e.target.value))}
+            onChange={(e) => {
+              e.stopPropagation();
+              setVolume(Number(e.target.value));
+            }}
+            onMouseDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
             className="absolute inset-0 w-full opacity-0 cursor-pointer"
           />
         </div>
