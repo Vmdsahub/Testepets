@@ -158,7 +158,11 @@ function App() {
         return (
           <>
             <SpaceMap />
-            <ModalManager openModals={openModals} onCloseModal={closeModal} />
+            <ModalManager
+              openModals={openModals}
+              onCloseModal={closeModal}
+              modalOriginPositions={modalOriginPositions}
+            />
           </>
         );
       case "store":
@@ -184,7 +188,11 @@ function App() {
         return (
           <>
             <SpaceMap />
-            <ModalManager openModals={openModals} onCloseModal={closeModal} />
+            <ModalManager
+              openModals={openModals}
+              onCloseModal={closeModal}
+              modalOriginPositions={modalOriginPositions}
+            />
           </>
         );
       default:
