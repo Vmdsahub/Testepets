@@ -103,10 +103,10 @@ export const TopPillNavigation: React.FC<TopPillNavigationProps> = ({
             </motion.div>
 
             {/* Currencies Section */}
-            <div className="flex items-center space-x-6">
+            <div className="flex items-center space-x-2 sm:space-x-6">
               {/* Xenocoins */}
               <motion.div
-                className="flex items-center space-x-2"
+                className="flex items-center space-x-1 sm:space-x-2"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.98 }}
                 transition={{ duration: 0.15 }}
@@ -114,9 +114,9 @@ export const TopPillNavigation: React.FC<TopPillNavigationProps> = ({
                 <img
                   src="https://cdn.builder.io/api/v1/image/assets%2Ff481900009a94cda953c032479392a30%2F3e6c6cb85c6a4d2ba05acb245bfbc214?format=webp&width=800"
                   alt="Xenocoins"
-                  className="w-6 h-6"
+                  className="w-4 h-4 sm:w-6 sm:h-6"
                 />
-                <span className="text-sm font-semibold text-gray-700">
+                <span className="text-xs sm:text-sm font-semibold text-gray-700">
                   {xenocoins > 9999
                     ? `${Math.floor(xenocoins / 1000)}k`
                     : xenocoins.toLocaleString()}
@@ -125,7 +125,7 @@ export const TopPillNavigation: React.FC<TopPillNavigationProps> = ({
 
               {/* Cash */}
               <motion.div
-                className="flex items-center space-x-2"
+                className="flex items-center space-x-1 sm:space-x-2"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.98 }}
                 transition={{ duration: 0.15 }}
@@ -133,9 +133,9 @@ export const TopPillNavigation: React.FC<TopPillNavigationProps> = ({
                 <img
                   src="https://cdn.builder.io/api/v1/image/assets%2Fc013caa4db474e638dc2961a6085b60a%2F38a7eab3791441c7bc853afba8904317?format=webp&width=800"
                   alt="Xenocash"
-                  className="w-6 h-6"
+                  className="w-4 h-4 sm:w-6 sm:h-6"
                 />
-                <span className="text-sm font-semibold text-gray-700">
+                <span className="text-xs sm:text-sm font-semibold text-gray-700 hidden xs:inline">
                   {cash > 9999 ? `${Math.floor(cash / 1000)}k` : cash}
                 </span>
               </motion.div>
