@@ -65,8 +65,12 @@ export const BottomPillNavigation: React.FC<BottomPillNavigationProps> = ({
         setCurrentScreen("world");
       }
     } else if (["pet", "inventory", "profile", "admin"].includes(id)) {
-      // Open as modal instead of navigating
-      openModal(id);
+      // Toggle modal - open if closed, close if open
+      if (openModals.includes(id)) {
+        closeModal(id);
+      } else {
+        openModal(id);
+      }
     } else {
       setCurrentScreen(id);
     }
