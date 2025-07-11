@@ -40,6 +40,7 @@ function App() {
   const { isAuthenticated, user: authUser, initializeAuth } = useAuthStore();
   const {
     currentScreen,
+    currentPlanet,
     user: gameUser,
     setUser,
     setCurrentScreen,
