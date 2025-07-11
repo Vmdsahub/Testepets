@@ -101,9 +101,9 @@ export const MusicMiniModal: React.FC<MusicMiniModalProps> = ({
             </button>
           </div>
 
-          {/* Album Cover - Larger size */}
-          <div className="flex items-center gap-4 mb-4">
-            <div className="relative w-20 h-20 rounded-xl overflow-hidden shadow-md flex-shrink-0">
+          {/* Album Cover - Centered and Larger */}
+          <div className="flex flex-col items-center gap-4 mb-4">
+            <div className="relative w-28 h-28 rounded-2xl overflow-hidden shadow-lg flex-shrink-0">
               <img
                 src={coverImage}
                 alt={currentTrack?.name || "Trilha Sonora"}
@@ -112,17 +112,18 @@ export const MusicMiniModal: React.FC<MusicMiniModalProps> = ({
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
             </div>
 
-            {/* Track Info and Controls */}
-            <div className="flex-1 min-w-0">
-              <div className="mb-2">
-                <h4 className="font-medium text-gray-900 text-sm truncate">
-                  {currentTrack?.name || "Nenhuma música"}
-                </h4>
-                <p className="text-xs text-gray-600">{getScreenTitle()}</p>
-              </div>
+            {/* Track Info - Centered */}
+            <div className="text-center">
+              <h4 className="font-medium text-gray-900 text-base mb-1">
+                {currentTrack?.name || "Nenhuma música"}
+              </h4>
+              <p className="text-sm text-gray-600">{getScreenTitle()}</p>
+            </div>
 
-              {/* Play/Pause Button */}
-              <div className="flex items-center gap-3">
+            {/* Controls - Centered */}
+            <div className="w-full">
+              <div className="flex items-center justify-center gap-4 mb-3">
+                {/* Play/Pause Button */}
                 <motion.button
                   onClick={handlePlayPause}
                   className="bg-blue-500 hover:bg-blue-600 text-white rounded-full p-2 transition-colors shadow-md"
@@ -135,38 +136,38 @@ export const MusicMiniModal: React.FC<MusicMiniModalProps> = ({
                     <Play className="w-4 h-4 ml-0.5" />
                   )}
                 </motion.button>
+              </div>
 
-                {/* Volume Control */}
-                <div className="flex items-center gap-2 flex-1">
-                  <button
-                    onClick={handleMuteToggle}
-                    className="p-1 hover:bg-gray-100 rounded-full transition-colors"
-                  >
-                    {volume === 0 ? (
-                      <VolumeX className="w-4 h-4 text-gray-600" />
-                    ) : (
-                      <Volume2 className="w-4 h-4 text-gray-600" />
-                    )}
-                  </button>
+              {/* Volume Control - Full width */}
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={handleMuteToggle}
+                  className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  {volume === 0 ? (
+                    <VolumeX className="w-4 h-4 text-gray-600" />
+                  ) : (
+                    <Volume2 className="w-4 h-4 text-gray-600" />
+                  )}
+                </button>
 
-                  <div className="flex-1">
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      value={volume * 100} // Convert from 0-1 to 0-100
-                      onChange={handleVolumeChange}
-                      className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                      style={{
-                        background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${volume * 100}%, #e5e7eb ${volume * 100}%, #e5e7eb 100%)`,
-                      }}
-                    />
-                  </div>
-
-                  <span className="text-xs text-gray-500 w-6 text-right">
-                    {Math.round(volume * 100)}
-                  </span>
+                <div className="flex-1">
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={volume * 100} // Convert from 0-1 to 0-100
+                    onChange={handleVolumeChange}
+                    className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                    style={{
+                      background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${volume * 100}%, #e5e7eb ${volume * 100}%, #e5e7eb 100%)`,
+                    }}
+                  />
                 </div>
+
+                <span className="text-xs text-gray-500 w-6 text-right">
+                  {Math.round(volume * 100)}
+                </span>
               </div>
             </div>
           </div>
