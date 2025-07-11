@@ -55,7 +55,10 @@ export const TopPillNavigation: React.FC<TopPillNavigationProps> = ({
     }
   }, [showMusicModal, closeModal, openModal]);
 
-  const canClaimDaily = canClaimDailyCheckin();
+  const canClaimDaily = useMemo(
+    () => canClaimDailyCheckin(),
+    [canClaimDailyCheckin],
+  );
 
   return (
     <>
