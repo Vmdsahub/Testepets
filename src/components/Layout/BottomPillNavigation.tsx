@@ -58,8 +58,14 @@ export const BottomPillNavigation: React.FC<BottomPillNavigationProps> = ({
     if (id === "world") {
       // Close all modals when returning to world view
       closeAllModals();
-      // Use the last world screen the user was on
-      if (lastWorldScreenRef.current === "planet" && currentPlanet) {
+      // Smart navigation based on current screen
+      if (currentScreen === "exploration") {
+        console.log(`🌍 Retornando ao planeta`);
+        setCurrentScreen("planet");
+      } else if (currentScreen === "planet") {
+        console.log(`🌍 Retornando à navegação galáctica`);
+        setCurrentScreen("world");
+      } else if (lastWorldScreenRef.current === "planet" && currentPlanet) {
         console.log(`🌍 Retornando ao planeta: ${currentPlanet.name}`);
         setCurrentScreen("planet");
       } else {
