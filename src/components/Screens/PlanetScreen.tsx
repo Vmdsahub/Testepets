@@ -496,6 +496,24 @@ export const PlanetScreen: React.FC = () => {
               </div>
             </motion.div>
           )}
+
+          {/* Back button */}
+          <div className="flex justify-center mt-6">
+            <motion.button
+              onClick={() => {
+                if (isPlanetEditMode) {
+                  setPlanetEditMode(false);
+                }
+                setCurrentScreen("world");
+              }}
+              className="px-6 py-3 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors font-medium text-gray-700 flex items-center gap-2"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Voltar ao Mapa Galáctico
+            </motion.button>
+          </div>
         </div>
       </div>
     </div>
