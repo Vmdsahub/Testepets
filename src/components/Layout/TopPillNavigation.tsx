@@ -142,12 +142,12 @@ export const TopPillNavigation: React.FC<TopPillNavigationProps> = ({
             </div>
 
             {/* Action Buttons */}
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-1 sm:space-x-2">
               {/* Daily Check-in */}
               <div className="relative">
                 <motion.button
                   onClick={() => setShowCheckin(!showCheckin)}
-                  className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 ${
+                  className={`w-7 h-7 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all duration-200 ${
                     canClaimDaily
                       ? "bg-blue-50 text-blue-600 hover:bg-blue-100"
                       : "hover:bg-gray-100 text-gray-600"
@@ -155,10 +155,10 @@ export const TopPillNavigation: React.FC<TopPillNavigationProps> = ({
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <Calendar className="w-4 h-4" />
+                  <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
                   {canClaimDaily && (
                     <motion.div
-                      className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full"
+                      className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-2.5 h-2.5 sm:w-3 sm:h-3 bg-blue-500 rounded-full"
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       transition={{ type: "spring", stiffness: 500 }}
