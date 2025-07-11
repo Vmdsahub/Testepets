@@ -67,31 +67,6 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
     onClose();
   };
 
-  // Calculate where the animation should start
-  const getInitialScale = () => {
-    const saved = localStorage.getItem(`modal-position-${modalId}`);
-    // If modal was positioned before, start at normal scale
-    if (saved) return 0.9;
-    // If first time opening, start very small to animate from button
-    return 0.2;
-  };
-
-  const getInitialPosition = () => {
-    const saved = localStorage.getItem(`modal-position-${modalId}`);
-    if (saved || !originPosition) {
-      return { x: position.x, y: position.y };
-    }
-
-    // Calculate offset from button to center of screen
-    const centerX = window.innerWidth / 2;
-    const centerY = window.innerHeight / 2;
-
-    return {
-      x: originPosition.x - centerX,
-      y: originPosition.y - centerY,
-    };
-  };
-
   if (!isOpen) return null;
 
   return (
