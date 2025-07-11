@@ -38,8 +38,12 @@ export const ItemDropdownMenu: React.FC<ItemDropdownMenuProps> = ({
   }, [isOpen]);
 
   const handleAction = (action: () => void) => {
-    action();
-    setIsOpen(false);
+    return (event: React.MouseEvent) => {
+      event.preventDefault();
+      event.stopPropagation();
+      action();
+      setIsOpen(false);
+    };
   };
 
   return (
