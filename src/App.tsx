@@ -207,6 +207,7 @@ function App() {
             <TopPillNavigation />
             <BottomPillNavigation
               openModal={openModal}
+              closeModal={closeModal}
               closeAllModals={closeAllModals}
               openModals={openModals}
             />
