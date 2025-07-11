@@ -17,7 +17,7 @@ interface ShipInventoryItem {
   id: string;
   name: string;
   description: string;
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<{ className?: string }>;
   quantity: number;
   effect: () => void;
 }
@@ -64,7 +64,7 @@ export const ShipActionsModal: React.FC<ShipActionsModalProps> = ({
         try {
           const inventory = JSON.parse(savedInventory);
           setShipInventory(
-            inventory.map((item: any) => ({
+            inventory.map((item: ShipInventoryItem) => ({
               ...item,
               icon: Wrench, // Default icon for tools
             })),
@@ -173,10 +173,12 @@ export const ShipActionsModal: React.FC<ShipActionsModalProps> = ({
         const savedInventory = localStorage.getItem(
           `ship-inventory-${user.id}`,
         );
-        let currentInventory = savedInventory ? JSON.parse(savedInventory) : [];
+        const currentInventory = savedInventory
+          ? JSON.parse(savedInventory)
+          : [];
 
         const existingItemIndex = currentInventory.findIndex(
-          (inv: any) => inv.name === item.name,
+          (inv: ShipInventoryItem) => inv.name === item.name,
         );
 
         if (existingItemIndex >= 0) {
@@ -198,7 +200,7 @@ export const ShipActionsModal: React.FC<ShipActionsModalProps> = ({
         // Update current state if modal is open
         if (isOpen) {
           setShipInventory(
-            currentInventory.map((item: any) => ({
+            currentInventory.map((item: ShipInventoryItem) => ({
               ...item,
               icon: Wrench,
             })),
