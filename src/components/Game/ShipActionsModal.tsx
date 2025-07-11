@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Search, Package, RefreshCw, ArrowLeft, Wrench } from "lucide-react";
 import { useGameStore } from "../../store/gameStore";
@@ -56,6 +56,56 @@ export const ShipActionsModal: React.FC<ShipActionsModalProps> = ({
   const [currentView, setCurrentView] = useState<ModalView>("main");
   const [shipInventory, setShipInventory] = useState<ShipInventoryItem[]>([]);
   const { user } = useGameStore();
+  const useInventoryItem = useCallback(
+    (item: ShipInventoryItem) => {
+      if (item.name === "Kit de Reparos Básico" && shipHP < 3 && user) {
+        onRepairShip();
+
+        // Remove one item from inventory
+        const updatedInventory = shipInventory
+          .map((invItem) =>
+            invItem.id === item.id
+              ? { ...invItem, quantity: invItem.quantity - 1 }
+              : invItem,
+          )
+          .filter((invItem) => invItem.quantity > 0);
+
+        setShipInventory(updatedInventory);
+        localStorage.setItem(
+          `ship-inventory-${user.id}`,
+          JSON.stringify(updatedInventory),
+        );
+      }
+    },
+    [shipHP, user, onRepairShip, shipInventory],
+  );
+
+  const inspectItem = useCallback((item: ShipInventoryItem) => {
+    // Show item details (could be expanded to show a modal)
+    console.log("Inspecting item:", item);
+  }, []);
+
+  const discardItem = useCallback(
+    (item: ShipInventoryItem) => {
+      if (!user) return;
+
+      const updatedInventory = shipInventory
+        .map((invItem) =>
+          invItem.id === item.id
+            ? { ...invItem, quantity: invItem.quantity - 1 }
+            : invItem,
+        )
+        .filter((invItem) => invItem.quantity > 0);
+
+      setShipInventory(updatedInventory);
+      localStorage.setItem(
+        `ship-inventory-${user.id}`,
+        JSON.stringify(updatedInventory),
+      );
+    },
+    [user, shipInventory],
+  );
+
   // Load ship inventory from localStorage
   useEffect(() => {
     if (isOpen && user) {
@@ -119,50 +169,6 @@ export const ShipActionsModal: React.FC<ShipActionsModalProps> = ({
 
   const handleBackToMain = () => {
     setCurrentView("main");
-  };
-
-  const useInventoryItem = (item: ShipInventoryItem) => {
-    if (item.name === "Kit de Reparos Básico" && shipHP < 3 && user) {
-      onRepairShip();
-
-      // Remove one item from inventory
-      const updatedInventory = shipInventory
-        .map((invItem) =>
-          invItem.id === item.id
-            ? { ...invItem, quantity: invItem.quantity - 1 }
-            : invItem,
-        )
-        .filter((invItem) => invItem.quantity > 0);
-
-      setShipInventory(updatedInventory);
-      localStorage.setItem(
-        `ship-inventory-${user.id}`,
-        JSON.stringify(updatedInventory),
-      );
-    }
-  };
-
-  const inspectItem = (item: ShipInventoryItem) => {
-    // Show item details (could be expanded to show a modal)
-    console.log("Inspecting item:", item);
-  };
-
-  const discardItem = (item: ShipInventoryItem) => {
-    if (!user) return;
-
-    const updatedInventory = shipInventory
-      .map((invItem) =>
-        invItem.id === item.id
-          ? { ...invItem, quantity: invItem.quantity - 1 }
-          : invItem,
-      )
-      .filter((invItem) => invItem.quantity > 0);
-
-    setShipInventory(updatedInventory);
-    localStorage.setItem(
-      `ship-inventory-${user.id}`,
-      JSON.stringify(updatedInventory),
-    );
   };
 
   // Function to add items to ship inventory (will be called from NPCModal)
