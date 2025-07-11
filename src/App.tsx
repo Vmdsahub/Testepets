@@ -165,15 +165,13 @@ function App() {
       case "inventory":
       case "profile":
       case "admin":
-        // Redirect to world screen when these are accessed directly
-        // The modal will be opened by the navigation
+        // Auto-redirect to world and open the modal
+        setCurrentScreen("world");
+        setTimeout(() => openModal(currentScreen), 100);
         return (
           <>
             <SpaceMap />
-            <ModalManager
-              openModals={[currentScreen]}
-              onCloseModal={() => setCurrentScreen("world")}
-            />
+            <ModalManager openModals={openModals} onCloseModal={closeModal} />
           </>
         );
       default:
