@@ -54,6 +54,14 @@ function App() {
   // Initialize background music
   const musicState = useBackgroundMusic();
 
+  // Initialize performance optimizations
+  usePerformanceOptimization({
+    enableReducedMotion: true,
+    enableCanvasOptimization: true,
+    enableMemoryManagement: true,
+    enableFPSMonitoring: false, // Enable only if needed for debugging
+  });
+
   // Modal management functions
   const openModal = (modalId: string) => {
     setOpenModals((prev) => {
