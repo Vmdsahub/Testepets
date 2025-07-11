@@ -40,6 +40,8 @@ export const PlanetScreen: React.FC = () => {
     saveExplorationPoints,
   } = useGameStore();
 
+  console.log("🌍 PlanetScreen renderizado:", { currentPlanet, user });
+
   const [draggedPoint, setDraggedPoint] = useState<string | null>(null);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [editingName, setEditingName] = useState<string | null>(null);
