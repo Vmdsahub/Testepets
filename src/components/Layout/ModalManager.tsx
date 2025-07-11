@@ -52,15 +52,15 @@ export const ModalManager: React.FC<ModalManagerProps> = ({
   ];
 
   const getModalPosition = (modalId: string, index: number) => {
-    // Stagger the initial positions so modals don't overlap
-    const offset = index * 60;
-    const positions: Record<string, { x: number; y: number }> = {
-      pet: { x: -300 + offset, y: -150 + offset },
-      inventory: { x: 300 + offset, y: -150 + offset },
-      profile: { x: -300 + offset, y: 150 + offset },
-      admin: { x: 300 + offset, y: 150 + offset },
-    };
-    return positions[modalId] || { x: offset, y: offset };
+    // Check if there's a saved position
+    const saved = localStorage.getItem(`modal-position-${modalId}`);
+    if (saved) {
+      return JSON.parse(saved);
+    }
+
+    // If no saved position, stagger slightly to avoid complete overlap if multiple modals open
+    const offset = index * 30;
+    return { x: offset, y: offset };
   };
 
   return (
@@ -75,6 +75,7 @@ export const ModalManager: React.FC<ModalManagerProps> = ({
             isOpen={isOpen}
             onClose={() => onCloseModal(config.id)}
             title={config.title}
+            modalId={config.id}
             defaultPosition={getModalPosition(config.id, index)}
           >
             {config.component}
