@@ -24,26 +24,22 @@ export const MusicModal: React.FC = () => {
   } = useMusicContext();
 
   return (
-    <div className="p-4">
+    <div className="space-y-4">
       {/* Header */}
-      <div className="p-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-purple-50">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <MusicIcon className="w-5 h-5 text-blue-600" />
-            </div>
-            <div>
-              <h3 className="font-semibold text-gray-900">Player de Música</h3>
-              <p className="text-sm text-gray-600">
-                Olá, {user?.username || "Jogador"}!
-              </p>
-            </div>
-          </div>
+      <div className="flex items-center gap-3 p-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg">
+        <div className="p-2 bg-blue-100 rounded-lg">
+          <MusicIcon className="w-5 h-5 text-blue-600" />
+        </div>
+        <div>
+          <h3 className="font-semibold text-gray-900">Player de Música</h3>
+          <p className="text-sm text-gray-600">
+            Olá, {user?.username || "Jogador"}!
+          </p>
         </div>
       </div>
 
       {/* Music Player Content */}
-      <div className="p-6">
+      <div className="px-2">
         {/* Track Info */}
         <div className="text-center mb-6">
           <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full mx-auto mb-3 flex items-center justify-center">
