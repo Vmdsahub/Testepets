@@ -42,7 +42,7 @@ const SHOP_ITEMS: ShopItem[] = [
 export const NPCModal: React.FC<NPCModalProps> = ({ isOpen, onClose }) => {
   const [displayedText, setDisplayedText] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isTypingComplete, setIsTypingComplete] = useState(false);
+  const [, setIsTypingComplete] = useState(false);
   const [currentAlienChar, setCurrentAlienChar] = useState("");
   const [isShowingAlien, setIsShowingAlien] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
