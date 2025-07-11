@@ -58,28 +58,30 @@ export const ShipActionsModal: React.FC<ShipActionsModalProps> = ({
   const { user } = useGameStore();
   const handleUseItem = useCallback(
     (item: ShipInventoryItem) => {
-      console.log("handleUseItem called with:", item);
       if (item.name === "Kit de Reparos Básico" && shipHP < 3 && user) {
-        console.log("Using repair kit, calling onRepairShip");
         onRepairShip();
 
-        // Remove one item from inventory
-        const updatedInventory = shipInventory
-          .map((invItem) =>
-            invItem.id === item.id
-              ? { ...invItem, quantity: invItem.quantity - 1 }
-              : invItem,
-          )
-          .filter((invItem) => invItem.quantity > 0);
+        // Update inventory by removing one item
+        setShipInventory((currentInventory) => {
+          const updatedInventory = currentInventory
+            .map((invItem) =>
+              invItem.id === item.id
+                ? { ...invItem, quantity: invItem.quantity - 1 }
+                : invItem,
+            )
+            .filter((invItem) => invItem.quantity > 0);
 
-        setShipInventory(updatedInventory);
-        localStorage.setItem(
-          `ship-inventory-${user.id}`,
-          JSON.stringify(updatedInventory),
-        );
+          // Save to localStorage
+          localStorage.setItem(
+            `ship-inventory-${user.id}`,
+            JSON.stringify(updatedInventory),
+          );
+
+          return updatedInventory;
+        });
       }
     },
-    [shipHP, user, onRepairShip, shipInventory],
+    [shipHP, user, onRepairShip],
   );
 
   const inspectItem = useCallback((item: ShipInventoryItem) => {
@@ -369,8 +371,8 @@ export const ShipActionsModal: React.FC<ShipActionsModalProps> = ({
                         <p className="text-sm text-gray-600 leading-relaxed">
                           Uma nave versátil projetada para exploração espacial
                           de longo alcance. Equipada com propulsores iônicos
-                          avançados e sistema de navegação quântica, esta nave é
-                          ideal para aventuras intergalácticas.
+                          avançados e sistema de navega��ão quântica, esta nave
+                          é ideal para aventuras intergalácticas.
                         </p>
                       </div>
 
