@@ -30,7 +30,7 @@ export const TopPillNavigation: React.FC<TopPillNavigationProps> = ({
   const showNotifications = openModals.includes("notifications");
   const showMusicModal = openModals.includes("music");
 
-  const handleBellClick = () => {
+  const handleBellClick = useCallback(() => {
     if (unreadCount > 0 && !showNotifications) {
       markAllNotificationsAsRead();
     }
@@ -39,7 +39,13 @@ export const TopPillNavigation: React.FC<TopPillNavigationProps> = ({
     } else {
       openModal?.("notifications");
     }
-  };
+  }, [
+    unreadCount,
+    showNotifications,
+    markAllNotificationsAsRead,
+    closeModal,
+    openModal,
+  ]);
 
   const handleMusicClick = () => {
     if (showMusicModal) {
