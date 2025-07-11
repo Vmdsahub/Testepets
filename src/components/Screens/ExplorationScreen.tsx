@@ -41,24 +41,13 @@ export const ExplorationScreen: React.FC = () => {
       <div className="max-w-2xl mx-auto">
         <div className="bg-white rounded-3xl shadow-xl p-4">
           {/* Header */}
-          <div className="flex items-center gap-3 mb-4">
-            <motion.button
-              onClick={handleBack}
-              className="p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-            >
-              <ArrowLeft className="w-5 h-5 text-gray-600" />
-            </motion.button>
-
-            <div className="flex-1">
-              <h1 className="text-2xl font-bold text-gray-800">
-                {currentExplorationArea.name}
-              </h1>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <MapPin className="w-4 h-4" />
-                <span>{currentExplorationPoint.name}</span>
-              </div>
+          <div className="text-center mb-4">
+            <h1 className="text-2xl font-bold text-gray-800">
+              {currentExplorationArea.name}
+            </h1>
+            <div className="flex items-center justify-center gap-2 text-sm text-gray-600 mt-1">
+              <MapPin className="w-4 h-4" />
+              <span>{currentExplorationPoint.name}</span>
             </div>
           </div>
 
