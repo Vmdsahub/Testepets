@@ -8,14 +8,10 @@ import { TopPillNavigation } from "./components/Layout/TopPillNavigation";
 import { BottomPillNavigation } from "./components/Layout/BottomPillNavigation";
 import { ModalManager } from "./components/Layout/ModalManager";
 
-import { PetScreen } from "./components/Screens/PetScreen";
 import { StoreScreen } from "./components/Store/StoreScreen";
-import { InventoryScreen } from "./components/Screens/InventoryScreen";
-import { ProfileScreen } from "./components/Screens/ProfileScreen";
 import { OtherUserInventoryScreen } from "./components/Screens/OtherUserInventoryScreen";
 import { OtherUserAchievementsScreen } from "./components/Screens/OtherUserAchievementsScreen";
 import { OtherUserCollectiblesScreen } from "./components/Screens/OtherUserCollectiblesScreen";
-import { AdminPanel } from "./components/Admin/AdminPanel";
 import { SpaceMap } from "./components/Game/SpaceMap";
 import { PlanetScreen } from "./components/Screens/PlanetScreen";
 import { ExplorationScreen } from "./components/Screens/ExplorationScreen";
@@ -45,6 +41,7 @@ function App() {
     currentScreen,
     user: gameUser,
     setUser,
+    setCurrentScreen,
     initializeNewUser,
     loadUserData,
     unsubscribeFromRealtimeUpdates,
@@ -180,15 +177,32 @@ function App() {
   }, [isAuthenticated, currentScreen, gameUser?.isAdmin, openModals]);
 
   const pageVariants = {
-    initial: { opacity: 0, y: 20 },
-    in: { opacity: 1, y: 0 },
-    out: { opacity: 0, y: -20 },
+    initial: {
+      opacity: 0,
+      scale: 0.95,
+      y: 20,
+      filter: "blur(4px)",
+    },
+    in: {
+      opacity: 1,
+      scale: 1,
+      y: 0,
+      filter: "blur(0px)",
+    },
+    out: {
+      opacity: 0,
+      scale: 1.05,
+      y: -20,
+      filter: "blur(4px)",
+    },
   };
 
   const pageTransition = {
-    type: "tween",
-    ease: "anticipate",
-    duration: 0.4,
+    type: "spring",
+    stiffness: 400,
+    damping: 25,
+    mass: 0.6,
+    velocity: 2,
   };
 
   // If not authenticated, just return the auth screen directly
@@ -201,17 +215,27 @@ function App() {
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 gpu-accelerated force-gpu-layer">
         <AudioPreloader />
 
-        {currentScreen === "world" ? (
-          // Fullscreen layout for world screen with pill navigations
+        {["world", "planet", "exploration"].includes(currentScreen) ? (
+          // Fullscreen layout for world-related screens with pill navigations
           <div className="fixed inset-0 overflow-hidden">
-            <TopPillNavigation />
+            <TopPillNavigation
+              openModal={openModal}
+              closeModal={closeModal}
+              openModals={openModals}
+            />
             <BottomPillNavigation
               openModal={openModal}
               closeModal={closeModal}
               closeAllModals={closeAllModals}
               openModals={openModals}
             />
-            {renderScreen}
+            <div className="h-full w-full">
+              {currentScreen === "world" && <SpaceMap />}
+              {currentScreen === "planet" && <PlanetScreen />}
+              {currentScreen === "exploration" && <ExplorationScreen />}
+            </div>
+            {/* Modals persist outside AnimatePresence */}
+            <ModalManager openModals={openModals} onCloseModal={closeModal} />
           </div>
         ) : (
           // Normal layout for other screens with traditional navigation
@@ -226,11 +250,7 @@ function App() {
                   exit="out"
                   variants={pageVariants}
                   transition={pageTransition}
-                  className="smooth-animation force-gpu-layer"
-                  style={{
-                    transform: "translate3d(0, 0, 0)",
-                    willChange: "transform, opacity",
-                  }}
+                  className="smooth-page-transition force-gpu-layer"
                 >
                   {renderScreen}
                 </motion.div>

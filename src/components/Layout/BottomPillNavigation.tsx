@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Heart, Globe, Package, User, Shield } from "lucide-react";
+import { Heart, Globe, Package, User, Shield, X } from "lucide-react";
 import { useGameStore } from "../../store/gameStore";
 import { motion } from "framer-motion";
 
@@ -34,9 +34,9 @@ export const BottomPillNavigation: React.FC<BottomPillNavigationProps> = ({
   // Track the last world-related screen the user was on
   const lastWorldScreenRef = useRef<string>("world");
 
-  // Update lastWorldScreen when user is on world or planet
+  // Update lastWorldScreen when user is on world, planet or exploration
   useEffect(() => {
-    if (currentScreen === "world" || currentScreen === "planet") {
+    if (["world", "planet", "exploration"].includes(currentScreen)) {
       lastWorldScreenRef.current = currentScreen;
     }
   }, [currentScreen]);
@@ -56,10 +56,14 @@ export const BottomPillNavigation: React.FC<BottomPillNavigationProps> = ({
 
   const handleItemClick = (id: string) => {
     if (id === "world") {
-      // Close all modals when returning to world view
-      closeAllModals();
-      // Use the last world screen the user was on
-      if (lastWorldScreenRef.current === "planet" && currentPlanet) {
+      // Smart navigation based on current screen - don't close modals
+      if (currentScreen === "exploration") {
+        console.log(`🌍 Retornando ao planeta`);
+        setCurrentScreen("planet");
+      } else if (currentScreen === "planet") {
+        console.log(`🌍 Retornando à navegação galáctica`);
+        setCurrentScreen("world");
+      } else if (lastWorldScreenRef.current === "planet" && currentPlanet) {
         console.log(`🌍 Retornando ao planeta: ${currentPlanet.name}`);
         setCurrentScreen("planet");
       } else {
@@ -98,10 +102,12 @@ export const BottomPillNavigation: React.FC<BottomPillNavigationProps> = ({
         <div className="flex items-center justify-center h-full">
           <div className="flex items-center space-x-2">
             {items.map(({ id, label, icon: Icon, color }) => {
+              const isWorldButton = id === "world";
+              const showXOverlay = isWorldButton && currentScreen !== "world";
+
               const isActive =
                 currentScreen === id ||
-                (id === "world" &&
-                  (currentScreen === "world" || currentScreen === "planet")) ||
+                (id === "world" && currentScreen === "world") ||
                 (["pet", "inventory", "profile", "admin"].includes(id) &&
                   openModals.includes(id));
 
@@ -111,10 +117,11 @@ export const BottomPillNavigation: React.FC<BottomPillNavigationProps> = ({
                   onClick={() => handleItemClick(id)}
                   className={`relative flex flex-col items-center justify-center px-6 py-2 rounded-full transition-all duration-300 ${
                     isActive ? "bg-gray-50" : "hover:bg-gray-50/50"
-                  }`}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.98 }}
+                  } ${showXOverlay ? "opacity-50 cursor-not-allowed" : ""}`}
+                  whileHover={{ scale: showXOverlay ? 1 : 1.05 }}
+                  whileTap={{ scale: showXOverlay ? 1 : 0.98 }}
                   transition={{ duration: 0.15 }}
+                  disabled={showXOverlay}
                 >
                   <motion.div
                     className="relative"
@@ -129,6 +136,11 @@ export const BottomPillNavigation: React.FC<BottomPillNavigationProps> = ({
                         color: isActive ? color : "rgb(107, 114, 128)",
                       }}
                     />
+                    {showXOverlay && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <X className="w-4 h-4 text-red-500" />
+                      </div>
+                    )}
                   </motion.div>
 
                   <span
