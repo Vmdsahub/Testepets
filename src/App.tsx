@@ -8,14 +8,10 @@ import { TopPillNavigation } from "./components/Layout/TopPillNavigation";
 import { BottomPillNavigation } from "./components/Layout/BottomPillNavigation";
 import { ModalManager } from "./components/Layout/ModalManager";
 
-import { PetScreen } from "./components/Screens/PetScreen";
 import { StoreScreen } from "./components/Store/StoreScreen";
-import { InventoryScreen } from "./components/Screens/InventoryScreen";
-import { ProfileScreen } from "./components/Screens/ProfileScreen";
 import { OtherUserInventoryScreen } from "./components/Screens/OtherUserInventoryScreen";
 import { OtherUserAchievementsScreen } from "./components/Screens/OtherUserAchievementsScreen";
 import { OtherUserCollectiblesScreen } from "./components/Screens/OtherUserCollectiblesScreen";
-import { AdminPanel } from "./components/Admin/AdminPanel";
 import { SpaceMap } from "./components/Game/SpaceMap";
 import { PlanetScreen } from "./components/Screens/PlanetScreen";
 import { ExplorationScreen } from "./components/Screens/ExplorationScreen";
