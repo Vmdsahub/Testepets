@@ -186,7 +186,7 @@ export const TopPillNavigation: React.FC<TopPillNavigationProps> = ({
 
               {/* Music */}
               <motion.button
-                onClick={() => setShowMusicModal(!showMusicModal)}
+                onClick={handleMusicClick}
                 className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 ${
                   showMusicModal
                     ? "bg-blue-50 text-blue-600"
