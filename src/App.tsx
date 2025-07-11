@@ -225,7 +225,7 @@ function App() {
               closeAllModals={closeAllModals}
               openModals={openModals}
             />
-            <AnimatePresence mode="wait">
+            <AnimatePresence mode="popLayout">
               <motion.div
                 key={currentScreen}
                 initial="initial"
