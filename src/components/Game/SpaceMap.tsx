@@ -1248,17 +1248,22 @@ const SpaceMapComponent: React.FC = () => {
       const newHP = Math.min(prev + 1, 3);
       setShowHPBar(true);
 
-      addNotification({
-        type: "success",
-        message: `Nave reparada! HP: ${newHP}/3`,
-      });
-
       // Hide HP bar after 3 seconds
       setTimeout(() => {
         setShowHPBar(false);
       }, 3000);
 
       return newHP;
+    });
+
+    // Add notification outside of setState to prevent timing issues
+    setShipHP((currentHP) => {
+      const newHP = Math.min(currentHP + 1, 3);
+      addNotification({
+        type: "success",
+        message: `Nave reparada! HP: ${newHP}/3`,
+      });
+      return currentHP; // Don't change HP again, just use for notification
     });
   }, [addNotification]);
 
@@ -1973,7 +1978,7 @@ const SpaceMapComponent: React.FC = () => {
     ];
 
     const planetNames = [
-      "Estaç���o Gal��ctica",
+      "Estaç�����o Gal��ctica",
       "Base Orbital",
       "Mundo Alienígena",
       "Terra Verdejante",
