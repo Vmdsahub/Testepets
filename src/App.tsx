@@ -245,9 +245,18 @@ function App() {
                 transition={pageTransition}
                 className="h-full w-full smooth-page-transition"
               >
-                {renderScreen}
+                {["world", "planet", "exploration"].includes(currentScreen) &&
+                currentScreen === "world" ? (
+                  <SpaceMap />
+                ) : currentScreen === "planet" ? (
+                  <PlanetScreen />
+                ) : currentScreen === "exploration" ? (
+                  <ExplorationScreen />
+                ) : null}
               </motion.div>
             </AnimatePresence>
+            {/* Modals persist outside AnimatePresence */}
+            <ModalManager openModals={openModals} onCloseModal={closeModal} />
           </div>
         ) : (
           // Normal layout for other screens with traditional navigation
