@@ -202,8 +202,8 @@ function App() {
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 gpu-accelerated force-gpu-layer">
         <AudioPreloader />
 
-        {currentScreen === "world" ? (
-          // Fullscreen layout for world screen with pill navigations
+        {["world", "planet", "exploration"].includes(currentScreen) ? (
+          // Fullscreen layout for world-related screens with pill navigations
           <div className="fixed inset-0 overflow-hidden">
             <TopPillNavigation />
             <BottomPillNavigation
