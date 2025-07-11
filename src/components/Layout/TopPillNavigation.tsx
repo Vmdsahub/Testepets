@@ -47,13 +47,13 @@ export const TopPillNavigation: React.FC<TopPillNavigationProps> = ({
     openModal,
   ]);
 
-  const handleMusicClick = () => {
+  const handleMusicClick = useCallback(() => {
     if (showMusicModal) {
       closeModal?.("music");
     } else {
       openModal?.("music");
     }
-  };
+  }, [showMusicModal, closeModal, openModal]);
 
   const canClaimDaily = canClaimDailyCheckin();
 
