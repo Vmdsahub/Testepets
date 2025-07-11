@@ -67,7 +67,7 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
   return (
     <div
       ref={constraintsRef}
-      className="fixed inset-0 z-[100] pointer-events-none"
+      className="fixed inset-0 z-[200] pointer-events-none"
     >
       <motion.div
         className="absolute pointer-events-auto"
