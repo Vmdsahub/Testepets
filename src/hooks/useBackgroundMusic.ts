@@ -67,6 +67,14 @@ export const useBackgroundMusic = (): UseBackgroundMusicReturn => {
     updateState();
   }, [updateState]);
 
+  const togglePlayPause = useCallback(async () => {
+    if (isPlaying) {
+      await pause();
+    } else {
+      await play();
+    }
+  }, [isPlaying, play, pause]);
+
   const setVolume = useCallback(
     (newVolume: number) => {
       console.log("🔊 Hook: Mudando volume para:", newVolume);
