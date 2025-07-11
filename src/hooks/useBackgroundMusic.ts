@@ -140,7 +140,9 @@ export const useBackgroundMusic = (): UseBackgroundMusicReturn => {
         `🎵 Hook: Tela mudou de ${currentServiceScreen} para ${currentScreen}${planetId ? ` (planeta: ${planetId})` : ""}`,
       );
       backgroundMusicService.setCurrentScreen(currentScreen, planetId);
-      updateState();
+      setTimeout(() => {
+        updateState();
+      }, 0);
     }
   }, [currentScreen, currentPlanet?.id, hasStartedMusicOnce, updateState]);
 
