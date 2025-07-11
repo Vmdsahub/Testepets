@@ -16,6 +16,7 @@ import {
   stopContinuousMovementSound,
   playSonarPingSound,
 } from "../../utils/soundManager";
+import { isMobileDevice } from "../../utils/deviceDetection";
 
 interface Star {
   x: number;
