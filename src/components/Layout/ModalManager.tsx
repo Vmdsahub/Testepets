@@ -81,6 +81,18 @@ export const ModalManager: React.FC<ModalManagerProps> = ({
       title: "Perfil",
       component: <ProfileScreen />,
     },
+    {
+      id: "notifications",
+      title: "Notificações",
+      component: <NotificationsModal />,
+    },
+    {
+      id: "music",
+      title: "Música",
+      component: (
+        <MusicModal isOpen={true} onClose={() => onCloseModal("music")} />
+      ),
+    },
     ...(user?.isAdmin
       ? [
           {
