@@ -119,18 +119,6 @@ export const ExplorationScreen: React.FC = () => {
               </div>
             </motion.div>
           )}
-
-          {/* Actions */}
-          <div className="flex justify-center mt-6">
-            <motion.button
-              onClick={handleBack}
-              className="px-6 py-3 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors font-medium text-gray-700"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Voltar ao Planeta
-            </motion.button>
-          </div>
         </div>
       </div>
     </div>
