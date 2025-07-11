@@ -242,11 +242,7 @@ function App() {
                 exit="out"
                 variants={pageVariants}
                 transition={pageTransition}
-                className="h-full w-full"
-                style={{
-                  transform: "translate3d(0, 0, 0)",
-                  willChange: "transform, opacity",
-                }}
+                className="h-full w-full smooth-page-transition"
               >
                 {renderScreen}
               </motion.div>
