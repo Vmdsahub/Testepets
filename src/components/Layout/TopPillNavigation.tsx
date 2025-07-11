@@ -5,7 +5,17 @@ import { motion, AnimatePresence } from "framer-motion";
 import { MusicMiniModal } from "../Audio/MusicMiniModal";
 import { MonthlyCalendar } from "../CheckIn/MonthlyCalendar";
 
-export const TopPillNavigation: React.FC = () => {
+interface TopPillNavigationProps {
+  openModal?: (modalId: string) => void;
+  closeModal?: (modalId: string) => void;
+  openModals?: string[];
+}
+
+export const TopPillNavigation: React.FC<TopPillNavigationProps> = ({
+  openModal,
+  closeModal,
+  openModals = [],
+}) => {
   const {
     user,
     xenocoins,
