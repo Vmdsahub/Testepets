@@ -52,31 +52,18 @@ function App() {
 
   // Modal management state
   const [openModals, setOpenModals] = useState<string[]>([]);
-  const [modalOriginPositions, setModalOriginPositions] = useState<
-    Record<string, { x: number; y: number }>
-  >({});
 
   // Initialize background music
   const musicState = useBackgroundMusic();
 
   // Modal management functions
-  const openModal = (
-    modalId: string,
-    originPosition?: { x: number; y: number },
-  ) => {
+  const openModal = (modalId: string) => {
     setOpenModals((prev) => {
       if (!prev.includes(modalId)) {
         return [...prev, modalId];
       }
       return prev;
     });
-
-    if (originPosition) {
-      setModalOriginPositions((prev) => ({
-        ...prev,
-        [modalId]: originPosition,
-      }));
-    }
   };
 
   const closeModal = (modalId: string) => {
@@ -158,11 +145,7 @@ function App() {
         return (
           <>
             <SpaceMap />
-            <ModalManager
-              openModals={openModals}
-              onCloseModal={closeModal}
-              modalOriginPositions={modalOriginPositions}
-            />
+            <ModalManager openModals={openModals} onCloseModal={closeModal} />
           </>
         );
       case "store":
@@ -188,11 +171,7 @@ function App() {
         return (
           <>
             <SpaceMap />
-            <ModalManager
-              openModals={openModals}
-              onCloseModal={closeModal}
-              modalOriginPositions={modalOriginPositions}
-            />
+            <ModalManager openModals={openModals} onCloseModal={closeModal} />
           </>
         );
       default:
