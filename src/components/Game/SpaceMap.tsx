@@ -483,6 +483,18 @@ const SpaceMapComponent: React.FC = () => {
     return false; // Cooldown ainda ativo
   }, [gameState.ship.x, gameState.ship.y, gameState.ship.angle, shipHP]);
 
+  // Mobile control callbacks
+  const handleMobileMovement = useCallback(
+    (direction: { x: number; y: number }) => {
+      setMobileMovementDirection(direction);
+    },
+    [],
+  );
+
+  const handleMobileShoot = useCallback(() => {
+    shootProjectile();
+  }, [shootProjectile]);
+
   // Function to check if click is on visible pixel of planet image
   const isClickOnPlanetPixel = useCallback(
     (
