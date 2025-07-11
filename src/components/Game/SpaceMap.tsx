@@ -3794,10 +3794,15 @@ const SpaceMapComponent: React.FC = () => {
           }));
 
           // Schedule transition for next render cycle to prevent setState during render
+          console.log(
+            "🛬 Animação de pouso concluída, agendando transição para:",
+            planetData,
+          );
           pendingScreenTransition.current = {
             planet: planetData,
             completed: true,
           };
+          console.log("📋 Transição agendada no pendingScreenTransition");
         } else {
           // Calculate orbital animation
           const planet = landingAnimationData.planet;
