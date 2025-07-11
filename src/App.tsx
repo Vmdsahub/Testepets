@@ -225,26 +225,11 @@ function App() {
               closeAllModals={closeAllModals}
               openModals={openModals}
             />
-            <AnimatePresence mode="popLayout">
-              <motion.div
-                key={currentScreen}
-                initial="initial"
-                animate="in"
-                exit="out"
-                variants={pageVariants}
-                transition={pageTransition}
-                className="h-full w-full smooth-page-transition"
-              >
-                {["world", "planet", "exploration"].includes(currentScreen) &&
-                currentScreen === "world" ? (
-                  <SpaceMap />
-                ) : currentScreen === "planet" ? (
-                  <PlanetScreen />
-                ) : currentScreen === "exploration" ? (
-                  <ExplorationScreen />
-                ) : null}
-              </motion.div>
-            </AnimatePresence>
+            <div className="h-full w-full">
+              {currentScreen === "world" && <SpaceMap />}
+              {currentScreen === "planet" && <PlanetScreen />}
+              {currentScreen === "exploration" && <ExplorationScreen />}
+            </div>
             {/* Modals persist outside AnimatePresence */}
             <ModalManager openModals={openModals} onCloseModal={closeModal} />
           </div>
