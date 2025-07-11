@@ -18,9 +18,9 @@ export const MusicModal: React.FC = () => {
   return (
     <div className="p-4 h-full flex flex-col gap-4">
       {/* Main Content Row - Centered */}
-      <div className="flex items-center justify-center gap-4 flex-1">
-        {/* Cover Image - Larger */}
-        <div className="w-16 h-16 rounded-xl overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 shadow-lg flex-shrink-0">
+      <div className="flex items-center justify-center gap-6 flex-1">
+        {/* Cover Image - Much Larger */}
+        <div className="w-20 h-20 rounded-xl overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 shadow-lg flex-shrink-0">
           {currentTrack?.coverImage ? (
             <img
               src={currentTrack.coverImage}
@@ -33,7 +33,7 @@ export const MusicModal: React.FC = () => {
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <MusicIcon className="w-8 h-8 text-white" />
+              <MusicIcon className="w-10 h-10 text-white" />
             </div>
           )}
         </div>
