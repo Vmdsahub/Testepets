@@ -62,7 +62,7 @@ export const NotificationsModal: React.FC = () => {
           notifications.map((notification) => (
             <motion.div
               key={notification.id}
-              className={`p-4 border-b border-gray-50 cursor-pointer hover:bg-gray-25 transition-colors ${
+              className={`p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors ${
                 notification.isRead ? "opacity-60" : ""
               }`}
               onClick={() => handleNotificationClick(notification.id)}
