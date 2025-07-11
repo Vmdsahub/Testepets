@@ -62,10 +62,15 @@ export const MusicModal: React.FC = () => {
           )}
         </button>
 
-        <div className="flex-1 relative">
+        <div
+          className="flex-1 relative"
+          onMouseDown={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
+        >
           <div className="w-full h-1.5 bg-gray-200 rounded-full">
             <div
-              className="h-full bg-gradient-to-r from-blue-500 to-cyan-400 rounded-full transition-all duration-300"
+              className="h-full bg-gradient-to-r from-blue-500 to-cyan-400 rounded-full transition-all duration-300 pointer-events-none"
               style={{
                 width: `${volume * 100}%`,
                 boxShadow: `0 0 6px rgba(59, 130, 246, 1), 0 0 12px rgba(59, 130, 246, 0.7)`,
@@ -83,9 +88,24 @@ export const MusicModal: React.FC = () => {
               e.stopPropagation();
               setVolume(Number(e.target.value));
             }}
-            onMouseDown={(e) => e.stopPropagation()}
-            onTouchStart={(e) => e.stopPropagation()}
-            className="absolute inset-0 w-full opacity-0 cursor-pointer"
+            onMouseDown={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+            }}
+            onTouchStart={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+            }}
+            onPointerDown={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+            }}
+            onDragStart={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+            }}
+            className="absolute inset-0 w-full opacity-0 cursor-pointer z-10"
+            style={{ touchAction: "none" }}
           />
         </div>
 
