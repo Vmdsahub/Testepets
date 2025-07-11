@@ -1233,7 +1233,7 @@ const SpaceMapComponent: React.FC = () => {
   }, [lastDamageTime, setGameState]);
 
   // Track last repair time to prevent double executions
-  const lastRepairTimeRef = useRef(0);
+  const isRepairingRef = useRef(false);
 
   // Repair ship function
   const repairShip = useCallback(() => {
