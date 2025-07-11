@@ -16,10 +16,7 @@ const navigationItems = [
 ];
 
 interface BottomPillNavigationProps {
-  openModal: (
-    modalId: string,
-    originPosition?: { x: number; y: number },
-  ) => void;
+  openModal: (modalId: string) => void;
   closeModal: (modalId: string) => void;
   closeAllModals: () => void;
   openModals?: string[];
@@ -57,7 +54,7 @@ export const BottomPillNavigation: React.FC<BottomPillNavigationProps> = ({
       ]
     : navigationItems;
 
-  const handleItemClick = (id: string, event: React.MouseEvent) => {
+  const handleItemClick = (id: string) => {
     if (id === "world") {
       // Close all modals when returning to world view
       closeAllModals();
@@ -74,15 +71,7 @@ export const BottomPillNavigation: React.FC<BottomPillNavigationProps> = ({
       if (openModals.includes(id)) {
         closeModal(id);
       } else {
-        // Get the button position for animation origin
-        const buttonRect = (
-          event.currentTarget as HTMLElement
-        ).getBoundingClientRect();
-        const originPosition = {
-          x: buttonRect.left + buttonRect.width / 2,
-          y: buttonRect.top + buttonRect.height / 2,
-        };
-        openModal(id, originPosition);
+        openModal(id);
       }
     } else {
       setCurrentScreen(id);
@@ -119,7 +108,7 @@ export const BottomPillNavigation: React.FC<BottomPillNavigationProps> = ({
               return (
                 <motion.button
                   key={id}
-                  onClick={(event) => handleItemClick(id, event)}
+                  onClick={() => handleItemClick(id)}
                   className={`relative flex flex-col items-center justify-center px-6 py-2 rounded-full transition-all duration-300 ${
                     isActive ? "bg-gray-50" : "hover:bg-gray-50/50"
                   }`}
