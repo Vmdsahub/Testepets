@@ -2004,7 +2004,7 @@ const SpaceMapComponent: React.FC = () => {
     ];
 
     const planetNames = [
-      "Estaç���o Gal��ctica",
+      "Estação Galáctica",
       "Base Orbital",
       "Mundo Alienígena",
       "Terra Verdejante",
