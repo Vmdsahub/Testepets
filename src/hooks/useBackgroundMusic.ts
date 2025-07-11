@@ -79,8 +79,11 @@ export const useBackgroundMusic = (): UseBackgroundMusicReturn => {
     (newVolume: number) => {
       console.log("🔊 Hook: Mudando volume para:", newVolume);
       backgroundMusicService.setVolume(newVolume);
-      setVolumeState(newVolume); // Atualiza estado imediatamente
-      updateState();
+      // Use setTimeout to avoid setState during render
+      setTimeout(() => {
+        setVolumeState(newVolume);
+        updateState();
+      }, 0);
     },
     [updateState],
   );
