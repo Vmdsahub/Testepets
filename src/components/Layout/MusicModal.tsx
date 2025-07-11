@@ -33,7 +33,7 @@ export const MusicModal: React.FC = () => {
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <MusicIcon className="w-8 h-8 text-white" />
+              <MusicIcon className="w-10 h-10 text-white" />
             </div>
           )}
         </div>
