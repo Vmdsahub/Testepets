@@ -1,3 +1,5 @@
+import React from "react";
+
 /**
  * Utility functions for device detection and responsive design
  */
