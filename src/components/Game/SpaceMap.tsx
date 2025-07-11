@@ -249,7 +249,11 @@ const SpaceMapComponent: React.FC = () => {
     const transition = pendingScreenTransition.current;
     if (transition && transition.completed) {
       console.log("🚀 Iniciando transição para planeta:", transition.planet);
-      setCurrentPlanet(transition.planet);
+      setCurrentPlanet({
+        id: transition.planet.id,
+        name: transition.planet.name,
+        color: transition.planet.color,
+      });
       setCurrentScreen("planet");
       pendingScreenTransition.current = null;
       console.log(
