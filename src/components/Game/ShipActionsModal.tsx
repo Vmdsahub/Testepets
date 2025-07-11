@@ -222,12 +222,25 @@ export const ShipActionsModal: React.FC<ShipActionsModalProps> = ({
 
         // Update current state if modal is open
         if (isOpen) {
-          setShipInventory(
-            currentInventory.map((item: ShipInventoryItem) => ({
-              ...item,
-              icon: Wrench,
-            })),
+          const migratedInventory = currentInventory.map(
+            (item: ShipInventoryItem) => {
+              // Migrate old item names
+              if (item.name === "Chave de fenda") {
+                return {
+                  ...item,
+                  name: "Kit de Reparos Básico",
+                  id: "repair_kit",
+                  icon: Wrench,
+                };
+              }
+              return {
+                ...item,
+                icon: Wrench,
+              };
+            },
           );
+
+          setShipInventory(migratedInventory);
         }
       }
     };
