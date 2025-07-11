@@ -68,11 +68,11 @@ export const TopPillNavigation: React.FC<TopPillNavigationProps> = ({
       {/* Minimalist top pill navigation */}
       <div className="fixed top-3 sm:top-6 left-1/2 transform -translate-x-1/2 z-50 px-4 sm:px-0">
         <motion.div
-          className="bg-white/95 backdrop-blur-2xl rounded-full px-4 sm:px-8 py-2 sm:py-3 shadow-lg border border-gray-100/50 w-full sm:w-auto"
+          className="bg-white/95 backdrop-blur-2xl rounded-full px-4 sm:px-12 py-2 sm:py-3 shadow-lg border border-gray-100/50 w-full sm:w-auto"
           style={{
             minWidth: "280px",
             width: "100%",
-            maxWidth: "480px",
+            minWidth: "600px",
             height: "48px",
           }}
           data-responsive="true"
@@ -103,7 +103,7 @@ export const TopPillNavigation: React.FC<TopPillNavigationProps> = ({
             </motion.div>
 
             {/* Currencies Section */}
-            <div className="flex items-center space-x-2 sm:space-x-6">
+            <div className="flex items-center space-x-2 sm:space-x-8">
               {/* Xenocoins */}
               <motion.div
                 className="flex items-center space-x-1 sm:space-x-2"
