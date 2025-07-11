@@ -1237,12 +1237,11 @@ const SpaceMapComponent: React.FC = () => {
 
   // Repair ship function
   const repairShip = useCallback(() => {
-    const now = Date.now();
-    // Prevent multiple executions within 500ms
-    if (now - lastRepairTimeRef.current < 500) {
+    // Prevent multiple executions
+    if (isRepairingRef.current) {
       return;
     }
-    lastRepairTimeRef.current = now;
+    isRepairingRef.current = true;
 
     // Calculate new HP value
     const currentHP = shipHP;
@@ -1262,6 +1261,11 @@ const SpaceMapComponent: React.FC = () => {
     setTimeout(() => {
       setShowHPBar(false);
     }, 3000);
+
+    // Reset flag after a short delay to allow proper completion
+    setTimeout(() => {
+      isRepairingRef.current = false;
+    }, 100);
   }, [addNotification, shipHP]);
 
   // Helper function to draw directional radar pulse
