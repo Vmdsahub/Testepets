@@ -218,7 +218,19 @@ function App() {
               closeAllModals={closeAllModals}
               openModals={openModals}
             />
-            {renderScreen}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentScreen}
+                initial="initial"
+                animate="in"
+                exit="out"
+                variants={pageVariants}
+                transition={pageTransition}
+                className="h-full w-full"
+              >
+                {renderScreen}
+              </motion.div>
+            </AnimatePresence>
           </div>
         ) : (
           // Normal layout for other screens with traditional navigation
