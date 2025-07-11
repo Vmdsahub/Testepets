@@ -1,8 +1,7 @@
 import React, { useState } from "react";
-import { Bell, Calendar, Music, X, Trash2 } from "lucide-react";
+import { Bell, Calendar, Music } from "lucide-react";
 import { useGameStore } from "../../store/gameStore";
 import { motion, AnimatePresence } from "framer-motion";
-import { MusicMiniModal } from "../Audio/MusicMiniModal";
 import { MonthlyCalendar } from "../CheckIn/MonthlyCalendar";
 
 interface TopPillNavigationProps {
