@@ -246,13 +246,44 @@ const SpaceMapComponent: React.FC = () => {
 
   // Handle screen transitions safely outside of render
   useEffect(() => {
+    console.log("🔄 useEffect de transição executado");
+    const transition = pendingScreenTransition.current;
+    console.log("📋 Transição pendente:", transition);
+    if (transition && transition.completed) {
+      console.log("🚀 Iniciando transição para planeta:", transition.planet);
+      const planetData = {
+        id: transition.planet.id,
+        name: transition.planet.name,
+        color: transition.planet.color,
+      };
+      console.log("🗺️ Dados do planeta para setCurrentPlanet:", planetData);
+      setCurrentPlanet(planetData);
+      console.log("📱 Chamando setCurrentScreen('planet')");
+      setCurrentScreen("planet");
+      pendingScreenTransition.current = null;
+      console.log(
+        "✅ Transição concluída - planeta definido e tela alterada para 'planet'",
+      );
+    }
+  });
+
+  // Also check for pending transitions at the beginning of each render
+  React.useLayoutEffect(() => {
     const transition = pendingScreenTransition.current;
     if (transition && transition.completed) {
-      setCurrentPlanet(transition.planet);
+      console.log(
+        "⚡ useLayoutEffect: Processando transição pendente imediatamente",
+      );
+      const planetData = {
+        id: transition.planet.id,
+        name: transition.planet.name,
+        color: transition.planet.color,
+      };
+      setCurrentPlanet(planetData);
       setCurrentScreen("planet");
       pendingScreenTransition.current = null;
     }
-  }, [setCurrentPlanet, setCurrentScreen]);
+  });
 
   // Initialize state from store or use defaults
   const getInitialGameState = useCallback((): GameState => {
@@ -2000,7 +2031,7 @@ const SpaceMapComponent: React.FC = () => {
     ];
 
     const planetNames = [
-      "Estaç���o Gal��ctica",
+      "Estação Galáctica",
       "Base Orbital",
       "Mundo Alienígena",
       "Terra Verdejante",
@@ -2265,7 +2296,7 @@ const SpaceMapComponent: React.FC = () => {
               setIsDragging(false);
               setDragOffset({ x: 0, y: 0 });
             } else if (selectedWorldId === planet.id && !isDragging) {
-              // Se já est��������� selecionado mas não dragging, inicie o drag
+              // Se já est����������� selecionado mas não dragging, inicie o drag
               setIsDragging(true);
               setDragOffset({ x: dx, y: dy });
             } else {
@@ -2522,6 +2553,7 @@ const SpaceMapComponent: React.FC = () => {
   // Modal handlers
   const handleLandingConfirm = useCallback(() => {
     if (selectedPlanet) {
+      console.log("🎯 Confirmando pouso no planeta:", selectedPlanet);
       // Start landing animation
       setLandingAnimationData({
         planet: selectedPlanet,
@@ -2531,6 +2563,7 @@ const SpaceMapComponent: React.FC = () => {
         initialShipY: gameState.ship.y,
       });
       setIsLandingAnimationActive(true);
+      console.log("🎬 Animação de pouso iniciada");
 
       // Play landing sound
       playLandingSound().catch(() => {
@@ -2942,7 +2975,7 @@ const SpaceMapComponent: React.FC = () => {
       radarPulsesRef.current = radarPulsesRef.current
         .map((pulse) => ({
           ...pulse,
-          radius: pulse.radius + 0.4, // Expansão muito mais lenta
+          radius: pulse.radius + 0.4, // Expans��o muito mais lenta
           life: pulse.life - 1,
         }))
         .filter((pulse) => pulse.life > 0 && pulse.radius <= pulse.maxRadius);
@@ -3790,10 +3823,15 @@ const SpaceMapComponent: React.FC = () => {
           }));
 
           // Schedule transition for next render cycle to prevent setState during render
+          console.log(
+            "🛬 Animação de pouso concluída, agendando transição para:",
+            planetData,
+          );
           pendingScreenTransition.current = {
             planet: planetData,
             completed: true,
           };
+          console.log("📋 Transição agendada no pendingScreenTransition");
         } else {
           // Calculate orbital animation
           const planet = landingAnimationData.planet;

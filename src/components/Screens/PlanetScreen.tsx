@@ -40,6 +40,8 @@ export const PlanetScreen: React.FC = () => {
     saveExplorationPoints,
   } = useGameStore();
 
+  console.log("🌍 PlanetScreen renderizado:", { currentPlanet, user });
+
   const [draggedPoint, setDraggedPoint] = useState<string | null>(null);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [editingName, setEditingName] = useState<string | null>(null);
@@ -48,8 +50,16 @@ export const PlanetScreen: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   if (!currentPlanet) {
+    console.log(
+      "❌ PlanetScreen: currentPlanet é null/undefined, retornando null",
+    );
     return null;
   }
+
+  console.log(
+    "✅ PlanetScreen: currentPlanet existe, continuando renderização:",
+    currentPlanet,
+  );
 
   // Generate exploration points for this planet
   useEffect(() => {

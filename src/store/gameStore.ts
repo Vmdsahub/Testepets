@@ -785,9 +785,17 @@ export const useGameStore = create<GameStore>()(
         }
       },
       setActivePet: (pet) => set({ activePet: pet }),
-      setCurrentScreen: (screen) => set({ currentScreen: screen }),
+      setCurrentScreen: (screen) => {
+        console.log("🏪 gameStore.setCurrentScreen chamado:", screen);
+        set({ currentScreen: screen });
+        console.log("✅ gameStore.setCurrentScreen concluído");
+      },
       setViewedUserId: (userId) => set({ viewedUserId: userId }),
-      setCurrentPlanet: (planet) => set({ currentPlanet: planet }),
+      setCurrentPlanet: (planet) => {
+        console.log("🪐 gameStore.setCurrentPlanet chamado:", planet);
+        set({ currentPlanet: planet });
+        console.log("✅ gameStore.setCurrentPlanet concluído");
+      },
 
       // World editing mode
       setWorldEditMode: (enabled) => {

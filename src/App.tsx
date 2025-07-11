@@ -40,6 +40,7 @@ function App() {
   const { isAuthenticated, user: authUser, initializeAuth } = useAuthStore();
   const {
     currentScreen,
+    currentPlanet,
     user: gameUser,
     setUser,
     setCurrentScreen,
@@ -153,10 +154,20 @@ function App() {
   }, [isAuthenticated, currentScreen]);
 
   const renderScreen = useMemo(() => {
+    console.log("🖥️ App.tsx renderScreen executado:", {
+      currentScreen,
+      currentPlanet,
+      isAuthenticated,
+    });
     if (!isAuthenticated) {
+      console.log("🔒 Usuário não autenticado, mostrando AuthScreen");
       return <AuthScreen />;
     }
 
+    console.log(
+      "✅ Usuário autenticado, processando currentScreen:",
+      currentScreen,
+    );
     switch (currentScreen) {
       case "world":
         return (
@@ -174,6 +185,7 @@ function App() {
       case "otherUserCollectibles":
         return <OtherUserCollectiblesScreen />;
       case "planet":
+        console.log("📱 App.tsx: Renderizando PlanetScreen");
         return <PlanetScreen />;
       case "exploration":
         return <ExplorationScreen />;
