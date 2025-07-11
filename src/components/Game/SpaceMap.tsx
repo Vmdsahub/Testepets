@@ -2649,29 +2649,48 @@ const SpaceMapComponent: React.FC = () => {
       setGameState((prevState) => {
         const newState = { ...prevState };
 
-        // Only respond to mouse if it has actually moved and modal is not open and not landing
-        if (
-          hasMouseMoved.current &&
-          !showLandingModal &&
-          !isLandingAnimationActive
-        ) {
-          const worldMouseX = mouseRef.current.x - centerX + newState.camera.x;
-          const worldMouseY = mouseRef.current.y - centerY + newState.camera.y;
+        // Handle movement based on device type
+        if (!showLandingModal && !isLandingAnimationActive) {
+          if (
+            isMobile &&
+            (mobileMovementDirection.x !== 0 || mobileMovementDirection.y !== 0)
+          ) {
+            // Mobile touch controls
+            const dx = mobileMovementDirection.x;
+            const dy = mobileMovementDirection.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
 
-          const dx = getWrappedDistance(worldMouseX, newState.ship.x);
-          const dy = getWrappedDistance(worldMouseY, newState.ship.y);
-          const distance = Math.sqrt(dx * dx + dy * dy);
+            if (distance > 0) {
+              newState.ship.angle = Math.atan2(dy, dx);
 
-          newState.ship.angle = Math.atan2(dy, dx);
+              // Apply speed reduction if ship HP is 0 (85% reduction = 15% of original speed)
+              const hpSpeedModifier = shipHP <= 0 ? 0.15 : 1.0;
+              const targetSpeed = SHIP_MAX_SPEED * distance * hpSpeedModifier;
+              newState.ship.vx += (dx / distance) * targetSpeed * 0.04;
+              newState.ship.vy += (dy / distance) * targetSpeed * 0.04;
+            }
+          } else if (!isMobile && hasMouseMoved.current) {
+            // Desktop mouse controls
+            const worldMouseX =
+              mouseRef.current.x - centerX + newState.camera.x;
+            const worldMouseY =
+              mouseRef.current.y - centerY + newState.camera.y;
 
-          if (mouseInWindow && distance > 50) {
-            const speedMultiplier = Math.min(distance / 300, 1);
-            // Apply speed reduction if ship HP is 0 (85% reduction = 15% of original speed)
-            const hpSpeedModifier = shipHP <= 0 ? 0.15 : 1.0;
-            const targetSpeed =
-              SHIP_MAX_SPEED * speedMultiplier * hpSpeedModifier;
-            newState.ship.vx += (dx / distance) * targetSpeed * 0.04;
-            newState.ship.vy += (dy / distance) * targetSpeed * 0.04;
+            const dx = getWrappedDistance(worldMouseX, newState.ship.x);
+            const dy = getWrappedDistance(worldMouseY, newState.ship.y);
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            newState.ship.angle = Math.atan2(dy, dx);
+
+            if (mouseInWindow && distance > 50) {
+              const speedMultiplier = Math.min(distance / 300, 1);
+              // Apply speed reduction if ship HP is 0 (85% reduction = 15% of original speed)
+              const hpSpeedModifier = shipHP <= 0 ? 0.15 : 1.0;
+              const targetSpeed =
+                SHIP_MAX_SPEED * speedMultiplier * hpSpeedModifier;
+              newState.ship.vx += (dx / distance) * targetSpeed * 0.04;
+              newState.ship.vy += (dy / distance) * targetSpeed * 0.04;
+            }
           }
         }
 
