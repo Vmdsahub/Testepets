@@ -113,11 +113,28 @@ export const ShipActionsModal: React.FC<ShipActionsModalProps> = ({
       if (savedInventory) {
         try {
           const inventory = JSON.parse(savedInventory);
-          setShipInventory(
-            inventory.map((item: ShipInventoryItem) => ({
+          const migratedInventory = inventory.map((item: ShipInventoryItem) => {
+            // Migrate old item names
+            if (item.name === "Chave de fenda") {
+              return {
+                ...item,
+                name: "Kit de Reparos Básico",
+                id: "repair_kit",
+                icon: Wrench,
+              };
+            }
+            return {
               ...item,
               icon: Wrench, // Default icon for tools
-            })),
+            };
+          });
+
+          setShipInventory(migratedInventory);
+
+          // Save migrated data back to localStorage
+          localStorage.setItem(
+            `ship-inventory-${user.id}`,
+            JSON.stringify(migratedInventory),
           );
         } catch (e) {
           console.error("Error loading ship inventory:", e);
