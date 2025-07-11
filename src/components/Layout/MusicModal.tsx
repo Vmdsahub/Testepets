@@ -24,10 +24,10 @@ export const MusicModal: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-full p-4">
-      {/* Cover Image - Compact */}
-      <div className="flex items-center justify-center mb-4">
-        <div className="w-24 h-24 rounded-2xl shadow-lg relative overflow-hidden bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-600">
+    <div className="p-4 space-y-4">
+      {/* Cover Image */}
+      <div className="flex items-center justify-center">
+        <div className="w-20 h-20 rounded-xl shadow-lg relative overflow-hidden bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-600">
           {currentTrack?.coverImage ? (
             <img
               src={currentTrack.coverImage}
@@ -40,7 +40,7 @@ export const MusicModal: React.FC = () => {
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <MusicIcon className="w-12 h-12 text-white" />
+              <MusicIcon className="w-10 h-10 text-white" />
             </div>
           )}
           {isPlaying && (
@@ -49,45 +49,63 @@ export const MusicModal: React.FC = () => {
         </div>
       </div>
 
-      {/* Track Info - Compact */}
-      <div className="text-center mb-4">
-        <h4 className="font-semibold text-gray-900 text-base leading-tight mb-1 truncate">
+      {/* Track Info */}
+      <div className="text-center">
+        <h4 className="font-semibold text-gray-900 text-sm leading-tight mb-1 truncate">
           {currentTrack?.name || "Música Galáctica"}
         </h4>
         <p className="text-xs text-gray-500">XenoPets</p>
       </div>
 
-      {/* Play/Pause Control - Compact */}
-      <div className="flex justify-center mb-4">
+      {/* Play/Pause Control */}
+      <div className="flex justify-center">
         <motion.button
           onClick={togglePlayPause}
-          className="w-12 h-12 rounded-full bg-blue-500 hover:bg-blue-600 transition-colors shadow-md flex items-center justify-center"
+          className="w-10 h-10 rounded-full bg-blue-500 hover:bg-blue-600 transition-colors shadow-md flex items-center justify-center"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
           {isPlaying ? (
-            <Pause className="w-5 h-5 text-white" />
+            <Pause className="w-4 h-4 text-white" />
           ) : (
-            <Play className="w-5 h-5 text-white ml-0.5" />
+            <Play className="w-4 h-4 text-white ml-0.5" />
           )}
         </motion.button>
       </div>
 
-      {/* Volume Control - Always Visible */}
-      <div className="mt-auto">
+      {/* Volume Control - GUARANTEED VISIBLE */}
+      <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-medium text-gray-600">Volume</span>
-          <span className="text-xs text-blue-600 font-semibold">
+          <span className="text-xs font-medium text-gray-700">Volume</span>
+          <span className="text-xs text-blue-600 font-bold">
             {Math.round(volume * 100)}%
           </span>
         </div>
+
         <div className="flex items-center gap-2">
-          {volume === 0 ? (
-            <VolumeX className="w-4 h-4 text-gray-400 flex-shrink-0" />
-          ) : (
-            <Volume2 className="w-4 h-4 text-blue-600 flex-shrink-0" />
-          )}
-          <div className="flex-1 relative">
+          <div className="flex-shrink-0">
+            {volume === 0 ? (
+              <VolumeX className="w-4 h-4 text-gray-400" />
+            ) : (
+              <Volume2 className="w-4 h-4 text-blue-600" />
+            )}
+          </div>
+
+          <div className="flex-1 relative h-4 flex items-center">
+            {/* Background track */}
+            <div className="w-full h-2 bg-gray-300 rounded-full"></div>
+
+            {/* Progress/volume fill with glow */}
+            <div
+              className="absolute left-0 h-2 bg-gradient-to-r from-blue-500 to-blue-400 rounded-full transition-all duration-200"
+              style={{
+                width: `${volume * 100}%`,
+                boxShadow: `0 0 8px rgba(59, 130, 246, 0.8)`,
+                filter: "brightness(1.2)",
+              }}
+            ></div>
+
+            {/* Invisible input overlay */}
             <input
               type="range"
               min="0"
@@ -95,18 +113,8 @@ export const MusicModal: React.FC = () => {
               step="0.05"
               value={volume}
               onChange={(e) => setVolume(Number(e.target.value))}
-              className="w-full h-3 bg-gray-200 rounded-full appearance-none cursor-pointer slider-luminous"
-              style={{
-                background: `linear-gradient(to right, #3b82f6 0%, #60a5fa ${volume * 100}%, #e5e7eb ${volume * 100}%, #e5e7eb 100%)`,
-              }}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
             />
-            <div
-              className="absolute top-0 left-0 h-3 bg-gradient-to-r from-blue-500 to-cyan-400 rounded-full pointer-events-none transition-all duration-200"
-              style={{
-                width: `${volume * 100}%`,
-                boxShadow: `0 0 12px rgba(59, 130, 246, ${volume * 0.8}), 0 0 20px rgba(59, 130, 246, ${volume * 0.4})`,
-              }}
-            ></div>
           </div>
         </div>
       </div>
