@@ -246,14 +246,19 @@ const SpaceMapComponent: React.FC = () => {
 
   // Handle screen transitions safely outside of render
   useEffect(() => {
+    console.log("🔄 useEffect de transição executado");
     const transition = pendingScreenTransition.current;
+    console.log("📋 Transição pendente:", transition);
     if (transition && transition.completed) {
       console.log("🚀 Iniciando transição para planeta:", transition.planet);
-      setCurrentPlanet({
+      const planetData = {
         id: transition.planet.id,
         name: transition.planet.name,
         color: transition.planet.color,
-      });
+      };
+      console.log("🗺️ Dados do planeta para setCurrentPlanet:", planetData);
+      setCurrentPlanet(planetData);
+      console.log("📱 Chamando setCurrentScreen('planet')");
       setCurrentScreen("planet");
       pendingScreenTransition.current = null;
       console.log(
