@@ -18,11 +18,13 @@ const navigationItems = [
 interface BottomPillNavigationProps {
   openModal: (modalId: string) => void;
   closeAllModals: () => void;
+  openModals?: string[];
 }
 
 export const BottomPillNavigation: React.FC<BottomPillNavigationProps> = ({
   openModal,
   closeAllModals,
+  openModals = [],
 }) => {
   const { currentScreen, setCurrentScreen, user, currentPlanet } =
     useGameStore();
@@ -93,7 +95,9 @@ export const BottomPillNavigation: React.FC<BottomPillNavigationProps> = ({
               const isActive =
                 currentScreen === id ||
                 (id === "world" &&
-                  (currentScreen === "world" || currentScreen === "planet"));
+                  (currentScreen === "world" || currentScreen === "planet")) ||
+                (["pet", "inventory", "profile", "admin"].includes(id) &&
+                  openModals.includes(id));
 
               return (
                 <motion.button
