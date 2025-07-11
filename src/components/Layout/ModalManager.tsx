@@ -5,6 +5,8 @@ import { PetScreen } from "../Screens/PetScreen";
 import { InventoryScreen } from "../Screens/InventoryScreen";
 import { ProfileScreen } from "../Screens/ProfileScreen";
 import { AdminPanel } from "../Admin/AdminPanel";
+import { NotificationsModal } from "./NotificationsModal";
+import { MusicModal } from "./MusicModal";
 import { useGameStore } from "../../store/gameStore";
 
 interface ModalConfig {
