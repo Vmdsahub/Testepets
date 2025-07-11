@@ -56,7 +56,7 @@ export const ShipActionsModal: React.FC<ShipActionsModalProps> = ({
   const [currentView, setCurrentView] = useState<ModalView>("main");
   const [shipInventory, setShipInventory] = useState<ShipInventoryItem[]>([]);
   const { user } = useGameStore();
-  const useInventoryItem = useCallback(
+  const handleUseItem = useCallback(
     (item: ShipInventoryItem) => {
       if (item.name === "Kit de Reparos Básico" && shipHP < 3 && user) {
         onRepairShip();
@@ -430,7 +430,7 @@ export const ShipActionsModal: React.FC<ShipActionsModalProps> = ({
                               <div className="absolute top-1 left-1">
                                 <ItemDropdownMenu
                                   onInspect={() => inspectItem(item)}
-                                  onUse={() => useInventoryItem(item)}
+                                  onUse={() => handleUseItem(item)}
                                   onDiscard={() => discardItem(item)}
                                   disabled={!canUse}
                                 />
