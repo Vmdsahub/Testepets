@@ -496,22 +496,6 @@ export const PlanetScreen: React.FC = () => {
               </div>
             </motion.div>
           )}
-
-          <div className="flex justify-center mt-4">
-            <motion.button
-              onClick={() => {
-                if (isPlanetEditMode) {
-                  setPlanetEditMode(false);
-                }
-                setCurrentScreen("world");
-              }}
-              className="p-3 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-            >
-              <ArrowLeft className="w-6 h-6 text-gray-600" />
-            </motion.button>
-          </div>
         </div>
       </div>
     </div>
