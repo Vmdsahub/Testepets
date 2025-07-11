@@ -248,9 +248,13 @@ const SpaceMapComponent: React.FC = () => {
   useEffect(() => {
     const transition = pendingScreenTransition.current;
     if (transition && transition.completed) {
+      console.log("🚀 Iniciando transição para planeta:", transition.planet);
       setCurrentPlanet(transition.planet);
       setCurrentScreen("planet");
       pendingScreenTransition.current = null;
+      console.log(
+        "✅ Transição concluída - planeta definido e tela alterada para 'planet'",
+      );
     }
   }, [setCurrentPlanet, setCurrentScreen]);
 
