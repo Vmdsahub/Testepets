@@ -117,7 +117,7 @@ export const BottomPillNavigation: React.FC<BottomPillNavigationProps> = ({
                 <motion.button
                   key={id}
                   onClick={() => handleItemClick(id)}
-                  className={`relative flex flex-col items-center justify-center px-6 py-2 rounded-full transition-all duration-300 ${
+                  className={`relative flex flex-col items-center justify-center px-2 sm:px-6 py-1 sm:py-2 rounded-full transition-all duration-300 ${
                     isActive ? "bg-gray-50" : "hover:bg-gray-50/50"
                   } ${showXOverlay ? "opacity-50 cursor-not-allowed" : ""}`}
                   whileHover={{ scale: showXOverlay ? 1 : 1.05 }}
@@ -133,20 +133,20 @@ export const BottomPillNavigation: React.FC<BottomPillNavigationProps> = ({
                     transition={{ duration: 0.2 }}
                   >
                     <Icon
-                      className="w-5 h-5 transition-colors duration-200"
+                      className="w-4 h-4 sm:w-5 sm:h-5 transition-colors duration-200"
                       style={{
                         color: isActive ? color : "rgb(107, 114, 128)",
                       }}
                     />
                     {showXOverlay && (
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <X className="w-4 h-4 text-red-500" />
+                        <X className="w-3 h-3 sm:w-4 sm:h-4 text-red-500" />
                       </div>
                     )}
                   </motion.div>
 
                   <span
-                    className={`text-xs font-medium mt-1 transition-all duration-200 ${
+                    className={`text-xs font-medium mt-0.5 sm:mt-1 transition-all duration-200 hidden xs:block ${
                       isActive
                         ? "text-gray-900 opacity-100"
                         : "text-gray-500 opacity-80"
