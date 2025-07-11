@@ -101,9 +101,9 @@ export const MusicMiniModal: React.FC<MusicMiniModalProps> = ({
             </button>
           </div>
 
-          {/* Album Cover - Centered and Larger */}
-          <div className="flex flex-col items-center gap-4 mb-4">
-            <div className="relative w-28 h-28 rounded-2xl overflow-hidden shadow-lg flex-shrink-0">
+          {/* Album Cover and Info - Side by side */}
+          <div className="flex items-center gap-4 mb-4">
+            <div className="relative w-24 h-24 rounded-2xl overflow-hidden shadow-lg flex-shrink-0">
               <img
                 src={coverImage}
                 alt={currentTrack?.name || "Trilha Sonora"}
@@ -112,18 +112,17 @@ export const MusicMiniModal: React.FC<MusicMiniModalProps> = ({
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
             </div>
 
-            {/* Track Info - Centered */}
-            <div className="text-center">
-              <h4 className="font-medium text-gray-900 text-base mb-1">
-                {currentTrack?.name || "Nenhuma música"}
-              </h4>
-              <p className="text-sm text-gray-600">{getScreenTitle()}</p>
-            </div>
+            {/* Track Info and Controls - Next to image */}
+            <div className="flex-1 min-w-0">
+              <div className="mb-3">
+                <h4 className="font-medium text-gray-900 text-base mb-1 truncate">
+                  {currentTrack?.name || "Nenhuma música"}
+                </h4>
+                <p className="text-sm text-gray-600">{getScreenTitle()}</p>
+              </div>
 
-            {/* Controls - Centered */}
-            <div className="w-full">
-              <div className="flex items-center justify-center gap-4 mb-3">
-                {/* Play/Pause Button */}
+              {/* Play/Pause Button */}
+              <div className="flex items-center gap-3 mb-3">
                 <motion.button
                   onClick={handlePlayPause}
                   className="bg-blue-500 hover:bg-blue-600 text-white rounded-full p-2 transition-colors shadow-md"
@@ -138,8 +137,8 @@ export const MusicMiniModal: React.FC<MusicMiniModalProps> = ({
                 </motion.button>
               </div>
 
-              {/* Volume Control - Full width */}
-              <div className="flex items-center gap-3">
+              {/* Volume Control */}
+              <div className="flex items-center gap-2">
                 <button
                   onClick={handleMuteToggle}
                   className="p-1 hover:bg-gray-100 rounded-full transition-colors"
