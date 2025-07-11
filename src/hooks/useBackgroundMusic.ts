@@ -129,7 +129,9 @@ export const useBackgroundMusic = (): UseBackgroundMusicReturn => {
           error,
         );
       });
-      updateState();
+      setTimeout(() => {
+        updateState();
+      }, 0);
       return;
     }
 
