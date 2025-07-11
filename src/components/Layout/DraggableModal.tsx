@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { motion, PanInfo } from "framer-motion";
 import { X, Maximize2, Minimize2 } from "lucide-react";
 
@@ -34,13 +34,6 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
   };
 
   const [position, setPosition] = useState(getSavedPosition);
-  const [isFirstRender, setIsFirstRender] = useState(true);
-
-  useEffect(() => {
-    if (isOpen && isFirstRender) {
-      setIsFirstRender(false);
-    }
-  }, [isOpen, isFirstRender]);
   const [isMaximized, setIsMaximized] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const constraintsRef = useRef<HTMLDivElement>(null);
@@ -74,13 +67,22 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
     onClose();
   };
 
+  // Calculate where the animation should start
+  const getInitialScale = () => {
+    const saved = localStorage.getItem(`modal-position-${modalId}`);
+    // If modal was positioned before, start at normal scale
+    if (saved) return 0.9;
+    // If first time opening, start very small to animate from button
+    return 0.2;
+  };
+
   const getInitialPosition = () => {
     const saved = localStorage.getItem(`modal-position-${modalId}`);
     if (saved || !originPosition) {
-      return { x: 0, y: 0 }; // Use saved position or center
+      return { x: position.x, y: position.y };
     }
 
-    // Calculate offset from origin to center
+    // Calculate offset from button to center of screen
     const centerX = window.innerWidth / 2;
     const centerY = window.innerHeight / 2;
 
@@ -88,37 +90,6 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
       x: originPosition.x - centerX,
       y: originPosition.y - centerY,
     };
-  };
-
-  const modalVariants = {
-    hidden: {
-      opacity: 0,
-      scale: 0.3,
-      x: getInitialPosition().x,
-      y: getInitialPosition().y,
-    },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      x: position.x,
-      y: position.y,
-      transition: {
-        type: "spring",
-        stiffness: 400,
-        damping: 25,
-        duration: 0.5,
-      },
-    },
-    exit: {
-      opacity: 0,
-      scale: 0.3,
-      x: originPosition ? originPosition.x - window.innerWidth / 2 : 0,
-      y: originPosition ? originPosition.y - window.innerHeight / 2 : -50,
-      transition: {
-        duration: 0.3,
-        ease: "easeInOut",
-      },
-    },
   };
 
   if (!isOpen) return null;
@@ -139,7 +110,34 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
           top: isMaximized ? "5vh" : "50%",
           transform: isMaximized ? "none" : "translate(-50%, -50%)",
         }}
-        animate={isMaximized ? "visible" : undefined}
+        initial={{
+          opacity: 0,
+          scale: getInitialScale(),
+          x: getInitialPosition().x,
+          y: getInitialPosition().y,
+        }}
+        animate={{
+          opacity: 1,
+          scale: 1,
+          x: isMaximized ? 0 : position.x,
+          y: isMaximized ? 0 : position.y,
+        }}
+        exit={{
+          opacity: 0,
+          scale: 0.2,
+          x: originPosition
+            ? originPosition.x - window.innerWidth / 2
+            : position.x,
+          y: originPosition
+            ? originPosition.y - window.innerHeight / 2
+            : position.y,
+        }}
+        transition={{
+          type: "spring",
+          stiffness: 400,
+          damping: 30,
+          duration: 0.5,
+        }}
         drag={!isMaximized}
         dragConstraints={constraintsRef}
         dragElastic={0.1}
@@ -147,9 +145,6 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
         whileDrag={{ scale: 1.02, zIndex: 300 }}
-        variants={modalVariants}
-        initial="hidden"
-        exit="exit"
       >
         {/* Header */}
         <div
