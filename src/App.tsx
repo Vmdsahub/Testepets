@@ -45,6 +45,7 @@ function App() {
     currentScreen,
     user: gameUser,
     setUser,
+    setCurrentScreen,
     initializeNewUser,
     loadUserData,
     unsubscribeFromRealtimeUpdates,
