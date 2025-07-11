@@ -7,6 +7,7 @@ interface ItemDropdownMenuProps {
   onUse: () => void;
   onDiscard: () => void;
   disabled?: boolean;
+  children?: React.ReactNode;
 }
 
 export const ItemDropdownMenu: React.FC<ItemDropdownMenuProps> = ({
@@ -14,6 +15,7 @@ export const ItemDropdownMenu: React.FC<ItemDropdownMenuProps> = ({
   onUse,
   onDiscard,
   disabled = false,
+  children,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -42,15 +44,19 @@ export const ItemDropdownMenu: React.FC<ItemDropdownMenuProps> = ({
 
   return (
     <div className="relative" ref={menuRef}>
-      <motion.button
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        onClick={() => setIsOpen(!isOpen)}
-        className="p-1 rounded-md hover:bg-gray-100 transition-colors"
-        disabled={disabled}
-      >
-        <MoreVertical className="w-4 h-4 text-gray-600" />
-      </motion.button>
+      {children ? (
+        <div onClick={() => setIsOpen(!isOpen)}>{children}</div>
+      ) : (
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => setIsOpen(!isOpen)}
+          className="p-1 rounded-md hover:bg-gray-100 transition-colors"
+          disabled={disabled}
+        >
+          <MoreVertical className="w-4 h-4 text-gray-600" />
+        </motion.button>
+      )}
 
       <AnimatePresence>
         {isOpen && (
