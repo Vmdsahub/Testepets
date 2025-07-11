@@ -1232,8 +1232,18 @@ const SpaceMapComponent: React.FC = () => {
     }, 5000);
   }, [lastDamageTime, setGameState]);
 
+  // Track last repair time to prevent double executions
+  const lastRepairTimeRef = useRef(0);
+
   // Repair ship function
   const repairShip = useCallback(() => {
+    const now = Date.now();
+    // Prevent multiple executions within 500ms
+    if (now - lastRepairTimeRef.current < 500) {
+      return;
+    }
+    lastRepairTimeRef.current = now;
+
     setShipHP((prev) => {
       const newHP = Math.min(prev + 1, 3);
       setShowHPBar(true);
