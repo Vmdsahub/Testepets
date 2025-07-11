@@ -388,54 +388,51 @@ export const ShipActionsModal: React.FC<ShipActionsModalProps> = ({
                         </p>
                       </div>
                     ) : (
-                      <div className="grid grid-cols-3 gap-2">
+                      <div className="grid grid-cols-4 gap-2">
                         {shipInventory.map((item) => {
                           const isRepairKit =
                             item.name === "Kit de Reparos Básico";
                           const canUse = !isRepairKit || shipHP < 3;
 
                           return (
-                            <div
+                            <ItemDropdownMenu
                               key={item.id}
-                              className="relative bg-gray-50 rounded-lg border border-gray-200 p-2 aspect-square flex flex-col items-center justify-between"
+                              onInspect={() => inspectItem(item)}
+                              onUse={() => handleUseItem(item)}
+                              onDiscard={() => discardItem(item)}
+                              disabled={!canUse}
                             >
-                              {/* Quantity Badge */}
-                              {item.quantity > 1 && (
-                                <div className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
-                                  {item.quantity}
-                                </div>
-                              )}
-
-                              {/* Item Image/Icon */}
-                              <div className="flex-1 flex items-center justify-center">
-                                {isRepairKit ? (
-                                  <img
-                                    src="https://cdn.builder.io/api/v1/image/assets%2F374f0317fa034d00bf28d60f517709e5%2Fe8409e2c94574b3fb58f5461edf22c87?format=webp&width=800"
-                                    alt={item.name}
-                                    className="w-8 h-8 object-contain"
-                                  />
-                                ) : (
-                                  <Wrench className="w-6 h-6 text-gray-600" />
+                              <div className="relative bg-gray-50 rounded-lg border border-gray-200 p-2 w-14 h-14 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-100 transition-colors">
+                                {/* Quantity Badge */}
+                                {item.quantity > 1 && (
+                                  <div className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-medium">
+                                    {item.quantity}
+                                  </div>
                                 )}
-                              </div>
 
-                              {/* Item Name */}
-                              <div className="text-center mb-1">
-                                <div className="font-medium text-xs text-gray-800 truncate">
-                                  {item.name}
+                                {/* Item Image/Icon */}
+                                <div className="flex-1 flex items-center justify-center">
+                                  {isRepairKit ? (
+                                    <img
+                                      src="https://cdn.builder.io/api/v1/image/assets%2F374f0317fa034d00bf28d60f517709e5%2Fee180bf68c2747bc9236599bba53c46f?format=webp&width=800"
+                                      alt={item.name}
+                                      className="w-6 h-6 object-contain"
+                                    />
+                                  ) : (
+                                    <Wrench className="w-4 h-4 text-gray-600" />
+                                  )}
+                                </div>
+
+                                {/* Item Name */}
+                                <div className="text-center">
+                                  <div className="font-medium text-xs text-gray-800 truncate max-w-full">
+                                    {item.name.length > 6
+                                      ? item.name.substring(0, 6) + "..."
+                                      : item.name}
+                                  </div>
                                 </div>
                               </div>
-
-                              {/* Dropdown Menu */}
-                              <div className="absolute top-1 left-1">
-                                <ItemDropdownMenu
-                                  onInspect={() => inspectItem(item)}
-                                  onUse={() => handleUseItem(item)}
-                                  onDiscard={() => discardItem(item)}
-                                  disabled={!canUse}
-                                />
-                              </div>
-                            </div>
+                            </ItemDropdownMenu>
                           );
                         })}
                       </div>
