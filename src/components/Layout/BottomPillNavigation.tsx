@@ -102,11 +102,8 @@ export const BottomPillNavigation: React.FC<BottomPillNavigationProps> = ({
         <div className="flex items-center justify-center h-full">
           <div className="flex items-center space-x-2">
             {items.map(({ id, label, icon: Icon, color }) => {
-              // Dynamic world button logic
               const isWorldButton = id === "world";
-              const showBackIcon = isWorldButton && currentScreen !== "world";
-              const displayIcon = showBackIcon ? ArrowLeft : Icon;
-              const displayLabel = showBackIcon ? "Voltar" : label;
+              const showXOverlay = isWorldButton && currentScreen !== "world";
 
               const isActive =
                 currentScreen === id ||
@@ -120,10 +117,11 @@ export const BottomPillNavigation: React.FC<BottomPillNavigationProps> = ({
                   onClick={() => handleItemClick(id)}
                   className={`relative flex flex-col items-center justify-center px-6 py-2 rounded-full transition-all duration-300 ${
                     isActive ? "bg-gray-50" : "hover:bg-gray-50/50"
-                  }`}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.98 }}
+                  } ${showXOverlay ? "opacity-50 cursor-not-allowed" : ""}`}
+                  whileHover={{ scale: showXOverlay ? 1 : 1.05 }}
+                  whileTap={{ scale: showXOverlay ? 1 : 0.98 }}
                   transition={{ duration: 0.15 }}
+                  disabled={showXOverlay}
                 >
                   <motion.div
                     className="relative"
@@ -132,12 +130,17 @@ export const BottomPillNavigation: React.FC<BottomPillNavigationProps> = ({
                     }}
                     transition={{ duration: 0.2 }}
                   >
-                    <displayIcon
+                    <Icon
                       className="w-5 h-5 transition-colors duration-200"
                       style={{
                         color: isActive ? color : "rgb(107, 114, 128)",
                       }}
                     />
+                    {showXOverlay && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <X className="w-4 h-4 text-red-500" />
+                      </div>
+                    )}
                   </motion.div>
 
                   <span
@@ -147,7 +150,7 @@ export const BottomPillNavigation: React.FC<BottomPillNavigationProps> = ({
                         : "text-gray-500 opacity-80"
                     }`}
                   >
-                    {displayLabel}
+                    {label}
                   </span>
 
                   {/* Active indicator */}
