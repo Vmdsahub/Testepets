@@ -111,3 +111,17 @@
   will-change: transform;
   isolation: isolate;
 }
+
+/* Transições ultra suaves para navegação entre páginas */
+.smooth-page-transition {
+  transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
+  will-change: transform, opacity, filter;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  perspective: 1000px;
+  transform-style: preserve-3d;
+  contain: layout style paint;
+  isolation: isolate;
+  /* Reduzir motion blur durante transições */
+  image-rendering: optimizeSpeed;
+}
