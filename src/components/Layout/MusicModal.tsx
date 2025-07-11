@@ -12,16 +12,8 @@ import { useMusicContext } from "../../contexts/MusicContext";
 
 export const MusicModal: React.FC = () => {
   const { user } = useGameStore();
-  const { isPlaying, currentTrack, volume, setVolume, play, pause } =
+  const { isPlaying, currentTrack, volume, setVolume, togglePlayPause } =
     useMusicContext();
-
-  const togglePlayPause = () => {
-    if (isPlaying) {
-      pause();
-    } else {
-      play();
-    }
-  };
 
   return (
     <div className="p-3 h-full flex flex-col gap-3">
