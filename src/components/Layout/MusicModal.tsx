@@ -26,10 +26,31 @@ export const MusicModal: React.FC = () => {
   return (
     <div className="p-6 h-full flex flex-col justify-center items-center">
       {/* Cover Image */}
-      <div className="w-40 h-40 bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-600 rounded-3xl mb-6 flex items-center justify-center shadow-2xl relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent"></div>
-        <MusicIcon className="w-20 h-20 text-white z-10" />
-        <div className="absolute bottom-2 right-2 w-3 h-3 bg-green-400 rounded-full shadow-lg animate-pulse"></div>
+      <div className="w-40 h-40 rounded-3xl mb-6 shadow-2xl relative overflow-hidden bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-600">
+        {currentTrack?.coverImage ? (
+          <>
+            <img
+              src={currentTrack.coverImage}
+              alt={currentTrack.name}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                // Fallback to gradient background
+                e.currentTarget.style.display = "none";
+              }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-black/20"></div>
+          </>
+        ) : (
+          <>
+            <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent"></div>
+            <div className="w-full h-full flex items-center justify-center">
+              <MusicIcon className="w-20 h-20 text-white z-10" />
+            </div>
+          </>
+        )}
+        {isPlaying && (
+          <div className="absolute bottom-2 right-2 w-3 h-3 bg-green-400 rounded-full shadow-lg animate-pulse"></div>
+        )}
       </div>
 
       {/* Track Info */}
