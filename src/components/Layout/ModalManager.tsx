@@ -59,6 +59,8 @@ export const ModalManager: React.FC<ModalManagerProps> = ({
       inventory: { width: 636, height: 750 }, // -33% horizontal (950 * 0.67 = 636)
       profile: { width: 712, height: 750 }, // -25% horizontal (950 * 0.75 = 712)
       admin: { width: 950, height: 750 }, // Manter tamanho original
+      notifications: { width: 380, height: 500 }, // Compact size for notifications
+      music: { width: 450, height: 300 }, // Compact size for music player
     };
     return sizes[modalId as keyof typeof sizes] || { width: 950, height: 750 };
   };
