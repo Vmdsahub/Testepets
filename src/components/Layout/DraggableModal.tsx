@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
 import { motion, PanInfo } from "framer-motion";
-import { X, Maximize2, Minimize2 } from "lucide-react";
+import { X } from "lucide-react";
 
 interface DraggableModalProps {
   isOpen: boolean;
@@ -12,6 +12,8 @@ interface DraggableModalProps {
   onPositionChange?: (position: { x: number; y: number }) => void;
   zIndex?: number;
   onInteraction?: () => void;
+  width?: number;
+  height?: number;
 }
 
 export const DraggableModal: React.FC<DraggableModalProps> = ({
@@ -24,6 +26,8 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
   onPositionChange,
   zIndex = 200,
   onInteraction,
+  width = 950,
+  height = 750,
 }) => {
   // Get saved position from localStorage or use center of screen
   const getSavedPosition = () => {
@@ -36,7 +40,6 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
   };
 
   const [position, setPosition] = useState(getSavedPosition);
-  const [isMaximized, setIsMaximized] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const constraintsRef = useRef<HTMLDivElement>(null);
 
@@ -58,10 +61,6 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
       JSON.stringify(newPosition),
     );
     onPositionChange?.(newPosition);
-  };
-
-  const toggleMaximize = () => {
-    setIsMaximized(!isMaximized);
   };
 
   const handleClose = (e: React.MouseEvent) => {
@@ -86,13 +85,13 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
         className="absolute pointer-events-auto bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden flex flex-col"
         onClick={handleModalClick}
         style={{
-          width: isMaximized ? "95vw" : "950px",
-          height: isMaximized ? "90vh" : "750px",
-          maxWidth: isMaximized ? "none" : "95vw",
-          maxHeight: isMaximized ? "none" : "90vh",
-          left: isMaximized ? "2.5vw" : "50%",
-          top: isMaximized ? "5vh" : "50%",
-          transform: isMaximized ? "none" : "translate(-50%, -50%)",
+          width: `${width}px`,
+          height: `${height}px`,
+          maxWidth: "95vw",
+          maxHeight: "90vh",
+          left: "50%",
+          top: "50%",
+          transform: "translate(-50%, -50%)",
         }}
         initial={{
           opacity: 0,
@@ -103,8 +102,8 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
         animate={{
           opacity: 1,
           scale: 1,
-          x: isMaximized ? 0 : position.x,
-          y: isMaximized ? 0 : position.y,
+          x: position.x,
+          y: position.y,
         }}
         exit={{
           opacity: 0,
@@ -118,7 +117,7 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
           damping: 25,
           duration: 0.4,
         }}
-        drag={!isMaximized}
+        drag={true}
         dragConstraints={constraintsRef}
         dragElastic={0.1}
         dragMomentum={false}
@@ -127,25 +126,9 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
         whileDrag={{ scale: 1.02 }}
       >
         {/* Header */}
-        <div
-          className={`bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between select-none ${
-            !isMaximized ? "cursor-move" : "cursor-default"
-          }`}
-        >
+        <div className="bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between select-none cursor-move">
           <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
           <div className="flex items-center space-x-2">
-            <motion.button
-              onClick={toggleMaximize}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              {isMaximized ? (
-                <Minimize2 className="w-4 h-4 text-gray-500" />
-              ) : (
-                <Maximize2 className="w-4 h-4 text-gray-500" />
-              )}
-            </motion.button>
             <motion.button
               onClick={handleClose}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
