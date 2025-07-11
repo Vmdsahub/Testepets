@@ -14,6 +14,7 @@ interface ShopItem {
   description: string;
   price: number;
   currency: "xenocoins" | "cash";
+  imageUrl?: string;
 }
 
 const DIALOGUE_TEXT =
@@ -28,11 +29,13 @@ const generateAlienChar = () => {
 
 const SHOP_ITEMS: ShopItem[] = [
   {
-    id: "screwdriver",
-    name: "Chave de fenda",
+    id: "repair_kit",
+    name: "Kit de Reparos Básico",
     description: "Restaura 1 HP da nave",
     price: 20,
     currency: "xenocoins",
+    imageUrl:
+      "https://cdn.builder.io/api/v1/image/assets%2F374f0317fa034d00bf28d60f517709e5%2Fe8409e2c94574b3fb58f5461edf22c87?format=webp&width=800",
   },
 ];
 
@@ -224,35 +227,42 @@ export const NPCModal: React.FC<NPCModalProps> = ({ isOpen, onClose }) => {
                 <h3 className="font-semibold text-gray-800 mb-3 text-sm">
                   Itens à venda
                 </h3>
-                <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
                   {SHOP_ITEMS.map((item) => (
                     <div
                       key={item.id}
-                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100"
+                      className="relative bg-gray-50 rounded-lg border border-gray-100 p-3 aspect-square flex flex-col items-center justify-between"
                     >
-                      <div className="flex items-center gap-3">
-                        <Wrench className="w-5 h-5 text-gray-600" />
-                        <div>
-                          <div className="font-medium text-sm text-gray-800">
-                            {item.name}
-                          </div>
-                          <div className="text-xs text-gray-500">
-                            {item.description}
-                          </div>
+                      {/* Item Image */}
+                      <div className="flex-1 flex items-center justify-center">
+                        {item.imageUrl ? (
+                          <img
+                            src={item.imageUrl}
+                            alt={item.name}
+                            className="w-12 h-12 object-contain"
+                          />
+                        ) : (
+                          <Wrench className="w-8 h-8 text-gray-600" />
+                        )}
+                      </div>
+
+                      {/* Item Name */}
+                      <div className="text-center">
+                        <div className="font-medium text-xs text-gray-800 mb-1">
+                          {item.name}
                         </div>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <div className="text-right">
-                          <div className="text-sm font-semibold text-gray-800">
-                            {item.price}
-                          </div>
-                          <div className="text-xs text-gray-500 flex items-center gap-1">
+
+                      {/* Price and Buy Button */}
+                      <div className="w-full space-y-2">
+                        <div className="text-center">
+                          <div className="text-xs font-semibold text-gray-800 flex items-center justify-center gap-1">
                             <img
                               src="https://cdn.builder.io/api/v1/image/assets%2Ff481900009a94cda953c032479392a30%2F3e6c6cb85c6a4d2ba05acb245bfbc214?format=webp&width=800"
                               alt="Xenocoins"
                               className="w-3 h-3"
                             />
-                            Xenocoins
+                            {item.price}
                           </div>
                         </div>
                         <motion.button
@@ -260,7 +270,7 @@ export const NPCModal: React.FC<NPCModalProps> = ({ isOpen, onClose }) => {
                           whileTap={{ scale: 0.95 }}
                           onClick={() => purchaseItem(item)}
                           disabled={xenocoins < item.price}
-                          className={`px-3 py-1 text-xs rounded-md font-medium transition-colors ${
+                          className={`w-full px-2 py-1 text-xs rounded-md font-medium transition-colors ${
                             xenocoins >= item.price
                               ? "bg-green-600 text-white hover:bg-green-700"
                               : "bg-gray-300 text-gray-500 cursor-not-allowed"
