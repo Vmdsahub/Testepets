@@ -178,7 +178,7 @@ export const TopPillNavigation: React.FC<TopPillNavigationProps> = ({
               {/* Music */}
               <motion.button
                 onClick={handleMusicClick}
-                className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 ${
+                className={`w-7 h-7 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all duration-200 ${
                   showMusicModal
                     ? "bg-blue-50 text-blue-600"
                     : "hover:bg-gray-100 text-gray-600"
@@ -186,21 +186,21 @@ export const TopPillNavigation: React.FC<TopPillNavigationProps> = ({
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <Music className="w-4 h-4" />
+                <Music className="w-3 h-3 sm:w-4 sm:h-4" />
               </motion.button>
 
               {/* Notifications */}
               <div className="relative">
                 <motion.button
                   onClick={handleBellClick}
-                  className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-100 text-gray-600 transition-all duration-200 relative"
+                  className="w-7 h-7 sm:w-9 sm:h-9 rounded-full flex items-center justify-center hover:bg-gray-100 text-gray-600 transition-all duration-200 relative"
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <Bell className="w-4 h-4" />
+                  <Bell className="w-3 h-3 sm:w-4 sm:h-4" />
                   {unreadCount > 0 && (
                     <motion.div
-                      className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium"
+                      className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-4 h-4 sm:w-5 sm:h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium"
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       transition={{ type: "spring", stiffness: 500 }}
