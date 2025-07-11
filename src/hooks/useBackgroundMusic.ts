@@ -90,7 +90,10 @@ export const useBackgroundMusic = (): UseBackgroundMusicReturn => {
 
   // Atualiza estado inicial e monitora mudanças
   useEffect(() => {
-    updateState();
+    // Defer initial state update to avoid conflicts during render
+    setTimeout(() => {
+      updateState();
+    }, 0);
 
     // Polling simples para detectar mudanças (como fim de faixa)
     const interval = setInterval(updateState, 1000);
