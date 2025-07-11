@@ -52,18 +52,31 @@ function App() {
 
   // Modal management state
   const [openModals, setOpenModals] = useState<string[]>([]);
+  const [modalOriginPositions, setModalOriginPositions] = useState<
+    Record<string, { x: number; y: number }>
+  >({});
 
   // Initialize background music
   const musicState = useBackgroundMusic();
 
   // Modal management functions
-  const openModal = (modalId: string) => {
+  const openModal = (
+    modalId: string,
+    originPosition?: { x: number; y: number },
+  ) => {
     setOpenModals((prev) => {
       if (!prev.includes(modalId)) {
         return [...prev, modalId];
       }
       return prev;
     });
+
+    if (originPosition) {
+      setModalOriginPositions((prev) => ({
+        ...prev,
+        [modalId]: originPosition,
+      }));
+    }
   };
 
   const closeModal = (modalId: string) => {
