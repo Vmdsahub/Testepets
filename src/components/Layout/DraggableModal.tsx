@@ -141,9 +141,7 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-hidden">
-          <div className="h-full overflow-y-auto">{children}</div>
-        </div>
+        <div className="flex-1 overflow-hidden">{children}</div>
       </motion.div>
     </div>
   );
