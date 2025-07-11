@@ -261,11 +261,7 @@ function App() {
                   exit="out"
                   variants={pageVariants}
                   transition={pageTransition}
-                  className="smooth-animation force-gpu-layer"
-                  style={{
-                    transform: "translate3d(0, 0, 0)",
-                    willChange: "transform, opacity",
-                  }}
+                  className="smooth-page-transition force-gpu-layer"
                 >
                   {renderScreen}
                 </motion.div>
