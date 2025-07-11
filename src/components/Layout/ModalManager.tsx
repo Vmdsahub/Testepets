@@ -58,9 +58,9 @@ export const ModalManager: React.FC<ModalManagerProps> = ({
       return JSON.parse(saved);
     }
 
-    // If no saved position, stagger slightly to avoid complete overlap if multiple modals open
-    const offset = index * 30;
-    return { x: offset, y: offset };
+    // If no saved position, always return center (0,0)
+    // This will make all modals appear in the center on first open
+    return { x: 0, y: 0 };
   };
 
   return (
