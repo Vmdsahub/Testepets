@@ -165,18 +165,17 @@ function App() {
       case "inventory":
       case "profile":
       case "admin":
-        // If user is not on world screen, show these as full pages
-        switch (currentScreen) {
-          case "pet":
-            return <PetScreen />;
-          case "inventory":
-            return <InventoryScreen />;
-          case "profile":
-            return <ProfileScreen />;
-          case "admin":
-            return gameUser?.isAdmin ? <AdminPanel /> : <ProfileScreen />;
-        }
-        break;
+        // Redirect to world screen when these are accessed directly
+        // The modal will be opened by the navigation
+        return (
+          <>
+            <SpaceMap />
+            <ModalManager
+              openModals={[currentScreen]}
+              onCloseModal={() => setCurrentScreen("world")}
+            />
+          </>
+        );
       default:
         return <SpaceMap />;
     }
