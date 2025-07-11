@@ -10,7 +10,6 @@ interface DraggableModalProps {
   modalId: string;
   defaultPosition?: { x: number; y: number };
   onPositionChange?: (position: { x: number; y: number }) => void;
-  originPosition?: { x: number; y: number };
 }
 
 export const DraggableModal: React.FC<DraggableModalProps> = ({
@@ -21,7 +20,6 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
   modalId,
   defaultPosition = { x: 0, y: 0 },
   onPositionChange,
-  originPosition,
 }) => {
   // Get saved position from localStorage or use center of screen
   const getSavedPosition = () => {
