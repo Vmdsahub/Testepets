@@ -65,8 +65,7 @@ export const MusicModal: React.FC = () => {
       <div className="mb-8">
         <motion.button
           onClick={togglePlayPause}
-          disabled={isLoading}
-          className="p-4 rounded-full bg-blue-500 hover:bg-blue-600 disabled:opacity-50 transition-colors shadow-lg"
+          className="p-4 rounded-full bg-blue-500 hover:bg-blue-600 transition-colors shadow-lg"
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
         >
