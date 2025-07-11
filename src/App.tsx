@@ -218,7 +218,11 @@ function App() {
         {["world", "planet", "exploration"].includes(currentScreen) ? (
           // Fullscreen layout for world-related screens with pill navigations
           <div className="fixed inset-0 overflow-hidden">
-            <TopPillNavigation />
+            <TopPillNavigation
+              openModal={openModal}
+              closeModal={closeModal}
+              openModals={openModals}
+            />
             <BottomPillNavigation
               openModal={openModal}
               closeModal={closeModal}
