@@ -24,18 +24,31 @@ export const ModalManager: React.FC<ModalManagerProps> = ({
 }) => {
   const { user } = useGameStore();
   const [activeModalId, setActiveModalId] = useState<string | null>(null);
+  const [previousOpenModals, setPreviousOpenModals] = useState<string[]>([]);
 
   // When a new modal opens, make it active
   React.useEffect(() => {
     if (openModals.length > 0) {
-      const lastOpenedModal = openModals[openModals.length - 1];
-      if (!activeModalId || !openModals.includes(activeModalId)) {
-        setActiveModalId(lastOpenedModal);
+      // Find which modal was just opened
+      const newModal = openModals.find(
+        (modal) => !previousOpenModals.includes(modal),
+      );
+
+      if (newModal) {
+        // A new modal was opened, make it active
+        setActiveModalId(newModal);
+      } else if (!activeModalId || !openModals.includes(activeModalId)) {
+        // No new modal, but current active is not valid, use the last one
+        setActiveModalId(openModals[openModals.length - 1]);
       }
     } else {
+      // No modals open
       setActiveModalId(null);
     }
-  }, [openModals, activeModalId]);
+
+    // Update previous modals list
+    setPreviousOpenModals(openModals);
+  }, [openModals, activeModalId, previousOpenModals]);
 
   const handleModalInteraction = (modalId: string) => {
     setActiveModalId(modalId);
