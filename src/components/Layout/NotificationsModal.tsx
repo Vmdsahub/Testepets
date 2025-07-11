@@ -36,10 +36,13 @@ export const NotificationsModal: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-100">
-        <h3 className="font-semibold text-gray-900">Notificações</h3>
+    <div className="p-4 h-full flex flex-col">
+      {/* Header with clear all button */}
+      <div className="flex items-center justify-between mb-4">
+        <span className="text-sm text-gray-600">
+          {notifications.length} notificação
+          {notifications.length !== 1 ? "s" : ""}
+        </span>
         <button
           onClick={() => clearNotifications()}
           className="p-2 hover:bg-gray-50 rounded-full transition-colors"
@@ -50,7 +53,7 @@ export const NotificationsModal: React.FC = () => {
       </div>
 
       {/* Notification List */}
-      <div className="overflow-y-auto flex-1 max-h-96">
+      <div className="flex-1 space-y-2">
         {notifications.length === 0 ? (
           <div className="p-6 text-center text-gray-500">
             <p>Nenhuma notificação</p>
