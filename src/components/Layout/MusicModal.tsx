@@ -24,10 +24,10 @@ export const MusicModal: React.FC = () => {
   };
 
   return (
-    <div className="p-3 h-full flex flex-col justify-between">
-      {/* Cover Image */}
-      <div className="flex justify-center">
-        <div className="w-14 h-14 rounded-lg overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900">
+    <div className="p-4 h-full flex flex-col">
+      {/* Large Cover Image */}
+      <div className="flex justify-center mb-3">
+        <div className="w-24 h-24 rounded-2xl overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 shadow-lg">
           {currentTrack?.coverImage ? (
             <img
               src={currentTrack.coverImage}
@@ -40,46 +40,53 @@ export const MusicModal: React.FC = () => {
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <MusicIcon className="w-7 h-7 text-white" />
+              <MusicIcon className="w-12 h-12 text-white" />
             </div>
           )}
         </div>
       </div>
 
       {/* Track Name */}
-      <div className="text-center">
+      <div className="text-center mb-4">
         <h4 className="font-medium text-gray-900 text-sm truncate px-2">
           {currentTrack?.name || "Música Galáctica"}
         </h4>
       </div>
 
-      {/* Play/Pause Button */}
-      <div className="flex justify-center">
-        <motion.button
-          onClick={togglePlayPause}
-          className="w-9 h-9 rounded-full bg-blue-500 hover:bg-blue-600 transition-colors flex items-center justify-center"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          {isPlaying ? (
-            <Pause className="w-4 h-4 text-white" />
-          ) : (
-            <Play className="w-4 h-4 text-white ml-0.5" />
-          )}
-        </motion.button>
-      </div>
+      {/* Controls Row: Volume icon + Play button + Volume bar */}
+      <div className="mt-auto">
+        <div className="flex items-center gap-3">
+          {/* Volume Icon */}
+          <Volume2 className="w-4 h-4 text-blue-600 flex-shrink-0" />
 
-      {/* Volume Bar - GUARANTEED VISIBLE */}
-      <div className="bg-blue-50 rounded-lg p-2">
-        <div className="flex items-center gap-2">
-          <Volume2 className="w-3 h-3 text-blue-600 flex-shrink-0" />
-          <div className="flex-1 relative h-3 flex items-center">
-            <div className="w-full h-1.5 bg-blue-200 rounded-full">
+          {/* Minimalist Play Button */}
+          <motion.button
+            onClick={togglePlayPause}
+            className="w-7 h-7 rounded-full bg-blue-500 hover:bg-blue-600 transition-colors flex items-center justify-center flex-shrink-0"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            {isPlaying ? (
+              <Pause className="w-3 h-3 text-white" />
+            ) : (
+              <Play className="w-3 h-3 text-white ml-0.5" />
+            )}
+          </motion.button>
+
+          {/* Super Luminous Volume Bar */}
+          <div className="flex-1 relative h-4 flex items-center">
+            <div className="w-full h-2 bg-gray-200 rounded-full shadow-inner">
               <div
-                className="h-full bg-blue-500 rounded-full transition-all duration-200"
+                className="h-full bg-gradient-to-r from-blue-400 to-cyan-400 rounded-full transition-all duration-300"
                 style={{
                   width: `${volume * 100}%`,
-                  boxShadow: `0 0 4px rgba(59, 130, 246, 0.8)`,
+                  boxShadow: `
+                    0 0 8px rgba(59, 130, 246, 1),
+                    0 0 16px rgba(59, 130, 246, 0.8),
+                    0 0 24px rgba(59, 130, 246, 0.6),
+                    inset 0 1px 2px rgba(255, 255, 255, 0.3)
+                  `,
+                  filter: "brightness(1.3) saturate(1.2)",
                 }}
               ></div>
             </div>
@@ -93,7 +100,9 @@ export const MusicModal: React.FC = () => {
               className="absolute inset-0 w-full opacity-0 cursor-pointer"
             />
           </div>
-          <span className="text-xs text-blue-700 font-medium w-8 text-center">
+
+          {/* Volume Percentage */}
+          <span className="text-xs text-blue-700 font-semibold w-8 text-center">
             {Math.round(volume * 100)}%
           </span>
         </div>
