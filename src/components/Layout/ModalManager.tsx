@@ -60,7 +60,7 @@ export const ModalManager: React.FC<ModalManagerProps> = ({
       profile: { width: 712, height: 750 }, // -25% horizontal (950 * 0.75 = 712)
       admin: { width: 950, height: 750 }, // Manter tamanho original
       notifications: { width: 380, height: 500 }, // Compact size for notifications
-      music: { width: 300, height: 250 }, // Compact minimalist size
+      music: { width: 300, height: 180 }, // Compact minimalist size
     };
     return sizes[modalId as keyof typeof sizes] || { width: 950, height: 750 };
   };
