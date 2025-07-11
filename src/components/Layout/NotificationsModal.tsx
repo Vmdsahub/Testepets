@@ -36,9 +36,9 @@ export const NotificationsModal: React.FC = () => {
   };
 
   return (
-    <div className="w-80 max-w-[calc(100vw-3rem)] bg-white rounded-2xl shadow-xl border border-gray-100 max-h-[70vh] flex flex-col overflow-hidden">
+    <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-50">
+      <div className="flex items-center justify-between p-4 border-b border-gray-100">
         <h3 className="font-semibold text-gray-900">Notificações</h3>
         <button
           onClick={() => clearNotifications()}
@@ -50,7 +50,7 @@ export const NotificationsModal: React.FC = () => {
       </div>
 
       {/* Notification List */}
-      <div className="overflow-y-auto flex-1">
+      <div className="overflow-y-auto flex-1 max-h-96">
         {notifications.length === 0 ? (
           <div className="p-6 text-center text-gray-500">
             <p>Nenhuma notificação</p>
