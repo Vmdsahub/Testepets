@@ -26,7 +26,10 @@ export const TopPillNavigation: React.FC<TopPillNavigationProps> = ({
 
   const [showCheckin, setShowCheckin] = useState(false);
 
-  const unreadCount = notifications.filter((n) => !n.isRead).length;
+  const unreadCount = useMemo(
+    () => notifications.filter((n) => !n.isRead).length,
+    [notifications],
+  );
   const showNotifications = openModals.includes("notifications");
   const showMusicModal = openModals.includes("music");
 
