@@ -265,7 +265,25 @@ const SpaceMapComponent: React.FC = () => {
         "✅ Transição concluída - planeta definido e tela alterada para 'planet'",
       );
     }
-  }, [setCurrentPlanet, setCurrentScreen]);
+  });
+
+  // Also check for pending transitions at the beginning of each render
+  React.useLayoutEffect(() => {
+    const transition = pendingScreenTransition.current;
+    if (transition && transition.completed) {
+      console.log(
+        "⚡ useLayoutEffect: Processando transição pendente imediatamente",
+      );
+      const planetData = {
+        id: transition.planet.id,
+        name: transition.planet.name,
+        color: transition.planet.color,
+      };
+      setCurrentPlanet(planetData);
+      setCurrentScreen("planet");
+      pendingScreenTransition.current = null;
+    }
+  });
 
   // Initialize state from store or use defaults
   const getInitialGameState = useCallback((): GameState => {
