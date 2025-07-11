@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, memo } from "react";
+import React, { useEffect, useMemo, memo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AuthScreen } from "./components/Auth/AuthScreen";
 
@@ -6,6 +6,7 @@ import { TopBar } from "./components/Layout/TopBar";
 import { BottomNavigation } from "./components/Layout/BottomNavigation";
 import { TopPillNavigation } from "./components/Layout/TopPillNavigation";
 import { BottomPillNavigation } from "./components/Layout/BottomPillNavigation";
+import { ModalManager } from "./components/Layout/ModalManager";
 
 import { PetScreen } from "./components/Screens/PetScreen";
 import { StoreScreen } from "./components/Store/StoreScreen";
@@ -49,8 +50,29 @@ function App() {
     unsubscribeFromRealtimeUpdates,
   } = useGameStore();
 
+  // Modal management state
+  const [openModals, setOpenModals] = useState<string[]>([]);
+
   // Initialize background music
   const musicState = useBackgroundMusic();
+
+  // Modal management functions
+  const openModal = (modalId: string) => {
+    setOpenModals((prev) => {
+      if (!prev.includes(modalId)) {
+        return [...prev, modalId];
+      }
+      return prev;
+    });
+  };
+
+  const closeModal = (modalId: string) => {
+    setOpenModals((prev) => prev.filter((id) => id !== modalId));
+  };
+
+  const closeAllModals = () => {
+    setOpenModals([]);
+  };
 
   // Initialize authentication on app start
   useEffect(() => {
@@ -119,18 +141,15 @@ function App() {
     }
 
     switch (currentScreen) {
-      case "pet":
-        return <PetScreen />;
       case "world":
-        return <SpaceMap />;
+        return (
+          <>
+            <SpaceMap />
+            <ModalManager openModals={openModals} onCloseModal={closeModal} />
+          </>
+        );
       case "store":
         return <StoreScreen />;
-      case "inventory":
-        return <InventoryScreen />;
-      case "profile":
-        return <ProfileScreen />;
-      case "admin":
-        return gameUser?.isAdmin ? <AdminPanel /> : <ProfileScreen />;
       case "otherUserInventory":
         return <OtherUserInventoryScreen />;
       case "otherUserAchievements":
@@ -141,10 +160,27 @@ function App() {
         return <PlanetScreen />;
       case "exploration":
         return <ExplorationScreen />;
+      // Modal screens are now handled by ModalManager when on world screen
+      case "pet":
+      case "inventory":
+      case "profile":
+      case "admin":
+        // If user is not on world screen, show these as full pages
+        switch (currentScreen) {
+          case "pet":
+            return <PetScreen />;
+          case "inventory":
+            return <InventoryScreen />;
+          case "profile":
+            return <ProfileScreen />;
+          case "admin":
+            return gameUser?.isAdmin ? <AdminPanel /> : <ProfileScreen />;
+        }
+        break;
       default:
-        return <PetScreen />;
+        return <SpaceMap />;
     }
-  }, [isAuthenticated, currentScreen, gameUser?.isAdmin]);
+  }, [isAuthenticated, currentScreen, gameUser?.isAdmin, openModals]);
 
   const pageVariants = {
     initial: { opacity: 0, y: 20 },
@@ -172,7 +208,10 @@ function App() {
           // Fullscreen layout for world screen with pill navigations
           <div className="fixed inset-0 overflow-hidden">
             <TopPillNavigation />
-            <BottomPillNavigation />
+            <BottomPillNavigation
+              openModal={openModal}
+              closeAllModals={closeAllModals}
+            />
             {renderScreen}
           </div>
         ) : (
