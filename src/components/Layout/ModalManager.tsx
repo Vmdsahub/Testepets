@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import { DraggableModal } from "./DraggableModal";
 import { PetScreen } from "../Screens/PetScreen";
@@ -23,6 +23,23 @@ export const ModalManager: React.FC<ModalManagerProps> = ({
   onCloseModal,
 }) => {
   const { user } = useGameStore();
+  const [activeModalId, setActiveModalId] = useState<string | null>(null);
+
+  // When a new modal opens, make it active
+  React.useEffect(() => {
+    if (openModals.length > 0) {
+      const lastOpenedModal = openModals[openModals.length - 1];
+      if (!activeModalId || !openModals.includes(activeModalId)) {
+        setActiveModalId(lastOpenedModal);
+      }
+    } else {
+      setActiveModalId(null);
+    }
+  }, [openModals, activeModalId]);
+
+  const handleModalInteraction = (modalId: string) => {
+    setActiveModalId(modalId);
+  };
 
   const modalConfigs: ModalConfig[] = [
     {
@@ -69,6 +86,9 @@ export const ModalManager: React.FC<ModalManagerProps> = ({
         const isOpen = openModals.includes(config.id);
         if (!isOpen) return null;
 
+        const isActive = activeModalId === config.id;
+        const zIndex = isActive ? 250 : 200; // Active modal gets higher z-index
+
         return (
           <DraggableModal
             key={config.id}
@@ -77,6 +97,8 @@ export const ModalManager: React.FC<ModalManagerProps> = ({
             title={config.title}
             modalId={config.id}
             defaultPosition={getModalPosition(config.id, index)}
+            zIndex={zIndex}
+            onInteraction={() => handleModalInteraction(config.id)}
           >
             {config.component}
           </DraggableModal>
