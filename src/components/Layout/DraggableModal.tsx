@@ -87,9 +87,9 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
         }}
         initial={{
           opacity: 0,
-          scale: getInitialScale(),
-          x: getInitialPosition().x,
-          y: getInitialPosition().y,
+          scale: 0.8,
+          x: position.x,
+          y: position.y,
         }}
         animate={{
           opacity: 1,
@@ -99,19 +99,15 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
         }}
         exit={{
           opacity: 0,
-          scale: 0.2,
-          x: originPosition
-            ? originPosition.x - window.innerWidth / 2
-            : position.x,
-          y: originPosition
-            ? originPosition.y - window.innerHeight / 2
-            : position.y,
+          scale: 0.8,
+          x: position.x,
+          y: position.y,
         }}
         transition={{
           type: "spring",
-          stiffness: 400,
-          damping: 30,
-          duration: 0.5,
+          stiffness: 300,
+          damping: 25,
+          duration: 0.4,
         }}
         drag={!isMaximized}
         dragConstraints={constraintsRef}
