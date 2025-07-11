@@ -21,9 +21,15 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
 }) => {
   const [position, setPosition] = useState(defaultPosition);
   const [isMaximized, setIsMaximized] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const constraintsRef = useRef<HTMLDivElement>(null);
 
+  const handleDragStart = () => {
+    setIsDragging(true);
+  };
+
   const handleDragEnd = (event: any, info: PanInfo) => {
+    setIsDragging(false);
     const newPosition = {
       x: position.x + info.offset.x,
       y: position.y + info.offset.y,
@@ -34,6 +40,12 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
 
   const toggleMaximize = () => {
     setIsMaximized(!isMaximized);
+  };
+
+  const handleClose = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onClose();
   };
 
   const modalVariants = {
@@ -70,15 +82,17 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
       className="fixed inset-0 z-[200] pointer-events-none"
     >
       <motion.div
-        className="absolute pointer-events-auto"
+        className="absolute pointer-events-auto bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden flex flex-col"
         style={{
-          width: isMaximized ? "95vw" : "800px",
-          height: isMaximized ? "90vh" : "600px",
-          maxWidth: isMaximized ? "none" : "90vw",
-          maxHeight: isMaximized ? "none" : "85vh",
+          width: isMaximized ? "95vw" : "950px",
+          height: isMaximized ? "90vh" : "750px",
+          maxWidth: isMaximized ? "none" : "95vw",
+          maxHeight: isMaximized ? "none" : "90vh",
           left: isMaximized ? "2.5vw" : "50%",
           top: isMaximized ? "5vh" : "50%",
           transform: isMaximized ? "none" : "translate(-50%, -50%)",
+        }}
+        animate={{
           x: isMaximized ? 0 : position.x,
           y: isMaximized ? 0 : position.y,
         }}
@@ -86,23 +100,25 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
         dragConstraints={constraintsRef}
         dragElastic={0.1}
         dragMomentum={false}
+        onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
+        whileDrag={{ scale: 1.02, zIndex: 300 }}
         variants={modalVariants}
         initial="hidden"
         animate="visible"
         exit="exit"
-        className="bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden flex flex-col"
       >
         {/* Header */}
         <div
-          className="bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between cursor-move select-none"
-          style={{ cursor: isMaximized ? "default" : "move" }}
+          className={`bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between select-none ${
+            !isMaximized ? "cursor-move" : "cursor-default"
+          }`}
         >
           <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
           <div className="flex items-center space-x-2">
             <motion.button
               onClick={toggleMaximize}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
@@ -113,8 +129,8 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
               )}
             </motion.button>
             <motion.button
-              onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              onClick={handleClose}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
@@ -124,8 +140,8 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-hidden">
-          <div className="h-full overflow-y-auto">{children}</div>
+        <div className="flex-1 overflow-hidden bg-gray-50">
+          <div className="h-full overflow-y-auto p-6">{children}</div>
         </div>
       </motion.div>
     </div>
