@@ -28,21 +28,29 @@ export const TopPillNavigation: React.FC<TopPillNavigationProps> = ({
     canClaimDailyCheckin,
   } = useGameStore();
 
-  const [showMusicModal, setShowMusicModal] = useState(false);
-  const [showNotifications, setShowNotifications] = useState(false);
   const [showCheckin, setShowCheckin] = useState(false);
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
-
-  const handleNotificationClick = (notificationId: string) => {
-    markNotificationAsRead(notificationId);
-  };
+  const showNotifications = openModals.includes("notifications");
+  const showMusicModal = openModals.includes("music");
 
   const handleBellClick = () => {
     if (unreadCount > 0 && !showNotifications) {
       markAllNotificationsAsRead();
     }
-    setShowNotifications(!showNotifications);
+    if (showNotifications) {
+      closeModal?.("notifications");
+    } else {
+      openModal?.("notifications");
+    }
+  };
+
+  const handleMusicClick = () => {
+    if (showMusicModal) {
+      closeModal?.("music");
+    } else {
+      openModal?.("music");
+    }
   };
 
   const handleDeleteNotification = (
