@@ -10,6 +10,7 @@ interface DraggableModalProps {
   modalId: string;
   defaultPosition?: { x: number; y: number };
   onPositionChange?: (position: { x: number; y: number }) => void;
+  originPosition?: { x: number; y: number };
 }
 
 export const DraggableModal: React.FC<DraggableModalProps> = ({
@@ -20,6 +21,7 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
   modalId,
   defaultPosition = { x: 0, y: 0 },
   onPositionChange,
+  originPosition,
 }) => {
   // Get saved position from localStorage or use center of screen
   const getSavedPosition = () => {
@@ -27,11 +29,18 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
     if (saved) {
       return JSON.parse(saved);
     }
-    // Center position (0,0 means centered due to transform: translate(-50%, -50%))
+    // Center position - no offset needed as we use transform: translate(-50%, -50%)
     return { x: 0, y: 0 };
   };
 
   const [position, setPosition] = useState(getSavedPosition);
+  const [isFirstRender, setIsFirstRender] = useState(true);
+
+  useEffect(() => {
+    if (isOpen && isFirstRender) {
+      setIsFirstRender(false);
+    }
+  }, [isOpen, isFirstRender]);
   const [isMaximized, setIsMaximized] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const constraintsRef = useRef<HTMLDivElement>(null);
@@ -65,28 +74,49 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
     onClose();
   };
 
+  const getInitialPosition = () => {
+    const saved = localStorage.getItem(`modal-position-${modalId}`);
+    if (saved || !originPosition) {
+      return { x: 0, y: 0 }; // Use saved position or center
+    }
+
+    // Calculate offset from origin to center
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
+
+    return {
+      x: originPosition.x - centerX,
+      y: originPosition.y - centerY,
+    };
+  };
+
   const modalVariants = {
     hidden: {
       opacity: 0,
-      scale: 0.8,
-      y: -50,
+      scale: 0.3,
+      x: getInitialPosition().x,
+      y: getInitialPosition().y,
     },
     visible: {
       opacity: 1,
       scale: 1,
-      y: 0,
+      x: position.x,
+      y: position.y,
       transition: {
         type: "spring",
         stiffness: 400,
         damping: 25,
+        duration: 0.5,
       },
     },
     exit: {
       opacity: 0,
-      scale: 0.8,
-      y: -50,
+      scale: 0.3,
+      x: originPosition ? originPosition.x - window.innerWidth / 2 : 0,
+      y: originPosition ? originPosition.y - window.innerHeight / 2 : -50,
       transition: {
-        duration: 0.2,
+        duration: 0.3,
+        ease: "easeInOut",
       },
     },
   };
@@ -109,11 +139,7 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
           top: isMaximized ? "5vh" : "50%",
           transform: isMaximized ? "none" : "translate(-50%, -50%)",
         }}
-        animate={{
-          ...modalVariants.visible,
-          x: isMaximized ? 0 : position.x,
-          y: isMaximized ? 0 : position.y,
-        }}
+        animate={isMaximized ? "visible" : undefined}
         drag={!isMaximized}
         dragConstraints={constraintsRef}
         dragElastic={0.1}
