@@ -53,12 +53,12 @@ export const MusicModal: React.FC = () => {
 
         <button
           onClick={togglePlayPause}
-          className="w-6 h-6 rounded bg-blue-500 hover:bg-blue-600 transition-colors flex items-center justify-center flex-shrink-0"
+          className="text-blue-600 hover:text-blue-700 transition-colors flex-shrink-0 p-0"
         >
           {isPlaying ? (
-            <Pause className="w-3 h-3 text-white" />
+            <Pause className="w-4 h-4" />
           ) : (
-            <Play className="w-3 h-3 text-white ml-0.5" />
+            <Play className="w-4 h-4" />
           )}
         </button>
 
