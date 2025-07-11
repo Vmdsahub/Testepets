@@ -211,6 +211,7 @@ function App() {
             <BottomPillNavigation
               openModal={openModal}
               closeAllModals={closeAllModals}
+              openModals={openModals}
             />
             {renderScreen}
           </div>
