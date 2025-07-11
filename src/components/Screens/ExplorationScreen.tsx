@@ -36,10 +36,20 @@ export const ExplorationScreen: React.FC = () => {
     setCurrentScreen("planet");
   };
 
-  return (
-    <div className="h-full w-full pt-20 pb-20 px-4 overflow-y-auto">
+    return (
+    <motion.div
+      className="h-full w-full pt-20 pb-20 px-4 overflow-y-auto"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+    >
       <div className="max-w-2xl mx-auto">
-        <div className="bg-white rounded-3xl shadow-xl p-4">
+        <motion.div
+          className="bg-white rounded-3xl shadow-xl p-4"
+          initial={{ scale: 0.95, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.4, delay: 0.1, ease: "easeOut" }}
+        >
           {/* Header */}
           <div className="text-center mb-4">
             <h1 className="text-2xl font-bold text-gray-800">
@@ -107,7 +117,7 @@ export const ExplorationScreen: React.FC = () => {
                 </div>
               </div>
             </motion.div>
-          )}
+                    )}
 
           {/* Back button */}
           <div className="flex justify-center mt-6">
