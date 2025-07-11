@@ -73,8 +73,8 @@ export const MusicModal: React.FC = () => {
         </motion.button>
       </div>
 
-      {/* Volume Control - Compact */}
-      <div className="flex-1 flex flex-col justify-end">
+      {/* Volume Control - Always Visible */}
+      <div className="mt-auto">
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs font-medium text-gray-600">Volume</span>
           <span className="text-xs text-blue-600 font-semibold">
@@ -95,16 +95,16 @@ export const MusicModal: React.FC = () => {
               step="0.05"
               value={volume}
               onChange={(e) => setVolume(Number(e.target.value))}
-              className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer slider-luminous"
+              className="w-full h-3 bg-gray-200 rounded-full appearance-none cursor-pointer slider-luminous"
               style={{
                 background: `linear-gradient(to right, #3b82f6 0%, #60a5fa ${volume * 100}%, #e5e7eb ${volume * 100}%, #e5e7eb 100%)`,
               }}
             />
             <div
-              className="absolute top-0 left-0 h-2 bg-gradient-to-r from-blue-500 to-cyan-400 rounded-full pointer-events-none transition-all duration-200"
+              className="absolute top-0 left-0 h-3 bg-gradient-to-r from-blue-500 to-cyan-400 rounded-full pointer-events-none transition-all duration-200"
               style={{
                 width: `${volume * 100}%`,
-                boxShadow: `0 0 8px rgba(59, 130, 246, ${volume * 0.6})`,
+                boxShadow: `0 0 12px rgba(59, 130, 246, ${volume * 0.8}), 0 0 20px rgba(59, 130, 246, ${volume * 0.4})`,
               }}
             ></div>
           </div>
