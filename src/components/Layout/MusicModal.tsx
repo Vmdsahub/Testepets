@@ -10,12 +10,7 @@ import { motion } from "framer-motion";
 import { useGameStore } from "../../store/gameStore";
 import { useMusicContext } from "../../contexts/MusicContext";
 
-interface MusicModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
-
-export const MusicModal: React.FC<MusicModalProps> = ({ isOpen, onClose }) => {
+export const MusicModal: React.FC = () => {
   const { user } = useGameStore();
   const {
     isPlaying,
@@ -28,10 +23,8 @@ export const MusicModal: React.FC<MusicModalProps> = ({ isOpen, onClose }) => {
     previousTrack,
   } = useMusicContext();
 
-  if (!isOpen) return null;
-
   return (
-    <div className="w-96 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+    <div className="p-4">
       {/* Header */}
       <div className="p-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-purple-50">
         <div className="flex items-center justify-between">
