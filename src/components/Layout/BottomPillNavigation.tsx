@@ -102,6 +102,12 @@ export const BottomPillNavigation: React.FC<BottomPillNavigationProps> = ({
         <div className="flex items-center justify-center h-full">
           <div className="flex items-center space-x-2">
             {items.map(({ id, label, icon: Icon, color }) => {
+              // Dynamic world button logic
+              const isWorldButton = id === "world";
+              const showBackIcon = isWorldButton && currentScreen !== "world";
+              const displayIcon = showBackIcon ? ArrowLeft : Icon;
+              const displayLabel = showBackIcon ? "Voltar" : label;
+
               const isActive =
                 currentScreen === id ||
                 (id === "world" &&
@@ -129,7 +135,7 @@ export const BottomPillNavigation: React.FC<BottomPillNavigationProps> = ({
                     }}
                     transition={{ duration: 0.2 }}
                   >
-                    <Icon
+                    <displayIcon
                       className="w-5 h-5 transition-colors duration-200"
                       style={{
                         color: isActive ? color : "rgb(107, 114, 128)",
@@ -144,7 +150,7 @@ export const BottomPillNavigation: React.FC<BottomPillNavigationProps> = ({
                         : "text-gray-500 opacity-80"
                     }`}
                   >
-                    {label}
+                    {displayLabel}
                   </span>
 
                   {/* Active indicator */}
