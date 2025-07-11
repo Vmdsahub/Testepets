@@ -2269,7 +2269,7 @@ const SpaceMapComponent: React.FC = () => {
               setIsDragging(false);
               setDragOffset({ x: 0, y: 0 });
             } else if (selectedWorldId === planet.id && !isDragging) {
-              // Se já est��������� selecionado mas não dragging, inicie o drag
+              // Se já est����������� selecionado mas não dragging, inicie o drag
               setIsDragging(true);
               setDragOffset({ x: dx, y: dy });
             } else {
@@ -2526,6 +2526,7 @@ const SpaceMapComponent: React.FC = () => {
   // Modal handlers
   const handleLandingConfirm = useCallback(() => {
     if (selectedPlanet) {
+      console.log("🎯 Confirmando pouso no planeta:", selectedPlanet);
       // Start landing animation
       setLandingAnimationData({
         planet: selectedPlanet,
@@ -2535,6 +2536,7 @@ const SpaceMapComponent: React.FC = () => {
         initialShipY: gameState.ship.y,
       });
       setIsLandingAnimationActive(true);
+      console.log("🎬 Animação de pouso iniciada");
 
       // Play landing sound
       playLandingSound().catch(() => {
@@ -2946,7 +2948,7 @@ const SpaceMapComponent: React.FC = () => {
       radarPulsesRef.current = radarPulsesRef.current
         .map((pulse) => ({
           ...pulse,
-          radius: pulse.radius + 0.4, // Expansão muito mais lenta
+          radius: pulse.radius + 0.4, // Expans��o muito mais lenta
           life: pulse.life - 1,
         }))
         .filter((pulse) => pulse.life > 0 && pulse.radius <= pulse.maxRadius);
