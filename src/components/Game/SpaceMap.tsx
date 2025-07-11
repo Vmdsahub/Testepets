@@ -136,6 +136,20 @@ interface TrailPoint {
   intensity: number;
 }
 
+interface SmokeParticle {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  life: number;
+  maxLife: number;
+  size: number;
+  opacity: number;
+  initialOpacity: number;
+  initialSize: number;
+  drift: { x: number; y: number };
+}
+
 interface GameState {
   ship: {
     x: number;
@@ -198,6 +212,7 @@ const SpaceMapComponent: React.FC = () => {
   const asteroidsRef = useRef<Asteroid[]>([]);
   const xenoCoinsRef = useRef<XenoCoin[]>([]);
   const particlesRef = useRef<Particle[]>([]);
+  const smokeParticlesRef = useRef<SmokeParticle[]>([]);
   const lastTrailTime = useRef<number>(0);
   const lastShootingStarTime = useRef(0);
   const lastShootTime = useRef(0);
@@ -210,6 +225,7 @@ const SpaceMapComponent: React.FC = () => {
   const shootingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const lastFrameTimeRef = useRef(performance.now());
   const frameCounter = useRef(0);
+  const lastSmokeFrame = useRef(0);
   const [isMousePressed, setIsMousePressed] = useState(false);
   const [canvasDimensions, setCanvasDimensions] = useState({
     width: window.innerWidth,
@@ -221,6 +237,20 @@ const SpaceMapComponent: React.FC = () => {
   const shipImageRef = useRef<HTMLImageElement | null>(null);
   const movementSoundActiveRef = useRef<boolean>(false);
   const shouldHideShipRef = useRef<boolean>(false);
+  const pendingScreenTransition = useRef<{
+    planet: Planet;
+    completed: boolean;
+  } | null>(null);
+
+  // Handle screen transitions safely outside of render
+  useEffect(() => {
+    const transition = pendingScreenTransition.current;
+    if (transition && transition.completed) {
+      setCurrentPlanet(transition.planet);
+      setCurrentScreen("planet");
+      pendingScreenTransition.current = null;
+    }
+  });
 
   // Initialize state from store or use defaults
   const getInitialGameState = useCallback((): GameState => {
@@ -377,10 +407,49 @@ const SpaceMapComponent: React.FC = () => {
     isPaused: showNPCModal,
   });
 
+  // Function to create smoke trail particles behind the ship
+  const createSmokeTrail = useCallback(
+    (shipX: number, shipY: number, shipAngle: number) => {
+      // Create single particle for subtle smoke trail
+      for (let i = 0; i < 1; i++) {
+        // Position particles behind the ship
+        const trailDistance = 15 + i * 8; // Spread them out behind the ship
+        const baseX = shipX - Math.cos(shipAngle) * trailDistance;
+        const baseY = shipY - Math.sin(shipAngle) * trailDistance;
+
+        const initialOpacity = 0.7;
+        const initialSize = 3 + Math.random() * 2; // 3-5 pixels
+        const newSmokeParticle: SmokeParticle = {
+          x: baseX + (Math.random() - 0.5) * 6,
+          y: baseY + (Math.random() - 0.5) * 6,
+          vx: (Math.random() - 0.5) * 0.2 - Math.cos(shipAngle) * 0.1, // Slower, opposite to ship direction
+          vy: (Math.random() - 0.5) * 0.2 - Math.sin(shipAngle) * 0.1, // Slower, opposite to ship direction
+          life: 90, // Frame-based: 90 frames = ~1.5 seconds at 60fps
+          maxLife: 90,
+          size: initialSize,
+          opacity: initialOpacity,
+          initialOpacity: initialOpacity,
+          initialSize: initialSize,
+          drift: {
+            x: (Math.random() - 0.5) * 0.05,
+            y: (Math.random() - 0.5) * 0.05,
+          },
+        };
+        smokeParticlesRef.current.push(newSmokeParticle);
+      }
+    },
+    [],
+  );
+
   // Função de tiro que pode ser reutilizada
   const shootProjectile = useCallback(() => {
     const currentTime = Date.now();
     const SHOOT_COOLDOWN = 333; // 333ms entre tiros (3 tiros/segundo)
+
+    // Check if ship can shoot (HP must be > 0)
+    if (shipHP <= 0) {
+      return false; // Cannot shoot when HP is 0
+    }
 
     // Verificar cooldown
     if (currentTime - lastShootTime.current >= SHOOT_COOLDOWN) {
@@ -397,13 +466,13 @@ const SpaceMapComponent: React.FC = () => {
 
       // Tocar som de laser
       playLaserShootSound().catch(() => {
-        // Som não é crítico, ignora erro
+        // Som n��o é crítico, ignora erro
       });
 
       return true; // Tiro disparado
     }
     return false; // Cooldown ainda ativo
-  }, [gameState.ship.x, gameState.ship.y, gameState.ship.angle]);
+  }, [gameState.ship.x, gameState.ship.y, gameState.ship.angle, shipHP]);
 
   // Function to check if click is on visible pixel of planet image
   const isClickOnPlanetPixel = useCallback(
@@ -1140,30 +1209,12 @@ const SpaceMapComponent: React.FC = () => {
       const newHP = prev - 1;
 
       if (newHP <= 0) {
-        // Ship destroyed - respawn at center
-        console.log("Ship destroyed! Respawning at center...");
-
-        setGameState((prevState) => ({
-          ...prevState,
-          ship: {
-            ...prevState.ship,
-            x: CENTER_X,
-            y: CENTER_Y,
-            vx: 0,
-            vy: 0,
-          },
-          camera: {
-            x: CENTER_X,
-            y: CENTER_Y,
-          },
-        }));
-
-        // Reset HP and hide bar after respawn
-        setTimeout(() => {
-          setShowHPBar(false);
-        }, 3000);
-
-        return 3; // Reset to full HP
+        // Ship at 0 HP - no respawn, just log the damage state
+        console.log(
+          "Ship critically damaged! Speed reduced, weapons disabled. HP:",
+          newHP,
+        );
+        return 0; // Keep at 0 HP
       }
 
       return newHP;
@@ -2562,7 +2613,10 @@ const SpaceMapComponent: React.FC = () => {
 
           if (mouseInWindow && distance > 50) {
             const speedMultiplier = Math.min(distance / 300, 1);
-            const targetSpeed = SHIP_MAX_SPEED * speedMultiplier;
+            // Apply speed reduction if ship HP is 0 (85% reduction = 15% of original speed)
+            const hpSpeedModifier = shipHP <= 0 ? 0.15 : 1.0;
+            const targetSpeed =
+              SHIP_MAX_SPEED * speedMultiplier * hpSpeedModifier;
             newState.ship.vx += (dx / distance) * targetSpeed * 0.04;
             newState.ship.vy += (dy / distance) * targetSpeed * 0.04;
           }
@@ -3025,6 +3079,52 @@ const SpaceMapComponent: React.FC = () => {
         }
       }
 
+      // Update smoke particles with simple frame-based system
+      const smokeParticles = smokeParticlesRef.current;
+      for (let i = smokeParticles.length - 1; i >= 0; i--) {
+        const smoke = smokeParticles[i];
+
+        // Simple position update
+        smoke.x += smoke.vx;
+        smoke.y += smoke.vy;
+        smoke.life -= 1; // Decrease by 1 frame
+
+        // Simple air resistance
+        smoke.vx *= 0.99;
+        smoke.vy *= 0.99;
+
+        // Simple fade calculation (no deltaTime dependency)
+        const fadeRatio = smoke.life / smoke.maxLife;
+        smoke.opacity = smoke.initialOpacity * fadeRatio;
+
+        // Simple size expansion
+        const expansionRatio = 1 - fadeRatio;
+        smoke.size = smoke.initialSize + expansionRatio * 3;
+
+        // Very slight random drift instead of always upward
+        if (Math.random() < 0.05) {
+          smoke.vy -= 0.002;
+        }
+
+        // Remove dead particles
+        if (smoke.life <= 0) {
+          smokeParticles.splice(i, 1);
+        }
+      }
+
+      // Create smoke trail if ship HP is 0 and not in landing animation
+      if (shipHP <= 0 && !isLandingAnimationActive) {
+        // Create smoke trail every 15 frames (4 times per second at 60fps)
+        if (frameCounter.current - lastSmokeFrame.current >= 15) {
+          createSmokeTrail(
+            gameState.ship.x,
+            gameState.ship.y,
+            gameState.ship.angle,
+          );
+          lastSmokeFrame.current = frameCounter.current;
+        }
+      }
+
       // Create shooting stars less frequently for better performance - even less for large canvas
       const shootingStarInterval = isLargeCanvas
         ? 25000 + Math.random() * 35000
@@ -3187,7 +3287,7 @@ const SpaceMapComponent: React.FC = () => {
         ctx.lineWidth = 2;
       }
 
-      // Rotaç��o lenta baseada no tempo
+      // Rotaç���o lenta baseada no tempo
       const rotationTime = currentTime * 0.0005; // Muito lenta
       const dashOffset = (rotationTime * 50) % 20; // Offset dos tra��os para simular rotação
 
@@ -3367,6 +3467,53 @@ const SpaceMapComponent: React.FC = () => {
           screenY <= canvas.height + 50
         ) {
           drawParticle(ctx, particle, screenX, screenY);
+        }
+      }
+
+      // Render smoke particles
+      const smokeParticlesForRender = smokeParticlesRef.current;
+      for (let i = 0; i < smokeParticlesForRender.length; i++) {
+        const smoke = smokeParticlesForRender[i];
+        const wrappedDeltaX = getWrappedDistance(smoke.x, gameState.camera.x);
+        const wrappedDeltaY = getWrappedDistance(smoke.y, gameState.camera.y);
+        const screenX = centerX + wrappedDeltaX;
+        const screenY = centerY + wrappedDeltaY;
+
+        // Only render if on screen
+        if (
+          screenX >= -50 &&
+          screenX <= canvas.width + 50 &&
+          screenY >= -50 &&
+          screenY <= canvas.height + 50
+        ) {
+          // Draw stable smoke particle
+          ctx.save();
+
+          // Use stable opacity without complex calculations
+          ctx.globalAlpha = smoke.opacity;
+
+          // Simple gradient for smoke
+          const gradient = ctx.createRadialGradient(
+            screenX,
+            screenY,
+            0,
+            screenX,
+            screenY,
+            smoke.size,
+          );
+
+          gradient.addColorStop(0, "#777777");
+          gradient.addColorStop(0.6, "#555555");
+          gradient.addColorStop(1, "rgba(85, 85, 85, 0)");
+
+          ctx.fillStyle = gradient;
+
+          // Draw smoke particle
+          ctx.beginPath();
+          ctx.arc(screenX, screenY, smoke.size, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.restore();
         }
       }
 
@@ -3570,9 +3717,11 @@ const SpaceMapComponent: React.FC = () => {
             },
           }));
 
-          // Immediate transition to prevent visual glitches
-          setCurrentPlanet(planetData);
-          setCurrentScreen("planet");
+          // Schedule transition for next render cycle to prevent setState during render
+          pendingScreenTransition.current = {
+            planet: planetData,
+            completed: true,
+          };
         } else {
           // Calculate orbital animation
           const planet = landingAnimationData.planet;
@@ -3759,7 +3908,7 @@ const SpaceMapComponent: React.FC = () => {
   ]);
 
   return (
-    <div className="w-full h-full relative bg-gradient-to-br from-slate-950 via-blue-950 to-black rounded-lg overflow-hidden shadow-2xl border border-blue-900/10 game-container gpu-accelerated force-gpu-layer">
+    <div className="fixed inset-0 bg-gradient-to-br from-slate-950 via-blue-950 to-black overflow-hidden game-container gpu-accelerated force-gpu-layer">
       <PlanetLandingModal
         isOpen={showLandingModal}
         planet={selectedPlanet}
@@ -4164,12 +4313,12 @@ const SpaceMapComponent: React.FC = () => {
             <div className="text-yellow-400 font-bold mb-1">
               ��� MODO EDIÇ��O
             </div>
-            <div>�� 1º Click: Selecionar mundo</div>
+            <div>��� 1º Click: Selecionar mundo</div>
             <div>
               • 2º Click: {isDragging ? "Confirmar posição" : "Ativar arrastar"}
             </div>
             <div>• ESC: Cancelar</div>
-            <div>• Painel: Tamanho/Rotação</div>
+            <div>• Painel: Tamanho/Rota���ão</div>
           </>
         ) : (
           <>

@@ -1,9 +1,12 @@
-import React, { useEffect, useMemo, memo } from "react";
+import React, { useEffect, useMemo, memo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AuthScreen } from "./components/Auth/AuthScreen";
 
 import { TopBar } from "./components/Layout/TopBar";
 import { BottomNavigation } from "./components/Layout/BottomNavigation";
+import { TopPillNavigation } from "./components/Layout/TopPillNavigation";
+import { BottomPillNavigation } from "./components/Layout/BottomPillNavigation";
+import { ModalManager } from "./components/Layout/ModalManager";
 
 import { PetScreen } from "./components/Screens/PetScreen";
 import { StoreScreen } from "./components/Store/StoreScreen";
@@ -47,8 +50,29 @@ function App() {
     unsubscribeFromRealtimeUpdates,
   } = useGameStore();
 
+  // Modal management state
+  const [openModals, setOpenModals] = useState<string[]>([]);
+
   // Initialize background music
   const musicState = useBackgroundMusic();
+
+  // Modal management functions
+  const openModal = (modalId: string) => {
+    setOpenModals((prev) => {
+      if (!prev.includes(modalId)) {
+        return [...prev, modalId];
+      }
+      return prev;
+    });
+  };
+
+  const closeModal = (modalId: string) => {
+    setOpenModals((prev) => prev.filter((id) => id !== modalId));
+  };
+
+  const closeAllModals = () => {
+    setOpenModals([]);
+  };
 
   // Initialize authentication on app start
   useEffect(() => {
@@ -117,18 +141,15 @@ function App() {
     }
 
     switch (currentScreen) {
-      case "pet":
-        return <PetScreen />;
       case "world":
-        return <SpaceMap />;
+        return (
+          <>
+            <SpaceMap />
+            <ModalManager openModals={openModals} onCloseModal={closeModal} />
+          </>
+        );
       case "store":
         return <StoreScreen />;
-      case "inventory":
-        return <InventoryScreen />;
-      case "profile":
-        return <ProfileScreen />;
-      case "admin":
-        return gameUser?.isAdmin ? <AdminPanel /> : <ProfileScreen />;
       case "otherUserInventory":
         return <OtherUserInventoryScreen />;
       case "otherUserAchievements":
@@ -139,10 +160,24 @@ function App() {
         return <PlanetScreen />;
       case "exploration":
         return <ExplorationScreen />;
+      // Modal screens are now handled by ModalManager when on world screen
+      case "pet":
+      case "inventory":
+      case "profile":
+      case "admin":
+        // Auto-redirect to world and open the modal
+        setCurrentScreen("world");
+        setTimeout(() => openModal(currentScreen), 100);
+        return (
+          <>
+            <SpaceMap />
+            <ModalManager openModals={openModals} onCloseModal={closeModal} />
+          </>
+        );
       default:
-        return <PetScreen />;
+        return <SpaceMap />;
     }
-  }, [isAuthenticated, currentScreen, gameUser?.isAdmin]);
+  }, [isAuthenticated, currentScreen, gameUser?.isAdmin, openModals]);
 
   const pageVariants = {
     initial: { opacity: 0, y: 20 },
@@ -165,37 +200,45 @@ function App() {
     <MusicProvider musicState={musicState}>
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 gpu-accelerated force-gpu-layer">
         <AudioPreloader />
-        <TopBar />
 
         {currentScreen === "world" ? (
-          // Expanded layout for world screen - full width, minimal vertical padding
-          <main className="absolute top-20 bottom-20 left-0 right-0 overflow-hidden">
+          // Fullscreen layout for world screen with pill navigations
+          <div className="fixed inset-0 overflow-hidden">
+            <TopPillNavigation />
+            <BottomPillNavigation
+              openModal={openModal}
+              closeModal={closeModal}
+              closeAllModals={closeAllModals}
+              openModals={openModals}
+            />
             {renderScreen}
-          </main>
+          </div>
         ) : (
-          // Normal layout for other screens
-          <main className="pt-20 pb-8 px-4 min-h-screen composite-layer force-gpu-layer">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={currentScreen}
-                initial="initial"
-                animate="in"
-                exit="out"
-                variants={pageVariants}
-                transition={pageTransition}
-                className="smooth-animation force-gpu-layer"
-                style={{
-                  transform: "translate3d(0, 0, 0)",
-                  willChange: "transform, opacity",
-                }}
-              >
-                {renderScreen}
-              </motion.div>
-            </AnimatePresence>
-          </main>
+          // Normal layout for other screens with traditional navigation
+          <>
+            <TopBar />
+            <main className="pt-20 pb-8 px-4 min-h-screen composite-layer force-gpu-layer">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={currentScreen}
+                  initial="initial"
+                  animate="in"
+                  exit="out"
+                  variants={pageVariants}
+                  transition={pageTransition}
+                  className="smooth-animation force-gpu-layer"
+                  style={{
+                    transform: "translate3d(0, 0, 0)",
+                    willChange: "transform, opacity",
+                  }}
+                >
+                  {renderScreen}
+                </motion.div>
+              </AnimatePresence>
+            </main>
+            <BottomNavigation />
+          </>
         )}
-
-        <BottomNavigation />
       </div>
     </MusicProvider>
   );
