@@ -15,7 +15,15 @@ const navigationItems = [
   { id: "profile", label: "Perfil", icon: User, color: "rgb(147, 51, 234)" },
 ];
 
-export const BottomPillNavigation: React.FC = () => {
+interface BottomPillNavigationProps {
+  openModal: (modalId: string) => void;
+  closeAllModals: () => void;
+}
+
+export const BottomPillNavigation: React.FC<BottomPillNavigationProps> = ({
+  openModal,
+  closeAllModals,
+}) => {
   const { currentScreen, setCurrentScreen, user, currentPlanet } =
     useGameStore();
 
@@ -44,6 +52,8 @@ export const BottomPillNavigation: React.FC = () => {
 
   const handleItemClick = (id: string) => {
     if (id === "world") {
+      // Close all modals when returning to world view
+      closeAllModals();
       // Use the last world screen the user was on
       if (lastWorldScreenRef.current === "planet" && currentPlanet) {
         console.log(`🌍 Retornando ao planeta: ${currentPlanet.name}`);
@@ -52,6 +62,9 @@ export const BottomPillNavigation: React.FC = () => {
         console.log(`🌍 Retornando à navegação galáctica`);
         setCurrentScreen("world");
       }
+    } else if (["pet", "inventory", "profile", "admin"].includes(id)) {
+      // Open as modal instead of navigating
+      openModal(id);
     } else {
       setCurrentScreen(id);
     }
