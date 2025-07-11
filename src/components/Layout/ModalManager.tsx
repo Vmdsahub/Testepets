@@ -51,6 +51,16 @@ export const ModalManager: React.FC<ModalManagerProps> = ({
     return 200 + index; // Base 200, each modal gets +1
   };
 
+  const getModalSize = (modalId: string) => {
+    const sizes = {
+      pet: { width: 712, height: 750 }, // -25% horizontal (950 * 0.75 = 712)
+      inventory: { width: 636, height: 750 }, // -33% horizontal (950 * 0.67 = 636)
+      profile: { width: 712, height: 750 }, // -25% horizontal (950 * 0.75 = 712)
+      admin: { width: 950, height: 750 }, // Manter tamanho original
+    };
+    return sizes[modalId as keyof typeof sizes] || { width: 950, height: 750 };
+  };
+
   const modalConfigs: ModalConfig[] = [
     {
       id: "pet",
@@ -96,6 +106,8 @@ export const ModalManager: React.FC<ModalManagerProps> = ({
         const isOpen = openModals.includes(config.id);
         if (!isOpen) return null;
 
+        const modalSize = getModalSize(config.id);
+
         return (
           <DraggableModal
             key={config.id}
@@ -106,6 +118,8 @@ export const ModalManager: React.FC<ModalManagerProps> = ({
             defaultPosition={getModalPosition(config.id, index)}
             zIndex={getZIndex(config.id)}
             onInteraction={() => handleModalInteraction(config.id)}
+            width={modalSize.width}
+            height={modalSize.height}
           >
             {config.component}
           </DraggableModal>
