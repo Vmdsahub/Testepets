@@ -5,6 +5,7 @@ import { PlanetLandingModal } from "./PlanetLandingModal";
 import { useNPCShip } from "./NPCShip";
 import { NPCModal } from "./NPCModal";
 import { ShipActionsModal } from "./ShipActionsModal";
+import { MobileTouchControls } from "./MobileTouchControls";
 
 import { FinalWebGLStars } from "./FinalWebGLStars";
 import {
