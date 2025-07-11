@@ -87,9 +87,8 @@ export const BottomPillNavigation: React.FC<BottomPillNavigationProps> = ({
       <motion.div
         className="bg-white/95 backdrop-blur-2xl rounded-full px-3 sm:px-10 py-2 sm:py-3 shadow-lg border border-gray-100/50 w-full sm:w-auto"
         style={{
-          minWidth: "300px",
+          minWidth: window.innerWidth >= 640 ? "480px" : "300px",
           width: "100%",
-          minWidth: "480px",
           height: "48px",
         }}
         initial={{ y: 50, opacity: 0, scale: 0.95 }}

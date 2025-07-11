@@ -70,9 +70,8 @@ export const TopPillNavigation: React.FC<TopPillNavigationProps> = ({
         <motion.div
           className="bg-white/95 backdrop-blur-2xl rounded-full px-4 sm:px-12 py-2 sm:py-3 shadow-lg border border-gray-100/50 w-full sm:w-auto"
           style={{
-            minWidth: "280px",
+            minWidth: window.innerWidth >= 640 ? "600px" : "280px",
             width: "100%",
-            minWidth: "600px",
             height: "48px",
           }}
           data-responsive="true"
