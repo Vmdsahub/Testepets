@@ -89,9 +89,7 @@ export const ModalManager: React.FC<ModalManagerProps> = ({
     {
       id: "music",
       title: "Música",
-      component: (
-        <MusicModal isOpen={true} onClose={() => onCloseModal("music")} />
-      ),
+      component: <MusicModal />,
     },
     ...(user?.isAdmin
       ? [
