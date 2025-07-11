@@ -53,14 +53,14 @@ export const ModalManager: React.FC<ModalManagerProps> = ({
 
   const getModalPosition = (modalId: string, index: number) => {
     // Stagger the initial positions so modals don't overlap
-    const baseOffset = index * 50;
+    const offset = index * 60;
     const positions: Record<string, { x: number; y: number }> = {
-      pet: { x: -200 + baseOffset, y: -100 + baseOffset },
-      inventory: { x: 200 + baseOffset, y: -100 + baseOffset },
-      profile: { x: -200 + baseOffset, y: 100 + baseOffset },
-      admin: { x: 200 + baseOffset, y: 100 + baseOffset },
+      pet: { x: -300 + offset, y: -150 + offset },
+      inventory: { x: 300 + offset, y: -150 + offset },
+      profile: { x: -300 + offset, y: 150 + offset },
+      admin: { x: 300 + offset, y: 150 + offset },
     };
-    return positions[modalId] || { x: baseOffset, y: baseOffset };
+    return positions[modalId] || { x: offset, y: offset };
   };
 
   return (
