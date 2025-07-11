@@ -187,15 +187,15 @@ function App() {
   }, [isAuthenticated, currentScreen, gameUser?.isAdmin, openModals]);
 
   const pageVariants = {
-    initial: { opacity: 0, y: 20 },
-    in: { opacity: 1, y: 0 },
-    out: { opacity: 0, y: -20 },
+    initial: { opacity: 0, scale: 0.98, y: 10 },
+    in: { opacity: 1, scale: 1, y: 0 },
+    out: { opacity: 0, scale: 0.98, y: -10 },
   };
 
   const pageTransition = {
     type: "tween",
-    ease: "anticipate",
-    duration: 0.4,
+    ease: "easeInOut",
+    duration: 0.6,
   };
 
   // If not authenticated, just return the auth screen directly
