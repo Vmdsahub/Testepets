@@ -36,9 +36,10 @@ export const ExplorationScreen: React.FC = () => {
     setCurrentScreen("planet");
   };
 
-  return (
-    <div className="max-w-2xl mx-auto pb-24">
-      <div className="bg-white rounded-3xl shadow-xl p-4">
+    return (
+    <div className="h-full w-full pt-20 pb-20 px-4 overflow-y-auto">
+      <div className="max-w-2xl mx-auto">
+        <div className="bg-white rounded-3xl shadow-xl p-4">
         {/* Header */}
         <div className="flex items-center gap-3 mb-4">
           <motion.button
