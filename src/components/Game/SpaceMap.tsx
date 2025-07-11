@@ -5,6 +5,7 @@ import { PlanetLandingModal } from "./PlanetLandingModal";
 import { useNPCShip } from "./NPCShip";
 import { NPCModal } from "./NPCModal";
 import { ShipActionsModal } from "./ShipActionsModal";
+import { MobileTouchControls } from "./MobileTouchControls";
 
 import { FinalWebGLStars } from "./FinalWebGLStars";
 import {
@@ -15,6 +16,7 @@ import {
   stopContinuousMovementSound,
   playSonarPingSound,
 } from "../../utils/soundManager";
+import { isMobileDevice } from "../../utils/deviceDetection";
 
 interface Star {
   x: number;
@@ -250,7 +252,7 @@ const SpaceMapComponent: React.FC = () => {
       setCurrentScreen("planet");
       pendingScreenTransition.current = null;
     }
-  });
+  }, [setCurrentPlanet, setCurrentScreen]);
 
   // Initialize state from store or use defaults
   const getInitialGameState = useCallback((): GameState => {
@@ -314,6 +316,13 @@ const SpaceMapComponent: React.FC = () => {
 
   // Mouse state tracking
   const [mouseInWindow, setMouseInWindow] = useState(true);
+
+  // Mobile controls state
+  const [isMobile, setIsMobile] = useState(false);
+  const [mobileMovementDirection, setMobileMovementDirection] = useState({
+    x: 0,
+    y: 0,
+  });
 
   // Modal state
   const [showLandingModal, setShowLandingModal] = useState(false);
@@ -473,6 +482,18 @@ const SpaceMapComponent: React.FC = () => {
     }
     return false; // Cooldown ainda ativo
   }, [gameState.ship.x, gameState.ship.y, gameState.ship.angle, shipHP]);
+
+  // Mobile control callbacks
+  const handleMobileMovement = useCallback(
+    (direction: { x: number; y: number }) => {
+      setMobileMovementDirection(direction);
+    },
+    [],
+  );
+
+  const handleMobileShoot = useCallback(() => {
+    shootProjectile();
+  }, [shootProjectile]);
 
   // Function to check if click is on visible pixel of planet image
   const isClickOnPlanetPixel = useCallback(
@@ -1232,25 +1253,41 @@ const SpaceMapComponent: React.FC = () => {
     }, 5000);
   }, [lastDamageTime, setGameState]);
 
+  // Track last repair time to prevent double executions
+  const isRepairingRef = useRef(false);
+
   // Repair ship function
   const repairShip = useCallback(() => {
-    setShipHP((prev) => {
-      const newHP = Math.min(prev + 1, 3);
-      setShowHPBar(true);
+    // Prevent multiple executions
+    if (isRepairingRef.current) {
+      return;
+    }
+    isRepairingRef.current = true;
 
-      addNotification({
-        type: "success",
-        message: `Nave reparada! HP: ${newHP}/3`,
-      });
+    // Calculate new HP value
+    const currentHP = shipHP;
+    const newHP = Math.min(currentHP + 1, 3);
 
-      // Hide HP bar after 3 seconds
-      setTimeout(() => {
-        setShowHPBar(false);
-      }, 3000);
+    // Update HP
+    setShipHP(newHP);
+    setShowHPBar(true);
 
-      return newHP;
+    // Add notification with the new HP value
+    addNotification({
+      type: "success",
+      message: `Nave reparada! HP: ${newHP}/3`,
     });
-  }, [addNotification]);
+
+    // Hide HP bar after 3 seconds
+    setTimeout(() => {
+      setShowHPBar(false);
+    }, 3000);
+
+    // Reset flag after a short delay to allow proper completion
+    setTimeout(() => {
+      isRepairingRef.current = false;
+    }, 100);
+  }, [addNotification, shipHP]);
 
   // Helper function to draw directional radar pulse
   const drawRadarPulse = useCallback(
@@ -2453,6 +2490,22 @@ const SpaceMapComponent: React.FC = () => {
     drawFpsGraph();
   }, [drawFpsGraph]);
 
+  // Detect mobile device
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(isMobileDevice());
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    window.addEventListener("orientationchange", checkMobile);
+
+    return () => {
+      window.removeEventListener("resize", checkMobile);
+      window.removeEventListener("orientationchange", checkMobile);
+    };
+  }, []);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && user?.isAdmin && isWorldEditMode) {
@@ -2596,29 +2649,48 @@ const SpaceMapComponent: React.FC = () => {
       setGameState((prevState) => {
         const newState = { ...prevState };
 
-        // Only respond to mouse if it has actually moved and modal is not open and not landing
-        if (
-          hasMouseMoved.current &&
-          !showLandingModal &&
-          !isLandingAnimationActive
-        ) {
-          const worldMouseX = mouseRef.current.x - centerX + newState.camera.x;
-          const worldMouseY = mouseRef.current.y - centerY + newState.camera.y;
+        // Handle movement based on device type
+        if (!showLandingModal && !isLandingAnimationActive) {
+          if (
+            isMobile &&
+            (mobileMovementDirection.x !== 0 || mobileMovementDirection.y !== 0)
+          ) {
+            // Mobile touch controls
+            const dx = mobileMovementDirection.x;
+            const dy = mobileMovementDirection.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
 
-          const dx = getWrappedDistance(worldMouseX, newState.ship.x);
-          const dy = getWrappedDistance(worldMouseY, newState.ship.y);
-          const distance = Math.sqrt(dx * dx + dy * dy);
+            if (distance > 0) {
+              newState.ship.angle = Math.atan2(dy, dx);
 
-          newState.ship.angle = Math.atan2(dy, dx);
+              // Apply speed reduction if ship HP is 0 (85% reduction = 15% of original speed)
+              const hpSpeedModifier = shipHP <= 0 ? 0.15 : 1.0;
+              const targetSpeed = SHIP_MAX_SPEED * distance * hpSpeedModifier;
+              newState.ship.vx += (dx / distance) * targetSpeed * 0.04;
+              newState.ship.vy += (dy / distance) * targetSpeed * 0.04;
+            }
+          } else if (!isMobile && hasMouseMoved.current) {
+            // Desktop mouse controls
+            const worldMouseX =
+              mouseRef.current.x - centerX + newState.camera.x;
+            const worldMouseY =
+              mouseRef.current.y - centerY + newState.camera.y;
 
-          if (mouseInWindow && distance > 50) {
-            const speedMultiplier = Math.min(distance / 300, 1);
-            // Apply speed reduction if ship HP is 0 (85% reduction = 15% of original speed)
-            const hpSpeedModifier = shipHP <= 0 ? 0.15 : 1.0;
-            const targetSpeed =
-              SHIP_MAX_SPEED * speedMultiplier * hpSpeedModifier;
-            newState.ship.vx += (dx / distance) * targetSpeed * 0.04;
-            newState.ship.vy += (dy / distance) * targetSpeed * 0.04;
+            const dx = getWrappedDistance(worldMouseX, newState.ship.x);
+            const dy = getWrappedDistance(worldMouseY, newState.ship.y);
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            newState.ship.angle = Math.atan2(dy, dx);
+
+            if (mouseInWindow && distance > 50) {
+              const speedMultiplier = Math.min(distance / 300, 1);
+              // Apply speed reduction if ship HP is 0 (85% reduction = 15% of original speed)
+              const hpSpeedModifier = shipHP <= 0 ? 0.15 : 1.0;
+              const targetSpeed =
+                SHIP_MAX_SPEED * speedMultiplier * hpSpeedModifier;
+              newState.ship.vx += (dx / distance) * targetSpeed * 0.04;
+              newState.ship.vy += (dy / distance) * targetSpeed * 0.04;
+            }
           }
         }
 
@@ -4322,11 +4394,20 @@ const SpaceMapComponent: React.FC = () => {
           </>
         ) : (
           <>
-            <div>• Mouse: Mover nave</div>
-            <div>• Click: Atirar/Planeta</div>
+            <div>• {isMobile ? "Touch: Mover nave" : "Mouse: Mover nave"}</div>
+            <div>• {isMobile ? "Botão: Atirar" : "Click: Atirar/Planeta"}</div>
           </>
         )}
       </div>
+
+      {/* Mobile Touch Controls */}
+      {isMobile && !showLandingModal && !isLandingAnimationActive && (
+        <MobileTouchControls
+          onMovement={handleMobileMovement}
+          onShoot={handleMobileShoot}
+          isShootingDisabled={shipHP <= 0}
+        />
+      )}
     </div>
   );
 };

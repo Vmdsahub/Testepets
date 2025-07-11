@@ -79,15 +79,21 @@ export const useBackgroundMusic = (): UseBackgroundMusicReturn => {
     (newVolume: number) => {
       console.log("🔊 Hook: Mudando volume para:", newVolume);
       backgroundMusicService.setVolume(newVolume);
-      setVolumeState(newVolume); // Atualiza estado imediatamente
-      updateState();
+      // Use setTimeout to avoid setState during render
+      setTimeout(() => {
+        setVolumeState(newVolume);
+        updateState();
+      }, 0);
     },
     [updateState],
   );
 
   // Atualiza estado inicial e monitora mudanças
   useEffect(() => {
-    updateState();
+    // Defer initial state update to avoid conflicts during render
+    setTimeout(() => {
+      updateState();
+    }, 0);
 
     // Polling simples para detectar mudanças (como fim de faixa)
     const interval = setInterval(updateState, 1000);
@@ -123,7 +129,9 @@ export const useBackgroundMusic = (): UseBackgroundMusicReturn => {
           error,
         );
       });
-      updateState();
+      setTimeout(() => {
+        updateState();
+      }, 0);
       return;
     }
 
@@ -132,7 +140,9 @@ export const useBackgroundMusic = (): UseBackgroundMusicReturn => {
         `🎵 Hook: Tela mudou de ${currentServiceScreen} para ${currentScreen}${planetId ? ` (planeta: ${planetId})` : ""}`,
       );
       backgroundMusicService.setCurrentScreen(currentScreen, planetId);
-      updateState();
+      setTimeout(() => {
+        updateState();
+      }, 0);
     }
   }, [currentScreen, currentPlanet?.id, hasStartedMusicOnce, updateState]);
 

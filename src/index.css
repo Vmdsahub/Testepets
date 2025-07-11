@@ -1,5 +1,6 @@
 /* Import performance optimizations */
 @import "./styles/performance.css";
+@import "./styles/responsive.css";
 
 @tailwind base;
 @tailwind components;

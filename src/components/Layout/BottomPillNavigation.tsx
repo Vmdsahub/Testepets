@@ -83,12 +83,13 @@ export const BottomPillNavigation: React.FC<BottomPillNavigationProps> = ({
   };
 
   return (
-    <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
+    <div className="fixed bottom-3 sm:bottom-6 left-1/2 transform -translate-x-1/2 z-50 px-4 sm:px-0">
       <motion.div
-        className="bg-white/95 backdrop-blur-2xl rounded-full px-8 py-3 shadow-lg border border-gray-100/50"
+        className="bg-white/95 backdrop-blur-2xl rounded-full px-3 sm:px-10 py-2 sm:py-3 shadow-lg border border-gray-100/50 w-full sm:w-auto"
         style={{
-          width: "480px",
-          height: "56px",
+          minWidth: window.innerWidth >= 640 ? "480px" : "300px",
+          width: "100%",
+          height: "48px",
         }}
         initial={{ y: 50, opacity: 0, scale: 0.95 }}
         animate={{ y: 0, opacity: 1, scale: 1 }}
@@ -115,7 +116,7 @@ export const BottomPillNavigation: React.FC<BottomPillNavigationProps> = ({
                 <motion.button
                   key={id}
                   onClick={() => handleItemClick(id)}
-                  className={`relative flex flex-col items-center justify-center px-6 py-2 rounded-full transition-all duration-300 ${
+                  className={`relative flex flex-col items-center justify-center px-2 sm:px-6 py-1 sm:py-2 rounded-full transition-all duration-300 ${
                     isActive ? "bg-gray-50" : "hover:bg-gray-50/50"
                   } ${showXOverlay ? "opacity-50 cursor-not-allowed" : ""}`}
                   whileHover={{ scale: showXOverlay ? 1 : 1.05 }}
@@ -131,20 +132,20 @@ export const BottomPillNavigation: React.FC<BottomPillNavigationProps> = ({
                     transition={{ duration: 0.2 }}
                   >
                     <Icon
-                      className="w-5 h-5 transition-colors duration-200"
+                      className="w-4 h-4 sm:w-5 sm:h-5 transition-colors duration-200"
                       style={{
                         color: isActive ? color : "rgb(107, 114, 128)",
                       }}
                     />
                     {showXOverlay && (
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <X className="w-4 h-4 text-red-500" />
+                        <X className="w-3 h-3 sm:w-4 sm:h-4 text-red-500" />
                       </div>
                     )}
                   </motion.div>
 
                   <span
-                    className={`text-xs font-medium mt-1 transition-all duration-200 ${
+                    className={`text-xs font-medium mt-0.5 sm:mt-1 transition-all duration-200 hidden xs:block ${
                       isActive
                         ? "text-gray-900 opacity-100"
                         : "text-gray-500 opacity-80"

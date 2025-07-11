@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Search, Package, RefreshCw, ArrowLeft, Wrench } from "lucide-react";
 import { useGameStore } from "../../store/gameStore";
+import { ItemDropdownMenu } from "./ItemDropdownMenu";
 
 interface ShipActionsModalProps {
   isOpen: boolean;
@@ -16,7 +17,7 @@ interface ShipInventoryItem {
   id: string;
   name: string;
   description: string;
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<{ className?: string }>;
   quantity: number;
   effect: () => void;
 }
@@ -55,6 +56,60 @@ export const ShipActionsModal: React.FC<ShipActionsModalProps> = ({
   const [currentView, setCurrentView] = useState<ModalView>("main");
   const [shipInventory, setShipInventory] = useState<ShipInventoryItem[]>([]);
   const { user } = useGameStore();
+  const handleUseItem = useCallback(
+    (item: ShipInventoryItem) => {
+      if (item.name === "Kit de Reparos Básico" && shipHP < 3 && user) {
+        onRepairShip();
+
+        // Update inventory by removing one item
+        setShipInventory((currentInventory) => {
+          const updatedInventory = currentInventory
+            .map((invItem) =>
+              invItem.id === item.id
+                ? { ...invItem, quantity: invItem.quantity - 1 }
+                : invItem,
+            )
+            .filter((invItem) => invItem.quantity > 0);
+
+          // Save to localStorage
+          localStorage.setItem(
+            `ship-inventory-${user.id}`,
+            JSON.stringify(updatedInventory),
+          );
+
+          return updatedInventory;
+        });
+      }
+    },
+    [shipHP, user, onRepairShip],
+  );
+
+  const inspectItem = useCallback((item: ShipInventoryItem) => {
+    // Show item details (could be expanded to show a modal)
+    console.log("Inspecting item:", item);
+  }, []);
+
+  const discardItem = useCallback(
+    (item: ShipInventoryItem) => {
+      if (!user) return;
+
+      const updatedInventory = shipInventory
+        .map((invItem) =>
+          invItem.id === item.id
+            ? { ...invItem, quantity: invItem.quantity - 1 }
+            : invItem,
+        )
+        .filter((invItem) => invItem.quantity > 0);
+
+      setShipInventory(updatedInventory);
+      localStorage.setItem(
+        `ship-inventory-${user.id}`,
+        JSON.stringify(updatedInventory),
+      );
+    },
+    [user, shipInventory],
+  );
+
   // Load ship inventory from localStorage
   useEffect(() => {
     if (isOpen && user) {
@@ -62,18 +117,35 @@ export const ShipActionsModal: React.FC<ShipActionsModalProps> = ({
       if (savedInventory) {
         try {
           const inventory = JSON.parse(savedInventory);
-          setShipInventory(
-            inventory.map((item: any) => ({
+          const migratedInventory = inventory.map((item: ShipInventoryItem) => {
+            // Migrate old item names
+            if (item.name === "Chave de fenda") {
+              return {
+                ...item,
+                name: "Kit de Reparos Básico",
+                id: "repair_kit",
+                icon: Wrench,
+              };
+            }
+            return {
               ...item,
               icon: Wrench, // Default icon for tools
-            })),
+            };
+          });
+
+          setShipInventory(migratedInventory);
+
+          // Save migrated data back to localStorage
+          localStorage.setItem(
+            `ship-inventory-${user.id}`,
+            JSON.stringify(migratedInventory),
           );
         } catch (e) {
           console.error("Error loading ship inventory:", e);
         }
       }
     }
-  }, [isOpen, user, shipHP, onRepairShip, shipInventory]);
+  }, [isOpen, user]);
 
   // Handle ESC key and reset modal state
   useEffect(() => {
@@ -120,27 +192,6 @@ export const ShipActionsModal: React.FC<ShipActionsModalProps> = ({
     setCurrentView("main");
   };
 
-  const useInventoryItem = (item: ShipInventoryItem) => {
-    if (item.name === "Chave de fenda" && shipHP < 3 && user) {
-      onRepairShip();
-
-      // Remove one item from inventory
-      const updatedInventory = shipInventory
-        .map((invItem) =>
-          invItem.id === item.id
-            ? { ...invItem, quantity: invItem.quantity - 1 }
-            : invItem,
-        )
-        .filter((invItem) => invItem.quantity > 0);
-
-      setShipInventory(updatedInventory);
-      localStorage.setItem(
-        `ship-inventory-${user.id}`,
-        JSON.stringify(updatedInventory),
-      );
-    }
-  };
-
   // Function to add items to ship inventory (will be called from NPCModal)
   React.useEffect(() => {
     const handleAddToShipInventory = (event: CustomEvent) => {
@@ -149,10 +200,12 @@ export const ShipActionsModal: React.FC<ShipActionsModalProps> = ({
         const savedInventory = localStorage.getItem(
           `ship-inventory-${user.id}`,
         );
-        let currentInventory = savedInventory ? JSON.parse(savedInventory) : [];
+        const currentInventory = savedInventory
+          ? JSON.parse(savedInventory)
+          : [];
 
         const existingItemIndex = currentInventory.findIndex(
-          (inv: any) => inv.name === item.name,
+          (inv: ShipInventoryItem) => inv.name === item.name,
         );
 
         if (existingItemIndex >= 0) {
@@ -173,12 +226,25 @@ export const ShipActionsModal: React.FC<ShipActionsModalProps> = ({
 
         // Update current state if modal is open
         if (isOpen) {
-          setShipInventory(
-            currentInventory.map((item: any) => ({
-              ...item,
-              icon: Wrench,
-            })),
+          const migratedInventory = currentInventory.map(
+            (item: ShipInventoryItem) => {
+              // Migrate old item names
+              if (item.name === "Chave de fenda") {
+                return {
+                  ...item,
+                  name: "Kit de Reparos Básico",
+                  id: "repair_kit",
+                  icon: Wrench,
+                };
+              }
+              return {
+                ...item,
+                icon: Wrench,
+              };
+            },
           );
+
+          setShipInventory(migratedInventory);
         }
       }
     };
@@ -305,8 +371,8 @@ export const ShipActionsModal: React.FC<ShipActionsModalProps> = ({
                         <p className="text-sm text-gray-600 leading-relaxed">
                           Uma nave versátil projetada para exploração espacial
                           de longo alcance. Equipada com propulsores iônicos
-                          avançados e sistema de navegação quântica, esta nave é
-                          ideal para aventuras intergalácticas.
+                          avançados e sistema de navega��ão quântica, esta nave
+                          é ideal para aventuras intergalácticas.
                         </p>
                       </div>
 
@@ -356,43 +422,51 @@ export const ShipActionsModal: React.FC<ShipActionsModalProps> = ({
                         </p>
                       </div>
                     ) : (
-                      <div className="space-y-2">
+                      <div className="grid grid-cols-4 gap-2">
                         {shipInventory.map((item) => {
-                          const IconComponent = item.icon;
+                          const isRepairKit =
+                            item.name === "Kit de Reparos Básico";
+                          const canUse = !isRepairKit || shipHP < 3;
+
                           return (
-                            <div
+                            <ItemDropdownMenu
                               key={item.id}
-                              className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200"
+                              onInspect={() => inspectItem(item)}
+                              onUse={() => handleUseItem(item)}
+                              onDiscard={() => discardItem(item)}
+                              disabled={!canUse}
                             >
-                              <div className="flex items-center gap-3">
-                                <IconComponent className="w-5 h-5 text-gray-600" />
-                                <div>
-                                  <div className="font-medium text-sm text-gray-800">
-                                    {item.name}
+                              <div className="relative bg-gray-50 rounded-lg border border-gray-200 p-2 w-14 h-14 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-100 transition-colors">
+                                {/* Quantity Badge */}
+                                {item.quantity > 1 && (
+                                  <div className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-medium">
+                                    {item.quantity}
                                   </div>
-                                  <div className="text-xs text-gray-500">
-                                    {item.description}
+                                )}
+
+                                {/* Item Image/Icon */}
+                                <div className="flex-1 flex items-center justify-center">
+                                  {isRepairKit ? (
+                                    <img
+                                      src="https://cdn.builder.io/api/v1/image/assets%2F374f0317fa034d00bf28d60f517709e5%2Fee180bf68c2747bc9236599bba53c46f?format=webp&width=800"
+                                      alt={item.name}
+                                      className="w-6 h-6 object-contain"
+                                    />
+                                  ) : (
+                                    <Wrench className="w-4 h-4 text-gray-600" />
+                                  )}
+                                </div>
+
+                                {/* Item Name */}
+                                <div className="text-center">
+                                  <div className="font-medium text-xs text-gray-800 truncate max-w-full">
+                                    {item.name.length > 6
+                                      ? item.name.substring(0, 6) + "..."
+                                      : item.name}
                                   </div>
                                 </div>
                               </div>
-                              <div className="flex items-center gap-3">
-                                <span className="text-xs text-gray-500">
-                                  x{item.quantity}
-                                </span>
-                                <motion.button
-                                  whileHover={{ scale: 1.05 }}
-                                  whileTap={{ scale: 0.95 }}
-                                  onClick={() => useInventoryItem(item)}
-                                  className="px-3 py-1 bg-blue-600 text-white text-xs rounded-md hover:bg-blue-700 transition-colors"
-                                  disabled={
-                                    item.name === "Chave de fenda" &&
-                                    shipHP >= 3
-                                  }
-                                >
-                                  Usar
-                                </motion.button>
-                              </div>
-                            </div>
+                            </ItemDropdownMenu>
                           );
                         })}
                       </div>

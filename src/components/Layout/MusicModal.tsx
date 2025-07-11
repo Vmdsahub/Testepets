@@ -16,7 +16,7 @@ export const MusicModal: React.FC = () => {
     useMusicContext();
 
   return (
-    <div className="p-4 h-full flex flex-col gap-4">
+    <div className="p-4 h-full flex flex-col gap-2">
       {/* Main Content Row - Centered */}
       <div className="flex items-center justify-center gap-6 flex-1">
         {/* Cover Image - Much Larger */}
