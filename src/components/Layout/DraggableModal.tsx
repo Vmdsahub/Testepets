@@ -1,0 +1,133 @@
+import React, { useState, useRef, useEffect } from "react";
+import { motion, PanInfo } from "framer-motion";
+import { X, Maximize2, Minimize2 } from "lucide-react";
+
+interface DraggableModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  title: string;
+  children: React.ReactNode;
+  defaultPosition?: { x: number; y: number };
+  onPositionChange?: (position: { x: number; y: number }) => void;
+}
+
+export const DraggableModal: React.FC<DraggableModalProps> = ({
+  isOpen,
+  onClose,
+  title,
+  children,
+  defaultPosition = { x: 0, y: 0 },
+  onPositionChange,
+}) => {
+  const [position, setPosition] = useState(defaultPosition);
+  const [isMaximized, setIsMaximized] = useState(false);
+  const constraintsRef = useRef<HTMLDivElement>(null);
+
+  const handleDragEnd = (event: any, info: PanInfo) => {
+    const newPosition = {
+      x: position.x + info.offset.x,
+      y: position.y + info.offset.y,
+    };
+    setPosition(newPosition);
+    onPositionChange?.(newPosition);
+  };
+
+  const toggleMaximize = () => {
+    setIsMaximized(!isMaximized);
+  };
+
+  const modalVariants = {
+    hidden: {
+      opacity: 0,
+      scale: 0.8,
+      y: -50,
+    },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 400,
+        damping: 25,
+      },
+    },
+    exit: {
+      opacity: 0,
+      scale: 0.8,
+      y: -50,
+      transition: {
+        duration: 0.2,
+      },
+    },
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div
+      ref={constraintsRef}
+      className="fixed inset-0 z-[100] pointer-events-none"
+    >
+      <motion.div
+        className="absolute pointer-events-auto"
+        style={{
+          width: isMaximized ? "95vw" : "800px",
+          height: isMaximized ? "90vh" : "600px",
+          maxWidth: isMaximized ? "none" : "90vw",
+          maxHeight: isMaximized ? "none" : "85vh",
+          left: isMaximized ? "2.5vw" : "50%",
+          top: isMaximized ? "5vh" : "50%",
+          transform: isMaximized ? "none" : "translate(-50%, -50%)",
+          x: isMaximized ? 0 : position.x,
+          y: isMaximized ? 0 : position.y,
+        }}
+        drag={!isMaximized}
+        dragConstraints={constraintsRef}
+        dragElastic={0.1}
+        dragMomentum={false}
+        onDragEnd={handleDragEnd}
+        variants={modalVariants}
+        initial="hidden"
+        animate="visible"
+        exit="exit"
+        className="bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden flex flex-col"
+      >
+        {/* Header */}
+        <div
+          className="bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between cursor-move select-none"
+          style={{ cursor: isMaximized ? "default" : "move" }}
+        >
+          <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
+          <div className="flex items-center space-x-2">
+            <motion.button
+              onClick={toggleMaximize}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              {isMaximized ? (
+                <Minimize2 className="w-4 h-4 text-gray-500" />
+              ) : (
+                <Maximize2 className="w-4 h-4 text-gray-500" />
+              )}
+            </motion.button>
+            <motion.button
+              onClick={onClose}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <X className="w-4 h-4 text-gray-500" />
+            </motion.button>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-hidden">
+          <div className="h-full overflow-y-auto">{children}</div>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
