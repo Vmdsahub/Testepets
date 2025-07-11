@@ -1234,10 +1234,12 @@ const SpaceMapComponent: React.FC = () => {
 
   // Repair ship function
   const repairShip = useCallback(() => {
+    console.log("repairShip called");
     setShipHP((prev) => {
       const newHP = Math.min(prev + 1, 3);
       setShowHPBar(true);
 
+      console.log("Adding repair notification, new HP:", newHP);
       addNotification({
         type: "success",
         message: `Nave reparada! HP: ${newHP}/3`,
