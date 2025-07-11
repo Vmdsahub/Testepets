@@ -93,6 +93,7 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
           transform: isMaximized ? "none" : "translate(-50%, -50%)",
         }}
         animate={{
+          ...modalVariants.visible,
           x: isMaximized ? 0 : position.x,
           y: isMaximized ? 0 : position.y,
         }}
@@ -105,7 +106,6 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
         whileDrag={{ scale: 1.02, zIndex: 300 }}
         variants={modalVariants}
         initial="hidden"
-        animate="visible"
         exit="exit"
       >
         {/* Header */}
