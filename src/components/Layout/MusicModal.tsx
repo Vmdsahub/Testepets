@@ -12,33 +12,32 @@ import { useMusicContext } from "../../contexts/MusicContext";
 
 export const MusicModal: React.FC = () => {
   const { user } = useGameStore();
-  const {
-    isPlaying,
-    currentTrack,
-    isLoading,
-    volume,
-    setVolume,
-    togglePlayPause,
-    nextTrack,
-    previousTrack,
-  } = useMusicContext();
+  const { isPlaying, currentTrack, volume, setVolume, play, pause } =
+    useMusicContext();
+
+  const togglePlayPause = () => {
+    if (isPlaying) {
+      pause();
+    } else {
+      play();
+    }
+  };
 
   return (
     <div className="p-6 h-full flex flex-col justify-center items-center">
       {/* Cover Image */}
-      <div className="w-32 h-32 bg-gradient-to-br from-blue-400 via-blue-500 to-purple-600 rounded-2xl mb-6 flex items-center justify-center shadow-lg">
-        <MusicIcon className="w-16 h-16 text-white" />
+      <div className="w-40 h-40 bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-600 rounded-3xl mb-6 flex items-center justify-center shadow-2xl relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent"></div>
+        <MusicIcon className="w-20 h-20 text-white z-10" />
+        <div className="absolute bottom-2 right-2 w-3 h-3 bg-green-400 rounded-full shadow-lg animate-pulse"></div>
       </div>
 
       {/* Track Info */}
       <div className="text-center mb-8">
-        <h4 className="font-semibold text-gray-900 mb-1 text-lg">
+        <h4 className="font-bold text-gray-900 mb-2 text-xl">
           {currentTrack?.name || "Música Galáctica"}
         </h4>
-        <p className="text-sm text-gray-600">XenoPets Soundtrack</p>
-        <p className="text-xs text-gray-500 mt-2">
-          Olá, {user?.username || "Jogador"}!
-        </p>
+        <p className="text-sm text-gray-600 font-medium">XenoPets Soundtrack</p>
       </div>
 
       {/* Play/Pause Control */}
@@ -50,9 +49,7 @@ export const MusicModal: React.FC = () => {
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
         >
-          {isLoading ? (
-            <div className="w-8 h-8 border-3 border-white border-t-transparent rounded-full animate-spin" />
-          ) : isPlaying ? (
+          {isPlaying ? (
             <Pause className="w-8 h-8 text-white" />
           ) : (
             <Play className="w-8 h-8 text-white ml-1" />
@@ -75,19 +72,28 @@ export const MusicModal: React.FC = () => {
             <Volume2 className="w-5 h-5 text-blue-600" />
           )}
           <div className="flex-1 relative">
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.05"
-              value={volume}
-              onChange={(e) => setVolume(Number(e.target.value))}
-              className="w-full h-3 bg-gray-200 rounded-full appearance-none cursor-pointer"
-              style={{
-                background: `linear-gradient(to right, #3b82f6 0%, #60a5fa ${volume * 100}%, #e5e7eb ${volume * 100}%, #e5e7eb 100%)`,
-                boxShadow: `0 0 10px rgba(59, 130, 246, ${volume * 0.5})`,
-              }}
-            />
+            <div className="relative">
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.05"
+                value={volume}
+                onChange={(e) => setVolume(Number(e.target.value))}
+                className="w-full h-4 bg-gray-200 rounded-full appearance-none cursor-pointer slider-luminous"
+                style={{
+                  background: `linear-gradient(to right, #2563eb 0%, #3b82f6 ${volume * 50}%, #60a5fa ${volume * 100}%, #e5e7eb ${volume * 100}%, #e5e7eb 100%)`,
+                }}
+              />
+              <div
+                className="absolute top-0 left-0 h-4 bg-gradient-to-r from-blue-500 to-cyan-400 rounded-full pointer-events-none transition-all duration-200"
+                style={{
+                  width: `${volume * 100}%`,
+                  boxShadow: `0 0 20px rgba(59, 130, 246, ${volume * 0.8}), 0 0 40px rgba(59, 130, 246, ${volume * 0.4})`,
+                  filter: `brightness(${1 + volume * 0.5})`,
+                }}
+              ></div>
+            </div>
           </div>
         </div>
       </div>
