@@ -174,6 +174,7 @@ function App() {
       case "otherUserCollectibles":
         return <OtherUserCollectiblesScreen />;
       case "planet":
+        console.log("📱 App.tsx: Renderizando PlanetScreen");
         return <PlanetScreen />;
       case "exploration":
         return <ExplorationScreen />;
