@@ -17,12 +17,14 @@ const navigationItems = [
 
 interface BottomPillNavigationProps {
   openModal: (modalId: string) => void;
+  closeModal: (modalId: string) => void;
   closeAllModals: () => void;
   openModals?: string[];
 }
 
 export const BottomPillNavigation: React.FC<BottomPillNavigationProps> = ({
   openModal,
+  closeModal,
   closeAllModals,
   openModals = [],
 }) => {
