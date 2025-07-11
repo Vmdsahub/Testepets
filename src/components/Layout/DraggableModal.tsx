@@ -10,6 +10,8 @@ interface DraggableModalProps {
   modalId: string;
   defaultPosition?: { x: number; y: number };
   onPositionChange?: (position: { x: number; y: number }) => void;
+  zIndex?: number;
+  onInteraction?: () => void;
 }
 
 export const DraggableModal: React.FC<DraggableModalProps> = ({
@@ -20,6 +22,8 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
   modalId,
   defaultPosition = { x: 0, y: 0 },
   onPositionChange,
+  zIndex = 200,
+  onInteraction,
 }) => {
   // Get saved position from localStorage or use center of screen
   const getSavedPosition = () => {
@@ -38,6 +42,7 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
 
   const handleDragStart = () => {
     setIsDragging(true);
+    onInteraction?.(); // Bring modal to front when dragging starts
   };
 
   const handleDragEnd = (event: any, info: PanInfo) => {
@@ -65,15 +70,21 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
     onClose();
   };
 
+  const handleModalClick = () => {
+    onInteraction?.(); // Bring modal to front when clicked
+  };
+
   if (!isOpen) return null;
 
   return (
     <div
       ref={constraintsRef}
-      className="fixed inset-0 z-[200] pointer-events-none"
+      className="fixed inset-0 pointer-events-none"
+      style={{ zIndex }}
     >
       <motion.div
         className="absolute pointer-events-auto bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden flex flex-col"
+        onClick={handleModalClick}
         style={{
           width: isMaximized ? "95vw" : "950px",
           height: isMaximized ? "90vh" : "750px",
@@ -113,7 +124,7 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
         dragMomentum={false}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
-        whileDrag={{ scale: 1.02, zIndex: 300 }}
+        whileDrag={{ scale: 1.02 }}
       >
         {/* Header */}
         <div
