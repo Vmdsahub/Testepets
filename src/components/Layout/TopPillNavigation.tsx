@@ -20,10 +20,7 @@ export const TopPillNavigation: React.FC<TopPillNavigationProps> = ({
     xenocoins,
     cash,
     notifications,
-    markNotificationAsRead,
     markAllNotificationsAsRead,
-    deleteNotification,
-    clearNotifications,
     canClaimDailyCheckin,
   } = useGameStore();
 
