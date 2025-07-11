@@ -14,6 +14,7 @@ export interface UseBackgroundMusicReturn {
   play: () => Promise<void>;
   pause: () => Promise<void>;
   stop: () => Promise<void>;
+  togglePlayPause: () => Promise<void>;
   nextTrack: () => Promise<void>;
   previousTrack: () => Promise<void>;
   setVolume: (volume: number) => void;
