@@ -17,10 +17,10 @@ export const MusicModal: React.FC = () => {
 
   return (
     <div className="p-4 h-full flex flex-col gap-4">
-      {/* Main Content - Centered */}
-      <div className="flex flex-col items-center gap-3 flex-1">
-        {/* Cover Image - Centered and Larger */}
-        <div className="w-24 h-24 rounded-xl overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 shadow-lg flex-shrink-0">
+      {/* Main Content Row - Centered */}
+      <div className="flex items-center justify-center gap-4 flex-1">
+        {/* Cover Image - Larger */}
+        <div className="w-16 h-16 rounded-xl overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 shadow-lg flex-shrink-0">
           {currentTrack?.coverImage ? (
             <img
               src={currentTrack.coverImage}
@@ -33,14 +33,14 @@ export const MusicModal: React.FC = () => {
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <MusicIcon className="w-12 h-12 text-white" />
+              <MusicIcon className="w-8 h-8 text-white" />
             </div>
           )}
         </div>
 
-        {/* Track Info - Centered */}
-        <div className="text-center">
-          <h4 className="font-medium text-gray-900 text-base mb-1">
+        {/* Track Info - Next to image */}
+        <div className="flex-1 min-w-0">
+          <h4 className="font-medium text-gray-900 text-base mb-1 truncate">
             {currentTrack?.name || "Música Galáctica"}
           </h4>
           <p className="text-sm text-gray-500">XenoPets</p>
