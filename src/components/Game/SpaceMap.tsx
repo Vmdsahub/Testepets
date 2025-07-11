@@ -4394,11 +4394,20 @@ const SpaceMapComponent: React.FC = () => {
           </>
         ) : (
           <>
-            <div>• Mouse: Mover nave</div>
-            <div>• Click: Atirar/Planeta</div>
+            <div>• {isMobile ? "Touch: Mover nave" : "Mouse: Mover nave"}</div>
+            <div>• {isMobile ? "Botão: Atirar" : "Click: Atirar/Planeta"}</div>
           </>
         )}
       </div>
+
+      {/* Mobile Touch Controls */}
+      {isMobile && !showLandingModal && !isLandingAnimationActive && (
+        <MobileTouchControls
+          onMovement={handleMobileMovement}
+          onShoot={handleMobileShoot}
+          isShootingDisabled={shipHP <= 0}
+        />
+      )}
     </div>
   );
 };
