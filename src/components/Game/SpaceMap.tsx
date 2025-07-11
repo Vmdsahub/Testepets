@@ -250,7 +250,7 @@ const SpaceMapComponent: React.FC = () => {
       setCurrentScreen("planet");
       pendingScreenTransition.current = null;
     }
-  });
+  }, [setCurrentPlanet, setCurrentScreen]);
 
   // Initialize state from store or use defaults
   const getInitialGameState = useCallback((): GameState => {
