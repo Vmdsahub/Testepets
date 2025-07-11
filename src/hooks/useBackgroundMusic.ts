@@ -155,6 +155,7 @@ export const useBackgroundMusic = (): UseBackgroundMusicReturn => {
     play,
     pause,
     stop,
+    togglePlayPause,
     nextTrack,
     previousTrack,
     setVolume,
