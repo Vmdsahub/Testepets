@@ -187,15 +187,31 @@ function App() {
   }, [isAuthenticated, currentScreen, gameUser?.isAdmin, openModals]);
 
   const pageVariants = {
-    initial: { opacity: 0, scale: 0.98, y: 10 },
-    in: { opacity: 1, scale: 1, y: 0 },
-    out: { opacity: 0, scale: 0.98, y: -10 },
+    initial: {
+      opacity: 0,
+      scale: 0.95,
+      y: 20,
+      filter: "blur(4px)",
+    },
+    in: {
+      opacity: 1,
+      scale: 1,
+      y: 0,
+      filter: "blur(0px)",
+    },
+    out: {
+      opacity: 0,
+      scale: 1.05,
+      y: -20,
+      filter: "blur(4px)",
+    },
   };
 
   const pageTransition = {
-    type: "tween",
-    ease: "easeInOut",
-    duration: 0.6,
+    type: "spring",
+    stiffness: 300,
+    damping: 30,
+    mass: 0.8,
   };
 
   // If not authenticated, just return the auth screen directly
