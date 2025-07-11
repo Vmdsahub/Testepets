@@ -176,6 +176,44 @@ canvas {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
+/* Luminous volume slider styles */
+.slider-luminous::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(45deg, #3b82f6, #60a5fa);
+  cursor: pointer;
+  border: 3px solid white;
+  box-shadow:
+    0 0 15px rgba(59, 130, 246, 0.8),
+    0 0 30px rgba(59, 130, 246, 0.4);
+  position: relative;
+  z-index: 10;
+}
+
+.slider-luminous::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(45deg, #3b82f6, #60a5fa);
+  cursor: pointer;
+  border: 3px solid white;
+  box-shadow:
+    0 0 15px rgba(59, 130, 246, 0.8),
+    0 0 30px rgba(59, 130, 246, 0.4);
+}
+
+.slider-luminous::-webkit-slider-track {
+  background: transparent;
+  border-radius: 8px;
+}
+
+.slider-luminous::-moz-range-track {
+  background: transparent;
+  border-radius: 8px;
+}
+
 /* Touch-friendly input ranges */
 input[type="range"] {
   touch-action: manipulation;

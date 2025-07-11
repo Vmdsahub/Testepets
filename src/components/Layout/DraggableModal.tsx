@@ -125,25 +125,39 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
         onDragEnd={handleDragEnd}
         whileDrag={{ scale: 1.02 }}
       >
-        {/* Header */}
-        <div className="bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between select-none cursor-move">
-          <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
-          <div className="flex items-center space-x-2">
+        {/* Header - Only show if title exists */}
+        {title && (
+          <div className="bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between select-none cursor-move">
+            <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
+            <div className="flex items-center space-x-2">
+              <motion.button
+                onClick={handleClose}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <X className="w-4 h-4 text-gray-500" />
+              </motion.button>
+            </div>
+          </div>
+        )}
+
+        {/* Close button for headerless modals */}
+        {!title && (
+          <div className="absolute top-2 right-2 z-10">
             <motion.button
               onClick={handleClose}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+              className="p-1 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer bg-white shadow-sm"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
               <X className="w-4 h-4 text-gray-500" />
             </motion.button>
           </div>
-        </div>
+        )}
 
         {/* Content */}
-        <div className="flex-1 overflow-hidden">
-          <div className="h-full overflow-y-auto">{children}</div>
-        </div>
+        <div className="flex-1 overflow-hidden">{children}</div>
       </motion.div>
     </div>
   );

@@ -14,6 +14,7 @@ export interface UseBackgroundMusicReturn {
   play: () => Promise<void>;
   pause: () => Promise<void>;
   stop: () => Promise<void>;
+  togglePlayPause: () => Promise<void>;
   nextTrack: () => Promise<void>;
   previousTrack: () => Promise<void>;
   setVolume: (volume: number) => void;
@@ -65,6 +66,14 @@ export const useBackgroundMusic = (): UseBackgroundMusicReturn => {
     await backgroundMusicService.previousTrack();
     updateState();
   }, [updateState]);
+
+  const togglePlayPause = useCallback(async () => {
+    if (isPlaying) {
+      await pause();
+    } else {
+      await play();
+    }
+  }, [isPlaying, play, pause]);
 
   const setVolume = useCallback(
     (newVolume: number) => {
@@ -146,6 +155,7 @@ export const useBackgroundMusic = (): UseBackgroundMusicReturn => {
     play,
     pause,
     stop,
+    togglePlayPause,
     nextTrack,
     previousTrack,
     setVolume,

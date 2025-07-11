@@ -60,7 +60,7 @@ export const ModalManager: React.FC<ModalManagerProps> = ({
       profile: { width: 712, height: 750 }, // -25% horizontal (950 * 0.75 = 712)
       admin: { width: 950, height: 750 }, // Manter tamanho original
       notifications: { width: 380, height: 500 }, // Compact size for notifications
-      music: { width: 450, height: 300 }, // Compact size for music player
+      music: { width: 300, height: 250 }, // Compact minimalist size
     };
     return sizes[modalId as keyof typeof sizes] || { width: 950, height: 750 };
   };
@@ -88,10 +88,8 @@ export const ModalManager: React.FC<ModalManagerProps> = ({
     },
     {
       id: "music",
-      title: "Música",
-      component: (
-        <MusicModal isOpen={true} onClose={() => onCloseModal("music")} />
-      ),
+      title: "",
+      component: <MusicModal />,
     },
     ...(user?.isAdmin
       ? [

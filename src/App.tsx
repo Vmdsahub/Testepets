@@ -132,6 +132,17 @@ function App() {
     };
   }, [isAuthenticated]);
 
+  // Handle modal screen redirects
+  useEffect(() => {
+    if (
+      isAuthenticated &&
+      ["pet", "inventory", "profile", "admin"].includes(currentScreen)
+    ) {
+      setCurrentScreen("world");
+      setTimeout(() => openModal(currentScreen), 100);
+    }
+  }, [isAuthenticated, currentScreen]);
+
   const renderScreen = useMemo(() => {
     if (!isAuthenticated) {
       return <AuthScreen />;
@@ -162,9 +173,7 @@ function App() {
       case "inventory":
       case "profile":
       case "admin":
-        // Auto-redirect to world and open the modal
-        setCurrentScreen("world");
-        setTimeout(() => openModal(currentScreen), 100);
+        // Show SpaceMap while redirect is processing
         return (
           <>
             <SpaceMap />

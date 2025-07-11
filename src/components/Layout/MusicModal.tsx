@@ -10,137 +10,108 @@ import { motion } from "framer-motion";
 import { useGameStore } from "../../store/gameStore";
 import { useMusicContext } from "../../contexts/MusicContext";
 
-interface MusicModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
-
-export const MusicModal: React.FC<MusicModalProps> = ({ isOpen, onClose }) => {
+export const MusicModal: React.FC = () => {
   const { user } = useGameStore();
-  const {
-    isPlaying,
-    currentTrack,
-    isLoading,
-    volume,
-    setVolume,
-    togglePlayPause,
-    nextTrack,
-    previousTrack,
-  } = useMusicContext();
-
-  if (!isOpen) return null;
+  const { isPlaying, currentTrack, volume, setVolume, togglePlayPause } =
+    useMusicContext();
 
   return (
-    <div className="w-96 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-      {/* Header */}
-      <div className="p-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-purple-50">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <MusicIcon className="w-5 h-5 text-blue-600" />
+    <div className="p-3 h-full flex flex-col gap-3">
+      {/* Main Content Row */}
+      <div className="flex items-center gap-3 flex-1">
+        {/* Cover Image - Left Side - Larger */}
+        <div className="w-20 h-20 rounded-lg overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 shadow-md flex-shrink-0">
+          {currentTrack?.coverImage ? (
+            <img
+              src={currentTrack.coverImage}
+              alt={currentTrack.name}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.style.display = "none";
+              }}
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <MusicIcon className="w-10 h-10 text-white" />
             </div>
-            <div>
-              <h3 className="font-semibold text-gray-900">Player de Música</h3>
-              <p className="text-sm text-gray-600">
-                Olá, {user?.username || "Jogador"}!
-              </p>
-            </div>
-          </div>
+          )}
+        </div>
+
+        {/* Track Info - Right Side */}
+        <div className="flex-1 min-w-0">
+          <h4 className="font-medium text-gray-900 text-sm truncate mb-1">
+            {currentTrack?.name || "Música Galáctica"}
+          </h4>
+          <p className="text-xs text-gray-500">XenoPets</p>
         </div>
       </div>
 
-      {/* Music Player Content */}
-      <div className="p-6">
-        {/* Track Info */}
-        <div className="text-center mb-6">
-          <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full mx-auto mb-3 flex items-center justify-center">
-            <MusicIcon className="w-8 h-8 text-white" />
+      {/* Controls Row - Bottom */}
+      <div className="flex items-center gap-2">
+        <Volume2 className="w-4 h-4 text-blue-600 flex-shrink-0" />
+
+        <button
+          onClick={togglePlayPause}
+          className="text-blue-600 hover:text-blue-700 transition-colors flex-shrink-0 p-0"
+        >
+          {isPlaying ? (
+            <Pause className="w-4 h-4" />
+          ) : (
+            <Play className="w-4 h-4" />
+          )}
+        </button>
+
+        <div
+          className="flex-1 relative"
+          onMouseDown={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
+        >
+          <div className="w-full h-1.5 bg-gray-200 rounded-full">
+            <div
+              className="h-full bg-gradient-to-r from-blue-500 to-cyan-400 rounded-full transition-all duration-300 pointer-events-none"
+              style={{
+                width: `${volume * 100}%`,
+                boxShadow: `0 0 6px rgba(59, 130, 246, 1), 0 0 12px rgba(59, 130, 246, 0.7)`,
+                filter: "brightness(1.2)",
+              }}
+            ></div>
           </div>
-          <h4 className="font-medium text-gray-900 mb-1">
-            {currentTrack?.name || "Música Galáctica"}
-          </h4>
-          <p className="text-sm text-gray-600">XenoPets Soundtrack</p>
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.05"
+            value={volume}
+            onChange={(e) => {
+              e.stopPropagation();
+              setVolume(Number(e.target.value));
+            }}
+            onMouseDown={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+            }}
+            onTouchStart={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+            }}
+            onPointerDown={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+            }}
+            onDragStart={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+            }}
+            className="absolute inset-0 w-full opacity-0 cursor-pointer z-10"
+            style={{ touchAction: "none" }}
+          />
         </div>
 
-        {/* Controls */}
-        <div className="flex items-center justify-center gap-4 mb-6">
-          <motion.button
-            onClick={previousTrack}
-            className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-          >
-            <svg
-              className="w-5 h-5 text-gray-600"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path d="M8.445 14.832A1 1 0 0 0 10 14v-2.798l5.445 3.63A1 1 0 0 0 17 14V6a1 1 0 0 0-1.555-.832L10 8.798V6a1 1 0 0 0-1.555-.832l-6 4a1 1 0 0 0 0 1.664l6 4z" />
-            </svg>
-          </motion.button>
-
-          <motion.button
-            onClick={togglePlayPause}
-            disabled={isLoading}
-            className="p-3 rounded-full bg-blue-500 hover:bg-blue-600 disabled:opacity-50 transition-colors"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-          >
-            {isLoading ? (
-              <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
-            ) : isPlaying ? (
-              <Pause className="w-6 h-6 text-white" />
-            ) : (
-              <Play className="w-6 h-6 text-white ml-1" />
-            )}
-          </motion.button>
-
-          <motion.button
-            onClick={nextTrack}
-            className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-          >
-            <svg
-              className="w-5 h-5 text-gray-600"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path d="M4.555 5.168A1 1 0 0 0 3 6v8a1 1 0 0 0 1.555.832L10 11.202V14a1 1 0 0 0 1.555.832l6-4a1 1 0 0 0 0-1.664l-6-4A1 1 0 0 0 10 6v2.798L4.555 5.168z" />
-            </svg>
-          </motion.button>
-        </div>
-
-        {/* Volume Control */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-gray-700">Volume</span>
-            <span className="text-sm text-gray-500">
-              {Math.round(volume * 100)}%
-            </span>
-          </div>
-          <div className="flex items-center gap-3">
-            {volume === 0 ? (
-              <VolumeX className="w-4 h-4 text-gray-400" />
-            ) : (
-              <Volume2 className="w-4 h-4 text-gray-600" />
-            )}
-            <div className="flex-1">
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.1"
-                value={volume}
-                onChange={(e) => setVolume(Number(e.target.value))}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                style={{
-                  background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${volume * 100}%, #e5e7eb ${volume * 100}%, #e5e7eb 100%)`,
-                }}
-              />
-            </div>
-          </div>
-        </div>
+        <span className="text-xs text-blue-700 font-medium w-7 text-center flex-shrink-0">
+          {Math.round(volume * 100)}%
+        </span>
       </div>
     </div>
   );
