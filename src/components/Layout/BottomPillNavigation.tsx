@@ -56,9 +56,7 @@ export const BottomPillNavigation: React.FC<BottomPillNavigationProps> = ({
 
   const handleItemClick = (id: string) => {
     if (id === "world") {
-      // Close all modals when returning to world view
-      closeAllModals();
-      // Smart navigation based on current screen
+      // Smart navigation based on current screen - don't close modals
       if (currentScreen === "exploration") {
         console.log(`🌍 Retornando ao planeta`);
         setCurrentScreen("planet");
