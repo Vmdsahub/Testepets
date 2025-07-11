@@ -209,9 +209,10 @@ function App() {
 
   const pageTransition = {
     type: "spring",
-    stiffness: 300,
-    damping: 30,
-    mass: 0.8,
+    stiffness: 400,
+    damping: 25,
+    mass: 0.6,
+    velocity: 2,
   };
 
   // If not authenticated, just return the auth screen directly
