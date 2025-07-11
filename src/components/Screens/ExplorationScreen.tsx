@@ -36,7 +36,7 @@ export const ExplorationScreen: React.FC = () => {
     setCurrentScreen("planet");
   };
 
-    return (
+  return (
     <motion.div
       className="h-full w-full pt-20 pb-20 px-4 overflow-y-auto"
       initial={{ opacity: 0, y: 20 }}
@@ -117,7 +117,7 @@ export const ExplorationScreen: React.FC = () => {
                 </div>
               </div>
             </motion.div>
-                    )}
+          )}
 
           {/* Back button */}
           <div className="flex justify-center mt-6">
@@ -131,8 +131,8 @@ export const ExplorationScreen: React.FC = () => {
               Voltar ao Planeta
             </motion.button>
           </div>
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 };
