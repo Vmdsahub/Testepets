@@ -34,9 +34,9 @@ export const BottomPillNavigation: React.FC<BottomPillNavigationProps> = ({
   // Track the last world-related screen the user was on
   const lastWorldScreenRef = useRef<string>("world");
 
-  // Update lastWorldScreen when user is on world or planet
+  // Update lastWorldScreen when user is on world, planet or exploration
   useEffect(() => {
-    if (currentScreen === "world" || currentScreen === "planet") {
+    if (["world", "planet", "exploration"].includes(currentScreen)) {
       lastWorldScreenRef.current = currentScreen;
     }
   }, [currentScreen]);
