@@ -23,35 +23,32 @@ export const ModalManager: React.FC<ModalManagerProps> = ({
   onCloseModal,
 }) => {
   const { user } = useGameStore();
-  const [activeModalId, setActiveModalId] = useState<string | null>(null);
-  const [previousOpenModals, setPreviousOpenModals] = useState<string[]>([]);
+  // Keep track of modal order - last in array = highest z-index
+  const [modalOrder, setModalOrder] = useState<string[]>([]);
 
-  // When a new modal opens, make it active
+  // Update modal order when openModals changes
   React.useEffect(() => {
-    if (openModals.length > 0) {
-      // Find which modal was just opened
-      const newModal = openModals.find(
-        (modal) => !previousOpenModals.includes(modal),
-      );
+    // Remove closed modals from order
+    const validOrder = modalOrder.filter((id) => openModals.includes(id));
 
-      if (newModal) {
-        // A new modal was opened, make it active
-        setActiveModalId(newModal);
-      } else if (!activeModalId || !openModals.includes(activeModalId)) {
-        // No new modal, but current active is not valid, use the last one
-        setActiveModalId(openModals[openModals.length - 1]);
-      }
-    } else {
-      // No modals open
-      setActiveModalId(null);
-    }
+    // Add new modals to the end (making them top)
+    const newModals = openModals.filter((id) => !validOrder.includes(id));
+    const updatedOrder = [...validOrder, ...newModals];
 
-    // Update previous modals list
-    setPreviousOpenModals(openModals);
-  }, [openModals, activeModalId, previousOpenModals]);
+    setModalOrder(updatedOrder);
+  }, [openModals]);
 
   const handleModalInteraction = (modalId: string) => {
-    setActiveModalId(modalId);
+    // Move interacted modal to end (top)
+    setModalOrder((prev) => {
+      const filtered = prev.filter((id) => id !== modalId);
+      return [...filtered, modalId];
+    });
+  };
+
+  const getZIndex = (modalId: string) => {
+    const index = modalOrder.indexOf(modalId);
+    return 200 + index; // Base 200, each modal gets +1
   };
 
   const modalConfigs: ModalConfig[] = [
@@ -99,9 +96,6 @@ export const ModalManager: React.FC<ModalManagerProps> = ({
         const isOpen = openModals.includes(config.id);
         if (!isOpen) return null;
 
-        const isActive = activeModalId === config.id;
-        const zIndex = isActive ? 250 : 200; // Active modal gets higher z-index
-
         return (
           <DraggableModal
             key={config.id}
@@ -110,7 +104,7 @@ export const ModalManager: React.FC<ModalManagerProps> = ({
             title={config.title}
             modalId={config.id}
             defaultPosition={getModalPosition(config.id, index)}
-            zIndex={zIndex}
+            zIndex={getZIndex(config.id)}
             onInteraction={() => handleModalInteraction(config.id)}
           >
             {config.component}
