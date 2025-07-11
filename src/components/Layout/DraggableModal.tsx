@@ -7,6 +7,7 @@ interface DraggableModalProps {
   onClose: () => void;
   title: string;
   children: React.ReactNode;
+  modalId: string;
   defaultPosition?: { x: number; y: number };
   onPositionChange?: (position: { x: number; y: number }) => void;
 }
@@ -16,10 +17,21 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
   onClose,
   title,
   children,
+  modalId,
   defaultPosition = { x: 0, y: 0 },
   onPositionChange,
 }) => {
-  const [position, setPosition] = useState(defaultPosition);
+  // Get saved position from localStorage or use center of screen
+  const getSavedPosition = () => {
+    const saved = localStorage.getItem(`modal-position-${modalId}`);
+    if (saved) {
+      return JSON.parse(saved);
+    }
+    // Center position (0,0 means centered due to transform: translate(-50%, -50%))
+    return { x: 0, y: 0 };
+  };
+
+  const [position, setPosition] = useState(getSavedPosition);
   const [isMaximized, setIsMaximized] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const constraintsRef = useRef<HTMLDivElement>(null);
@@ -35,6 +47,11 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
       y: position.y + info.offset.y,
     };
     setPosition(newPosition);
+    // Save position to localStorage
+    localStorage.setItem(
+      `modal-position-${modalId}`,
+      JSON.stringify(newPosition),
+    );
     onPositionChange?.(newPosition);
   };
 
