@@ -158,9 +158,19 @@ function App() {
       case "otherUserCollectibles":
         return <OtherUserCollectiblesScreen />;
       case "planet":
-        return <PlanetScreen />;
+        return (
+          <>
+            <PlanetScreen />
+            <ModalManager openModals={openModals} onCloseModal={closeModal} />
+          </>
+        );
       case "exploration":
-        return <ExplorationScreen />;
+        return (
+          <>
+            <ExplorationScreen />
+            <ModalManager openModals={openModals} onCloseModal={closeModal} />
+          </>
+        );
       // Modal screens are now handled by ModalManager when on world screen
       case "pet":
       case "inventory":
