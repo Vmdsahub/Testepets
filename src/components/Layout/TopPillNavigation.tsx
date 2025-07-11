@@ -88,17 +88,17 @@ export const TopPillNavigation: React.FC<TopPillNavigationProps> = ({
           <div className="flex items-center justify-between h-full">
             {/* Profile Section */}
             <motion.div
-              className="flex items-center space-x-3"
+              className="flex items-center space-x-2 sm:space-x-3"
               whileHover={{ scale: 1.02 }}
               transition={{ duration: 0.2 }}
             >
               <div className="relative">
-                <div className="w-10 h-10 bg-gradient-to-br from-gray-900 to-gray-700 rounded-full flex items-center justify-center shadow-sm">
-                  <span className="text-white font-medium text-sm">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-gray-900 to-gray-700 rounded-full flex items-center justify-center shadow-sm">
+                  <span className="text-white font-medium text-xs sm:text-sm">
                     {user?.username?.charAt(0) || "P"}
                   </span>
                 </div>
-                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-400 rounded-full border-2 border-white"></div>
+                <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 sm:w-3 sm:h-3 bg-green-400 rounded-full border-2 border-white"></div>
               </div>
             </motion.div>
 
