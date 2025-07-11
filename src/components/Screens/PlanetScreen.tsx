@@ -50,8 +50,16 @@ export const PlanetScreen: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   if (!currentPlanet) {
+    console.log(
+      "❌ PlanetScreen: currentPlanet é null/undefined, retornando null",
+    );
     return null;
   }
+
+  console.log(
+    "✅ PlanetScreen: currentPlanet existe, continuando renderização:",
+    currentPlanet,
+  );
 
   // Generate exploration points for this planet
   useEffect(() => {
