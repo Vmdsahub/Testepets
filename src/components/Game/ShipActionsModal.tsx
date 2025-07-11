@@ -58,7 +58,9 @@ export const ShipActionsModal: React.FC<ShipActionsModalProps> = ({
   const { user } = useGameStore();
   const handleUseItem = useCallback(
     (item: ShipInventoryItem) => {
+      console.log("handleUseItem called with:", item);
       if (item.name === "Kit de Reparos Básico" && shipHP < 3 && user) {
+        console.log("Using repair kit, calling onRepairShip");
         onRepairShip();
 
         // Remove one item from inventory
