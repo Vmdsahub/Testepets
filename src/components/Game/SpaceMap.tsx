@@ -317,6 +317,13 @@ const SpaceMapComponent: React.FC = () => {
   // Mouse state tracking
   const [mouseInWindow, setMouseInWindow] = useState(true);
 
+  // Mobile controls state
+  const [isMobile, setIsMobile] = useState(false);
+  const [mobileMovementDirection, setMobileMovementDirection] = useState({
+    x: 0,
+    y: 0,
+  });
+
   // Modal state
   const [showLandingModal, setShowLandingModal] = useState(false);
   const [selectedPlanet, setSelectedPlanet] = useState<Planet | null>(null);
