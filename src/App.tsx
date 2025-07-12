@@ -248,7 +248,13 @@ function App() {
         {/* Emergency Navigation Button */}
         {isAuthenticated && currentScreen !== "world" && (
           <button
-            onClick={() => setCurrentScreen("world")}
+            onClick={() => {
+              setCurrentScreen("world");
+              // Also clear any stuck exploration state
+              setCurrentExplorationPoint(null);
+              setCurrentExplorationArea(null);
+              setCurrentPlanet(null);
+            }}
             className="fixed top-4 left-4 z-[9999] bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-full shadow-lg transition-colors font-bold text-sm"
             style={{ zIndex: 99999 }}
           >
