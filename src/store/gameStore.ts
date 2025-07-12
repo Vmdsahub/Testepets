@@ -749,7 +749,7 @@ export const useGameStore = create<GameStore>()(
           description:
             "Uma nave versátil projetada para exploração espacial de longo alcance. Equipada com propulsores iônicos avançados e sistema de navegação quântica.",
           imageUrl:
-            "https://cdn.builder.io/api/v1/image/assets%2Fa34588f934eb4ad690ceadbafd1050c4%2Fb858d05001c14c0dbd4ba321811b959f?format=webp&width=800",
+            "https://cdn.builder.io/api/v1/image/assets%2Fa34588f934eb4ad690ceadbafd1050c4%2F08167028f08f4996b97ed7703ce66292?format=webp&width=800",
           price: 0,
           currency: "xenocoins",
           stats: {
@@ -1015,7 +1015,7 @@ export const useGameStore = create<GameStore>()(
             y: positions[index].y,
             imageUrl:
               "https://cdn.builder.io/api/v1/image/assets%2F6b84993f22904beeb2e1d8d2f128c032%2Faaff2921868f4bbfb24be01b9fdfa6a1?format=webp&width=800",
-            description: `Uma área fascinante conhecida como ${name}. Este local oferece uma experiência única de exploração.`,
+            description: `Uma área fascinante conhecida como ${name}. Este local oferece uma experiência ��nica de exploração.`,
             discovered: false,
             size: 1.0,
             active: true,
