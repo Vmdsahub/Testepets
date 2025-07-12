@@ -2721,6 +2721,17 @@ const SpaceMapComponent: React.FC = () => {
         newState.ship.vx *= frictionFactor;
         newState.ship.vy *= frictionFactor;
 
+        // Limit velocity to max speed
+        const currentSpeed = Math.sqrt(
+          newState.ship.vx * newState.ship.vx +
+            newState.ship.vy * newState.ship.vy,
+        );
+        if (currentSpeed > SHIP_MAX_SPEED) {
+          const ratio = SHIP_MAX_SPEED / currentSpeed;
+          newState.ship.vx *= ratio;
+          newState.ship.vy *= ratio;
+        }
+
         // Calculate potential new position with deltaTime
         const newX = newState.ship.x + newState.ship.vx * deltaTime;
         const newY = newState.ship.y + newState.ship.vy * deltaTime;
