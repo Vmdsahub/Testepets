@@ -1339,6 +1339,17 @@ const SpaceMapComponent: React.FC = () => {
 
       ctx.save();
 
+      // Safety checks to prevent non-finite values
+      if (
+        !isFinite(shipScreenX) ||
+        !isFinite(shipScreenY) ||
+        !isFinite(pulse.radius) ||
+        !isFinite(currentOpacity)
+      ) {
+        ctx.restore();
+        return;
+      }
+
       // Gradiente verde 3D mais vibrante
       const gradient = ctx.createRadialGradient(
         shipScreenX,
@@ -1346,7 +1357,7 @@ const SpaceMapComponent: React.FC = () => {
         0,
         shipScreenX,
         shipScreenY,
-        pulse.radius,
+        Math.max(pulse.radius, 1), // Ensure minimum radius of 1
       );
       gradient.addColorStop(0, `rgba(150, 255, 150, ${currentOpacity})`); // Verde muito claro centro
       gradient.addColorStop(0.4, `rgba(50, 255, 50, ${currentOpacity})`); // Verde claro
