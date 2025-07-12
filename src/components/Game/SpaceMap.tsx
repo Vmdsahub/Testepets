@@ -3220,13 +3220,17 @@ const SpaceMapComponent: React.FC = () => {
             newState.ship.angle = Math.atan2(dy, dx);
 
             if (mouseInWindow && distance > 50) {
-              const speedMultiplier = Math.min(distance / 300, 1);
+              // Smooth speed scaling with exponential curve for more natural feel
+              const normalizedDistance = Math.min(distance / 400, 1); // Increased range for smoother scaling
+              const speedMultiplier = Math.pow(normalizedDistance, 0.7); // Power curve for smoother acceleration
+
               // Apply speed reduction if ship HP is 0 (85% reduction = 15% of original speed)
               const hpSpeedModifier = shipHP <= 0 ? 0.15 : 1.0;
               const targetSpeed =
                 SHIP_MAX_SPEED * speedMultiplier * hpSpeedModifier;
-              newState.ship.vx += (dx / distance) * targetSpeed * 0.04;
-              newState.ship.vy += (dy / distance) * targetSpeed * 0.04;
+              // Reduced acceleration factor for smoother movement
+              newState.ship.vx += (dx / distance) * targetSpeed * 0.025;
+              newState.ship.vy += (dy / distance) * targetSpeed * 0.025;
             }
           }
         }
@@ -4456,7 +4460,7 @@ const SpaceMapComponent: React.FC = () => {
           {/* Rotation Control */}
           <div className="mb-3">
             <label className="block text-xs font-medium text-gray-700 mb-1">
-              Rotaç��o:{" "}
+              Rotaç���o:{" "}
               {Math.round(
                 ((planetsRef.current.find((p) => p.id === selectedWorldId)
                   ?.rotation || 0) *
