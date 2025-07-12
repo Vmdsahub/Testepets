@@ -960,17 +960,6 @@ const SpaceMapComponent: React.FC = () => {
     [generateId, normalizeCoord],
   );
 
-  // Check collision between projectile and asteroid
-  const checkProjectileAsteroidCollision = useCallback(
-    (projectile: Projectile, asteroid: Asteroid) => {
-      const dx = getWrappedDistance(projectile.x, asteroid.x);
-      const dy = getWrappedDistance(projectile.y, asteroid.y);
-      const distance = Math.sqrt(dx * dx + dy * dy);
-      return distance < asteroid.size;
-    },
-    [],
-  );
-
   // Check collision between ship and xenocoin
   const checkShipXenoCoinCollision = useCallback(
     (ship: { x: number; y: number }, xenoCoin: XenoCoin) => {
