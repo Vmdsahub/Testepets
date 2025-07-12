@@ -1966,7 +1966,7 @@ const SpaceMapComponent: React.FC = () => {
         // Save to database with throttling
         clearTimeout((window as any).worldDragTimeout);
         (window as any).worldDragTimeout = setTimeout(() => {
-          console.log("����� Saving world drag position:", {
+          console.log("������ Saving world drag position:", {
             selectedWorldId,
             worldX,
             worldY,
@@ -2129,11 +2129,6 @@ const SpaceMapComponent: React.FC = () => {
           }
         }
       });
-
-      // Only shoot if we didn't click on a planet
-      if (!clickedOnPlanet) {
-        shootProjectile();
-      }
     },
     [
       gameState,
@@ -2142,7 +2137,6 @@ const SpaceMapComponent: React.FC = () => {
       isWorldEditMode,
       isLandingAnimationActive,
       user?.isAdmin,
-      shootProjectile,
       updateWorldPosition,
       setSelectedPlanet,
       setShowLandingModal,
@@ -2153,35 +2147,15 @@ const SpaceMapComponent: React.FC = () => {
   );
 
   // Handle mouse up to stop dragging
-  // Handler para mousedown - inicia tiro contínuo
+  // Handler para mousedown
   const handleMouseDown = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement>) => {
       if (isLandingAnimationActive) return;
-
-      if (!user?.isAdmin || !isWorldEditMode) {
-        // Primeiro tiro imediato
-        shootProjectile();
-
-        // Iniciar timer para tiros contínuos
-        if (shootingIntervalRef.current) {
-          clearInterval(shootingIntervalRef.current);
-        }
-
-        shootingIntervalRef.current = setInterval(() => {
-          shootProjectile();
-        }, 333); // 3 tiros por segundo
-      }
     },
-    [user?.isAdmin, isWorldEditMode, shootProjectile, isLandingAnimationActive],
+    [user?.isAdmin, isWorldEditMode, isLandingAnimationActive],
   );
 
   const handleMouseUp = useCallback(() => {
-    // Parar tiro contínuo
-    if (shootingIntervalRef.current) {
-      clearInterval(shootingIntervalRef.current);
-      shootingIntervalRef.current = null;
-    }
-
     // Lógica original de edição de mundos
     if (user?.isAdmin && isWorldEditMode && isDragging && selectedWorldId) {
       const planet = planetsRef.current.find((p) => p.id === selectedWorldId);
