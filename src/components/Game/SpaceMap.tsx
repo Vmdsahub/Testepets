@@ -2682,8 +2682,8 @@ const SpaceMapComponent: React.FC = () => {
               const speedMultiplier = Math.min(distance / 100, 1);
               const targetSpeed =
                 SHIP_MAX_SPEED * speedMultiplier * hpSpeedModifier;
-              // Acceleration in pixels per second squared
-              const acceleration = 800; // pixels/s²
+              // Acceleration in pixels per second squared (reduced)
+              const acceleration = 160; // pixels/s² (reduced by 80%)
               newState.ship.vx += (dx / distance) * acceleration * deltaTime;
               newState.ship.vy += (dy / distance) * acceleration * deltaTime;
             }
