@@ -121,20 +121,6 @@ interface RadarPulse {
   opacity: number;
 }
 
-interface SmokeParticle {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  life: number;
-  maxLife: number;
-  size: number;
-  opacity: number;
-  initialOpacity: number;
-  initialSize: number;
-  drift: { x: number; y: number };
-}
-
 interface GameState {
   ship: {
     x: number;
@@ -190,7 +176,6 @@ const SpaceMapComponent: React.FC = () => {
   const asteroidsRef = useRef<Asteroid[]>([]);
   const xenoCoinsRef = useRef<XenoCoin[]>([]);
   const particlesRef = useRef<Particle[]>([]);
-  const smokeParticlesRef = useRef<SmokeParticle[]>([]);
 
   const lastShootingStarTime = useRef(0);
 
@@ -200,7 +185,6 @@ const SpaceMapComponent: React.FC = () => {
 
   const lastFrameTimeRef = useRef(performance.now());
   const frameCounter = useRef(0);
-  const lastSmokeFrame = useRef(0);
 
   const [canvasDimensions, setCanvasDimensions] = useState({
     width: window.innerWidth,
@@ -245,7 +229,7 @@ const SpaceMapComponent: React.FC = () => {
     const transition = pendingScreenTransition.current;
     if (transition && transition.completed) {
       console.log(
-        "⚡ useLayoutEffect: Processando transição pendente imediatamente",
+        "⚡ useLayoutEffect: Processando transiç��o pendente imediatamente",
       );
       const planetData = {
         id: transition.planet.id,
