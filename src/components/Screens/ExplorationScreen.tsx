@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, Info, MapPin } from "lucide-react";
 import { useGameStore } from "../../store/gameStore";
@@ -11,7 +11,30 @@ export const ExplorationScreen: React.FC = () => {
     setCurrentExplorationPoint,
     setCurrentExplorationArea,
     getExplorationArea,
+    getAllShips,
+    getOwnedShips,
+    purchaseShip,
+    xenocoins,
   } = useGameStore();
+
+  // State for dialogue system (similar to NPCModal)
+  const [displayedText, setDisplayedText] = useState("");
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isTypingComplete, setIsTypingComplete] = useState(false);
+  const [currentAlienChar, setCurrentAlienChar] = useState("");
+  const [isShowingAlien, setIsShowingAlien] = useState(false);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Dialogue text for Planície Dourada
+  const GOLDEN_PLAINS_DIALOGUE =
+    "Olá, temos algumas naves em nossa coleção especial. Cada uma foi cuidadosamente selecionada para exploradores como você...";
+
+  // Alien characters for translation effect
+  const ALIEN_CHARS = "◊◈◇◆☾☽⟡⟢⧿⧾⬟⬠⬢⬣⬡⬠⧨��⟐⟑ξζηθικλμνοπρστυφχψω";
+
+  const generateAlienChar = () => {
+    return ALIEN_CHARS[Math.floor(Math.random() * ALIEN_CHARS.length)];
+  };
 
   // Generate exploration area when exploration point is selected
   useEffect(() => {
@@ -26,6 +49,41 @@ export const ExplorationScreen: React.FC = () => {
     setCurrentExplorationArea,
   ]);
 
+  // Typewriter effect for Planície Dourada dialogue
+  useEffect(() => {
+    if (currentExplorationPoint?.name !== "Planície Dourada") {
+      return;
+    }
+
+    setDisplayedText("");
+    setCurrentIndex(0);
+    setIsTypingComplete(false);
+    setCurrentAlienChar("");
+    setIsShowingAlien(false);
+
+    if (currentIndex < GOLDEN_PLAINS_DIALOGUE.length) {
+      // First show alien character
+      setIsShowingAlien(true);
+      setCurrentAlienChar(generateAlienChar());
+
+      // After showing alien char, replace with real character
+      intervalRef.current = setTimeout(() => {
+        setIsShowingAlien(false);
+        setDisplayedText((prev) => prev + GOLDEN_PLAINS_DIALOGUE[currentIndex]);
+        setCurrentIndex((prev) => prev + 1);
+      }, 40); // Show alien char for 40ms, then continue quickly
+    } else {
+      setIsTypingComplete(true);
+      setIsShowingAlien(false);
+    }
+
+    return () => {
+      if (intervalRef.current) {
+        clearTimeout(intervalRef.current);
+      }
+    };
+  }, [currentExplorationPoint, currentIndex]);
+
   if (!currentExplorationPoint || !currentExplorationArea) {
     return null;
   }
@@ -34,6 +92,12 @@ export const ExplorationScreen: React.FC = () => {
     setCurrentExplorationPoint(null);
     setCurrentExplorationArea(null);
     setCurrentScreen("planet");
+  };
+
+  const handleBackToWorld = () => {
+    setCurrentExplorationPoint(null);
+    setCurrentExplorationArea(null);
+    setCurrentScreen("world");
   };
 
   return (
@@ -62,65 +126,223 @@ export const ExplorationScreen: React.FC = () => {
           </div>
 
           {/* Main Image */}
-          <div className="w-full h-[calc(100vh-280px)] sm:h-[calc(100vh-300px)] md:h-[calc(100vh-320px)] lg:h-[calc(100vh-340px)] relative rounded-2xl overflow-hidden mb-4">
+          <div
+            className={`w-full relative rounded-2xl overflow-hidden mb-4 ${
+              currentExplorationPoint.name === "Planície Dourada"
+                ? "h-80 sm:h-96"
+                : "h-[calc(100vh-280px)] sm:h-[calc(100vh-300px)] md:h-[calc(100vh-320px)] lg:h-[calc(100vh-340px)]"
+            }`}
+          >
             <motion.img
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6 }}
               src={currentExplorationArea.imageUrl}
               alt={currentExplorationArea.name}
-              className="w-full h-full object-cover"
+              className={`w-full h-full ${
+                currentExplorationPoint.name === "Planície Dourada"
+                  ? "object-contain bg-gradient-to-b from-blue-50 to-blue-100"
+                  : "object-cover"
+              }`}
             />
 
-            {/* Overlay info */}
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-              <div className="text-white">
-                <h3 className="text-lg font-semibold mb-1">
-                  {currentExplorationPoint.name}
-                </h3>
-                {currentExplorationArea.description && (
-                  <p className="text-sm text-gray-200 leading-relaxed">
-                    {currentExplorationArea.description}
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Additional Info Panel */}
-          {currentExplorationPoint.description && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4, duration: 0.4 }}
-              className="bg-blue-50 border border-blue-200 rounded-xl p-4"
-            >
-              <div className="flex items-start gap-3">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <Info className="w-5 h-5 text-blue-600" />
-                </div>
-                <div>
-                  <h4 className="font-semibold text-blue-900 mb-1">
-                    Informações do Local
-                  </h4>
-                  <p className="text-blue-800 text-sm leading-relaxed">
-                    {currentExplorationPoint.description}
-                  </p>
-
-                  {/* Show coordinates for custom points (for debugging/admin) */}
-                  {currentExplorationPoint.id.includes("custom") && (
-                    <div className="mt-2 text-xs text-blue-600 opacity-75">
-                      Coordenadas: {currentExplorationPoint.x.toFixed(1)}%,{" "}
-                      {currentExplorationPoint.y.toFixed(1)}%
-                    </div>
+            {/* Overlay info - only show for non-Planície Dourada locations */}
+            {currentExplorationPoint.name !== "Planície Dourada" && (
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
+                <div className="text-white">
+                  <h3 className="text-lg font-semibold mb-1">
+                    {currentExplorationPoint.name}
+                  </h3>
+                  {currentExplorationArea.description && (
+                    <p className="text-sm text-gray-200 leading-relaxed">
+                      {currentExplorationArea.description}
+                    </p>
                   )}
                 </div>
               </div>
-            </motion.div>
+            )}
+          </div>
+
+          {/* Planície Dourada Special Content */}
+          {currentExplorationPoint.name === "Planície Dourada" ? (
+            <>
+              {/* Dialogue Box */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4, duration: 0.4 }}
+                className="bg-gray-50 border border-gray-200 rounded-xl p-4 mb-4"
+              >
+                <div className="text-center mb-3">
+                  <h3 className="text-lg font-bold text-gray-800">
+                    Guardian da Planície
+                  </h3>
+                  <div className="w-24 h-0.5 bg-gray-200 mx-auto rounded-full mt-1"></div>
+                </div>
+                <div className="bg-white border border-gray-100 rounded-lg p-4 min-h-[120px] relative">
+                  <div className="text-gray-700 leading-relaxed text-sm">
+                    {displayedText}
+                    {isShowingAlien && (
+                      <span className="text-gray-900 font-bold">
+                        {currentAlienChar}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Ship Store Section */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6, duration: 0.4 }}
+                className="bg-blue-50 border border-blue-200 rounded-xl p-4"
+              >
+                <div className="text-center mb-4">
+                  <h4 className="font-semibold text-blue-900 mb-2">
+                    Loja de Naves
+                  </h4>
+                  <div className="text-blue-700 text-xs">
+                    Naves especiais para exploradores experientes
+                  </div>
+                </div>
+
+                <div className="bg-white border border-blue-100 rounded-lg p-4">
+                  {(() => {
+                    const availableShips = getAllShips().filter(
+                      (ship) => !ship.isDefault,
+                    );
+                    const ownedShips = getOwnedShips();
+
+                    return (
+                      <div className="grid gap-3">
+                        {availableShips.map((ship) => {
+                          const isOwned = ownedShips.find(
+                            (owned) => owned.id === ship.id,
+                          );
+                          const canAfford = xenocoins >= ship.price;
+
+                          return (
+                            <div
+                              key={ship.id}
+                              className="bg-gray-50 rounded-lg border border-gray-200 p-3"
+                            >
+                              <div className="flex items-center gap-3">
+                                {/* Ship Image */}
+                                <div className="flex-shrink-0">
+                                  <img
+                                    src={ship.imageUrl}
+                                    alt={ship.name}
+                                    className="w-16 h-16 object-contain bg-white rounded-lg border border-gray-100"
+                                  />
+                                </div>
+
+                                {/* Ship Info */}
+                                <div className="flex-1 min-w-0">
+                                  <div className="font-semibold text-gray-800 text-sm mb-1">
+                                    {ship.name}
+                                  </div>
+                                  <div className="text-xs text-gray-600 mb-2 line-clamp-2">
+                                    {ship.description}
+                                  </div>
+                                  <div className="flex items-center gap-2 text-xs">
+                                    <span className="bg-green-100 text-green-700 px-2 py-1 rounded">
+                                      +
+                                      {((ship.stats.speed - 1) * 100).toFixed(
+                                        0,
+                                      )}
+                                      % Velocidade
+                                    </span>
+                                    <span className="bg-red-100 text-red-700 px-2 py-1 rounded">
+                                      +
+                                      {(
+                                        (ship.stats.projectileDamage - 1) *
+                                        100
+                                      ).toFixed(0)}
+                                      % Dano
+                                    </span>
+                                  </div>
+                                </div>
+
+                                {/* Price and Buy Button */}
+                                <div className="text-center">
+                                  <div className="flex items-center justify-center gap-1 mb-2">
+                                    <img
+                                      src="https://cdn.builder.io/api/v1/image/assets%2Ff481900009a94cda953c032479392a30%2F3e6c6cb85c6a4d2ba05acb245bfbc214?format=webp&width=800"
+                                      alt="Xenocoins"
+                                      className="w-4 h-4"
+                                    />
+                                    <span className="font-semibold text-sm text-gray-800">
+                                      {ship.price}
+                                    </span>
+                                  </div>
+
+                                  {isOwned ? (
+                                    <div className="bg-green-100 text-green-700 px-3 py-1 rounded-md text-xs font-medium">
+                                      Possuída
+                                    </div>
+                                  ) : (
+                                    <motion.button
+                                      whileHover={{ scale: 1.05 }}
+                                      whileTap={{ scale: 0.95 }}
+                                      onClick={() => purchaseShip(ship.id)}
+                                      disabled={!canAfford}
+                                      className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+                                        canAfford
+                                          ? "bg-blue-600 text-white hover:bg-blue-700"
+                                          : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                      }`}
+                                    >
+                                      {canAfford ? "Comprar" : "Sem Moeda"}
+                                    </motion.button>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    );
+                  })()}
+                </div>
+              </motion.div>
+            </>
+          ) : (
+            /* Additional Info Panel for other locations */
+            currentExplorationPoint.description && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4, duration: 0.4 }}
+                className="bg-blue-50 border border-blue-200 rounded-xl p-4"
+              >
+                <div className="flex items-start gap-3">
+                  <div className="p-2 bg-blue-100 rounded-lg">
+                    <Info className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-blue-900 mb-1">
+                      Informações do Local
+                    </h4>
+                    <p className="text-blue-800 text-sm leading-relaxed">
+                      {currentExplorationPoint.description}
+                    </p>
+
+                    {/* Show coordinates for custom points (for debugging/admin) */}
+                    {currentExplorationPoint.id.includes("custom") && (
+                      <div className="mt-2 text-xs text-blue-600 opacity-75">
+                        Coordenadas: {currentExplorationPoint.x.toFixed(1)}%,{" "}
+                        {currentExplorationPoint.y.toFixed(1)}%
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            )
           )}
 
-          {/* Back button */}
-          <div className="flex justify-center mt-6">
+          {/* Back buttons */}
+          <div className="flex justify-center mt-6 gap-3">
             <motion.button
               onClick={handleBack}
               className="px-6 py-3 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors font-medium text-gray-700 flex items-center gap-2"
@@ -129,6 +351,16 @@ export const ExplorationScreen: React.FC = () => {
             >
               <ArrowLeft className="w-4 h-4" />
               Voltar ao Planeta
+            </motion.button>
+
+            <motion.button
+              onClick={handleBackToWorld}
+              className="px-6 py-3 bg-blue-100 hover:bg-blue-200 rounded-full transition-colors font-medium text-blue-700 flex items-center gap-2"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Mapa Galáctico
             </motion.button>
           </div>
         </motion.div>

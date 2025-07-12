@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Search, Package, RefreshCw, ArrowLeft, Wrench } from "lucide-react";
 import { useGameStore } from "../../store/gameStore";
 import { ItemDropdownMenu } from "./ItemDropdownMenu";
+import { ShipInventoryModal } from "./ShipInventoryModal";
 
 interface ShipActionsModalProps {
   isOpen: boolean;
@@ -55,7 +56,8 @@ export const ShipActionsModal: React.FC<ShipActionsModalProps> = ({
 }) => {
   const [currentView, setCurrentView] = useState<ModalView>("main");
   const [shipInventory, setShipInventory] = useState<ShipInventoryItem[]>([]);
-  const { user } = useGameStore();
+  const [showShipInventoryModal, setShowShipInventoryModal] = useState(false);
+  const { user, getActiveShip } = useGameStore();
   const handleUseItem = useCallback(
     (item: ShipInventoryItem) => {
       if (item.name === "Kit de Reparos Básico" && shipHP < 3 && user) {
@@ -179,9 +181,7 @@ export const ShipActionsModal: React.FC<ShipActionsModalProps> = ({
         setCurrentView("inventory");
         break;
       case "change":
-        // TODO: Implement ship change functionality
-        console.log("Trocar nave - funcionalidade futura");
-        onClose();
+        setShowShipInventoryModal(true);
         break;
       default:
         onClose();
@@ -356,7 +356,10 @@ export const ShipActionsModal: React.FC<ShipActionsModalProps> = ({
                     {/* Ship Image */}
                     <div className="flex justify-center">
                       <img
-                        src="https://cdn.builder.io/api/v1/image/assets%2Ff93cc7cc605f420aa4fbb47a6557dbb5%2Fba62973afdca4d84ba54dad060a3e993?format=webp&width=800"
+                        src={
+                          getActiveShip()?.imageUrl ||
+                          "https://cdn.builder.io/api/v1/image/assets%2Fa34588f934eb4ad690ceadbafd1050c4%2Fb858d05001c14c0dbd4ba321811b959f?format=webp&width=800"
+                        }
                         alt="Nave do Jogador"
                         className="w-32 h-32 object-contain bg-gray-50 rounded-lg border border-gray-200"
                       />
@@ -366,13 +369,11 @@ export const ShipActionsModal: React.FC<ShipActionsModalProps> = ({
                     <div className="space-y-3">
                       <div>
                         <h4 className="font-semibold text-gray-800 mb-1">
-                          Explorador Galáctico MK-7
+                          {getActiveShip()?.name || "Explorador Galáctico MK-7"}
                         </h4>
                         <p className="text-sm text-gray-600 leading-relaxed">
-                          Uma nave versátil projetada para exploração espacial
-                          de longo alcance. Equipada com propulsores iônicos
-                          avançados e sistema de navega��ão quântica, esta nave
-                          é ideal para aventuras intergalácticas.
+                          {getActiveShip()?.description ||
+                            "Uma nave versátil projetada para exploração espacial de longo alcance. Equipada com propulsores iônicos avançados e sistema de navegação quântica, esta nave é ideal para aventuras intergalácticas."}
                         </p>
                       </div>
 
@@ -481,6 +482,12 @@ export const ShipActionsModal: React.FC<ShipActionsModalProps> = ({
               <div className="w-3 h-3 bg-white border-r border-b border-gray-200 transform rotate-45 shadow-md"></div>
             </div>
           </motion.div>
+
+          {/* Ship Inventory Modal */}
+          <ShipInventoryModal
+            isOpen={showShipInventoryModal}
+            onClose={() => setShowShipInventoryModal(false)}
+          />
         </>
       )}
     </AnimatePresence>

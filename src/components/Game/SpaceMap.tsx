@@ -61,6 +61,8 @@ interface Projectile {
   vy: number;
   life: number;
   maxLife: number;
+  color: string;
+  damage: number;
 }
 
 interface ShootingStar {
@@ -167,12 +169,12 @@ interface GameState {
 }
 
 const WORLD_SIZE = 100000;
-const SHIP_MAX_SPEED = 2;
+const BASE_SHIP_MAX_SPEED = 2;
 const FRICTION = 0.88;
 const CENTER_X = WORLD_SIZE / 2;
 const CENTER_Y = WORLD_SIZE / 2;
 const BARRIER_RADIUS = 600;
-const PROJECTILE_SPEED = 600; // pixels per second (consistent across all FPS)
+const BASE_PROJECTILE_SPEED = 600; // pixels per second (consistent across all FPS)
 const PROJECTILE_LIFETIME = 4.0; // seconds
 
 // Pre-render buffer size
@@ -199,8 +201,34 @@ const SpaceMapComponent: React.FC = () => {
     updateWorldPosition,
     addNotification,
     updateCurrency,
+    getActiveShip,
   } = useGameStore();
   const { saveShipState, forceSaveShipState } = useShipStatePersistence();
+
+  // Get active ship stats
+  const getActiveShipStats = () => {
+    const activeShip = getActiveShip();
+    if (!activeShip) {
+      // Return default stats if no ship is active
+      return {
+        speed: 1.0,
+        projectileDamage: 1.0,
+        trailColor: "#4A90E2",
+        projectileColor: "#4A90E2",
+      };
+    }
+    return {
+      speed: activeShip.stats.speed,
+      projectileDamage: activeShip.stats.projectileDamage,
+      trailColor: activeShip.visualEffects.trailColor,
+      projectileColor: activeShip.visualEffects.projectileColor,
+    };
+  };
+
+  // Dynamic ship constants based on active ship
+  const shipStats = getActiveShipStats();
+  const SHIP_MAX_SPEED = BASE_SHIP_MAX_SPEED * shipStats.speed;
+  const PROJECTILE_SPEED = BASE_PROJECTILE_SPEED; // Speed stays same, but damage changes
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gameLoopRef = useRef<number>();
   const mouseRef = useRef({ x: 0, y: 0 });
@@ -500,6 +528,8 @@ const SpaceMapComponent: React.FC = () => {
         vy: Math.sin(gameState.ship.angle) * PROJECTILE_SPEED,
         life: PROJECTILE_LIFETIME,
         maxLife: PROJECTILE_LIFETIME,
+        color: shipStats.projectileColor,
+        damage: shipStats.projectileDamage,
       };
       projectilesRef.current.push(newProjectile);
       lastShootTime.current = currentTime;
@@ -1477,7 +1507,25 @@ const SpaceMapComponent: React.FC = () => {
             nextScreenY,
           );
 
-          // Yellow glow effect with intensity-based strength - ultra bright
+          // Trail glow effect with ship's trail color
+          const trailColor = shipStats.trailColor;
+
+          // Convert hex to RGB for trail effects
+          const hexToRgb = (hex: string) => {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(
+              hex,
+            );
+            return result
+              ? {
+                  r: parseInt(result[1], 16),
+                  g: parseInt(result[2], 16),
+                  b: parseInt(result[3], 16),
+                }
+              : { r: 255, g: 235, b: 59 }; // Default to yellow if parsing fails
+          };
+
+          const trailRgb = hexToRgb(trailColor);
+
           const currentAlpha = Math.min(
             currentLifeRatio * current.intensity * 0.95,
             0.9,
@@ -1489,13 +1537,19 @@ const SpaceMapComponent: React.FC = () => {
           const avgAlpha = (currentAlpha + nextAlpha) / 2;
           const avgIntensity = (current.intensity + next.intensity) / 2;
 
-          gradient.addColorStop(0, `rgba(255, 235, 59, ${currentAlpha})`); // Soft yellow
-          gradient.addColorStop(1, `rgba(255, 193, 7, ${nextAlpha})`); // Slightly orange yellow
+          gradient.addColorStop(
+            0,
+            `rgba(${trailRgb.r}, ${trailRgb.g}, ${trailRgb.b}, ${currentAlpha})`,
+          );
+          gradient.addColorStop(
+            1,
+            `rgba(${Math.max(0, trailRgb.r - 20)}, ${Math.max(0, trailRgb.g - 20)}, ${Math.max(0, trailRgb.b - 20)}, ${nextAlpha})`,
+          );
 
           // Ultra bright outer glow with shadow
-          ctx.shadowColor = "#ffeb3b";
+          ctx.shadowColor = trailColor;
           ctx.shadowBlur = 25 * pulseIntensity * avgIntensity;
-          ctx.strokeStyle = `rgba(255, 215, 0, ${avgAlpha * 0.8 * pulseIntensity})`;
+          ctx.strokeStyle = `rgba(${trailRgb.r}, ${trailRgb.g}, ${trailRgb.b}, ${avgAlpha * 0.8 * pulseIntensity})`;
           ctx.lineWidth =
             TRAIL_WIDTH *
             2.5 *
@@ -1511,7 +1565,7 @@ const SpaceMapComponent: React.FC = () => {
 
           // Medium glow layer
           ctx.shadowBlur = 15 * pulseIntensity * avgIntensity;
-          ctx.strokeStyle = `rgba(255, 235, 59, ${avgAlpha * 0.9 * pulseIntensity})`;
+          ctx.strokeStyle = `rgba(${trailRgb.r}, ${trailRgb.g}, ${trailRgb.b}, ${avgAlpha * 0.9 * pulseIntensity})`;
           ctx.lineWidth =
             TRAIL_WIDTH *
             1.8 *
@@ -1571,7 +1625,7 @@ const SpaceMapComponent: React.FC = () => {
 
       ctx.restore();
     },
-    [getWrappedDistance],
+    [getWrappedDistance, shipStats.trailColor],
   );
 
   // Helper function to draw pure light points
@@ -2083,16 +2137,31 @@ const SpaceMapComponent: React.FC = () => {
     planetsRef.current = planets;
   }, []);
 
-  // Load ship image
+  // Load ship image based on active ship
   useEffect(() => {
+    const activeShip = getActiveShip();
+    const shipImageUrl =
+      activeShip?.imageUrl ||
+      "https://cdn.builder.io/api/v1/image/assets%2Fa34588f934eb4ad690ceadbafd1050c4%2F08167028f08f4996b97ed7703ce66292?format=webp&width=800";
+
     const img = new Image();
     img.crossOrigin = "anonymous";
-    img.src =
-      "https://cdn.builder.io/api/v1/image/assets%2F927080298e954d2fba85d9a91618627d%2Fd89cbfd7d2604752a995652efb832852?format=webp&width=800";
+    img.src = shipImageUrl;
     img.onload = () => {
       shipImageRef.current = img;
     };
-  }, []);
+    img.onerror = () => {
+      console.error("Failed to load ship image, falling back to default");
+      // Load default ship image as fallback
+      const fallbackImg = new Image();
+      fallbackImg.crossOrigin = "anonymous";
+      fallbackImg.src =
+        "https://cdn.builder.io/api/v1/image/assets%2Fa34588f934eb4ad690ceadbafd1050c4%2F08167028f08f4996b97ed7703ce66292?format=webp&width=800";
+      fallbackImg.onload = () => {
+        shipImageRef.current = fallbackImg;
+      };
+    };
+  }, [shipStats.trailColor]); // Use shipStats as dependency since it changes when ship changes
 
   // Load asteroid image
   useEffect(() => {
@@ -3090,8 +3159,8 @@ const SpaceMapComponent: React.FC = () => {
             // Create damage particles
             createDamageParticles(asteroid.x, asteroid.y);
 
-            // Damage asteroid
-            asteroid.health -= 1;
+            // Damage asteroid with projectile damage
+            asteroid.health -= projectile.damage;
 
             if (asteroid.health <= 0) {
               // Asteroid destroyed - create explosion and xenocoin
@@ -3643,21 +3712,40 @@ const SpaceMapComponent: React.FC = () => {
         const endX = screenX + Math.cos(angle) * length;
         const endY = screenY + Math.sin(angle) * length;
 
-        // Glow externo mais sutil (aura de energia amarela mais fraca)
+        // Get projectile color (use ship's projectile color)
+        const projectileColor = proj.color;
+
+        // Convert hex to RGB for glow effects
+        const hexToRgb = (hex: string) => {
+          const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+          return result
+            ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16),
+              }
+            : { r: 255, g: 255, b: 0 }; // Default to yellow if parsing fails
+        };
+
+        const rgb = hexToRgb(projectileColor);
+        const baseColor = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+        const glowColor = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.6)`;
+
+        // Glow externo mais sutil (aura de energia)
         ctx.globalAlpha = lifeRatio * 0.2 * pulse;
-        ctx.strokeStyle = "#e6c200";
+        ctx.strokeStyle = glowColor;
         ctx.lineWidth = 6;
         ctx.lineCap = "round";
-        ctx.shadowColor = "#e6c200";
+        ctx.shadowColor = baseColor;
         ctx.shadowBlur = 15;
         ctx.beginPath();
         ctx.moveTo(screenX, screenY);
         ctx.lineTo(endX, endY);
         ctx.stroke();
 
-        // Glow médio amarelo-dourado mais suave
+        // Glow médio
         ctx.globalAlpha = lifeRatio * 0.5;
-        ctx.strokeStyle = "#f0d633";
+        ctx.strokeStyle = baseColor;
         ctx.lineWidth = 3;
         ctx.shadowBlur = 8;
         ctx.beginPath();
@@ -3665,22 +3753,23 @@ const SpaceMapComponent: React.FC = () => {
         ctx.lineTo(endX, endY);
         ctx.stroke();
 
-        // Core energético amarelo mais suave
+        // Core energético
         ctx.globalAlpha = lifeRatio * 0.7 * pulse;
-        ctx.strokeStyle = "#f5e033";
+        ctx.strokeStyle = baseColor;
         ctx.lineWidth = 2;
-        ctx.shadowColor = "#f5e033";
+        ctx.shadowColor = baseColor;
         ctx.shadowBlur = 6;
         ctx.beginPath();
         ctx.moveTo(screenX, screenY);
         ctx.lineTo(endX, endY);
         ctx.stroke();
 
-        // Centro brilhante amarelo-branco mais sutil
+        // Centro brilhante (versão mais clara da cor base)
+        const lightColor = `rgba(${Math.min(255, rgb.r + 40)}, ${Math.min(255, rgb.g + 40)}, ${Math.min(255, rgb.b + 40)}, 0.9)`;
         ctx.globalAlpha = lifeRatio * 0.8;
-        ctx.strokeStyle = "#f8f8cc";
+        ctx.strokeStyle = lightColor;
         ctx.lineWidth = 1;
-        ctx.shadowColor = "#f8f8cc";
+        ctx.shadowColor = lightColor;
         ctx.shadowBlur = 3;
         ctx.beginPath();
         ctx.moveTo(screenX, screenY);
@@ -4218,7 +4307,7 @@ const SpaceMapComponent: React.FC = () => {
                       updateWorldPosition(selectedWorldId, {
                         size: newSize,
                       });
-                      console.log("📏 Size saved successfully");
+                      console.log("��� Size saved successfully");
                     } catch (error) {
                       console.error("📏 Error saving size:", error);
                     }
@@ -4421,7 +4510,7 @@ const SpaceMapComponent: React.FC = () => {
         {user?.isAdmin && isWorldEditMode ? (
           <>
             <div className="text-yellow-400 font-bold mb-1">
-              ��� MODO EDIÇ��O
+              ��� MODO EDIÇ���O
             </div>
             <div>��� 1º Click: Selecionar mundo</div>
             <div>

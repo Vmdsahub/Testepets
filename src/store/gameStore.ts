@@ -13,6 +13,7 @@ import {
   WorldPosition,
   ExplorationPoint,
   ExplorationArea,
+  Ship,
 } from "../types/game";
 import { gameService } from "../services/gameService";
 import { playNotificationSound } from "../utils/soundManager";
@@ -145,6 +146,14 @@ interface GameStore extends GameState {
   updateRedeemCode: (codeId: string, updates: Partial<RedeemCode>) => void;
   deleteRedeemCode: (codeId: string) => void;
   redeemCode: (code: string) => Promise<{ success: boolean; message: string }>;
+
+  // Ship management
+  getAllShips: () => Ship[];
+  getOwnedShips: () => Ship[];
+  getActiveShip: () => Ship | null;
+  purchaseShip: (shipId: string) => Promise<boolean>;
+  switchActiveShip: (shipId: string) => Promise<boolean>;
+  getShipById: (shipId: string) => Ship | null;
 
   // Daily check-in system
   dailyCheckin: () => void;
@@ -731,6 +740,59 @@ export const useGameStore = create<GameStore>()(
       viewedUserId: null,
       shipState: null,
 
+      // Ships system state
+      ships: [
+        // Default ship - every player starts with this
+        {
+          id: "default-ship",
+          name: "Explorador Galáctico MK-7",
+          description:
+            "Uma nave versátil projetada para exploração espacial de longo alcance. Equipada com propulsores iônicos avançados e sistema de navegação quântica.",
+          imageUrl:
+            "https://cdn.builder.io/api/v1/image/assets%2Fa34588f934eb4ad690ceadbafd1050c4%2F08167028f08f4996b97ed7703ce66292?format=webp&width=800",
+          price: 0,
+          currency: "xenocoins",
+          stats: {
+            speed: 1.0,
+            projectileDamage: 1.0,
+            health: 3,
+            maneuverability: 1.0,
+          },
+          visualEffects: {
+            trailColor: "#FFDD00",
+            projectileColor: "#FFDD00",
+            trailOpacity: 0.7,
+            projectileSize: 1.0,
+          },
+          isDefault: true,
+        },
+        // Nave Teste - the ship for sale in Planície Dourada
+        {
+          id: "test-ship",
+          name: "Nave Teste",
+          description:
+            "Uma nave experimental com tecnologia aprimorada. 2% mais rápida que a nave padrão com sistemas de armamento melhorados.",
+          imageUrl:
+            "https://cdn.builder.io/api/v1/image/assets%2Fa34588f934eb4ad690ceadbafd1050c4%2F8475b30f89c64a77a493b5793d97c5e7?format=webp&width=800",
+          price: 100,
+          currency: "xenocoins",
+          stats: {
+            speed: 1.02, // 2% faster
+            projectileDamage: 1.2, // 20% more damage
+            health: 3,
+            maneuverability: 1.0,
+          },
+          visualEffects: {
+            trailColor: "#FFA500", // Orange trail
+            projectileColor: "#FFA500", // Orange projectiles
+            trailOpacity: 0.8,
+            projectileSize: 1.1,
+          },
+        },
+      ],
+      ownedShips: [], // Will be populated when user loads/purchases ships
+      activeShip: null, // Will be set to default ship when user first loads
+
       // World positions state
       worldPositions: [],
 
@@ -782,6 +844,20 @@ export const useGameStore = create<GameStore>()(
           });
         } else {
           set({ user });
+
+          // Initialize default ship if no active ship is set or force update to latest version
+          const currentState = get();
+          const defaultShip = currentState.ships.find((ship) => ship.isDefault);
+
+          if (
+            !currentState.activeShip ||
+            (currentState.activeShip.isDefault && defaultShip)
+          ) {
+            // Force update the default ship to ensure latest image and properties
+            if (defaultShip) {
+              set({ activeShip: defaultShip });
+            }
+          }
         }
       },
       setActivePet: (pet) => set({ activePet: pet }),
@@ -912,19 +988,39 @@ export const useGameStore = create<GameStore>()(
           { x: 25, y: 80 },
         ];
 
-        const points: ExplorationPoint[] = selectedNames.map((name, index) => ({
-          id: `${planetId}_point_${index + 1}`,
-          planetId,
-          name,
-          x: positions[index].x,
-          y: positions[index].y,
-          imageUrl:
-            "https://cdn.builder.io/api/v1/image/assets%2F6b84993f22904beeb2e1d8d2f128c032%2Faaff2921868f4bbfb24be01b9fdfa6a1?format=webp&width=800",
-          description: `Uma área fascinante conhecida como ${name}. Este local oferece uma experiência única de exploração.`,
-          discovered: false,
-          size: 1.0,
-          active: true,
-        }));
+        const points: ExplorationPoint[] = selectedNames.map((name, index) => {
+          // Special customization for Planície Dourada
+          if (name === "Planície Dourada") {
+            return {
+              id: `${planetId}_point_${index + 1}`,
+              planetId,
+              name,
+              x: positions[index].x,
+              y: positions[index].y,
+              imageUrl:
+                "https://cdn.builder.io/api/v1/image/assets%2Fa34588f934eb4ad690ceadbafd1050c4%2F719e8fc59de24ef8b3f4d79d3fb9993d?format=webp&width=800",
+              description: "", // Removed description as requested
+              discovered: false,
+              size: 0.7, // Smaller size as requested
+              active: true,
+            };
+          }
+
+          // Default configuration for other points
+          return {
+            id: `${planetId}_point_${index + 1}`,
+            planetId,
+            name,
+            x: positions[index].x,
+            y: positions[index].y,
+            imageUrl:
+              "https://cdn.builder.io/api/v1/image/assets%2F6b84993f22904beeb2e1d8d2f128c032%2Faaff2921868f4bbfb24be01b9fdfa6a1?format=webp&width=800",
+            description: `Uma área fascinante conhecida como ${name}. Este local oferece uma experiência ��nica de exploração.`,
+            discovered: false,
+            size: 1.0,
+            active: true,
+          };
+        });
 
         set({ explorationPoints: points });
         return points;
@@ -937,6 +1033,19 @@ export const useGameStore = create<GameStore>()(
           throw new Error("Exploration point not found");
         }
 
+        // Special handling for Planície Dourada
+        if (point.name === "Planície Dourada") {
+          const area: ExplorationArea = {
+            id: `${pointId}_area`,
+            pointId,
+            name: point.name,
+            imageUrl: point.imageUrl,
+            description: "", // No description as requested
+          };
+          return area;
+        }
+
+        // Default area for other points
         const area: ExplorationArea = {
           id: `${pointId}_area`,
           pointId,
@@ -1818,7 +1927,7 @@ export const useGameStore = create<GameStore>()(
 
         // Check if user already used this code
         if (redeemCode.usedBy.includes(state.user.id)) {
-          return { success: false, message: "Você já resgatou este código" };
+          return { success: false, message: "Você já resgatou este c��digo" };
         }
 
         // Check usage limits
@@ -1907,6 +2016,171 @@ export const useGameStore = create<GameStore>()(
             success: false,
             message: "Erro ao resgatar código. Tente novamente.",
           };
+        }
+      },
+
+      // Ship management functions
+      getAllShips: () => {
+        return get().ships;
+      },
+
+      getOwnedShips: () => {
+        return get().ownedShips;
+      },
+
+      getActiveShip: () => {
+        return get().activeShip;
+      },
+
+      getShipById: (shipId: string) => {
+        const ships = get().ships;
+        return ships.find((ship) => ship.id === shipId) || null;
+      },
+
+      purchaseShip: async (shipId: string) => {
+        const state = get();
+        const { user, xenocoins, cash, ships, ownedShips } = state;
+
+        if (!user) {
+          get().addNotification({
+            type: "error",
+            title: "Erro",
+            message: "Você precisa estar logado para comprar naves.",
+            isRead: false,
+          });
+          return false;
+        }
+
+        const ship = ships.find((s) => s.id === shipId);
+        if (!ship) {
+          get().addNotification({
+            type: "error",
+            title: "Erro",
+            message: "Nave não encontrada.",
+            isRead: false,
+          });
+          return false;
+        }
+
+        // Check if already owned
+        if (ownedShips.find((owned) => owned.id === shipId)) {
+          get().addNotification({
+            type: "warning",
+            title: "Aviso",
+            message: "Você já possui esta nave.",
+            isRead: false,
+          });
+          return false;
+        }
+
+        // Check if user has enough currency
+        const currentCurrency =
+          ship.currency === "xenocoins" ? xenocoins : cash;
+        if (currentCurrency < ship.price) {
+          get().addNotification({
+            type: "error",
+            title: "Moeda Insuficiente",
+            message: `Você precisa de ${ship.price} ${ship.currency === "xenocoins" ? "Xenocoins" : "Cash"} para comprar esta nave.`,
+            isRead: false,
+          });
+          return false;
+        }
+
+        try {
+          // Deduct currency
+          const success = await get().updateCurrency(
+            ship.currency,
+            -ship.price,
+          );
+
+          if (success) {
+            // Add ship to owned ships with purchase date
+            const purchasedShip = { ...ship, ownedAt: new Date() };
+
+            set((state) => ({
+              ownedShips: [...state.ownedShips, purchasedShip],
+            }));
+
+            get().addNotification({
+              type: "success",
+              title: "Compra Realizada!",
+              message: `${ship.name} foi adicionada ao seu hangar!`,
+              isRead: false,
+            });
+
+            return true;
+          } else {
+            get().addNotification({
+              type: "error",
+              title: "Erro",
+              message: "Erro ao processar a compra. Tente novamente.",
+              isRead: false,
+            });
+            return false;
+          }
+        } catch (error) {
+          console.error("Error purchasing ship:", error);
+          get().addNotification({
+            type: "error",
+            title: "Erro",
+            message: "Erro ao processar a compra. Tente novamente.",
+            isRead: false,
+          });
+          return false;
+        }
+      },
+
+      switchActiveShip: async (shipId: string) => {
+        const state = get();
+        const { user, ownedShips } = state;
+
+        if (!user) {
+          get().addNotification({
+            type: "error",
+            title: "Erro",
+            message: "Você precisa estar logado para trocar de nave.",
+            isRead: false,
+          });
+          return false;
+        }
+
+        // Check if ship is owned (including default ship)
+        const defaultShip = get().ships.find((s) => s.isDefault);
+        const ownedShip = ownedShips.find((s) => s.id === shipId);
+        const targetShip =
+          ownedShip || (shipId === defaultShip?.id ? defaultShip : null);
+
+        if (!targetShip) {
+          get().addNotification({
+            type: "error",
+            title: "Erro",
+            message: "Você não possui esta nave.",
+            isRead: false,
+          });
+          return false;
+        }
+
+        try {
+          // In a real app, this would save to backend
+          set({ activeShip: targetShip });
+
+          get().addNotification({
+            type: "success",
+            title: "Nave Trocada!",
+            message: `${targetShip.name} agora é sua nave ativa.`,
+            isRead: false,
+          });
+
+          return true;
+        } catch (error) {
+          console.error("Error switching ship:", error);
+          get().addNotification({
+            type: "error",
+            title: "Erro",
+            message: "Erro ao trocar de nave. Tente novamente.",
+            isRead: false,
+          });
+          return false;
         }
       },
 
@@ -2223,6 +2497,9 @@ export const useGameStore = create<GameStore>()(
         hatchingEgg: state.hatchingEgg,
         shipState: state.shipState,
         worldPositions: state.worldPositions,
+        ships: state.ships,
+        ownedShips: state.ownedShips,
+        activeShip: state.activeShip,
       }),
       onRehydrateStorage: () => (state) => {
         if (state) {
