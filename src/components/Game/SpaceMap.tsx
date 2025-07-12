@@ -3673,21 +3673,40 @@ const SpaceMapComponent: React.FC = () => {
         const endX = screenX + Math.cos(angle) * length;
         const endY = screenY + Math.sin(angle) * length;
 
-        // Glow externo mais sutil (aura de energia amarela mais fraca)
+        // Get projectile color (use ship's projectile color)
+        const projectileColor = proj.color;
+
+        // Convert hex to RGB for glow effects
+        const hexToRgb = (hex: string) => {
+          const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+          return result
+            ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16),
+              }
+            : { r: 255, g: 255, b: 0 }; // Default to yellow if parsing fails
+        };
+
+        const rgb = hexToRgb(projectileColor);
+        const baseColor = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+        const glowColor = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.6)`;
+
+        // Glow externo mais sutil (aura de energia)
         ctx.globalAlpha = lifeRatio * 0.2 * pulse;
-        ctx.strokeStyle = "#e6c200";
+        ctx.strokeStyle = glowColor;
         ctx.lineWidth = 6;
         ctx.lineCap = "round";
-        ctx.shadowColor = "#e6c200";
+        ctx.shadowColor = baseColor;
         ctx.shadowBlur = 15;
         ctx.beginPath();
         ctx.moveTo(screenX, screenY);
         ctx.lineTo(endX, endY);
         ctx.stroke();
 
-        // Glow médio amarelo-dourado mais suave
+        // Glow médio
         ctx.globalAlpha = lifeRatio * 0.5;
-        ctx.strokeStyle = "#f0d633";
+        ctx.strokeStyle = baseColor;
         ctx.lineWidth = 3;
         ctx.shadowBlur = 8;
         ctx.beginPath();
@@ -3695,18 +3714,18 @@ const SpaceMapComponent: React.FC = () => {
         ctx.lineTo(endX, endY);
         ctx.stroke();
 
-        // Core energético amarelo mais suave
+        // Core energético
         ctx.globalAlpha = lifeRatio * 0.7 * pulse;
-        ctx.strokeStyle = "#f5e033";
+        ctx.strokeStyle = baseColor;
         ctx.lineWidth = 2;
-        ctx.shadowColor = "#f5e033";
+        ctx.shadowColor = baseColor;
         ctx.shadowBlur = 6;
         ctx.beginPath();
         ctx.moveTo(screenX, screenY);
         ctx.lineTo(endX, endY);
         ctx.stroke();
 
-        // Centro brilhante amarelo-branco mais sutil
+        // Centro brilhante
         ctx.globalAlpha = lifeRatio * 0.8;
         ctx.strokeStyle = "#f8f8cc";
         ctx.lineWidth = 1;
