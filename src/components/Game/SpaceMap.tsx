@@ -3047,6 +3047,78 @@ const SpaceMapComponent: React.FC = () => {
 
       // Update camera
       updateCamera(deltaTime);
+
+      // Save ship state for persistence (throttled)
+      saveShipState({
+        x: gameState.ship.x,
+        y: gameState.ship.y,
+        angle: gameState.ship.angle,
+        vx: gameState.ship.vx,
+        vy: gameState.ship.vy,
+        cameraX: gameState.camera.x,
+        cameraY: gameState.camera.y,
+      });
+
+      // Check for planets in range and create radar pulses
+      updateRadarPulses();
+    };
+
+    // Update radar pulses and planet detection
+    const updateRadarPulses = () => {
+      const currentShipState = gameState;
+      const currentPlanetsInRange = new Set<string>();
+
+      planetsRef.current.forEach((planet) => {
+        const shipToPlanetX = getWrappedDistance(
+          planet.x,
+          currentShipState.ship.x,
+        );
+        const shipToPlanetY = getWrappedDistance(
+          planet.y,
+          currentShipState.ship.y,
+        );
+        const shipToPlanetDistance = Math.sqrt(
+          shipToPlanetX * shipToPlanetX + shipToPlanetY * shipToPlanetY,
+        );
+
+        if (shipToPlanetDistance <= planet.interactionRadius) {
+          currentPlanetsInRange.add(planet.id);
+
+          // Create radar pulse if planet wasn't in range before
+          if (!lastRadarCheckRef.current.has(planet.id)) {
+            const currentTime = performance.now();
+            const newPulse = {
+              id: `pulse_${currentTime}_${Math.random()}`,
+              x: planet.x,
+              y: planet.y,
+              radius: 0,
+              maxRadius: planet.interactionRadius,
+              startTime: currentTime,
+              duration: 2000,
+              color: "#00ff00",
+              opacity: 0.8,
+            };
+            radarPulsesRef.current.push(newPulse);
+          }
+        }
+      });
+
+      // Update radar pulses
+      const currentTime = performance.now();
+      radarPulsesRef.current = radarPulsesRef.current.filter((pulse) => {
+        const elapsed = currentTime - pulse.startTime;
+        const progress = elapsed / pulse.duration;
+
+        if (progress >= 1) {
+          return false;
+        }
+
+        pulse.radius = pulse.maxRadius * progress;
+        pulse.opacity = 0.8 * (1 - progress);
+        return true;
+      });
+
+      lastRadarCheckRef.current = currentPlanetsInRange;
     };
 
     // Setup canvas for rendering
