@@ -749,7 +749,7 @@ export const useGameStore = create<GameStore>()(
           description:
             "Uma nave versátil projetada para exploração espacial de longo alcance. Equipada com propulsores iônicos avançados e sistema de navegação quântica.",
           imageUrl:
-            "https://cdn.builder.io/api/v1/image/assets%2Ff93cc7cc605f420aa4fbb47a6557dbb5%2Fba62973afdca4d84ba54dad060a3e993?format=webp&width=800",
+            "https://cdn.builder.io/api/v1/image/assets%2Fa34588f934eb4ad690ceadbafd1050c4%2F15bec815b4ff404988b6644d7d055efa?format=webp&width=800",
           price: 0,
           currency: "xenocoins",
           stats: {
@@ -759,8 +759,8 @@ export const useGameStore = create<GameStore>()(
             maneuverability: 1.0,
           },
           visualEffects: {
-            trailColor: "#4A90E2",
-            projectileColor: "#4A90E2",
+            trailColor: "#FFDD00",
+            projectileColor: "#FFDD00",
             trailOpacity: 0.7,
             projectileSize: 1.0,
           },
