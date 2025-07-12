@@ -23,10 +23,10 @@ export const ExplorationScreen: React.FC = () => {
 
   // Dialogue text for Planície Dourada
   const GOLDEN_PLAINS_DIALOGUE =
-    "Olá, visitante! Bem-vindo à Planície Dourada. Sou o Guardian desta região. Aqui encontrará paz e tranquilidade, longe do caos galáctico...";
+    "Olá, temos algumas naves em nossa coleção especial. Cada uma foi cuidadosamente selecionada para exploradores como você...";
 
   // Alien characters for translation effect
-  const ALIEN_CHARS = "◊◈◇◆☾☽⟡⟢⧿⧾⬟⬠⬢⬣⬡⬠⧨⧩⟐⟑ξζηθικλμνοπρστυφχψω";
+  const ALIEN_CHARS = "◊◈◇◆☾☽⟡⟢⧿⧾⬟⬠⬢⬣⬡⬠⧨��⟐⟑ξζηθικλμνοπρστυφχψω";
 
   const generateAlienChar = () => {
     return ALIEN_CHARS[Math.floor(Math.random() * ALIEN_CHARS.length)];
