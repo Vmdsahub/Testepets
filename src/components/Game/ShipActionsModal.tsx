@@ -369,13 +369,11 @@ export const ShipActionsModal: React.FC<ShipActionsModalProps> = ({
                     <div className="space-y-3">
                       <div>
                         <h4 className="font-semibold text-gray-800 mb-1">
-                          Explorador Galáctico MK-7
+                          {getActiveShip()?.name || "Explorador Galáctico MK-7"}
                         </h4>
                         <p className="text-sm text-gray-600 leading-relaxed">
-                          Uma nave versátil projetada para exploração espacial
-                          de longo alcance. Equipada com propulsores iônicos
-                          avançados e sistema de navega��ão quântica, esta nave
-                          é ideal para aventuras intergalácticas.
+                          {getActiveShip()?.description ||
+                            "Uma nave versátil projetada para exploração espacial de longo alcance. Equipada com propulsores iônicos avançados e sistema de navegação quântica, esta nave é ideal para aventuras intergalácticas."}
                         </p>
                       </div>
 
