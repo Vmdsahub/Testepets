@@ -2366,7 +2366,7 @@ const SpaceMapComponent: React.FC = () => {
 
             if (mouseInWindow && distance > 50) {
               // Very smooth speed scaling with exponential curve
-              const normalizedDistance = Math.min(distance / 500, 1); // Increased range for even smoother scaling
+              const normalizedDistance = Math.min(distance / 350, 1); // Reduced range for higher speeds
               const speedMultiplier = Math.pow(normalizedDistance, 1.2); // Steeper curve for more gradual start
 
               // Apply speed reduction if ship HP is 0 (85% reduction = 15% of original speed)
@@ -3244,7 +3244,7 @@ const SpaceMapComponent: React.FC = () => {
 
             if (mouseInWindow && distance > 50) {
               // Very smooth speed scaling with exponential curve
-              const normalizedDistance = Math.min(distance / 500, 1); // Increased range for even smoother scaling
+              const normalizedDistance = Math.min(distance / 350, 1); // Reduced range for higher speeds
               const speedMultiplier = Math.pow(normalizedDistance, 1.2); // Steeper curve for more gradual start
 
               // Apply speed reduction if ship HP is 0 (85% reduction = 15% of original speed)
@@ -3811,7 +3811,7 @@ const SpaceMapComponent: React.FC = () => {
         ctx.lineWidth = 2;
       }
 
-      // Rotaç���o lenta baseada no tempo
+      // Rotaç����o lenta baseada no tempo
       const rotationTime = currentTime * 0.0005; // Muito lenta
       const dashOffset = (rotationTime * 50) % 20; // Offset dos tra��os para simular rotação
 
