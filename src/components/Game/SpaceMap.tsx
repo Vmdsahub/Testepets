@@ -3506,11 +3506,12 @@ const SpaceMapComponent: React.FC = () => {
 
       // Update with delta time for unlimited FPS
       const currentFrameTime = performance.now();
-      const deltaTime = (currentFrameTime - lastFrameTimeRef.current) / 1000;
+      const frameDeltaTime =
+        (currentFrameTime - lastFrameTimeRef.current) / 1000;
       lastFrameTimeRef.current = currentFrameTime;
 
       // Update NPC ship
-      npcShip.updateShip(deltaTime * 1000); // Convert to milliseconds
+      npcShip.updateShip(frameDeltaTime * 1000); // Convert to milliseconds
 
       // Load asteroids around camera (chunk-based system)
       if (
