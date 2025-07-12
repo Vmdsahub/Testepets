@@ -3030,8 +3030,8 @@ const SpaceMapComponent: React.FC = () => {
       // Create trail points based on time
       const currentTime = performance.now();
       if (
-        currentShipVelocity > 0.15 && // Lower threshold for trail
-        currentTime - lastTrailTime.current > 50
+        currentShipVelocity > 10 && // 10 pixels per second threshold
+        currentTime - lastTrailTime.current > 35
       ) {
         // Calculate trail position at the back of the ship
         const trailOffset = 12;
