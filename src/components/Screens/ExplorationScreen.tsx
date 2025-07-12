@@ -94,6 +94,12 @@ export const ExplorationScreen: React.FC = () => {
     setCurrentScreen("planet");
   };
 
+  const handleBackToWorld = () => {
+    setCurrentExplorationPoint(null);
+    setCurrentExplorationArea(null);
+    setCurrentScreen("world");
+  };
+
   return (
     <motion.div
       className="h-full w-full pt-20 pb-20 px-4 overflow-y-auto"
