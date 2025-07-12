@@ -2705,12 +2705,10 @@ const SpaceMapComponent: React.FC = () => {
               const hpSpeedModifier = shipHP <= 0 ? 0.15 : 1.0;
               const targetSpeed =
                 SHIP_MAX_SPEED * speedMultiplier * hpSpeedModifier;
-              // Adjusted acceleration rate for new max speed
-              const accelerationRate = 100;
-              newState.ship.vx +=
-                (dx / distance) * targetSpeed * accelerationRate * deltaTime;
-              newState.ship.vy +=
-                (dy / distance) * targetSpeed * accelerationRate * deltaTime;
+              // Simple acceleration
+              const acceleration = 0.08;
+              newState.ship.vx += (dx / distance) * targetSpeed * acceleration;
+              newState.ship.vy += (dy / distance) * targetSpeed * acceleration;
             }
           }
         }
