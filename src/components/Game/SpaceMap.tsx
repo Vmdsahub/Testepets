@@ -3998,36 +3998,6 @@ const SpaceMapComponent: React.FC = () => {
       }
 
       // Create trail points during landing animation (moved outside the progress check)
-      if (isLandingAnimationActive && landingAnimationData) {
-        const currentTime = performance.now();
-        if (currentTime - lastTrailTime.current > 35) {
-          const elapsed = currentTime - landingAnimationData.startTime;
-          const progress = Math.min(elapsed / landingAnimationData.duration, 1);
-
-          if (progress < 1) {
-            const planet = landingAnimationData.planet;
-            const initialDx = landingAnimationData.initialShipX - planet.x;
-            const initialDy = landingAnimationData.initialShipY - planet.y;
-            const initialRadius = Math.sqrt(
-              initialDx * initialDx + initialDy * initialDy,
-            );
-            const orbitSpeed = 1;
-            const initialAngle = Math.atan2(initialDy, initialDx);
-            const angleProgress =
-              initialAngle + progress * orbitSpeed * Math.PI * 2;
-
-            // Calculate orbital velocity for proportional trail intensity
-            const currentRadius = initialRadius * (1 - progress * 0.9);
-            const orbitalSpeed =
-              (2 * Math.PI * currentRadius) / landingAnimationData.duration;
-            const normalizedOrbitalSpeed = Math.min(
-              orbitalSpeed / (SHIP_MAX_SPEED * 300),
-              1,
-            );
-            const landingIntensity = Math.max(normalizedOrbitalSpeed, 0.4);
-          }
-        }
-      }
 
       const shipWrappedDeltaX = getWrappedDistance(
         shipWorldX,
