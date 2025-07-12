@@ -247,7 +247,7 @@ const SpaceMapComponent: React.FC = () => {
     const transition = pendingScreenTransition.current;
     console.log("📋 Transição pendente:", transition);
     if (transition && transition.completed) {
-      console.log("���� Iniciando transição para planeta:", transition.planet);
+      console.log("🚀 Iniciando transição para planeta:", transition.planet);
       const planetData = {
         id: transition.planet.id,
         name: transition.planet.name,
@@ -2023,7 +2023,7 @@ const SpaceMapComponent: React.FC = () => {
     ];
 
     const planetNames = [
-      "Estação Galáctica",
+      "Estação Gal��ctica",
       "Base Orbital",
       "Mundo Alienígena",
       "Terra Verdejante",
@@ -2607,6 +2607,33 @@ const SpaceMapComponent: React.FC = () => {
     ctx.globalCompositeOperation = "source-over"; // Default, most GPU-optimized blend mode
 
     let lastTime = performance.now();
+
+    // Update game state with deltaTime in seconds
+    const updateGame = (deltaTime: number) => {
+      // FPS tracking
+      updateFPSTracking(deltaTime);
+
+      // Update ship physics and movement
+      updateShipPhysics(deltaTime);
+
+      // Update other game entities
+      updateGameEntities(deltaTime);
+
+      // Update camera
+      updateCamera(deltaTime);
+    };
+
+    // Render the game
+    const renderGame = (
+      ctx: CanvasRenderingContext2D,
+      canvas: HTMLCanvasElement,
+    ) => {
+      // Clear canvas and setup
+      setupCanvasForRender(ctx, canvas);
+
+      // Render all game elements
+      renderAllGameElements(ctx, canvas);
+    };
 
     const gameLoop = (currentTime: number) => {
       // Stop game loop immediately if we're not on world screen
