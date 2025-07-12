@@ -481,6 +481,12 @@ export const ShipActionsModal: React.FC<ShipActionsModalProps> = ({
               <div className="w-3 h-3 bg-white border-r border-b border-gray-200 transform rotate-45 shadow-md"></div>
             </div>
           </motion.div>
+
+          {/* Ship Inventory Modal */}
+          <ShipInventoryModal
+            isOpen={showShipInventoryModal}
+            onClose={() => setShowShipInventoryModal(false)}
+          />
         </>
       )}
     </AnimatePresence>
