@@ -3457,7 +3457,14 @@ const SpaceMapComponent: React.FC = () => {
 
       // Render radar pulses
       radarPulsesRef.current.forEach((pulse) => {
-        drawRadarPulse(ctx, pulse, centerX, centerY);
+        drawRadarPulse(
+          ctx,
+          pulse,
+          shipScreenX,
+          shipScreenY,
+          shipWorldX,
+          shipWorldY,
+        );
       });
     };
 
@@ -5105,7 +5112,7 @@ const SpaceMapComponent: React.FC = () => {
                 clearTimeout((window as any).worldSizeTimeout);
                 (window as any).worldSizeTimeout = setTimeout(async () => {
                   if (selectedWorldId) {
-                    console.log("���� Saving world size:", {
+                    console.log("����� Saving world size:", {
                       selectedWorldId,
                       newSize,
                     });
