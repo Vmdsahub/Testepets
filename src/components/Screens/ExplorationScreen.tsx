@@ -13,6 +13,11 @@ export const ExplorationScreen: React.FC = () => {
     getExplorationArea,
   } = useGameStore();
 
+  console.log("🔍 ExplorationScreen Debug:", {
+    currentExplorationPoint,
+    currentExplorationArea,
+  });
+
   // Generate exploration area when exploration point is selected
   useEffect(() => {
     if (currentExplorationPoint && !currentExplorationArea) {
