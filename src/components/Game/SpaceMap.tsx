@@ -3748,27 +3748,6 @@ const SpaceMapComponent: React.FC = () => {
         movementSoundActiveRef.current = false;
       }
 
-      // Update sound parameters in real-time when moving (only if not landing)
-      if (movementSoundActiveRef.current && !isLandingAnimationActive) {
-        updateContinuousMovementSound(currentShipVelocity, SHIP_MAX_SPEED);
-      }
-
-      // Only create trail points if ship is moving and enough time has passed
-      if (
-        currentShipVelocity > 0.1 &&
-        currentTime - lastTrailTime.current > 35
-      ) {
-        // Calculate trail position at the back of the ship
-        const trailOffset = 12; // Distance from ship center to back
-        const trailX =
-          gameState.ship.x - Math.cos(gameState.ship.angle) * trailOffset;
-        const trailY =
-          gameState.ship.y - Math.sin(gameState.ship.angle) * trailOffset;
-
-        createTrailPoint(trailX, trailY, currentTime, currentShipVelocity);
-        lastTrailTime.current = currentTime;
-      }
-
       // Update trail points
       updateTrailPoints(deltaTime);
       setGameState((prevState) => {
