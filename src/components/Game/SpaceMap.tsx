@@ -2137,16 +2137,31 @@ const SpaceMapComponent: React.FC = () => {
     planetsRef.current = planets;
   }, []);
 
-  // Load ship image
+  // Load ship image based on active ship
   useEffect(() => {
+    const activeShip = getActiveShip();
+    const shipImageUrl =
+      activeShip?.imageUrl ||
+      "https://cdn.builder.io/api/v1/image/assets%2F927080298e954d2fba85d9a91618627d%2Fd89cbfd7d2604752a995652efb832852?format=webp&width=800";
+
     const img = new Image();
     img.crossOrigin = "anonymous";
-    img.src =
-      "https://cdn.builder.io/api/v1/image/assets%2F927080298e954d2fba85d9a91618627d%2Fd89cbfd7d2604752a995652efb832852?format=webp&width=800";
+    img.src = shipImageUrl;
     img.onload = () => {
       shipImageRef.current = img;
     };
-  }, []);
+    img.onerror = () => {
+      console.error("Failed to load ship image, falling back to default");
+      // Load default ship image as fallback
+      const fallbackImg = new Image();
+      fallbackImg.crossOrigin = "anonymous";
+      fallbackImg.src =
+        "https://cdn.builder.io/api/v1/image/assets%2F927080298e954d2fba85d9a91618627d%2Fd89cbfd7d2604752a995652efb832852?format=webp&width=800";
+      fallbackImg.onload = () => {
+        shipImageRef.current = fallbackImg;
+      };
+    };
+  }, [getActiveShip]); // Re-run when active ship changes
 
   // Load asteroid image
   useEffect(() => {
