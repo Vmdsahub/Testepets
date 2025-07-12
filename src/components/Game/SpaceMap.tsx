@@ -3645,39 +3645,6 @@ const SpaceMapComponent: React.FC = () => {
         }
       }
 
-      // Update smoke particles with simple frame-based system
-      const smokeParticles = smokeParticlesRef.current;
-      for (let i = smokeParticles.length - 1; i >= 0; i--) {
-        const smoke = smokeParticles[i];
-
-        // Simple position update
-        smoke.x += smoke.vx;
-        smoke.y += smoke.vy;
-        smoke.life -= 1; // Decrease by 1 frame
-
-        // Simple air resistance
-        smoke.vx *= 0.99;
-        smoke.vy *= 0.99;
-
-        // Simple fade calculation (no deltaTime dependency)
-        const fadeRatio = smoke.life / smoke.maxLife;
-        smoke.opacity = smoke.initialOpacity * fadeRatio;
-
-        // Simple size expansion
-        const expansionRatio = 1 - fadeRatio;
-        smoke.size = smoke.initialSize + expansionRatio * 3;
-
-        // Very slight random drift instead of always upward
-        if (Math.random() < 0.05) {
-          smoke.vy -= 0.002;
-        }
-
-        // Remove dead particles
-        if (smoke.life <= 0) {
-          smokeParticles.splice(i, 1);
-        }
-      }
-
       // Create shooting stars less frequently for better performance - even less for large canvas
       const isLargeCanvas = canvas.width > 1000 || canvas.height > 600;
       const shootingStarInterval = isLargeCanvas
