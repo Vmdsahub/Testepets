@@ -3007,7 +3007,7 @@ const SpaceMapComponent: React.FC = () => {
       );
 
       // Continuous movement sound control
-      const velocityThreshold = 0.5; // Adjusted threshold for new max speed
+      const velocityThreshold = 0.1; // Lower threshold
       const isShipMoving =
         currentShipVelocity > velocityThreshold && !isLandingAnimationActive;
 
