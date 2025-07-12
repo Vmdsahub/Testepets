@@ -2293,7 +2293,7 @@ const SpaceMapComponent: React.FC = () => {
           const distance = Math.sqrt(dx * dx + dy * dy);
 
           if (distance <= planet.size) {
-            // Se já está selecionado e dragging, pare o drag
+            // Se já est�� selecionado e dragging, pare o drag
             if (selectedWorldId === planet.id && isDragging) {
               setIsDragging(false);
               setDragOffset({ x: 0, y: 0 });
@@ -3027,8 +3027,8 @@ const SpaceMapComponent: React.FC = () => {
       // Create trail points based on time
       const currentTime = performance.now();
       if (
-        currentShipVelocity > 0.5 && // Adjusted threshold for new max speed
-        currentTime - lastTrailTime.current > 35
+        currentShipVelocity > 0.15 && // Lower threshold for trail
+        currentTime - lastTrailTime.current > 50
       ) {
         // Calculate trail position at the back of the ship
         const trailOffset = 12;
