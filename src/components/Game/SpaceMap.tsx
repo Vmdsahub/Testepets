@@ -2876,6 +2876,167 @@ const SpaceMapComponent: React.FC = () => {
       });
     };
 
+    // Update game entities (projectiles, asteroids, particles, etc.)
+    const updateGameEntities = (deltaTime: number) => {
+      // Update projectiles
+      const projectiles = projectilesRef.current;
+      for (let i = projectiles.length - 1; i >= 0; i--) {
+        const proj = projectiles[i];
+        proj.x = normalizeCoord(proj.x + proj.vx * deltaTime);
+        proj.y = normalizeCoord(proj.y + proj.vy * deltaTime);
+        proj.life -= deltaTime;
+
+        if (proj.life <= 0) {
+          projectiles.splice(i, 1);
+        }
+      }
+
+      // Update NPC ship
+      npcShip.updateShip(deltaTime * 1000); // Convert to milliseconds for compatibility
+
+      // Load asteroids around camera (chunk-based system) - use current time
+      const currentTime = performance.now();
+      if (
+        currentTime - lastAsteroidSpawnTime.current >
+        ASTEROID_SPAWN_INTERVAL
+      ) {
+        loadAsteroidsAroundCamera();
+        lastAsteroidSpawnTime.current = currentTime;
+      }
+
+      // Update asteroids
+      const asteroids = asteroidsRef.current;
+      for (let i = asteroids.length - 1; i >= 0; i--) {
+        const asteroid = asteroids[i];
+
+        // Update position
+        asteroid.x = normalizeCoord(asteroid.x + asteroid.vx * deltaTime);
+        asteroid.y = normalizeCoord(asteroid.y + asteroid.vy * deltaTime);
+        asteroid.rotation += asteroid.rotationSpeed * deltaTime;
+
+        // Check collision with ship
+        const shipDistance = Math.sqrt(
+          Math.pow(asteroid.x - gameState.ship.x, 2) +
+            Math.pow(asteroid.y - gameState.ship.y, 2),
+        );
+
+        if (shipDistance < asteroid.size + 15) {
+          asteroids.splice(i, 1);
+          damageShip();
+          createDamageParticles(gameState.ship.x, gameState.ship.y);
+        }
+      }
+
+      // Update xenocoins
+      const xenoCoins = xenoCoinsRef.current;
+      for (let i = xenoCoins.length - 1; i >= 0; i--) {
+        const xenoCoin = xenoCoins[i];
+
+        // Check if ship is close enough to collect
+        const distance = Math.sqrt(
+          Math.pow(xenoCoin.x - gameState.ship.x, 2) +
+            Math.pow(xenoCoin.y - gameState.ship.y, 2),
+        );
+
+        if (distance < 25) {
+          // Collected!
+          setGameState((prevState) => ({
+            ...prevState,
+            user: {
+              ...prevState.user!,
+              totalXenocoins:
+                (prevState.user?.totalXenocoins || 0) + xenoCoin.value,
+            },
+          }));
+
+          collectXenoCoin(xenoCoin.value);
+          xenoCoins.splice(i, 1);
+          continue;
+        }
+
+        // Update rotation and animation
+        xenoCoin.rotation += xenoCoin.rotationSpeed * deltaTime;
+      }
+
+      // Update particles
+      const particles = particlesRef.current;
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const particle = particles[i];
+
+        // Update position and life
+        particle.x = normalizeCoord(particle.x + particle.vx * deltaTime);
+        particle.y = normalizeCoord(particle.y + particle.vy * deltaTime);
+        particle.rotation += particle.rotationSpeed * deltaTime;
+        particle.life -= deltaTime;
+
+        if (particle.life <= 0) {
+          particles.splice(i, 1);
+        }
+      }
+
+      // Update smoke particles
+      const smokeParticles = smokeParticlesRef.current;
+      for (let i = smokeParticles.length - 1; i >= 0; i--) {
+        const smoke = smokeParticles[i];
+
+        // Simple position update
+        smoke.x += smoke.vx * deltaTime;
+        smoke.y += smoke.vy * deltaTime;
+        smoke.life -= deltaTime;
+
+        if (smoke.life <= 0) {
+          smokeParticles.splice(i, 1);
+        }
+      }
+
+      // Handle ship movement sounds and trail generation
+      handleShipEffects(deltaTime);
+    };
+
+    // Handle ship-related effects (sounds, trails, etc.)
+    const handleShipEffects = (deltaTime: number) => {
+      // Calculate current ship velocity
+      const currentShipVelocity = Math.sqrt(
+        gameState.ship.vx * gameState.ship.vx +
+          gameState.ship.vy * gameState.ship.vy,
+      );
+
+      // Continuous movement sound control
+      const velocityThreshold = 0.05;
+      const isShipMoving =
+        currentShipVelocity > velocityThreshold && !isLandingAnimationActive;
+
+      if (isShipMoving && !movementSoundActiveRef.current) {
+        startContinuousMovementSound();
+        movementSoundActiveRef.current = true;
+      } else if (!isShipMoving && movementSoundActiveRef.current) {
+        stopContinuousMovementSound();
+        movementSoundActiveRef.current = false;
+      }
+
+      // Update movement sound volume
+      if (movementSoundActiveRef.current && !isLandingAnimationActive) {
+        updateContinuousMovementSound(currentShipVelocity, SHIP_MAX_SPEED);
+      }
+
+      // Create trail points based on time
+      const currentTime = performance.now();
+      if (
+        currentShipVelocity > 0.1 &&
+        currentTime - lastTrailTime.current > 35
+      ) {
+        // Calculate trail position at the back of the ship
+        const trailOffset = 12;
+        const trailX =
+          gameState.ship.x - Math.cos(gameState.ship.angle) * trailOffset;
+        const trailY =
+          gameState.ship.y - Math.sin(gameState.ship.angle) * trailOffset;
+
+        createTrailPoint(trailX, trailY, currentTime, currentShipVelocity);
+        lastTrailTime.current = currentTime;
+      }
+    };
+
     // Update game state with deltaTime in seconds
     const updateGame = (deltaTime: number) => {
       // Update ship physics and movement
