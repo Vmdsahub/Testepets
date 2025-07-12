@@ -31,7 +31,7 @@ interface Star {
   drift: { x: number; y: number };
   pulse: number;
   baseX: number; // Posição base para movimento oscilatório
-  baseY: number; // Posição base para movimento oscilat��rio
+  baseY: number; // Posição base para movimento oscilatório
   floatAmplitude: { x: number; y: number }; // Amplitude do movimento de flutua���ão
   floatPhase: { x: number; y: number }; // Fase do movimento senoidal
 }
@@ -225,7 +225,7 @@ const SpaceMapComponent: React.FC = () => {
   const lastFrameTimeRef = useRef(performance.now());
   const frameCounter = useRef(0);
   const lastSmokeFrame = useRef(0);
-  const [isMousePressed, setIsMousePressed] = useState(false);
+
   const [canvasDimensions, setCanvasDimensions] = useState({
     width: window.innerWidth,
     height: window.innerHeight,
