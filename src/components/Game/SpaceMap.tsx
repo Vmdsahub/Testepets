@@ -2911,8 +2911,8 @@ const SpaceMapComponent: React.FC = () => {
         const deltaX = getWrappedDistance(targetX, newState.camera.x);
         const deltaY = getWrappedDistance(targetY, newState.camera.y);
 
-        newState.camera.x += deltaX * cameraFollowSpeed * normalizedDeltaTime;
-        newState.camera.y += deltaY * cameraFollowSpeed * normalizedDeltaTime;
+        newState.camera.x += deltaX * cameraFollowSpeed;
+        newState.camera.y += deltaY * cameraFollowSpeed;
 
         newState.camera.x = normalizeCoord(newState.camera.x);
         newState.camera.y = normalizeCoord(newState.camera.y);
