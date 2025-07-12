@@ -3998,8 +3998,8 @@ const SpaceMapComponent: React.FC = () => {
           ctx.imageSmoothingEnabled = true;
           ctx.imageSmoothingQuality = "high";
 
-          // Rotate 180 degrees to make ship face right instead of left
-          ctx.rotate(Math.PI);
+          // Rotate 90 degrees to make ship face forward instead of left
+          ctx.rotate(Math.PI / 2);
 
           ctx.drawImage(
             shipImageRef.current,
