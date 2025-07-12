@@ -32,7 +32,24 @@ export const ExplorationScreen: React.FC = () => {
   ]);
 
   if (!currentExplorationPoint || !currentExplorationArea) {
-    return null;
+    return (
+      <div className="h-full w-full pt-20 pb-20 px-4 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-xl font-bold text-gray-800 mb-4">
+            Nenhum ponto de exploração selecionado
+          </h2>
+          <p className="text-gray-600 mb-6">
+            Volte ao planeta e selecione um ponto para explorar.
+          </p>
+          <button
+            onClick={() => setCurrentScreen("planet")}
+            className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-full transition-colors"
+          >
+            Voltar ao Planeta
+          </button>
+        </div>
+      </div>
+    );
   }
 
   const handleBack = () => {
