@@ -3072,35 +3072,6 @@ const SpaceMapComponent: React.FC = () => {
         }
       }
 
-      // Render projectiles
-      const projectilesForRender = projectilesRef.current;
-      for (let i = 0; i < projectilesForRender.length; i++) {
-        const proj = projectilesForRender[i];
-        const wrappedDeltaX = getWrappedDistance(proj.x, gameState.camera.x);
-        const wrappedDeltaY = getWrappedDistance(proj.y, gameState.camera.y);
-        const screenX = centerX + wrappedDeltaX;
-        const screenY = centerY + wrappedDeltaY;
-
-        if (
-          screenX >= renderViewport.left &&
-          screenX <= renderViewport.right &&
-          screenY >= renderViewport.top &&
-          screenY <= renderViewport.bottom
-        ) {
-          ctx.save();
-          ctx.globalAlpha = Math.max(0.3, proj.life / proj.maxLife);
-          ctx.strokeStyle = "#00ffff";
-          ctx.lineWidth = 3;
-          ctx.shadowColor = "#00ffff";
-          ctx.shadowBlur = 8;
-          ctx.beginPath();
-          ctx.moveTo(screenX - proj.vx * 0.5, screenY - proj.vy * 0.5);
-          ctx.lineTo(screenX + proj.vx * 0.5, screenY + proj.vy * 0.5);
-          ctx.stroke();
-          ctx.restore();
-        }
-      }
-
       // Render shooting stars
       const shootingStarsForRender = shootingStarsRef.current;
       for (let i = 0; i < shootingStarsForRender.length; i++) {
