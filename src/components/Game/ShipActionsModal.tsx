@@ -181,9 +181,7 @@ export const ShipActionsModal: React.FC<ShipActionsModalProps> = ({
         setCurrentView("inventory");
         break;
       case "change":
-        // TODO: Implement ship change functionality
-        console.log("Trocar nave - funcionalidade futura");
-        onClose();
+        setShowShipInventoryModal(true);
         break;
       default:
         onClose();
