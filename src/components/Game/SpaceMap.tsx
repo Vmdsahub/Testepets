@@ -564,7 +564,7 @@ const SpaceMapComponent: React.FC = () => {
         const pixelData = tempCtx.getImageData(imgX, imgY, 1, 1).data;
         const alpha = pixelData[3]; // Alpha channel
         return alpha > 50; // Consider pixel visible if alpha > 50
-      } catch (e) {
+      } catch {
         // Fallback to circle detection if there's an error
         return Math.sqrt(dx * dx + dy * dy) <= planet.size;
       }
