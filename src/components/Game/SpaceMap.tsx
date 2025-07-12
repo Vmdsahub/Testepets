@@ -2142,7 +2142,7 @@ const SpaceMapComponent: React.FC = () => {
     const activeShip = getActiveShip();
     const shipImageUrl =
       activeShip?.imageUrl ||
-      "https://cdn.builder.io/api/v1/image/assets%2Fa34588f934eb4ad690ceadbafd1050c4%2Fb858d05001c14c0dbd4ba321811b959f?format=webp&width=800";
+      "https://cdn.builder.io/api/v1/image/assets%2Fa34588f934eb4ad690ceadbafd1050c4%2F08167028f08f4996b97ed7703ce66292?format=webp&width=800";
 
     const img = new Image();
     img.crossOrigin = "anonymous";
@@ -4402,7 +4402,7 @@ const SpaceMapComponent: React.FC = () => {
                 clearTimeout((window as any).worldInteractionTimeout);
                 (window as any).worldInteractionTimeout = setTimeout(() => {
                   if (selectedWorldId) {
-                    console.log("🎯 Saving interaction radius:", {
+                    console.log("���� Saving interaction radius:", {
                       selectedWorldId,
                       newRadius,
                     });
