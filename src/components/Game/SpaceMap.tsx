@@ -2250,14 +2250,6 @@ const SpaceMapComponent: React.FC = () => {
   }, []);
 
   // Cleanup do timer de tiro quando componente desmonta
-  useEffect(() => {
-    return () => {
-      if (shootingIntervalRef.current) {
-        clearInterval(shootingIntervalRef.current);
-        shootingIntervalRef.current = null;
-      }
-    };
-  }, []);
 
   // Parar tiro quando mouse sai da ��rea do canvas
   const handleMouseLeaveCanvas = useCallback(() => {
