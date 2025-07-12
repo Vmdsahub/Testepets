@@ -358,7 +358,7 @@ export const ShipActionsModal: React.FC<ShipActionsModalProps> = ({
                       <img
                         src={
                           getActiveShip()?.imageUrl ||
-                          "https://cdn.builder.io/api/v1/image/assets%2Fa34588f934eb4ad690ceadbafd1050c4%2F15bec815b4ff404988b6644d7d055efa?format=webp&width=800"
+                          "https://cdn.builder.io/api/v1/image/assets%2Fa34588f934eb4ad690ceadbafd1050c4%2Fb858d05001c14c0dbd4ba321811b959f?format=webp&width=800"
                         }
                         alt="Nave do Jogador"
                         className="w-32 h-32 object-contain bg-gray-50 rounded-lg border border-gray-200"
