@@ -2323,7 +2323,7 @@ const SpaceMapComponent: React.FC = () => {
       // Player ship is always at center of screen
       const shipScreenX = centerX;
       const shipScreenY = centerY;
-      const shipSize = 30; // Same as defined in render function
+      const shipSize = 36; // Same as defined in render function (increased by 20%)
 
       const distance = Math.sqrt(
         Math.pow(clickX - shipScreenX, 2) + Math.pow(clickY - shipScreenY, 2),
