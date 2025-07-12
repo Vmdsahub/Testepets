@@ -221,7 +221,7 @@ const SpaceMapComponent: React.FC = () => {
   useEffect(() => {
     console.log("🔄 useEffect de transição executado");
     const transition = pendingScreenTransition.current;
-    console.log("📋 Transição pendente:", transition);
+    console.log("📋 Transiç��o pendente:", transition);
     if (transition && transition.completed) {
       console.log("🚀 Iniciando transição para planeta:", transition.planet);
       const planetData = {
@@ -4138,78 +4138,6 @@ const SpaceMapComponent: React.FC = () => {
 
           ctx.restore();
         }
-      }
-
-      // Render projectiles as bright energy beams - optimized with for loop
-      const projectilesForRender = projectilesRef.current;
-      for (let i = 0; i < projectilesForRender.length; i++) {
-        const proj = projectilesForRender[i];
-        const wrappedDeltaX = getWrappedDistance(proj.x, gameState.camera.x);
-        const wrappedDeltaY = getWrappedDistance(proj.y, gameState.camera.y);
-        const screenX = centerX + wrappedDeltaX;
-        const screenY = centerY + wrappedDeltaY;
-
-        ctx.save();
-
-        const lifeRatio = proj.life / proj.maxLife;
-        const angle = Math.atan2(proj.vy, proj.vx);
-        const length = 8;
-        const time = Date.now() * 0.01; // Para efeito pulsante
-        const pulse = 0.8 + 0.2 * Math.sin(time);
-
-        // Calcular pontos da linha do tracinho
-        const endX = screenX + Math.cos(angle) * length;
-        const endY = screenY + Math.sin(angle) * length;
-
-        // Glow externo mais sutil (aura de energia amarela mais fraca)
-        ctx.globalAlpha = lifeRatio * 0.2 * pulse;
-        ctx.strokeStyle = "#e6c200";
-        ctx.lineWidth = 6;
-        ctx.lineCap = "round";
-        ctx.shadowColor = "#e6c200";
-        ctx.shadowBlur = 15;
-        ctx.beginPath();
-        ctx.moveTo(screenX, screenY);
-        ctx.lineTo(endX, endY);
-        ctx.stroke();
-
-        // Glow médio amarelo-dourado mais suave
-        ctx.globalAlpha = lifeRatio * 0.5;
-        ctx.strokeStyle = "#f0d633";
-        ctx.lineWidth = 3;
-        ctx.shadowBlur = 8;
-        ctx.beginPath();
-        ctx.moveTo(screenX, screenY);
-        ctx.lineTo(endX, endY);
-        ctx.stroke();
-
-        // Core energético amarelo mais suave
-        ctx.globalAlpha = lifeRatio * 0.7 * pulse;
-        ctx.strokeStyle = "#f5e033";
-        ctx.lineWidth = 2;
-        ctx.shadowColor = "#f5e033";
-        ctx.shadowBlur = 6;
-        ctx.beginPath();
-        ctx.moveTo(screenX, screenY);
-        ctx.lineTo(endX, endY);
-        ctx.stroke();
-
-        // Centro brilhante amarelo-branco mais sutil
-        ctx.globalAlpha = lifeRatio * 0.8;
-        ctx.strokeStyle = "#f8f8cc";
-        ctx.lineWidth = 1;
-        ctx.shadowColor = "#f8f8cc";
-        ctx.shadowBlur = 3;
-        ctx.beginPath();
-        ctx.moveTo(screenX, screenY);
-        ctx.lineTo(endX, endY);
-        ctx.stroke();
-
-        // Reset shadow para não afetar outros elementos
-        ctx.shadowColor = "transparent";
-        ctx.shadowBlur = 0;
-
-        ctx.restore();
       }
 
       // Render shooting stars - optimized with for loop
