@@ -2781,6 +2781,101 @@ const SpaceMapComponent: React.FC = () => {
       });
     };
 
+    // Update camera to follow ship
+    const updateCamera = (deltaTime: number) => {
+      setGameState((prevState) => {
+        const newState = { ...prevState };
+
+        // Camera follows ship (use current ship position for landing animation)
+        const targetX =
+          isLandingAnimationActive && landingAnimationData
+            ? (() => {
+                const planet = planetsRef.current.find(
+                  (p) => p.id === landingAnimationData.planetId,
+                );
+                if (!planet) return newState.ship.x;
+
+                const progress = Math.min(
+                  (performance.now() - landingAnimationData.startTime) /
+                    landingAnimationData.duration,
+                  1,
+                );
+
+                if (progress < 1) {
+                  const initialDx = getWrappedDistance(
+                    planet.x,
+                    landingAnimationData.initialShipX,
+                  );
+                  const initialDy = getWrappedDistance(
+                    planet.y,
+                    landingAnimationData.initialShipY,
+                  );
+                  const initialRadius = Math.sqrt(
+                    initialDx * initialDx + initialDy * initialDy,
+                  );
+                  const orbitSpeed = 1;
+                  const initialAngle = Math.atan2(initialDy, initialDx);
+                  const angleProgress =
+                    initialAngle + progress * orbitSpeed * Math.PI * 2;
+                  const currentRadius = initialRadius * (1 - progress * 0.9);
+                  return planet.x + Math.cos(angleProgress) * currentRadius;
+                }
+                return planet.x;
+              })()
+            : newState.ship.x;
+
+        const targetY =
+          isLandingAnimationActive && landingAnimationData
+            ? (() => {
+                const planet = planetsRef.current.find(
+                  (p) => p.id === landingAnimationData.planetId,
+                );
+                if (!planet) return newState.ship.y;
+
+                const progress = Math.min(
+                  (performance.now() - landingAnimationData.startTime) /
+                    landingAnimationData.duration,
+                  1,
+                );
+
+                if (progress < 1) {
+                  const initialDx = getWrappedDistance(
+                    planet.x,
+                    landingAnimationData.initialShipX,
+                  );
+                  const initialDy = getWrappedDistance(
+                    planet.y,
+                    landingAnimationData.initialShipY,
+                  );
+                  const initialRadius = Math.sqrt(
+                    initialDx * initialDx + initialDy * initialDy,
+                  );
+                  const orbitSpeed = 1;
+                  const initialAngle = Math.atan2(initialDy, initialDx);
+                  const angleProgress =
+                    initialAngle + progress * orbitSpeed * Math.PI * 2;
+                  const currentRadius = initialRadius * (1 - progress * 0.9);
+                  return planet.y + Math.sin(angleProgress) * currentRadius;
+                }
+                return planet.y;
+              })()
+            : newState.ship.y;
+
+        // Convert camera follow speed to deltaTime (0.08 per frame @ 60fps = 4.8 per second)
+        const cameraFollowSpeed = 4.8;
+        const deltaX = getWrappedDistance(targetX, newState.camera.x);
+        const deltaY = getWrappedDistance(targetY, newState.camera.y);
+
+        newState.camera.x += deltaX * cameraFollowSpeed * deltaTime;
+        newState.camera.y += deltaY * cameraFollowSpeed * deltaTime;
+
+        newState.camera.x = normalizeCoord(newState.camera.x);
+        newState.camera.y = normalizeCoord(newState.camera.y);
+
+        return newState;
+      });
+    };
+
     // Update game state with deltaTime in seconds
     const updateGame = (deltaTime: number) => {
       // Update ship physics and movement
