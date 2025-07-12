@@ -9,6 +9,7 @@ import { MobileTouchControls } from "./MobileTouchControls";
 
 import { FinalWebGLStars } from "./FinalWebGLStars";
 import {
+  playLaserShootSound,
   playLandingSound,
   startContinuousMovementSound,
   updateContinuousMovementSound,
@@ -51,6 +52,15 @@ interface Planet {
   floatAmplitude?: { x: number; y: number };
   floatPhase?: { x: number; y: number };
   floatSpeed?: number;
+}
+
+interface Projectile {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  life: number;
+  maxLife: number;
 }
 
 interface ShootingStar {
@@ -120,6 +130,28 @@ interface RadarPulse {
   opacity: number;
 }
 
+interface TrailPoint {
+  x: number;
+  y: number;
+  life: number;
+  maxLife: number;
+  intensity: number;
+}
+
+interface SmokeParticle {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  life: number;
+  maxLife: number;
+  size: number;
+  opacity: number;
+  initialOpacity: number;
+  initialSize: number;
+  drift: { x: number; y: number };
+}
+
 interface GameState {
   ship: {
     x: number;
@@ -135,14 +167,21 @@ interface GameState {
 }
 
 const WORLD_SIZE = 100000;
-const SHIP_MAX_SPEED = 0.6; // velocidade máxima 0.6 conforme requisito
+const SHIP_MAX_SPEED = 60; // pixels per second (reduced by 80%)
 const FRICTION = 0.92;
 const CENTER_X = WORLD_SIZE / 2;
 const CENTER_Y = WORLD_SIZE / 2;
 const BARRIER_RADIUS = 600;
+const PROJECTILE_SPEED = 600; // pixels per second (consistent across all FPS)
+const PROJECTILE_LIFETIME = 4.0; // seconds
 
 // Pre-render buffer size
 const RENDER_BUFFER = 200;
+
+// Trail constants
+const TRAIL_MAX_POINTS = 25;
+const TRAIL_LIFETIME = 1200; // milliseconds
+const TRAIL_WIDTH = 12;
 
 const SpaceMapComponent: React.FC = () => {
   const {
@@ -168,22 +207,24 @@ const SpaceMapComponent: React.FC = () => {
   const hasMouseMoved = useRef(false);
   const starsRef = useRef<Star[]>([]);
   const planetsRef = useRef<Planet[]>([]);
-
+  const projectilesRef = useRef<Projectile[]>([]);
   const shootingStarsRef = useRef<ShootingStar[]>([]);
   const radarPulsesRef = useRef<RadarPulse[]>([]);
-
+  const trailPointsRef = useRef<TrailPoint[]>([]);
   const asteroidsRef = useRef<Asteroid[]>([]);
   const xenoCoinsRef = useRef<XenoCoin[]>([]);
   const particlesRef = useRef<Particle[]>([]);
-
+  const smokeParticlesRef = useRef<SmokeParticle[]>([]);
+  const lastTrailTime = useRef<number>(0);
   const lastShootingStarTime = useRef(0);
-
+  const lastShootTime = useRef(0);
   const lastAsteroidSpawnTime = useRef(0);
   const ASTEROID_SPAWN_INTERVAL = 5000; // Check for chunk loading every 5 seconds
   const lastRadarCheckRef = useRef<Set<string>>(new Set());
-
+  const shootingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const lastFrameTimeRef = useRef(performance.now());
   const frameCounter = useRef(0);
+  const lastSmokeFrame = useRef(0);
 
   const [canvasDimensions, setCanvasDimensions] = useState({
     width: window.innerWidth,
@@ -204,7 +245,7 @@ const SpaceMapComponent: React.FC = () => {
   useEffect(() => {
     console.log("🔄 useEffect de transição executado");
     const transition = pendingScreenTransition.current;
-    console.log("📋 Transiç��o pendente:", transition);
+    console.log("📋 Transição pendente:", transition);
     if (transition && transition.completed) {
       console.log("🚀 Iniciando transição para planeta:", transition.planet);
       const planetData = {
@@ -228,7 +269,7 @@ const SpaceMapComponent: React.FC = () => {
     const transition = pendingScreenTransition.current;
     if (transition && transition.completed) {
       console.log(
-        "⚡ useLayoutEffect: Processando transiç��o pendente imediatamente",
+        "⚡ useLayoutEffect: Processando transição pendente imediatamente",
       );
       const planetData = {
         id: transition.planet.id,
@@ -403,6 +444,73 @@ const SpaceMapComponent: React.FC = () => {
     isPaused: showNPCModal,
   });
 
+  // Function to create smoke trail particles behind the ship
+  const createSmokeTrail = useCallback(
+    (shipX: number, shipY: number, shipAngle: number) => {
+      // Create single particle for subtle smoke trail
+      for (let i = 0; i < 1; i++) {
+        // Position particles behind the ship
+        const trailDistance = 15 + i * 8; // Spread them out behind the ship
+        const baseX = shipX - Math.cos(shipAngle) * trailDistance;
+        const baseY = shipY - Math.sin(shipAngle) * trailDistance;
+
+        const initialOpacity = 0.7;
+        const initialSize = 3 + Math.random() * 2; // 3-5 pixels
+        const newSmokeParticle: SmokeParticle = {
+          x: baseX + (Math.random() - 0.5) * 6,
+          y: baseY + (Math.random() - 0.5) * 6,
+          vx: (Math.random() - 0.5) * 0.2 - Math.cos(shipAngle) * 0.1, // Slower, opposite to ship direction
+          vy: (Math.random() - 0.5) * 0.2 - Math.sin(shipAngle) * 0.1, // Slower, opposite to ship direction
+          life: 90, // Frame-based: 90 frames = ~1.5 seconds at 60fps
+          maxLife: 90,
+          size: initialSize,
+          opacity: initialOpacity,
+          initialOpacity: initialOpacity,
+          initialSize: initialSize,
+          drift: {
+            x: (Math.random() - 0.5) * 0.05,
+            y: (Math.random() - 0.5) * 0.05,
+          },
+        };
+        smokeParticlesRef.current.push(newSmokeParticle);
+      }
+    },
+    [],
+  );
+
+  // Função de tiro que pode ser reutilizada
+  const shootProjectile = useCallback(() => {
+    const currentTime = Date.now();
+    const SHOOT_COOLDOWN = 333; // 333ms entre tiros (3 tiros/segundo)
+
+    // Check if ship can shoot (HP must be > 0)
+    if (shipHP <= 0) {
+      return false; // Cannot shoot when HP is 0
+    }
+
+    // Verificar cooldown
+    if (currentTime - lastShootTime.current >= SHOOT_COOLDOWN) {
+      const newProjectile: Projectile = {
+        x: gameState.ship.x,
+        y: gameState.ship.y,
+        vx: Math.cos(gameState.ship.angle) * PROJECTILE_SPEED, // pixels per second
+        vy: Math.sin(gameState.ship.angle) * PROJECTILE_SPEED, // pixels per second
+        life: PROJECTILE_LIFETIME,
+        maxLife: PROJECTILE_LIFETIME,
+      };
+      projectilesRef.current.push(newProjectile);
+      lastShootTime.current = currentTime;
+
+      // Tocar som de laser
+      playLaserShootSound().catch(() => {
+        // Som n��o é crítico, ignora erro
+      });
+
+      return true; // Tiro disparado
+    }
+    return false; // Cooldown ainda ativo
+  }, [gameState.ship.x, gameState.ship.y, gameState.ship.angle, shipHP]);
+
   // Mobile control callbacks
   const handleMobileMovement = useCallback(
     (direction: { x: number; y: number }) => {
@@ -410,6 +518,10 @@ const SpaceMapComponent: React.FC = () => {
     },
     [],
   );
+
+  const handleMobileShoot = useCallback(() => {
+    shootProjectile();
+  }, [shootProjectile]);
 
   // Function to check if click is on visible pixel of planet image
   const isClickOnPlanetPixel = useCallback(
@@ -943,6 +1055,17 @@ const SpaceMapComponent: React.FC = () => {
     [generateId, normalizeCoord],
   );
 
+  // Check collision between projectile and asteroid
+  const checkProjectileAsteroidCollision = useCallback(
+    (projectile: Projectile, asteroid: Asteroid) => {
+      const dx = getWrappedDistance(projectile.x, asteroid.x);
+      const dy = getWrappedDistance(projectile.y, asteroid.y);
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      return distance < asteroid.size;
+    },
+    [],
+  );
+
   // Check collision between ship and xenocoin
   const checkShipXenoCoinCollision = useCallback(
     (ship: { x: number; y: number }, xenoCoin: XenoCoin) => {
@@ -1270,6 +1393,189 @@ const SpaceMapComponent: React.FC = () => {
     [getWrappedDistance],
   );
 
+  // Create trail point function
+  const createTrailPoint = useCallback(
+    (x: number, y: number, currentTime: number, shipVelocity: number) => {
+      const intensity = Math.min(shipVelocity / SHIP_MAX_SPEED, 1);
+
+      trailPointsRef.current.push({
+        x,
+        y,
+        life: TRAIL_LIFETIME,
+        maxLife: TRAIL_LIFETIME,
+        intensity,
+      });
+
+      // Keep only the most recent trail points
+      if (trailPointsRef.current.length > TRAIL_MAX_POINTS) {
+        trailPointsRef.current.shift();
+      }
+    },
+    [],
+  );
+
+  // Update trail points function
+  const updateTrailPoints = useCallback((deltaTime: number) => {
+    // Limit deltaTime to prevent trail from disappearing with uncapped FPS
+    const safeDeltaTime = Math.min(deltaTime, 33); // Cap at ~30 FPS equivalent
+
+    trailPointsRef.current.forEach((point) => {
+      point.life -= safeDeltaTime;
+    });
+
+    // Remove dead trail points
+    trailPointsRef.current = trailPointsRef.current.filter(
+      (point) => point.life > 0,
+    );
+  }, []);
+
+  // Draw trail function
+  const drawShipTrail = useCallback(
+    (
+      ctx: CanvasRenderingContext2D,
+      shipScreenX: number,
+      shipScreenY: number,
+      shipWorldX: number,
+      shipWorldY: number,
+    ) => {
+      if (trailPointsRef.current.length < 2) return;
+
+      ctx.save();
+
+      // Enable global shadow for intense glow effect
+      const time = Date.now() * 0.003;
+      const pulseIntensity = 0.7 + 0.3 * Math.sin(time); // Pulsing effect
+
+      // Draw each segment of the trail
+      for (let i = 0; i < trailPointsRef.current.length - 1; i++) {
+        const current = trailPointsRef.current[i];
+        const next = trailPointsRef.current[i + 1];
+
+        const currentLifeRatio = current.life / current.maxLife;
+        const nextLifeRatio = next.life / next.maxLife;
+
+        // Calculate screen positions using wrapped distance
+        const currentDx = getWrappedDistance(current.x, shipWorldX);
+        const currentDy = getWrappedDistance(current.y, shipWorldY);
+        const currentScreenX = shipScreenX + currentDx;
+        const currentScreenY = shipScreenY + currentDy;
+
+        const nextDx = getWrappedDistance(next.x, shipWorldX);
+        const nextDy = getWrappedDistance(next.y, shipWorldY);
+        const nextScreenX = shipScreenX + nextDx;
+        const nextScreenY = shipScreenY + nextDy;
+
+        // Create gradient for the trail segment
+        const distance = Math.sqrt(
+          Math.pow(nextScreenX - currentScreenX, 2) +
+            Math.pow(nextScreenY - currentScreenY, 2),
+        );
+
+        if (distance > 0) {
+          const gradient = ctx.createLinearGradient(
+            currentScreenX,
+            currentScreenY,
+            nextScreenX,
+            nextScreenY,
+          );
+
+          // Yellow glow effect with intensity-based strength - ultra bright
+          const currentAlpha = Math.min(
+            currentLifeRatio * current.intensity * 0.95,
+            0.9,
+          );
+          const nextAlpha = Math.min(
+            nextLifeRatio * next.intensity * 0.95,
+            0.9,
+          );
+          const avgAlpha = (currentAlpha + nextAlpha) / 2;
+          const avgIntensity = (current.intensity + next.intensity) / 2;
+
+          gradient.addColorStop(0, `rgba(255, 235, 59, ${currentAlpha})`); // Soft yellow
+          gradient.addColorStop(1, `rgba(255, 193, 7, ${nextAlpha})`); // Slightly orange yellow
+
+          // Ultra bright outer glow with shadow
+          ctx.shadowColor = "#ffeb3b";
+          ctx.shadowBlur = 25 * pulseIntensity * avgIntensity;
+          ctx.strokeStyle = `rgba(255, 215, 0, ${avgAlpha * 0.8 * pulseIntensity})`;
+          ctx.lineWidth =
+            TRAIL_WIDTH *
+            2.5 *
+            ((currentLifeRatio + nextLifeRatio) / 2) *
+            avgIntensity;
+          ctx.lineCap = "round";
+          ctx.lineJoin = "round";
+
+          ctx.beginPath();
+          ctx.moveTo(currentScreenX, currentScreenY);
+          ctx.lineTo(nextScreenX, nextScreenY);
+          ctx.stroke();
+
+          // Medium glow layer
+          ctx.shadowBlur = 15 * pulseIntensity * avgIntensity;
+          ctx.strokeStyle = `rgba(255, 235, 59, ${avgAlpha * 0.9 * pulseIntensity})`;
+          ctx.lineWidth =
+            TRAIL_WIDTH *
+            1.8 *
+            ((currentLifeRatio + nextLifeRatio) / 2) *
+            avgIntensity;
+
+          ctx.beginPath();
+          ctx.moveTo(currentScreenX, currentScreenY);
+          ctx.lineTo(nextScreenX, nextScreenY);
+          ctx.stroke();
+
+          // Main trail segment with bright glow
+          ctx.shadowBlur = 10 * pulseIntensity * avgIntensity;
+          ctx.strokeStyle = gradient;
+          ctx.lineWidth =
+            TRAIL_WIDTH *
+            ((currentLifeRatio + nextLifeRatio) / 2) *
+            avgIntensity;
+          ctx.beginPath();
+          ctx.moveTo(currentScreenX, currentScreenY);
+          ctx.lineTo(nextScreenX, nextScreenY);
+          ctx.stroke();
+
+          // Ultra bright inner core with white hot center
+          ctx.shadowColor = "#ffffff";
+          ctx.shadowBlur = 8 * pulseIntensity * avgIntensity;
+          ctx.strokeStyle = `rgba(255, 255, 255, ${avgAlpha * 0.9 * pulseIntensity})`;
+          ctx.lineWidth =
+            TRAIL_WIDTH *
+            0.6 *
+            ((currentLifeRatio + nextLifeRatio) / 2) *
+            avgIntensity;
+          ctx.beginPath();
+          ctx.moveTo(currentScreenX, currentScreenY);
+          ctx.lineTo(nextScreenX, nextScreenY);
+          ctx.stroke();
+
+          // Final bright yellow core
+          ctx.shadowColor = "#ffff00";
+          ctx.shadowBlur = 5 * pulseIntensity * avgIntensity;
+          ctx.strokeStyle = `rgba(255, 255, 150, ${avgAlpha * pulseIntensity})`;
+          ctx.lineWidth =
+            TRAIL_WIDTH *
+            0.3 *
+            ((currentLifeRatio + nextLifeRatio) / 2) *
+            avgIntensity;
+          ctx.beginPath();
+          ctx.moveTo(currentScreenX, currentScreenY);
+          ctx.lineTo(nextScreenX, nextScreenY);
+          ctx.stroke();
+        }
+      }
+
+      // Reset shadow effects to not affect other elements
+      ctx.shadowColor = "transparent";
+      ctx.shadowBlur = 0;
+
+      ctx.restore();
+    },
+    [getWrappedDistance],
+  );
+
   // Helper function to draw pure light points
   const drawPureLightStar = useCallback(
     (
@@ -1411,7 +1717,7 @@ const SpaceMapComponent: React.FC = () => {
         color: Math.random() < 0.92 ? "#ffffff" : generateRandomStarColor(),
         type: "normal",
         drift: {
-          x: 0, // Movimento ser��� calculado via seno/cosseno
+          x: 0, // Movimento ser�� calculado via seno/cosseno
           y: 0,
         },
         pulse: Math.random() * 100,
@@ -1901,7 +2207,7 @@ const SpaceMapComponent: React.FC = () => {
         // Save to database with throttling
         clearTimeout((window as any).worldDragTimeout);
         (window as any).worldDragTimeout = setTimeout(() => {
-          console.log("������ Saving world drag position:", {
+          console.log("����� Saving world drag position:", {
             selectedWorldId,
             worldX,
             worldY,
@@ -2064,6 +2370,11 @@ const SpaceMapComponent: React.FC = () => {
           }
         }
       });
+
+      // Only shoot if we didn't click on a planet
+      if (!clickedOnPlanet) {
+        shootProjectile();
+      }
     },
     [
       gameState,
@@ -2072,6 +2383,7 @@ const SpaceMapComponent: React.FC = () => {
       isWorldEditMode,
       isLandingAnimationActive,
       user?.isAdmin,
+      shootProjectile,
       updateWorldPosition,
       setSelectedPlanet,
       setShowLandingModal,
@@ -2082,15 +2394,35 @@ const SpaceMapComponent: React.FC = () => {
   );
 
   // Handle mouse up to stop dragging
-  // Handler para mousedown
+  // Handler para mousedown - inicia tiro contínuo
   const handleMouseDown = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement>) => {
       if (isLandingAnimationActive) return;
+
+      if (!user?.isAdmin || !isWorldEditMode) {
+        // Primeiro tiro imediato
+        shootProjectile();
+
+        // Iniciar timer para tiros contínuos
+        if (shootingIntervalRef.current) {
+          clearInterval(shootingIntervalRef.current);
+        }
+
+        shootingIntervalRef.current = setInterval(() => {
+          shootProjectile();
+        }, 333); // 3 tiros por segundo
+      }
     },
-    [user?.isAdmin, isWorldEditMode, isLandingAnimationActive],
+    [user?.isAdmin, isWorldEditMode, shootProjectile, isLandingAnimationActive],
   );
 
   const handleMouseUp = useCallback(() => {
+    // Parar tiro contínuo
+    if (shootingIntervalRef.current) {
+      clearInterval(shootingIntervalRef.current);
+      shootingIntervalRef.current = null;
+    }
+
     // Lógica original de edição de mundos
     if (user?.isAdmin && isWorldEditMode && isDragging && selectedWorldId) {
       const planet = planetsRef.current.find((p) => p.id === selectedWorldId);
@@ -2250,10 +2582,21 @@ const SpaceMapComponent: React.FC = () => {
   }, []);
 
   // Cleanup do timer de tiro quando componente desmonta
+  useEffect(() => {
+    return () => {
+      if (shootingIntervalRef.current) {
+        clearInterval(shootingIntervalRef.current);
+        shootingIntervalRef.current = null;
+      }
+    };
+  }, []);
 
   // Parar tiro quando mouse sai da ��rea do canvas
   const handleMouseLeaveCanvas = useCallback(() => {
-    // Cleanup logic if needed in the future
+    if (shootingIntervalRef.current) {
+      clearInterval(shootingIntervalRef.current);
+      shootingIntervalRef.current = null;
+    }
   }, []);
 
   // Optimized game loop with maximum GPU acceleration
@@ -2336,20 +2679,13 @@ const SpaceMapComponent: React.FC = () => {
             if (distance > 5) {
               // Apply speed reduction if ship HP is 0 (85% reduction = 15% of original speed)
               const hpSpeedModifier = shipHP <= 0 ? 0.15 : 1.0;
-              // Very smooth speed scaling for mobile controls
-              const normalizedDistance = Math.min(distance / 200, 1); // Adjusted range for mobile
-              const speedMultiplier = Math.pow(normalizedDistance, 0.7); // More permissive curve for mobile
+              const speedMultiplier = Math.min(distance / 100, 1);
               const targetSpeed =
                 SHIP_MAX_SPEED * speedMultiplier * hpSpeedModifier;
-
-              // Calculate target velocity components
-              const targetVx = (dx / distance) * targetSpeed;
-              const targetVy = (dy / distance) * targetSpeed;
-
-              // Smooth interpolation towards target velocity (mobile)
-              const lerpFactor = Math.min(deltaTime * 5.0, 0.18); // Much faster for mobile responsiveness
-              newState.ship.vx += (targetVx - newState.ship.vx) * lerpFactor;
-              newState.ship.vy += (targetVy - newState.ship.vy) * lerpFactor;
+              // Acceleration in pixels per second squared (reduced)
+              const acceleration = 160; // pixels/s² (reduced by 80%)
+              newState.ship.vx += (dx / distance) * acceleration * deltaTime;
+              newState.ship.vy += (dy / distance) * acceleration * deltaTime;
             }
           } else if (!isMobile && hasMouseMoved.current) {
             // Desktop mouse controls
@@ -2365,36 +2701,21 @@ const SpaceMapComponent: React.FC = () => {
             newState.ship.angle = Math.atan2(dy, dx);
 
             if (mouseInWindow && distance > 50) {
-              // Very smooth speed scaling with exponential curve
-              const normalizedDistance = Math.min(distance / 250, 1); // Much smaller range to reach max speed faster
-              const speedMultiplier = Math.pow(normalizedDistance, 0.6); // Very permissive curve for high speeds
-
+              const speedMultiplier = Math.min(distance / 300, 1);
               // Apply speed reduction if ship HP is 0 (85% reduction = 15% of original speed)
               const hpSpeedModifier = shipHP <= 0 ? 0.15 : 1.0;
-              // Add small boost for very far distances to ensure max speed is reached
-              const finalSpeedMultiplier = Math.min(
-                speedMultiplier + (normalizedDistance > 0.8 ? 0.1 : 0),
-                1.0,
-              );
               const targetSpeed =
-                SHIP_MAX_SPEED * finalSpeedMultiplier * hpSpeedModifier;
-
-              // Calculate target velocity components
-              const targetVx = (dx / distance) * targetSpeed;
-              const targetVy = (dy / distance) * targetSpeed;
-
-              // Smooth interpolation towards target velocity (much slower)
-              const baseLerpFactor = Math.min(deltaTime * 6.0, 0.2); // Much faster base interpolation
-              const distanceBoost = Math.min(normalizedDistance * 0.15, 0.15); // Higher extra speed for far distances
-              const lerpFactor = baseLerpFactor + distanceBoost;
-              newState.ship.vx += (targetVx - newState.ship.vx) * lerpFactor;
-              newState.ship.vy += (targetVy - newState.ship.vy) * lerpFactor;
+                SHIP_MAX_SPEED * speedMultiplier * hpSpeedModifier;
+              // Acceleration in pixels per second squared (reduced)
+              const acceleration = 120; // pixels/s² (reduced by 80%)
+              newState.ship.vx += (dx / distance) * acceleration * deltaTime;
+              newState.ship.vy += (dy / distance) * acceleration * deltaTime;
             }
           }
         }
 
         // Apply friction with deltaTime (convert per-frame to per-second)
-        const baseFriction = mouseInWindow ? 0.91 : 0.95; // Much lower friction for higher speeds
+        const baseFriction = mouseInWindow ? FRICTION : 0.995;
         // Convert frame-based friction to time-based
         const frictionFactor = Math.pow(baseFriction, deltaTime * 60);
         newState.ship.vx *= frictionFactor;
@@ -2576,6 +2897,19 @@ const SpaceMapComponent: React.FC = () => {
 
     // Update game entities (projectiles, asteroids, particles, etc.)
     const updateGameEntities = (deltaTime: number) => {
+      // Update projectiles with deltaTime
+      const projectiles = projectilesRef.current;
+      for (let i = projectiles.length - 1; i >= 0; i--) {
+        const proj = projectiles[i];
+        proj.x = normalizeCoord(proj.x + proj.vx * deltaTime);
+        proj.y = normalizeCoord(proj.y + proj.vy * deltaTime);
+        proj.life -= deltaTime;
+
+        if (proj.life <= 0) {
+          projectiles.splice(i, 1);
+        }
+      }
+
       // Update NPC ship
       npcShip.updateShip(deltaTime * 1000); // Convert to milliseconds for compatibility
 
@@ -2659,6 +2993,21 @@ const SpaceMapComponent: React.FC = () => {
         }
       }
 
+      // Update smoke particles
+      const smokeParticles = smokeParticlesRef.current;
+      for (let i = smokeParticles.length - 1; i >= 0; i--) {
+        const smoke = smokeParticles[i];
+
+        // Simple position update
+        smoke.x += smoke.vx * deltaTime;
+        smoke.y += smoke.vy * deltaTime;
+        smoke.life -= deltaTime;
+
+        if (smoke.life <= 0) {
+          smokeParticles.splice(i, 1);
+        }
+      }
+
       // Handle ship movement sounds and trail generation
       handleShipEffects(deltaTime);
     };
@@ -2687,6 +3036,23 @@ const SpaceMapComponent: React.FC = () => {
       // Update movement sound volume
       if (movementSoundActiveRef.current && !isLandingAnimationActive) {
         updateContinuousMovementSound(currentShipVelocity, SHIP_MAX_SPEED);
+      }
+
+      // Create trail points based on time
+      const currentTime = performance.now();
+      if (
+        currentShipVelocity > 2 && // 2 pixels per second threshold
+        currentTime - lastTrailTime.current > 35
+      ) {
+        // Calculate trail position at the back of the ship
+        const trailOffset = 12;
+        const trailX =
+          gameState.ship.x - Math.cos(gameState.ship.angle) * trailOffset;
+        const trailY =
+          gameState.ship.y - Math.sin(gameState.ship.angle) * trailOffset;
+
+        createTrailPoint(trailX, trailY, currentTime, currentShipVelocity);
+        lastTrailTime.current = currentTime;
       }
     };
 
@@ -2998,6 +3364,60 @@ const SpaceMapComponent: React.FC = () => {
         }
       }
 
+      // Render smoke particles
+      const smokeParticlesForRender = smokeParticlesRef.current;
+      for (let i = 0; i < smokeParticlesForRender.length; i++) {
+        const smoke = smokeParticlesForRender[i];
+        const wrappedDeltaX = getWrappedDistance(smoke.x, gameState.camera.x);
+        const wrappedDeltaY = getWrappedDistance(smoke.y, gameState.camera.y);
+        const screenX = centerX + wrappedDeltaX;
+        const screenY = centerY + wrappedDeltaY;
+
+        if (
+          screenX >= renderViewport.left &&
+          screenX <= renderViewport.right &&
+          screenY >= renderViewport.top &&
+          screenY <= renderViewport.bottom
+        ) {
+          ctx.save();
+          ctx.globalAlpha = (smoke.life / smoke.maxLife) * 0.6;
+          ctx.fillStyle = smoke.color;
+          ctx.beginPath();
+          ctx.arc(screenX, screenY, smoke.size, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+      }
+
+      // Render projectiles
+      const projectilesForRender = projectilesRef.current;
+      for (let i = 0; i < projectilesForRender.length; i++) {
+        const proj = projectilesForRender[i];
+        const wrappedDeltaX = getWrappedDistance(proj.x, gameState.camera.x);
+        const wrappedDeltaY = getWrappedDistance(proj.y, gameState.camera.y);
+        const screenX = centerX + wrappedDeltaX;
+        const screenY = centerY + wrappedDeltaY;
+
+        if (
+          screenX >= renderViewport.left &&
+          screenX <= renderViewport.right &&
+          screenY >= renderViewport.top &&
+          screenY <= renderViewport.bottom
+        ) {
+          ctx.save();
+          ctx.globalAlpha = Math.max(0.3, proj.life / proj.maxLife);
+          ctx.strokeStyle = "#00ffff";
+          ctx.lineWidth = 3;
+          ctx.shadowColor = "#00ffff";
+          ctx.shadowBlur = 8;
+          ctx.beginPath();
+          ctx.moveTo(screenX - proj.vx * 0.5, screenY - proj.vy * 0.5);
+          ctx.lineTo(screenX + proj.vx * 0.5, screenY + proj.vy * 0.5);
+          ctx.stroke();
+          ctx.restore();
+        }
+      }
+
       // Render shooting stars
       const shootingStarsForRender = shootingStarsRef.current;
       for (let i = 0; i < shootingStarsForRender.length; i++) {
@@ -3053,6 +3473,9 @@ const SpaceMapComponent: React.FC = () => {
 
       const shipScreenX = centerX;
       const shipScreenY = centerY;
+
+      // Render ship trail
+      drawShipTrail(ctx, shipScreenX, shipScreenY, shipWorldX, shipWorldY);
 
       // Render ship
       renderShip(ctx, canvas, centerX, centerY);
@@ -3221,20 +3644,9 @@ const SpaceMapComponent: React.FC = () => {
 
               // Apply speed reduction if ship HP is 0 (85% reduction = 15% of original speed)
               const hpSpeedModifier = shipHP <= 0 ? 0.15 : 1.0;
-              // Very smooth speed scaling for mobile controls
-              const normalizedDistance = Math.min(distance / 1.2, 1); // Smaller joystick range for max speed
-              const speedMultiplier = Math.pow(normalizedDistance, 0.7); // More permissive curve for mobile
-              const targetSpeed =
-                SHIP_MAX_SPEED * speedMultiplier * hpSpeedModifier;
-
-              // Calculate target velocity components
-              const targetVx = (dx / distance) * targetSpeed;
-              const targetVy = (dy / distance) * targetSpeed;
-
-              // Smooth interpolation towards target velocity (mobile)
-              const lerpFactor = Math.min(deltaTime * 5.0, 0.18); // Much faster for mobile responsiveness
-              newState.ship.vx += (targetVx - newState.ship.vx) * lerpFactor;
-              newState.ship.vy += (targetVy - newState.ship.vy) * lerpFactor;
+              const targetSpeed = SHIP_MAX_SPEED * distance * hpSpeedModifier;
+              newState.ship.vx += (dx / distance) * targetSpeed * 0.04;
+              newState.ship.vy += (dy / distance) * targetSpeed * 0.04;
             }
           } else if (!isMobile && hasMouseMoved.current) {
             // Desktop mouse controls
@@ -3250,30 +3662,13 @@ const SpaceMapComponent: React.FC = () => {
             newState.ship.angle = Math.atan2(dy, dx);
 
             if (mouseInWindow && distance > 50) {
-              // Very smooth speed scaling with exponential curve
-              const normalizedDistance = Math.min(distance / 250, 1); // Much smaller range to reach max speed faster
-              const speedMultiplier = Math.pow(normalizedDistance, 0.6); // Very permissive curve for high speeds
-
+              const speedMultiplier = Math.min(distance / 300, 1);
               // Apply speed reduction if ship HP is 0 (85% reduction = 15% of original speed)
               const hpSpeedModifier = shipHP <= 0 ? 0.15 : 1.0;
-              // Add small boost for very far distances to ensure max speed is reached
-              const finalSpeedMultiplier = Math.min(
-                speedMultiplier + (normalizedDistance > 0.8 ? 0.1 : 0),
-                1.0,
-              );
               const targetSpeed =
-                SHIP_MAX_SPEED * finalSpeedMultiplier * hpSpeedModifier;
-
-              // Calculate target velocity components
-              const targetVx = (dx / distance) * targetSpeed;
-              const targetVy = (dy / distance) * targetSpeed;
-
-              // Smooth interpolation towards target velocity (much slower)
-              const baseLerpFactor = Math.min(deltaTime * 6.0, 0.2); // Much faster base interpolation
-              const distanceBoost = Math.min(normalizedDistance * 0.15, 0.15); // Higher extra speed for far distances
-              const lerpFactor = baseLerpFactor + distanceBoost;
-              newState.ship.vx += (targetVx - newState.ship.vx) * lerpFactor;
-              newState.ship.vy += (targetVy - newState.ship.vy) * lerpFactor;
+                SHIP_MAX_SPEED * speedMultiplier * hpSpeedModifier;
+              newState.ship.vx += (dx / distance) * targetSpeed * 0.04;
+              newState.ship.vy += (dy / distance) * targetSpeed * 0.04;
             }
           }
         }
@@ -3385,6 +3780,8 @@ const SpaceMapComponent: React.FC = () => {
         movementSoundActiveRef.current = false;
       }
 
+      // Update trail points
+      updateTrailPoints(deltaTime);
       setGameState((prevState) => {
         const newState = { ...prevState };
 
@@ -3532,14 +3929,27 @@ const SpaceMapComponent: React.FC = () => {
         }
       });
 
-      // Update with delta time for unlimited FPS
+      // Update projectiles with uncapped delta time for unlimited FPS
       const currentFrameTime = performance.now();
-      const frameDeltaTime =
+      const projectileDeltaTime =
         (currentFrameTime - lastFrameTimeRef.current) / 1000;
       lastFrameTimeRef.current = currentFrameTime;
 
+      // Use for loop for better performance than map/filter
+      const projectiles = projectilesRef.current;
+      for (let i = projectiles.length - 1; i >= 0; i--) {
+        const proj = projectiles[i];
+        proj.x = normalizeCoord(proj.x + proj.vx * projectileDeltaTime);
+        proj.y = normalizeCoord(proj.y + proj.vy * projectileDeltaTime);
+        proj.life -= projectileDeltaTime;
+
+        if (proj.life <= 0) {
+          projectiles.splice(i, 1);
+        }
+      }
+
       // Update NPC ship
-      npcShip.updateShip(frameDeltaTime * 1000); // Convert to milliseconds
+      npcShip.updateShip(projectileDeltaTime * 1000); // Convert to milliseconds
 
       // Load asteroids around camera (chunk-based system)
       if (
@@ -3556,9 +3966,13 @@ const SpaceMapComponent: React.FC = () => {
         const asteroid = asteroids[i];
 
         // Update position
-        asteroid.x = normalizeCoord(asteroid.x + asteroid.vx * frameDeltaTime);
-        asteroid.y = normalizeCoord(asteroid.y + asteroid.vy * frameDeltaTime);
-        asteroid.rotation += asteroid.rotationSpeed * frameDeltaTime;
+        asteroid.x = normalizeCoord(
+          asteroid.x + asteroid.vx * projectileDeltaTime,
+        );
+        asteroid.y = normalizeCoord(
+          asteroid.y + asteroid.vy * projectileDeltaTime,
+        );
+        asteroid.rotation += asteroid.rotationSpeed * projectileDeltaTime;
 
         // Check collision with ship
         if (checkShipAsteroidCollision(gameState.ship, asteroid)) {
@@ -3587,6 +4001,33 @@ const SpaceMapComponent: React.FC = () => {
           asteroids.splice(i, 1);
           continue;
         }
+
+        // Check projectile collisions
+        const projectiles = projectilesRef.current;
+        for (let j = projectiles.length - 1; j >= 0; j--) {
+          const projectile = projectiles[j];
+          if (checkProjectileAsteroidCollision(projectile, asteroid)) {
+            // Remove projectile
+            projectiles.splice(j, 1);
+
+            // Create damage particles
+            createDamageParticles(asteroid.x, asteroid.y);
+
+            // Damage asteroid
+            asteroid.health -= 1;
+
+            if (asteroid.health <= 0) {
+              // Asteroid destroyed - create explosion and xenocoin
+              console.log(
+                `Asteroid ${asteroid.id} destroyed by projectile - creating explosion and xenocoin`,
+              );
+              createExplosionParticles(asteroid.x, asteroid.y, false);
+              createXenoCoin(asteroid.x, asteroid.y);
+              asteroids.splice(i, 1);
+              break;
+            }
+          }
+        }
       }
 
       // Update xenocoins
@@ -3595,7 +4036,7 @@ const SpaceMapComponent: React.FC = () => {
         const xenoCoin = xenoCoins[i];
 
         // Update rotation and animation
-        xenoCoin.rotation += xenoCoin.rotationSpeed * frameDeltaTime;
+        xenoCoin.rotation += xenoCoin.rotationSpeed * projectileDeltaTime;
 
         // Check lifespan
         const age = currentTime - xenoCoin.createdAt;
@@ -3647,10 +4088,14 @@ const SpaceMapComponent: React.FC = () => {
         const particle = particles[i];
 
         // Update position and life
-        particle.x = normalizeCoord(particle.x + particle.vx * frameDeltaTime);
-        particle.y = normalizeCoord(particle.y + particle.vy * frameDeltaTime);
-        particle.rotation += particle.rotationSpeed * frameDeltaTime;
-        particle.life -= frameDeltaTime;
+        particle.x = normalizeCoord(
+          particle.x + particle.vx * projectileDeltaTime,
+        );
+        particle.y = normalizeCoord(
+          particle.y + particle.vy * projectileDeltaTime,
+        );
+        particle.rotation += particle.rotationSpeed * projectileDeltaTime;
+        particle.life -= projectileDeltaTime;
 
         // Apply physics (slow down over time)
         particle.vx *= 0.98;
@@ -3659,6 +4104,52 @@ const SpaceMapComponent: React.FC = () => {
         // Remove dead particles
         if (particle.life <= 0) {
           particles.splice(i, 1);
+        }
+      }
+
+      // Update smoke particles with simple frame-based system
+      const smokeParticles = smokeParticlesRef.current;
+      for (let i = smokeParticles.length - 1; i >= 0; i--) {
+        const smoke = smokeParticles[i];
+
+        // Simple position update
+        smoke.x += smoke.vx;
+        smoke.y += smoke.vy;
+        smoke.life -= 1; // Decrease by 1 frame
+
+        // Simple air resistance
+        smoke.vx *= 0.99;
+        smoke.vy *= 0.99;
+
+        // Simple fade calculation (no deltaTime dependency)
+        const fadeRatio = smoke.life / smoke.maxLife;
+        smoke.opacity = smoke.initialOpacity * fadeRatio;
+
+        // Simple size expansion
+        const expansionRatio = 1 - fadeRatio;
+        smoke.size = smoke.initialSize + expansionRatio * 3;
+
+        // Very slight random drift instead of always upward
+        if (Math.random() < 0.05) {
+          smoke.vy -= 0.002;
+        }
+
+        // Remove dead particles
+        if (smoke.life <= 0) {
+          smokeParticles.splice(i, 1);
+        }
+      }
+
+      // Create smoke trail if ship HP is 0 and not in landing animation
+      if (shipHP <= 0 && !isLandingAnimationActive) {
+        // Create smoke trail every 15 frames (4 times per second at 60fps)
+        if (frameCounter.current - lastSmokeFrame.current >= 15) {
+          createSmokeTrail(
+            gameState.ship.x,
+            gameState.ship.y,
+            gameState.ship.angle,
+          );
+          lastSmokeFrame.current = frameCounter.current;
         }
       }
 
@@ -4008,6 +4499,125 @@ const SpaceMapComponent: React.FC = () => {
         }
       }
 
+      // Render smoke particles
+      const smokeParticlesForRender = smokeParticlesRef.current;
+      for (let i = 0; i < smokeParticlesForRender.length; i++) {
+        const smoke = smokeParticlesForRender[i];
+        const wrappedDeltaX = getWrappedDistance(smoke.x, gameState.camera.x);
+        const wrappedDeltaY = getWrappedDistance(smoke.y, gameState.camera.y);
+        const screenX = centerX + wrappedDeltaX;
+        const screenY = centerY + wrappedDeltaY;
+
+        // Only render if on screen
+        if (
+          screenX >= -50 &&
+          screenX <= canvas.width + 50 &&
+          screenY >= -50 &&
+          screenY <= canvas.height + 50
+        ) {
+          // Draw stable smoke particle
+          ctx.save();
+
+          // Use stable opacity without complex calculations
+          ctx.globalAlpha = smoke.opacity;
+
+          // Simple gradient for smoke
+          const gradient = ctx.createRadialGradient(
+            screenX,
+            screenY,
+            0,
+            screenX,
+            screenY,
+            smoke.size,
+          );
+
+          gradient.addColorStop(0, "#777777");
+          gradient.addColorStop(0.6, "#555555");
+          gradient.addColorStop(1, "rgba(85, 85, 85, 0)");
+
+          ctx.fillStyle = gradient;
+
+          // Draw smoke particle
+          ctx.beginPath();
+          ctx.arc(screenX, screenY, smoke.size, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.restore();
+        }
+      }
+
+      // Render projectiles as bright energy beams - optimized with for loop
+      const projectilesForRender = projectilesRef.current;
+      for (let i = 0; i < projectilesForRender.length; i++) {
+        const proj = projectilesForRender[i];
+        const wrappedDeltaX = getWrappedDistance(proj.x, gameState.camera.x);
+        const wrappedDeltaY = getWrappedDistance(proj.y, gameState.camera.y);
+        const screenX = centerX + wrappedDeltaX;
+        const screenY = centerY + wrappedDeltaY;
+
+        ctx.save();
+
+        const lifeRatio = proj.life / proj.maxLife;
+        const angle = Math.atan2(proj.vy, proj.vx);
+        const length = 8;
+        const time = Date.now() * 0.01; // Para efeito pulsante
+        const pulse = 0.8 + 0.2 * Math.sin(time);
+
+        // Calcular pontos da linha do tracinho
+        const endX = screenX + Math.cos(angle) * length;
+        const endY = screenY + Math.sin(angle) * length;
+
+        // Glow externo mais sutil (aura de energia amarela mais fraca)
+        ctx.globalAlpha = lifeRatio * 0.2 * pulse;
+        ctx.strokeStyle = "#e6c200";
+        ctx.lineWidth = 6;
+        ctx.lineCap = "round";
+        ctx.shadowColor = "#e6c200";
+        ctx.shadowBlur = 15;
+        ctx.beginPath();
+        ctx.moveTo(screenX, screenY);
+        ctx.lineTo(endX, endY);
+        ctx.stroke();
+
+        // Glow médio amarelo-dourado mais suave
+        ctx.globalAlpha = lifeRatio * 0.5;
+        ctx.strokeStyle = "#f0d633";
+        ctx.lineWidth = 3;
+        ctx.shadowBlur = 8;
+        ctx.beginPath();
+        ctx.moveTo(screenX, screenY);
+        ctx.lineTo(endX, endY);
+        ctx.stroke();
+
+        // Core energético amarelo mais suave
+        ctx.globalAlpha = lifeRatio * 0.7 * pulse;
+        ctx.strokeStyle = "#f5e033";
+        ctx.lineWidth = 2;
+        ctx.shadowColor = "#f5e033";
+        ctx.shadowBlur = 6;
+        ctx.beginPath();
+        ctx.moveTo(screenX, screenY);
+        ctx.lineTo(endX, endY);
+        ctx.stroke();
+
+        // Centro brilhante amarelo-branco mais sutil
+        ctx.globalAlpha = lifeRatio * 0.8;
+        ctx.strokeStyle = "#f8f8cc";
+        ctx.lineWidth = 1;
+        ctx.shadowColor = "#f8f8cc";
+        ctx.shadowBlur = 3;
+        ctx.beginPath();
+        ctx.moveTo(screenX, screenY);
+        ctx.lineTo(endX, endY);
+        ctx.stroke();
+
+        // Reset shadow para não afetar outros elementos
+        ctx.shadowColor = "transparent";
+        ctx.shadowBlur = 0;
+
+        ctx.restore();
+      }
+
       // Render shooting stars - optimized with for loop
       const shootingStarsForRender = shootingStarsRef.current;
       for (let i = 0; i < shootingStarsForRender.length; i++) {
@@ -4048,6 +4658,47 @@ const SpaceMapComponent: React.FC = () => {
       }
 
       // Create trail points during landing animation (moved outside the progress check)
+      if (isLandingAnimationActive && landingAnimationData) {
+        const currentTime = performance.now();
+        if (currentTime - lastTrailTime.current > 35) {
+          const elapsed = currentTime - landingAnimationData.startTime;
+          const progress = Math.min(elapsed / landingAnimationData.duration, 1);
+
+          if (progress < 1) {
+            const planet = landingAnimationData.planet;
+            const initialDx = landingAnimationData.initialShipX - planet.x;
+            const initialDy = landingAnimationData.initialShipY - planet.y;
+            const initialRadius = Math.sqrt(
+              initialDx * initialDx + initialDy * initialDy,
+            );
+            const orbitSpeed = 1;
+            const initialAngle = Math.atan2(initialDy, initialDx);
+            const angleProgress =
+              initialAngle + progress * orbitSpeed * Math.PI * 2;
+
+            // Calculate orbital velocity for proportional trail intensity
+            const currentRadius = initialRadius * (1 - progress * 0.9);
+            const orbitalSpeed =
+              (2 * Math.PI * currentRadius) / landingAnimationData.duration;
+            const normalizedOrbitalSpeed = Math.min(
+              orbitalSpeed / (SHIP_MAX_SPEED * 300),
+              1,
+            );
+            const landingIntensity = Math.max(normalizedOrbitalSpeed, 0.4);
+
+            // Calculate trail position at the back of the ship during landing
+            const trailOffset = 12;
+            const currentShipAngle = angleProgress + Math.PI / 2;
+            const trailX =
+              shipWorldX - Math.cos(currentShipAngle) * trailOffset;
+            const trailY =
+              shipWorldY - Math.sin(currentShipAngle) * trailOffset;
+
+            createTrailPoint(trailX, trailY, currentTime, landingIntensity);
+            lastTrailTime.current = currentTime;
+          }
+        }
+      }
 
       const shipWrappedDeltaX = getWrappedDistance(
         shipWorldX,
@@ -4059,6 +4710,9 @@ const SpaceMapComponent: React.FC = () => {
       );
       const shipScreenX = centerX + shipWrappedDeltaX;
       const shipScreenY = centerY + shipWrappedDeltaY;
+
+      // Draw the trail
+      drawShipTrail(ctx, shipScreenX, shipScreenY, shipWorldX, shipWorldY);
 
       // Render ship (with landing animation support)
       let shipScale = 1;
@@ -4285,6 +4939,9 @@ const SpaceMapComponent: React.FC = () => {
     landingAnimationData,
     setCurrentPlanet,
     setCurrentScreen,
+    createTrailPoint,
+    updateTrailPoints,
+    drawShipTrail,
   ]);
 
   return (
@@ -4503,14 +5160,14 @@ const SpaceMapComponent: React.FC = () => {
           {/* Rotation Control */}
           <div className="mb-3">
             <label className="block text-xs font-medium text-gray-700 mb-1">
-              Rotaç���o:{" "}
+              Rotaç��o:{" "}
               {Math.round(
                 ((planetsRef.current.find((p) => p.id === selectedWorldId)
                   ?.rotation || 0) *
                   180) /
                   Math.PI,
               )}
-              ����
+              ��
             </label>
             <input
               type="range"
@@ -4693,7 +5350,7 @@ const SpaceMapComponent: React.FC = () => {
             <div className="text-yellow-400 font-bold mb-1">
               ��� MODO EDIÇ��O
             </div>
-            <div>��� 1�� Click: Selecionar mundo</div>
+            <div>��� 1º Click: Selecionar mundo</div>
             <div>
               • 2º Click: {isDragging ? "Confirmar posição" : "Ativar arrastar"}
             </div>
@@ -4712,8 +5369,8 @@ const SpaceMapComponent: React.FC = () => {
       {isMobile && !showLandingModal && !isLandingAnimationActive && (
         <MobileTouchControls
           onMovement={handleMobileMovement}
-          onShoot={() => {}} // Sistema de tiro removido
-          isShootingDisabled={true}
+          onShoot={handleMobileShoot}
+          isShootingDisabled={shipHP <= 0}
         />
       )}
     </div>
