@@ -378,3 +378,30 @@ export interface SagaStep {
   isCompleted: boolean;
   completedAt?: Date;
 }
+
+export interface Ship {
+  id: string;
+  name: string;
+  description: string;
+  imageUrl: string;
+  price: number;
+  currency: "xenocoins" | "cash";
+  stats: ShipStats;
+  visualEffects: ShipVisualEffects;
+  isDefault?: boolean; // True for the starting ship
+  ownedAt?: Date; // When the player purchased/acquired this ship
+}
+
+export interface ShipStats {
+  speed: number; // Speed multiplier (1.0 = normal, 1.02 = 2% faster)
+  projectileDamage: number; // Damage multiplier (1.0 = normal, 1.2 = 20% more damage)
+  health?: number; // Max HP (defaults to 3 if not specified)
+  maneuverability?: number; // How well the ship turns (1.0 = normal)
+}
+
+export interface ShipVisualEffects {
+  trailColor: string; // Color of the ship's trail (e.g., "#FFA500" for orange)
+  projectileColor: string; // Color of projectiles (e.g., "#FFA500" for orange)
+  trailOpacity?: number; // Trail opacity (0.0 to 1.0, defaults to 0.7)
+  projectileSize?: number; // Projectile size multiplier (defaults to 1.0)
+}
