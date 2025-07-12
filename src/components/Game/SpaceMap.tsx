@@ -4040,9 +4040,6 @@ const SpaceMapComponent: React.FC = () => {
       const shipScreenX = centerX + shipWrappedDeltaX;
       const shipScreenY = centerY + shipWrappedDeltaY;
 
-      // Draw the trail
-      drawShipTrail(ctx, shipScreenX, shipScreenY, shipWorldX, shipWorldY);
-
       // Render ship (with landing animation support)
       let shipScale = 1;
       let shipAngle = gameState.ship.angle;
