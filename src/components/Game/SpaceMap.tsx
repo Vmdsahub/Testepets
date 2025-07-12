@@ -2608,11 +2608,40 @@ const SpaceMapComponent: React.FC = () => {
 
     let lastTime = performance.now();
 
+    // FPS tracking function
+    const updateFPSTracking = (currentTime: number) => {
+      if (fpsRef.current.lastTime > 0) {
+        const frameTime = currentTime - fpsRef.current.lastTime;
+        fpsRef.current.frameTimes.push(frameTime);
+
+        // Keep only last 30 frames for average
+        if (fpsRef.current.frameTimes.length > 30) {
+          fpsRef.current.frameTimes.shift();
+        }
+
+        // Update FPS every 60 frames
+        fpsRef.current.frameCount++;
+        if (fpsRef.current.frameCount >= 60) {
+          const avgFrameTime =
+            fpsRef.current.frameTimes.reduce((a, b) => a + b, 0) /
+            fpsRef.current.frameTimes.length;
+          const currentFps = Math.round(1000 / avgFrameTime);
+          setFps(currentFps);
+
+          // Update FPS history for graph
+          setFpsHistory((prev) => {
+            const newHistory = [...prev.slice(1), currentFps];
+            return newHistory;
+          });
+
+          fpsRef.current.frameCount = 0;
+        }
+      }
+      fpsRef.current.lastTime = currentTime;
+    };
+
     // Update game state with deltaTime in seconds
     const updateGame = (deltaTime: number) => {
-      // FPS tracking
-      updateFPSTracking(deltaTime);
-
       // Update ship physics and movement
       updateShipPhysics(deltaTime);
 
