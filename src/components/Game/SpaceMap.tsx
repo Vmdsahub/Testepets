@@ -2156,7 +2156,7 @@ const SpaceMapComponent: React.FC = () => {
       const fallbackImg = new Image();
       fallbackImg.crossOrigin = "anonymous";
       fallbackImg.src =
-        "https://cdn.builder.io/api/v1/image/assets%2Fa34588f934eb4ad690ceadbafd1050c4%2Fb858d05001c14c0dbd4ba321811b959f?format=webp&width=800";
+        "https://cdn.builder.io/api/v1/image/assets%2Fa34588f934eb4ad690ceadbafd1050c4%2F08167028f08f4996b97ed7703ce66292?format=webp&width=800";
       fallbackImg.onload = () => {
         shipImageRef.current = fallbackImg;
       };
@@ -4307,7 +4307,7 @@ const SpaceMapComponent: React.FC = () => {
                       updateWorldPosition(selectedWorldId, {
                         size: newSize,
                       });
-                      console.log("📏 Size saved successfully");
+                      console.log("��� Size saved successfully");
                     } catch (error) {
                       console.error("📏 Error saving size:", error);
                     }
@@ -4402,7 +4402,7 @@ const SpaceMapComponent: React.FC = () => {
                 clearTimeout((window as any).worldInteractionTimeout);
                 (window as any).worldInteractionTimeout = setTimeout(() => {
                   if (selectedWorldId) {
-                    console.log("���� Saving interaction radius:", {
+                    console.log("🎯 Saving interaction radius:", {
                       selectedWorldId,
                       newRadius,
                     });
