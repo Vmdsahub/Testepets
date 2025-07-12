@@ -1992,7 +1992,7 @@ const SpaceMapComponent: React.FC = () => {
               setIsDragging(false);
               setDragOffset({ x: 0, y: 0 });
             } else if (selectedWorldId === planet.id && !isDragging) {
-              // Se já est�������������� selecionado mas não dragging, inicie o drag
+              // Se já est������������� selecionado mas não dragging, inicie o drag
               setIsDragging(true);
               setDragOffset({ x: dx, y: dy });
             } else {
@@ -3217,7 +3217,7 @@ const SpaceMapComponent: React.FC = () => {
               // Apply speed reduction if ship HP is 0 (85% reduction = 15% of original speed)
               const hpSpeedModifier = shipHP <= 0 ? 0.15 : 1.0;
               // Very smooth speed scaling for mobile controls
-              const normalizedDistance = Math.min(distance / 1.5, 1); // Normalize to joystick range
+              const normalizedDistance = Math.min(distance / 1.2, 1); // Smaller joystick range for max speed
               const speedMultiplier = Math.pow(normalizedDistance, 0.7); // More permissive curve for mobile
               const targetSpeed =
                 SHIP_MAX_SPEED * speedMultiplier * hpSpeedModifier;
