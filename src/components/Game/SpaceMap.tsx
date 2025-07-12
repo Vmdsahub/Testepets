@@ -525,12 +525,7 @@ const SpaceMapComponent: React.FC = () => {
 
   // Function to check if click is on visible pixel of planet image
   const isClickOnPlanetPixel = useCallback(
-    (
-      planet: Planet,
-      clickWorldX: number,
-      clickWorldY: number,
-      canvas: HTMLCanvasElement,
-    ): boolean => {
+    (planet: Planet, clickWorldX: number, clickWorldY: number): boolean => {
       const img = planetImagesRef.current.get(planet.id);
       if (!img || !img.complete) {
         // Fallback to circle detection if image not loaded
