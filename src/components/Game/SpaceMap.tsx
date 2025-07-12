@@ -2293,7 +2293,7 @@ const SpaceMapComponent: React.FC = () => {
           const distance = Math.sqrt(dx * dx + dy * dy);
 
           if (distance <= planet.size) {
-            // Se já est�� selecionado e dragging, pare o drag
+            // Se já está selecionado e dragging, pare o drag
             if (selectedWorldId === planet.id && isDragging) {
               setIsDragging(false);
               setDragOffset({ x: 0, y: 0 });
@@ -2562,7 +2562,7 @@ const SpaceMapComponent: React.FC = () => {
         initialShipY: gameState.ship.y,
       });
       setIsLandingAnimationActive(true);
-      console.log("��� Animação de pouso iniciada");
+      console.log("���� Animação de pouso iniciada");
 
       // Play landing sound
       playLandingSound().catch(() => {
@@ -2883,13 +2883,19 @@ const SpaceMapComponent: React.FC = () => {
 
     // Update game entities (projectiles, asteroids, particles, etc.)
     const updateGameEntities = (deltaTime: number) => {
-      // Update projectiles
+      // Update projectiles with frame-based system
       const projectiles = projectilesRef.current;
+      const projectileSpeedPerFrame = 10; // pixels per frame
       for (let i = projectiles.length - 1; i >= 0; i--) {
         const proj = projectiles[i];
-        proj.x = normalizeCoord(proj.x + proj.vx * deltaTime);
-        proj.y = normalizeCoord(proj.y + proj.vy * deltaTime);
-        proj.life -= deltaTime;
+        const angle = Math.atan2(proj.vy, proj.vx);
+        proj.x = normalizeCoord(
+          proj.x + Math.cos(angle) * projectileSpeedPerFrame,
+        );
+        proj.y = normalizeCoord(
+          proj.y + Math.sin(angle) * projectileSpeedPerFrame,
+        );
+        proj.life -= 0.016; // Approximate frame time
 
         if (proj.life <= 0) {
           projectiles.splice(i, 1);
