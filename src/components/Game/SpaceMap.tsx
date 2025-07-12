@@ -9,7 +9,6 @@ import { MobileTouchControls } from "./MobileTouchControls";
 
 import { FinalWebGLStars } from "./FinalWebGLStars";
 import {
-  playLaserShootSound,
   playLandingSound,
   startContinuousMovementSound,
   updateContinuousMovementSound,
