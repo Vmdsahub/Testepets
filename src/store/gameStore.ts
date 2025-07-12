@@ -749,7 +749,7 @@ export const useGameStore = create<GameStore>()(
           description:
             "Uma nave versátil projetada para exploração espacial de longo alcance. Equipada com propulsores iônicos avançados e sistema de navegação quântica.",
           imageUrl:
-            "https://cdn.builder.io/api/v1/image/assets%2Fa34588f934eb4ad690ceadbafd1050c4%2F08167028f08f4996b97ed7703ce66292?format=webp&width=800",
+            "https://cdn.builder.io/api/v1/image/assets%2Fb6d85109083b414cb45e23273725417f%2F1d8f2abb8c5d40e28fb6562c1deaf30b?format=webp&width=800",
           price: 0,
           currency: "xenocoins",
           stats: {
@@ -2441,7 +2441,7 @@ export const useGameStore = create<GameStore>()(
       unsubscribeFromWorldPositions: () => {
         // No need for real-time subscriptions with localStorage
         console.log(
-          "📍 World positions using localStorage - no unsubscription needed",
+          "��� World positions using localStorage - no unsubscription needed",
         );
       },
 
