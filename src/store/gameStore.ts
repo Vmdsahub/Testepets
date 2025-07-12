@@ -740,6 +740,59 @@ export const useGameStore = create<GameStore>()(
       viewedUserId: null,
       shipState: null,
 
+      // Ships system state
+      ships: [
+        // Default ship - every player starts with this
+        {
+          id: "default-ship",
+          name: "Explorador Galáctico MK-7",
+          description:
+            "Uma nave versátil projetada para exploração espacial de longo alcance. Equipada com propulsores iônicos avançados e sistema de navegação quântica.",
+          imageUrl:
+            "https://cdn.builder.io/api/v1/image/assets%2Ff93cc7cc605f420aa4fbb47a6557dbb5%2Fba62973afdca4d84ba54dad060a3e993?format=webp&width=800",
+          price: 0,
+          currency: "xenocoins",
+          stats: {
+            speed: 1.0,
+            projectileDamage: 1.0,
+            health: 3,
+            maneuverability: 1.0,
+          },
+          visualEffects: {
+            trailColor: "#4A90E2",
+            projectileColor: "#4A90E2",
+            trailOpacity: 0.7,
+            projectileSize: 1.0,
+          },
+          isDefault: true,
+        },
+        // Nave Teste - the ship for sale in Planície Dourada
+        {
+          id: "test-ship",
+          name: "Nave Teste",
+          description:
+            "Uma nave experimental com tecnologia aprimorada. 2% mais rápida que a nave padrão com sistemas de armamento melhorados.",
+          imageUrl:
+            "https://cdn.builder.io/api/v1/image/assets%2Fa34588f934eb4ad690ceadbafd1050c4%2F8475b30f89c64a77a493b5793d97c5e7?format=webp&width=800",
+          price: 100,
+          currency: "xenocoins",
+          stats: {
+            speed: 1.02, // 2% faster
+            projectileDamage: 1.2, // 20% more damage
+            health: 3,
+            maneuverability: 1.0,
+          },
+          visualEffects: {
+            trailColor: "#FFA500", // Orange trail
+            projectileColor: "#FFA500", // Orange projectiles
+            trailOpacity: 0.8,
+            projectileSize: 1.1,
+          },
+        },
+      ],
+      ownedShips: [], // Will be populated when user loads/purchases ships
+      activeShip: null, // Will be set to default ship when user first loads
+
       // World positions state
       worldPositions: [],
 
@@ -1860,7 +1913,7 @@ export const useGameStore = create<GameStore>()(
 
         // Check if user already used this code
         if (redeemCode.usedBy.includes(state.user.id)) {
-          return { success: false, message: "Você já resgatou este código" };
+          return { success: false, message: "Você já resgatou este c��digo" };
         }
 
         // Check usage limits
