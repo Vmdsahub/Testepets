@@ -2477,7 +2477,7 @@ export const useGameStore = create<GameStore>()(
       },
     }),
     {
-      name: "xenopets-game-store",
+      name: "xenopets-game-store-v2",
       partialize: (state) => ({
         user: state.user,
         activePet: state.activePet,
