@@ -2640,6 +2640,147 @@ const SpaceMapComponent: React.FC = () => {
       fpsRef.current.lastTime = currentTime;
     };
 
+    // Update ship physics and movement
+    const updateShipPhysics = (deltaTime: number) => {
+      // Skip ship physics during landing animation
+      if (isLandingAnimationActive) return;
+
+      setGameState((prevState) => {
+        const newState = { ...prevState };
+
+        // Ship movement controls - converted to use deltaTime in seconds
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+
+        if (hasMouseMoved.current || isMobile) {
+          if (isMobile && touchTargetRef.current.active) {
+            // Mobile touch controls
+            const worldTouchX =
+              touchTargetRef.current.x - centerX + newState.camera.x;
+            const worldTouchY =
+              touchTargetRef.current.y - centerY + newState.camera.y;
+
+            const dx = getWrappedDistance(worldTouchX, newState.ship.x);
+            const dy = getWrappedDistance(worldTouchY, newState.ship.y);
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            newState.ship.angle = Math.atan2(dy, dx);
+
+            if (distance > 5) {
+              // Apply speed reduction if ship HP is 0 (85% reduction = 15% of original speed)
+              const hpSpeedModifier = shipHP <= 0 ? 0.15 : 1.0;
+              const targetSpeed = SHIP_MAX_SPEED * distance * hpSpeedModifier;
+              // Convert acceleration to use deltaTime (0.04 per frame @ 60fps = 2.4 per second)
+              const accelerationRate = 2.4;
+              newState.ship.vx +=
+                (dx / distance) * targetSpeed * accelerationRate * deltaTime;
+              newState.ship.vy +=
+                (dy / distance) * targetSpeed * accelerationRate * deltaTime;
+            }
+          } else if (!isMobile && hasMouseMoved.current) {
+            // Desktop mouse controls
+            const worldMouseX =
+              mouseRef.current.x - centerX + newState.camera.x;
+            const worldMouseY =
+              mouseRef.current.y - centerY + newState.camera.y;
+
+            const dx = getWrappedDistance(worldMouseX, newState.ship.x);
+            const dy = getWrappedDistance(worldMouseY, newState.ship.y);
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            newState.ship.angle = Math.atan2(dy, dx);
+
+            if (mouseInWindow && distance > 50) {
+              const speedMultiplier = Math.min(distance / 300, 1);
+              // Apply speed reduction if ship HP is 0 (85% reduction = 15% of original speed)
+              const hpSpeedModifier = shipHP <= 0 ? 0.15 : 1.0;
+              const targetSpeed =
+                SHIP_MAX_SPEED * speedMultiplier * hpSpeedModifier;
+              // Convert acceleration to use deltaTime
+              const accelerationRate = 2.4;
+              newState.ship.vx +=
+                (dx / distance) * targetSpeed * accelerationRate * deltaTime;
+              newState.ship.vy +=
+                (dy / distance) * targetSpeed * accelerationRate * deltaTime;
+            }
+          }
+        }
+
+        // Apply physics - friction calculation in deltaTime
+        const currentFriction = mouseInWindow ? FRICTION : 0.995;
+        // Convert friction from per-frame to per-second
+        const frictionPerSecond = Math.pow(currentFriction, deltaTime * 60);
+        newState.ship.vx *= frictionPerSecond;
+        newState.ship.vy *= frictionPerSecond;
+
+        // Calculate potential new position with deltaTime
+        const newX = newState.ship.x + newState.ship.vx * deltaTime;
+        const newY = newState.ship.y + newState.ship.vy * deltaTime;
+
+        // Apply barrier collision logic
+        if (isBarrierCollisionEnabled) {
+          const distanceFromCenter = Math.sqrt(
+            Math.pow(newX - CENTER_X, 2) + Math.pow(newY - CENTER_Y, 2),
+          );
+
+          if (distanceFromCenter <= BARRIER_RADIUS) {
+            // Ship can move normally within barrier
+            newState.ship.x = newX;
+            newState.ship.y = newY;
+          } else {
+            // Ship trying to move outside barrier - apply collision logic
+            setBarrierFlashTime(performance.now());
+
+            const centerToShipX = newState.ship.x - CENTER_X;
+            const centerToShipY = newState.ship.y - CENTER_Y;
+            const centerToShipDist = Math.sqrt(
+              centerToShipX * centerToShipX + centerToShipY * centerToShipY,
+            );
+
+            if (centerToShipDist > 0) {
+              const normalX = centerToShipX / centerToShipDist;
+              const normalY = centerToShipY / centerToShipDist;
+
+              const movementX = newX - newState.ship.x;
+              const movementY = newY - newState.ship.y;
+
+              const radialComponent = movementX * normalX + movementY * normalY;
+              const tangentX = movementX - radialComponent * normalX;
+              const tangentY = movementY - radialComponent * normalY;
+
+              // Always allow tangential movement
+              newState.ship.x += tangentX;
+              newState.ship.y += tangentY;
+
+              // Allow radial movement only if it's toward the center
+              if (radialComponent < 0) {
+                newState.ship.x += radialComponent * normalX;
+                newState.ship.y += radialComponent * normalY;
+              }
+
+              // Adjust velocity to prevent moving outward
+              const velocityDotNormal =
+                newState.ship.vx * normalX + newState.ship.vy * normalY;
+              if (velocityDotNormal > 0) {
+                newState.ship.vx -= velocityDotNormal * normalX;
+                newState.ship.vy -= velocityDotNormal * normalY;
+              }
+            }
+          }
+        } else {
+          // Barrier collision disabled - allow free movement
+          newState.ship.x = newX;
+          newState.ship.y = newY;
+        }
+
+        // Normalize coordinates
+        newState.ship.x = normalizeCoord(newState.ship.x);
+        newState.ship.y = normalizeCoord(newState.ship.y);
+
+        return newState;
+      });
+    };
+
     // Update game state with deltaTime in seconds
     const updateGame = (deltaTime: number) => {
       // Update ship physics and movement
@@ -4237,7 +4378,7 @@ const SpaceMapComponent: React.FC = () => {
                 clearTimeout((window as any).worldSizeTimeout);
                 (window as any).worldSizeTimeout = setTimeout(async () => {
                   if (selectedWorldId) {
-                    console.log("📏 Saving world size:", {
+                    console.log("���� Saving world size:", {
                       selectedWorldId,
                       newSize,
                     });
