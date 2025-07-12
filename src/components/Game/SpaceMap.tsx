@@ -2338,7 +2338,7 @@ const SpaceMapComponent: React.FC = () => {
               const hpSpeedModifier = shipHP <= 0 ? 0.15 : 1.0;
               // Very smooth speed scaling for mobile controls
               const normalizedDistance = Math.min(distance / 200, 1); // Adjusted range for mobile
-              const speedMultiplier = Math.pow(normalizedDistance, 0.9); // Gentler curve for mobile
+              const speedMultiplier = Math.pow(normalizedDistance, 0.7); // More permissive curve for mobile
               const targetSpeed =
                 SHIP_MAX_SPEED * speedMultiplier * hpSpeedModifier;
 
@@ -3218,7 +3218,7 @@ const SpaceMapComponent: React.FC = () => {
               const hpSpeedModifier = shipHP <= 0 ? 0.15 : 1.0;
               // Very smooth speed scaling for mobile controls
               const normalizedDistance = Math.min(distance / 1.5, 1); // Normalize to joystick range
-              const speedMultiplier = Math.pow(normalizedDistance, 0.9); // Gentler curve for mobile
+              const speedMultiplier = Math.pow(normalizedDistance, 0.7); // More permissive curve for mobile
               const targetSpeed =
                 SHIP_MAX_SPEED * speedMultiplier * hpSpeedModifier;
 
