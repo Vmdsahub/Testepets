@@ -1507,7 +1507,25 @@ const SpaceMapComponent: React.FC = () => {
             nextScreenY,
           );
 
-          // Yellow glow effect with intensity-based strength - ultra bright
+          // Trail glow effect with ship's trail color
+          const trailColor = shipStats.trailColor;
+
+          // Convert hex to RGB for trail effects
+          const hexToRgb = (hex: string) => {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(
+              hex,
+            );
+            return result
+              ? {
+                  r: parseInt(result[1], 16),
+                  g: parseInt(result[2], 16),
+                  b: parseInt(result[3], 16),
+                }
+              : { r: 255, g: 235, b: 59 }; // Default to yellow if parsing fails
+          };
+
+          const trailRgb = hexToRgb(trailColor);
+
           const currentAlpha = Math.min(
             currentLifeRatio * current.intensity * 0.95,
             0.9,
@@ -1519,13 +1537,19 @@ const SpaceMapComponent: React.FC = () => {
           const avgAlpha = (currentAlpha + nextAlpha) / 2;
           const avgIntensity = (current.intensity + next.intensity) / 2;
 
-          gradient.addColorStop(0, `rgba(255, 235, 59, ${currentAlpha})`); // Soft yellow
-          gradient.addColorStop(1, `rgba(255, 193, 7, ${nextAlpha})`); // Slightly orange yellow
+          gradient.addColorStop(
+            0,
+            `rgba(${trailRgb.r}, ${trailRgb.g}, ${trailRgb.b}, ${currentAlpha})`,
+          );
+          gradient.addColorStop(
+            1,
+            `rgba(${Math.max(0, trailRgb.r - 20)}, ${Math.max(0, trailRgb.g - 20)}, ${Math.max(0, trailRgb.b - 20)}, ${nextAlpha})`,
+          );
 
           // Ultra bright outer glow with shadow
-          ctx.shadowColor = "#ffeb3b";
+          ctx.shadowColor = trailColor;
           ctx.shadowBlur = 25 * pulseIntensity * avgIntensity;
-          ctx.strokeStyle = `rgba(255, 215, 0, ${avgAlpha * 0.8 * pulseIntensity})`;
+          ctx.strokeStyle = `rgba(${trailRgb.r}, ${trailRgb.g}, ${trailRgb.b}, ${avgAlpha * 0.8 * pulseIntensity})`;
           ctx.lineWidth =
             TRAIL_WIDTH *
             2.5 *
@@ -1541,7 +1565,7 @@ const SpaceMapComponent: React.FC = () => {
 
           // Medium glow layer
           ctx.shadowBlur = 15 * pulseIntensity * avgIntensity;
-          ctx.strokeStyle = `rgba(255, 235, 59, ${avgAlpha * 0.9 * pulseIntensity})`;
+          ctx.strokeStyle = `rgba(${trailRgb.r}, ${trailRgb.g}, ${trailRgb.b}, ${avgAlpha * 0.9 * pulseIntensity})`;
           ctx.lineWidth =
             TRAIL_WIDTH *
             1.8 *
