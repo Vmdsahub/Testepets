@@ -3041,7 +3041,7 @@ const SpaceMapComponent: React.FC = () => {
       // Create trail points based on time
       const currentTime = performance.now();
       if (
-        currentShipVelocity > 10 && // 10 pixels per second threshold
+        currentShipVelocity > 2 && // 2 pixels per second threshold
         currentTime - lastTrailTime.current > 35
       ) {
         // Calculate trail position at the back of the ship
@@ -4318,7 +4318,7 @@ const SpaceMapComponent: React.FC = () => {
 
       // Rotaç���o lenta baseada no tempo
       const rotationTime = currentTime * 0.0005; // Muito lenta
-      const dashOffset = (rotationTime * 50) % 20; // Offset dos tra��os para simular rotaç��o
+      const dashOffset = (rotationTime * 50) % 20; // Offset dos tra��os para simular rotação
 
       ctx.setLineDash([10, 10]);
       ctx.lineDashOffset = -dashOffset; // Anima os traços
