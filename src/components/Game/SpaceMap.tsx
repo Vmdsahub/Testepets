@@ -3991,53 +3991,6 @@ const SpaceMapComponent: React.FC = () => {
         }
       }
 
-      // Render smoke particles
-      const smokeParticlesForRender = smokeParticlesRef.current;
-      for (let i = 0; i < smokeParticlesForRender.length; i++) {
-        const smoke = smokeParticlesForRender[i];
-        const wrappedDeltaX = getWrappedDistance(smoke.x, gameState.camera.x);
-        const wrappedDeltaY = getWrappedDistance(smoke.y, gameState.camera.y);
-        const screenX = centerX + wrappedDeltaX;
-        const screenY = centerY + wrappedDeltaY;
-
-        // Only render if on screen
-        if (
-          screenX >= -50 &&
-          screenX <= canvas.width + 50 &&
-          screenY >= -50 &&
-          screenY <= canvas.height + 50
-        ) {
-          // Draw stable smoke particle
-          ctx.save();
-
-          // Use stable opacity without complex calculations
-          ctx.globalAlpha = smoke.opacity;
-
-          // Simple gradient for smoke
-          const gradient = ctx.createRadialGradient(
-            screenX,
-            screenY,
-            0,
-            screenX,
-            screenY,
-            smoke.size,
-          );
-
-          gradient.addColorStop(0, "#777777");
-          gradient.addColorStop(0.6, "#555555");
-          gradient.addColorStop(1, "rgba(85, 85, 85, 0)");
-
-          ctx.fillStyle = gradient;
-
-          // Draw smoke particle
-          ctx.beginPath();
-          ctx.arc(screenX, screenY, smoke.size, 0, Math.PI * 2);
-          ctx.fill();
-
-          ctx.restore();
-        }
-      }
-
       // Render shooting stars - optimized with for loop
       const shootingStarsForRender = shootingStarsRef.current;
       for (let i = 0; i < shootingStarsForRender.length; i++) {
