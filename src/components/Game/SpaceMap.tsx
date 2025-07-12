@@ -3649,8 +3649,8 @@ const SpaceMapComponent: React.FC = () => {
           newState.ship.vy *= currentFriction;
 
           // Calculate potential new position with frame rate independent movement
-          const newX = newState.ship.x + newState.ship.vx * normalizedDeltaTime;
-          const newY = newState.ship.y + newState.ship.vy * normalizedDeltaTime;
+          const newX = newState.ship.x + newState.ship.vx;
+          const newY = newState.ship.y + newState.ship.vy;
 
           // Check barrier collision only if enabled
           if (isBarrierCollisionEnabled) {
