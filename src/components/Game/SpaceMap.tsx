@@ -31,7 +31,7 @@ interface Star {
   drift: { x: number; y: number };
   pulse: number;
   baseX: number; // Posição base para movimento oscilatório
-  baseY: number; // Posição base para movimento oscilatório
+  baseY: number; // Posição base para movimento oscilat��rio
   floatAmplitude: { x: number; y: number }; // Amplitude do movimento de flutua���ão
   floatPhase: { x: number; y: number }; // Fase do movimento senoidal
 }
@@ -218,11 +218,8 @@ const SpaceMapComponent: React.FC = () => {
   const lastTrailTime = useRef<number>(0);
   const lastShootingStarTime = useRef(0);
   const lastShootTime = useRef(0);
-  const lastStarUpdateTime = useRef(0);
   const lastAsteroidSpawnTime = useRef(0);
-  const STAR_UPDATE_INTERVAL = 200; // 5 FPS = 200ms interval
   const ASTEROID_SPAWN_INTERVAL = 5000; // Check for chunk loading every 5 seconds
-  const MAX_ASTEROIDS = 200; // Much higher limit for natural world distribution
   const lastRadarCheckRef = useRef<Set<string>>(new Set());
   const shootingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const lastFrameTimeRef = useRef(performance.now());
