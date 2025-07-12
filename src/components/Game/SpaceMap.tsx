@@ -61,6 +61,8 @@ interface Projectile {
   vy: number;
   life: number;
   maxLife: number;
+  color: string;
+  damage: number;
 }
 
 interface ShootingStar {
