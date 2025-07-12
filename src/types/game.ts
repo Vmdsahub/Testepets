@@ -283,6 +283,9 @@ export interface GameState {
   };
   asteroids?: Asteroid[];
   xenoCoins?: XenoCoin[];
+  ships: Ship[]; // All ships available in the game
+  ownedShips: Ship[]; // Ships owned by the player
+  activeShip: Ship | null; // Currently equipped ship
 }
 
 export interface Notification {
