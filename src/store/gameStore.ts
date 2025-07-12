@@ -13,6 +13,7 @@ import {
   WorldPosition,
   ExplorationPoint,
   ExplorationArea,
+  Ship,
 } from "../types/game";
 import { gameService } from "../services/gameService";
 import { playNotificationSound } from "../utils/soundManager";
