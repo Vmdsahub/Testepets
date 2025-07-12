@@ -3595,13 +3595,9 @@ const SpaceMapComponent: React.FC = () => {
         const asteroid = asteroids[i];
 
         // Update position
-        asteroid.x = normalizeCoord(
-          asteroid.x + asteroid.vx * projectileDeltaTime,
-        );
-        asteroid.y = normalizeCoord(
-          asteroid.y + asteroid.vy * projectileDeltaTime,
-        );
-        asteroid.rotation += asteroid.rotationSpeed * projectileDeltaTime;
+        asteroid.x = normalizeCoord(asteroid.x + asteroid.vx * deltaTime);
+        asteroid.y = normalizeCoord(asteroid.y + asteroid.vy * deltaTime);
+        asteroid.rotation += asteroid.rotationSpeed * deltaTime;
 
         // Check collision with ship
         if (checkShipAsteroidCollision(gameState.ship, asteroid)) {
