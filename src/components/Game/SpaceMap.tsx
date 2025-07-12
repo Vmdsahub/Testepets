@@ -3144,8 +3144,8 @@ const SpaceMapComponent: React.FC = () => {
             // Create damage particles
             createDamageParticles(asteroid.x, asteroid.y);
 
-            // Damage asteroid
-            asteroid.health -= 1;
+            // Damage asteroid with projectile damage
+            asteroid.health -= projectile.damage;
 
             if (asteroid.health <= 0) {
               // Asteroid destroyed - create explosion and xenocoin
