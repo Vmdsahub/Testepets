@@ -1411,7 +1411,7 @@ const SpaceMapComponent: React.FC = () => {
         color: Math.random() < 0.92 ? "#ffffff" : generateRandomStarColor(),
         type: "normal",
         drift: {
-          x: 0, // Movimento ser�� calculado via seno/cosseno
+          x: 0, // Movimento ser��� calculado via seno/cosseno
           y: 0,
         },
         pulse: Math.random() * 100,
@@ -3214,13 +3214,20 @@ const SpaceMapComponent: React.FC = () => {
 
               // Apply speed reduction if ship HP is 0 (85% reduction = 15% of original speed)
               const hpSpeedModifier = shipHP <= 0 ? 0.15 : 1.0;
-              // Smooth speed scaling for mobile controls
-              const normalizedDistance = Math.min(distance / 150, 1); // Proper distance normalization
-              const speedMultiplier = Math.pow(normalizedDistance, 0.6); // Smooth curve
+              // Very smooth speed scaling for mobile controls
+              const normalizedDistance = Math.min(distance / 1.5, 1); // Normalize to joystick range
+              const speedMultiplier = Math.pow(normalizedDistance, 1.1); // Steeper curve for gradual start
               const targetSpeed =
                 SHIP_MAX_SPEED * speedMultiplier * hpSpeedModifier;
-              newState.ship.vx += (dx / distance) * targetSpeed * 0.025;
-              newState.ship.vy += (dy / distance) * targetSpeed * 0.025;
+
+              // Calculate target velocity components
+              const targetVx = (dx / distance) * targetSpeed;
+              const targetVy = (dy / distance) * targetSpeed;
+
+              // Smooth interpolation towards target velocity (mobile)
+              const lerpFactor = Math.min(deltaTime * 3.0, 0.12); // Slightly faster for mobile responsiveness
+              newState.ship.vx += (targetVx - newState.ship.vx) * lerpFactor;
+              newState.ship.vy += (targetVy - newState.ship.vy) * lerpFactor;
             }
           } else if (!isMobile && hasMouseMoved.current) {
             // Desktop mouse controls
@@ -4489,7 +4496,7 @@ const SpaceMapComponent: React.FC = () => {
                   180) /
                   Math.PI,
               )}
-              ��
+              ����
             </label>
             <input
               type="range"
