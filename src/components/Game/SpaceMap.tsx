@@ -493,10 +493,10 @@ const SpaceMapComponent: React.FC = () => {
       const newProjectile: Projectile = {
         x: gameState.ship.x,
         y: gameState.ship.y,
-        vx: Math.cos(gameState.ship.angle), // Just direction, speed handled in update
-        vy: Math.sin(gameState.ship.angle), // Just direction, speed handled in update
-        life: 3.0, // 3 seconds at 60fps
-        maxLife: 3.0,
+        vx: Math.cos(gameState.ship.angle) * PROJECTILE_SPEED, // pixels per second
+        vy: Math.sin(gameState.ship.angle) * PROJECTILE_SPEED, // pixels per second
+        life: PROJECTILE_LIFETIME,
+        maxLife: PROJECTILE_LIFETIME,
       };
       projectilesRef.current.push(newProjectile);
       lastShootTime.current = currentTime;
@@ -2562,7 +2562,7 @@ const SpaceMapComponent: React.FC = () => {
         initialShipY: gameState.ship.y,
       });
       setIsLandingAnimationActive(true);
-      console.log("��� Animação de pouso iniciada");
+      console.log("���� Animação de pouso iniciada");
 
       // Play landing sound
       playLandingSound().catch(() => {
