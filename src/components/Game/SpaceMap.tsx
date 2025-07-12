@@ -2353,7 +2353,7 @@ const SpaceMapComponent: React.FC = () => {
         // Only check for planet click if ship is within interaction radius
         if (shipToPlanetDistance <= planet.interactionRadius) {
           // Check if the click was specifically on a visible pixel of the planet image
-          if (isClickOnPlanetPixel(planet, worldClickX, worldClickY, canvas)) {
+          if (isClickOnPlanetPixel(planet, worldClickX, worldClickY)) {
             setSelectedPlanet(planet);
             setShowLandingModal(true);
             clickedOnPlanet = true;
