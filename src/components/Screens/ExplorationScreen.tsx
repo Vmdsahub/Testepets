@@ -36,6 +36,9 @@ export const ExplorationScreen: React.FC = () => {
     setCurrentScreen("planet");
   };
 
+  // Check if this is the Golden Plains (Planície Dourada) location
+  const isGoldenPlains = currentExplorationPoint.name === "Planície Dourada";
+
   return (
     <motion.div
       className="h-full w-full pt-20 pb-20 px-4 overflow-y-auto"
