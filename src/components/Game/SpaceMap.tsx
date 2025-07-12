@@ -2287,7 +2287,7 @@ const SpaceMapComponent: React.FC = () => {
               setIsDragging(false);
               setDragOffset({ x: 0, y: 0 });
             } else if (selectedWorldId === planet.id && !isDragging) {
-              // Se já est������������ selecionado mas não dragging, inicie o drag
+              // Se já est������������� selecionado mas não dragging, inicie o drag
               setIsDragging(true);
               setDragOffset({ x: dx, y: dy });
             } else {
@@ -2695,8 +2695,8 @@ const SpaceMapComponent: React.FC = () => {
               const hpSpeedModifier = shipHP <= 0 ? 0.15 : 1.0;
               const targetSpeed =
                 SHIP_MAX_SPEED * speedMultiplier * hpSpeedModifier;
-              // Convert acceleration to use deltaTime
-              const accelerationRate = 2.4;
+              // Increased acceleration rate for deltaTime
+              const accelerationRate = 150;
               newState.ship.vx +=
                 (dx / distance) * targetSpeed * accelerationRate * deltaTime;
               newState.ship.vy +=
