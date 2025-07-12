@@ -2628,6 +2628,9 @@ const SpaceMapComponent: React.FC = () => {
 
       const deltaTime = currentTime - lastTime; // FPS desbloqueado - sem limitação
 
+      // Normalize deltaTime to 60fps (16.67ms per frame) for consistent physics
+      const normalizedDeltaTime = deltaTime / 16.67;
+
       // Intelligent frame skipping for large canvas - skip non-critical updates
       const isLargeCanvas = canvas.width > 1000 || canvas.height > 600;
       const frameSkip = isLargeCanvas ? 2 : 1;
