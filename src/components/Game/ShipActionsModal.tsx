@@ -356,7 +356,7 @@ export const ShipActionsModal: React.FC<ShipActionsModalProps> = ({
                     {/* Ship Image */}
                     <div className="flex justify-center">
                       <img
-                        src="https://cdn.builder.io/api/v1/image/assets%2Ff93cc7cc605f420aa4fbb47a6557dbb5%2Fba62973afdca4d84ba54dad060a3e993?format=webp&width=800"
+                        src="https://cdn.builder.io/api/v1/image/assets%2Fa34588f934eb4ad690ceadbafd1050c4%2F15bec815b4ff404988b6644d7d055efa?format=webp&width=800"
                         alt="Nave do Jogador"
                         className="w-32 h-32 object-contain bg-gray-50 rounded-lg border border-gray-200"
                       />
