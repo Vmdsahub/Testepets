@@ -245,6 +245,17 @@ function App() {
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 gpu-accelerated force-gpu-layer">
         <AudioPreloader />
 
+        {/* Emergency Navigation Button */}
+        {isAuthenticated && currentScreen !== "world" && (
+          <button
+            onClick={() => setCurrentScreen("world")}
+            className="fixed top-4 left-4 z-[9999] bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-full shadow-lg transition-colors font-bold text-sm"
+            style={{ zIndex: 99999 }}
+          >
+            🚨 VOLTAR AO MAPA
+          </button>
+        )}
+
         {["world", "planet", "exploration"].includes(currentScreen) ? (
           // Fullscreen layout for world-related screens with pill navigations
           <div className="fixed inset-0 overflow-hidden">
