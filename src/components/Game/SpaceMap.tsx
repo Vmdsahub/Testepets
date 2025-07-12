@@ -2614,10 +2614,13 @@ const SpaceMapComponent: React.FC = () => {
         return;
       }
 
-      const deltaTime = currentTime - lastTime; // FPS desbloqueado - sem limitação
+      const deltaTime = lastTime === 0 ? 16.67 : currentTime - lastTime; // FPS desbloqueado - sem limitação
+
+      // Clamp deltaTime to prevent huge spikes (max 33.33ms = 30fps minimum)
+      const clampedDeltaTime = Math.min(deltaTime, 33.33);
 
       // Normalize deltaTime to 60fps (16.67ms per frame) for consistent physics
-      const normalizedDeltaTime = deltaTime / 16.67;
+      const normalizedDeltaTime = clampedDeltaTime / 16.67;
 
       // Intelligent frame skipping for large canvas - skip non-critical updates
       const isLargeCanvas = canvas.width > 1000 || canvas.height > 600;
