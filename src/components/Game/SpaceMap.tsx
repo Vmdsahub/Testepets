@@ -2586,7 +2586,6 @@ const SpaceMapComponent: React.FC = () => {
 
   // Parar tiro quando mouse sai da ��rea do canvas
   const handleMouseLeaveCanvas = useCallback(() => {
-    setIsMousePressed(false);
     if (shootingIntervalRef.current) {
       clearInterval(shootingIntervalRef.current);
       shootingIntervalRef.current = null;
