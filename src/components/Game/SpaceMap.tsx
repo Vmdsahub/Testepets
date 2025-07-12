@@ -2669,8 +2669,8 @@ const SpaceMapComponent: React.FC = () => {
               // Apply speed reduction if ship HP is 0 (85% reduction = 15% of original speed)
               const hpSpeedModifier = shipHP <= 0 ? 0.15 : 1.0;
               const targetSpeed = SHIP_MAX_SPEED * distance * hpSpeedModifier;
-              // Convert acceleration to use deltaTime (0.04 per frame @ 60fps = 2.4 per second)
-              const accelerationRate = 2.4;
+              // Increased acceleration rate for deltaTime (0.04 per frame @ 60fps = 150 per second)
+              const accelerationRate = 150;
               newState.ship.vx +=
                 (dx / distance) * targetSpeed * accelerationRate * deltaTime;
               newState.ship.vy +=
