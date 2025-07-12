@@ -167,7 +167,7 @@ interface GameState {
 }
 
 const WORLD_SIZE = 100000;
-const SHIP_MAX_SPEED = 300; // pixels per second
+const SHIP_MAX_SPEED = 60; // pixels per second (reduced by 80%)
 const FRICTION = 0.92;
 const CENTER_X = WORLD_SIZE / 2;
 const CENTER_Y = WORLD_SIZE / 2;
