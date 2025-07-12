@@ -2555,7 +2555,7 @@ const SpaceMapComponent: React.FC = () => {
         initialShipY: gameState.ship.y,
       });
       setIsLandingAnimationActive(true);
-      console.log("🎬 Animação de pouso iniciada");
+      console.log("��� Animação de pouso iniciada");
 
       // Play landing sound
       playLandingSound().catch(() => {
@@ -4065,8 +4065,8 @@ const SpaceMapComponent: React.FC = () => {
           willChange: "transform, contents",
         }}
         onMouseMove={handleMouseMove}
-        onMouseLeave={(e) => {
-          handleMouseLeave(e);
+        onMouseLeave={() => {
+          handleMouseLeave();
           handleMouseLeaveCanvas();
         }}
         onMouseEnter={handleMouseEnter}
