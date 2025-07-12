@@ -2866,13 +2866,13 @@ const SpaceMapComponent: React.FC = () => {
               })()
             : newState.ship.y;
 
-        // Convert camera follow speed to deltaTime (0.08 per frame @ 60fps = 4.8 per second)
-        const cameraFollowSpeed = 4.8;
+        // Simple camera follow
+        const cameraFollowSpeed = 0.08;
         const deltaX = getWrappedDistance(targetX, newState.camera.x);
         const deltaY = getWrappedDistance(targetY, newState.camera.y);
 
-        newState.camera.x += deltaX * cameraFollowSpeed * deltaTime;
-        newState.camera.y += deltaY * cameraFollowSpeed * deltaTime;
+        newState.camera.x += deltaX * cameraFollowSpeed;
+        newState.camera.y += deltaY * cameraFollowSpeed;
 
         newState.camera.x = normalizeCoord(newState.camera.x);
         newState.camera.y = normalizeCoord(newState.camera.y);
