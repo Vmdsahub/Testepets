@@ -2379,8 +2379,8 @@ const SpaceMapComponent: React.FC = () => {
               const targetVy = (dy / distance) * targetSpeed;
 
               // Smooth interpolation towards target velocity (much slower)
-              const baseLerpFactor = Math.min(deltaTime * 4.0, 0.15); // Faster base interpolation
-              const distanceBoost = Math.min(normalizedDistance * 0.1, 0.1); // Extra speed for far distances
+              const baseLerpFactor = Math.min(deltaTime * 6.0, 0.2); // Much faster base interpolation
+              const distanceBoost = Math.min(normalizedDistance * 0.15, 0.15); // Higher extra speed for far distances
               const lerpFactor = baseLerpFactor + distanceBoost;
               newState.ship.vx += (targetVx - newState.ship.vx) * lerpFactor;
               newState.ship.vy += (targetVy - newState.ship.vy) * lerpFactor;
@@ -3259,8 +3259,8 @@ const SpaceMapComponent: React.FC = () => {
               const targetVy = (dy / distance) * targetSpeed;
 
               // Smooth interpolation towards target velocity (much slower)
-              const baseLerpFactor = Math.min(deltaTime * 4.0, 0.15); // Faster base interpolation
-              const distanceBoost = Math.min(normalizedDistance * 0.1, 0.1); // Extra speed for far distances
+              const baseLerpFactor = Math.min(deltaTime * 6.0, 0.2); // Much faster base interpolation
+              const distanceBoost = Math.min(normalizedDistance * 0.15, 0.15); // Higher extra speed for far distances
               const lerpFactor = baseLerpFactor + distanceBoost;
               newState.ship.vx += (targetVx - newState.ship.vx) * lerpFactor;
               newState.ship.vy += (targetVy - newState.ship.vy) * lerpFactor;
