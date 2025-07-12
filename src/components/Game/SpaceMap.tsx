@@ -3644,33 +3644,6 @@ const SpaceMapComponent: React.FC = () => {
           asteroids.splice(i, 1);
           continue;
         }
-
-        // Check projectile collisions
-        const projectiles = projectilesRef.current;
-        for (let j = projectiles.length - 1; j >= 0; j--) {
-          const projectile = projectiles[j];
-          if (checkProjectileAsteroidCollision(projectile, asteroid)) {
-            // Remove projectile
-            projectiles.splice(j, 1);
-
-            // Create damage particles
-            createDamageParticles(asteroid.x, asteroid.y);
-
-            // Damage asteroid
-            asteroid.health -= 1;
-
-            if (asteroid.health <= 0) {
-              // Asteroid destroyed - create explosion and xenocoin
-              console.log(
-                `Asteroid ${asteroid.id} destroyed by projectile - creating explosion and xenocoin`,
-              );
-              createExplosionParticles(asteroid.x, asteroid.y, false);
-              createXenoCoin(asteroid.x, asteroid.y);
-              asteroids.splice(i, 1);
-              break;
-            }
-          }
-        }
       }
 
       // Update xenocoins
