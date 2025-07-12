@@ -32,7 +32,7 @@ interface Star {
   pulse: number;
   baseX: number; // Posição base para movimento oscilatório
   baseY: number; // Posição base para movimento oscilatório
-  floatAmplitude: { x: number; y: number }; // Amplitude do movimento de flutua����ão
+  floatAmplitude: { x: number; y: number }; // Amplitude do movimento de flutua���ão
   floatPhase: { x: number; y: number }; // Fase do movimento senoidal
 }
 
@@ -2156,7 +2156,7 @@ const SpaceMapComponent: React.FC = () => {
       const fallbackImg = new Image();
       fallbackImg.crossOrigin = "anonymous";
       fallbackImg.src =
-        "https://cdn.builder.io/api/v1/image/assets%2Fa34588f934eb4ad690ceadbafd1050c4%2F08167028f08f4996b97ed7703ce66292?format=webp&width=800";
+        "https://cdn.builder.io/api/v1/image/assets%2Fb6d85109083b414cb45e23273725417f%2F1d8f2abb8c5d40e28fb6562c1deaf30b?format=webp&width=800&v=2";
       fallbackImg.onload = () => {
         shipImageRef.current = fallbackImg;
       };
@@ -4322,7 +4322,7 @@ const SpaceMapComponent: React.FC = () => {
           {/* Rotation Control */}
           <div className="mb-3">
             <label className="block text-xs font-medium text-gray-700 mb-1">
-              Rota����o:{" "}
+              Rotaç��o:{" "}
               {Math.round(
                 ((planetsRef.current.find((p) => p.id === selectedWorldId)
                   ?.rotation || 0) *
