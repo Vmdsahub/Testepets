@@ -1992,7 +1992,7 @@ const SpaceMapComponent: React.FC = () => {
               setIsDragging(false);
               setDragOffset({ x: 0, y: 0 });
             } else if (selectedWorldId === planet.id && !isDragging) {
-              // Se já est������������� selecionado mas não dragging, inicie o drag
+              // Se já est�������������� selecionado mas não dragging, inicie o drag
               setIsDragging(true);
               setDragOffset({ x: dx, y: dy });
             } else {
@@ -2347,7 +2347,7 @@ const SpaceMapComponent: React.FC = () => {
               const targetVy = (dy / distance) * targetSpeed;
 
               // Smooth interpolation towards target velocity (mobile)
-              const lerpFactor = Math.min(deltaTime * 3.0, 0.12); // Slightly faster for mobile responsiveness
+              const lerpFactor = Math.min(deltaTime * 5.0, 0.18); // Much faster for mobile responsiveness
               newState.ship.vx += (targetVx - newState.ship.vx) * lerpFactor;
               newState.ship.vy += (targetVy - newState.ship.vy) * lerpFactor;
             }
@@ -3227,7 +3227,7 @@ const SpaceMapComponent: React.FC = () => {
               const targetVy = (dy / distance) * targetSpeed;
 
               // Smooth interpolation towards target velocity (mobile)
-              const lerpFactor = Math.min(deltaTime * 3.0, 0.12); // Slightly faster for mobile responsiveness
+              const lerpFactor = Math.min(deltaTime * 5.0, 0.18); // Much faster for mobile responsiveness
               newState.ship.vx += (targetVx - newState.ship.vx) * lerpFactor;
               newState.ship.vy += (targetVy - newState.ship.vy) * lerpFactor;
             }
