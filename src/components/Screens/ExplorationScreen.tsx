@@ -203,12 +203,6 @@ export const ExplorationScreen: React.FC = () => {
 
                 <div className="bg-white border border-blue-100 rounded-lg p-4">
                   {(() => {
-                    const {
-                      getAllShips,
-                      getOwnedShips,
-                      purchaseShip,
-                      xenocoins,
-                    } = useGameStore();
                     const availableShips = getAllShips().filter(
                       (ship) => !ship.isDefault,
                     );
