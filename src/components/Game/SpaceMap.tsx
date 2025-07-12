@@ -2156,7 +2156,7 @@ const SpaceMapComponent: React.FC = () => {
       const fallbackImg = new Image();
       fallbackImg.crossOrigin = "anonymous";
       fallbackImg.src =
-        "https://cdn.builder.io/api/v1/image/assets%2F927080298e954d2fba85d9a91618627d%2Fd89cbfd7d2604752a995652efb832852?format=webp&width=800";
+        "https://cdn.builder.io/api/v1/image/assets%2Fa34588f934eb4ad690ceadbafd1050c4%2F15bec815b4ff404988b6644d7d055efa?format=webp&width=800";
       fallbackImg.onload = () => {
         shipImageRef.current = fallbackImg;
       };
