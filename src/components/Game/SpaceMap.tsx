@@ -3450,7 +3450,7 @@ const SpaceMapComponent: React.FC = () => {
       const shipScreenY = centerY;
 
       // Render ship trail
-      renderShipTrail(ctx, shipScreenX, shipScreenY, shipWorldX, shipWorldY);
+      drawShipTrail(ctx, shipScreenX, shipScreenY, shipWorldX, shipWorldY);
 
       // Render ship
       renderShip(ctx, canvas, centerX, centerY);
