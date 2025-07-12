@@ -850,7 +850,7 @@ export const useGameStore = create<GameStore>()(
       setCurrentScreen: (screen) => {
         console.log("🏪 gameStore.setCurrentScreen chamado:", screen);
         set({ currentScreen: screen });
-        console.log("✅ gameStore.setCurrentScreen concluído");
+        console.log("✅ gameStore.setCurrentScreen conclu��do");
       },
       setViewedUserId: (userId) => set({ viewedUserId: userId }),
       setCurrentPlanet: (planet) => {
@@ -2002,6 +2002,171 @@ export const useGameStore = create<GameStore>()(
             success: false,
             message: "Erro ao resgatar código. Tente novamente.",
           };
+        }
+      },
+
+      // Ship management functions
+      getAllShips: () => {
+        return get().ships;
+      },
+
+      getOwnedShips: () => {
+        return get().ownedShips;
+      },
+
+      getActiveShip: () => {
+        return get().activeShip;
+      },
+
+      getShipById: (shipId: string) => {
+        const ships = get().ships;
+        return ships.find((ship) => ship.id === shipId) || null;
+      },
+
+      purchaseShip: async (shipId: string) => {
+        const state = get();
+        const { user, xenocoins, cash, ships, ownedShips } = state;
+
+        if (!user) {
+          get().addNotification({
+            type: "error",
+            title: "Erro",
+            message: "Você precisa estar logado para comprar naves.",
+            isRead: false,
+          });
+          return false;
+        }
+
+        const ship = ships.find((s) => s.id === shipId);
+        if (!ship) {
+          get().addNotification({
+            type: "error",
+            title: "Erro",
+            message: "Nave não encontrada.",
+            isRead: false,
+          });
+          return false;
+        }
+
+        // Check if already owned
+        if (ownedShips.find((owned) => owned.id === shipId)) {
+          get().addNotification({
+            type: "warning",
+            title: "Aviso",
+            message: "Você já possui esta nave.",
+            isRead: false,
+          });
+          return false;
+        }
+
+        // Check if user has enough currency
+        const currentCurrency =
+          ship.currency === "xenocoins" ? xenocoins : cash;
+        if (currentCurrency < ship.price) {
+          get().addNotification({
+            type: "error",
+            title: "Moeda Insuficiente",
+            message: `Você precisa de ${ship.price} ${ship.currency === "xenocoins" ? "Xenocoins" : "Cash"} para comprar esta nave.`,
+            isRead: false,
+          });
+          return false;
+        }
+
+        try {
+          // Deduct currency
+          const success = await get().updateCurrency(
+            ship.currency,
+            -ship.price,
+          );
+
+          if (success) {
+            // Add ship to owned ships with purchase date
+            const purchasedShip = { ...ship, ownedAt: new Date() };
+
+            set((state) => ({
+              ownedShips: [...state.ownedShips, purchasedShip],
+            }));
+
+            get().addNotification({
+              type: "success",
+              title: "Compra Realizada!",
+              message: `${ship.name} foi adicionada ao seu hangar!`,
+              isRead: false,
+            });
+
+            return true;
+          } else {
+            get().addNotification({
+              type: "error",
+              title: "Erro",
+              message: "Erro ao processar a compra. Tente novamente.",
+              isRead: false,
+            });
+            return false;
+          }
+        } catch (error) {
+          console.error("Error purchasing ship:", error);
+          get().addNotification({
+            type: "error",
+            title: "Erro",
+            message: "Erro ao processar a compra. Tente novamente.",
+            isRead: false,
+          });
+          return false;
+        }
+      },
+
+      switchActiveShip: async (shipId: string) => {
+        const state = get();
+        const { user, ownedShips } = state;
+
+        if (!user) {
+          get().addNotification({
+            type: "error",
+            title: "Erro",
+            message: "Você precisa estar logado para trocar de nave.",
+            isRead: false,
+          });
+          return false;
+        }
+
+        // Check if ship is owned (including default ship)
+        const defaultShip = get().ships.find((s) => s.isDefault);
+        const ownedShip = ownedShips.find((s) => s.id === shipId);
+        const targetShip =
+          ownedShip || (shipId === defaultShip?.id ? defaultShip : null);
+
+        if (!targetShip) {
+          get().addNotification({
+            type: "error",
+            title: "Erro",
+            message: "Você não possui esta nave.",
+            isRead: false,
+          });
+          return false;
+        }
+
+        try {
+          // In a real app, this would save to backend
+          set({ activeShip: targetShip });
+
+          get().addNotification({
+            type: "success",
+            title: "Nave Trocada!",
+            message: `${targetShip.name} agora é sua nave ativa.`,
+            isRead: false,
+          });
+
+          return true;
+        } catch (error) {
+          console.error("Error switching ship:", error);
+          get().addNotification({
+            type: "error",
+            title: "Erro",
+            message: "Erro ao trocar de nave. Tente novamente.",
+            isRead: false,
+          });
+          return false;
         }
       },
 
