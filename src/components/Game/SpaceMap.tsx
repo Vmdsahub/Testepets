@@ -202,6 +202,31 @@ const SpaceMapComponent: React.FC = () => {
     getActiveShip,
   } = useGameStore();
   const { saveShipState, forceSaveShipState } = useShipStatePersistence();
+
+  // Get active ship stats
+  const getActiveShipStats = () => {
+    const activeShip = getActiveShip();
+    if (!activeShip) {
+      // Return default stats if no ship is active
+      return {
+        speed: 1.0,
+        projectileDamage: 1.0,
+        trailColor: "#4A90E2",
+        projectileColor: "#4A90E2",
+      };
+    }
+    return {
+      speed: activeShip.stats.speed,
+      projectileDamage: activeShip.stats.projectileDamage,
+      trailColor: activeShip.visualEffects.trailColor,
+      projectileColor: activeShip.visualEffects.projectileColor,
+    };
+  };
+
+  // Dynamic ship constants based on active ship
+  const shipStats = getActiveShipStats();
+  const SHIP_MAX_SPEED = BASE_SHIP_MAX_SPEED * shipStats.speed;
+  const PROJECTILE_SPEED = BASE_PROJECTILE_SPEED; // Speed stays same, but damage changes
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gameLoopRef = useRef<number>();
   const mouseRef = useRef({ x: 0, y: 0 });
@@ -4422,7 +4447,7 @@ const SpaceMapComponent: React.FC = () => {
         {user?.isAdmin && isWorldEditMode ? (
           <>
             <div className="text-yellow-400 font-bold mb-1">
-              ��� MODO EDIÇ��O
+              ��� MODO EDIÇ���O
             </div>
             <div>��� 1º Click: Selecionar mundo</div>
             <div>
