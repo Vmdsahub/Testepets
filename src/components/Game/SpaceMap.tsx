@@ -54,15 +54,6 @@ interface Planet {
   floatSpeed?: number;
 }
 
-interface Projectile {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  life: number;
-  maxLife: number;
-}
-
 interface ShootingStar {
   x: number;
   y: number;
@@ -192,7 +183,7 @@ const SpaceMapComponent: React.FC = () => {
   const hasMouseMoved = useRef(false);
   const starsRef = useRef<Star[]>([]);
   const planetsRef = useRef<Planet[]>([]);
-  const projectilesRef = useRef<Projectile[]>([]);
+
   const shootingStarsRef = useRef<ShootingStar[]>([]);
   const radarPulsesRef = useRef<RadarPulse[]>([]);
 
@@ -202,11 +193,11 @@ const SpaceMapComponent: React.FC = () => {
   const smokeParticlesRef = useRef<SmokeParticle[]>([]);
 
   const lastShootingStarTime = useRef(0);
-  const lastShootTime = useRef(0);
+
   const lastAsteroidSpawnTime = useRef(0);
   const ASTEROID_SPAWN_INTERVAL = 5000; // Check for chunk loading every 5 seconds
   const lastRadarCheckRef = useRef<Set<string>>(new Set());
-  const shootingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
   const lastFrameTimeRef = useRef(performance.now());
   const frameCounter = useRef(0);
   const lastSmokeFrame = useRef(0);
