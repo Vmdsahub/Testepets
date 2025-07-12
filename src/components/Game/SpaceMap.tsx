@@ -2620,11 +2620,14 @@ const SpaceMapComponent: React.FC = () => {
       // Convert to seconds and limit to 50ms (0.05s) maximum to prevent huge jumps
       const deltaTime = Math.min(deltaTimeMs / 1000, 0.05);
 
-      // Intelligent frame skipping for large canvas - skip non-critical updates
-      const isLargeCanvas = canvas.width > 1000 || canvas.height > 600;
-      const frameSkip = isLargeCanvas ? 2 : 1;
-      const skipFrame = frameCounter.current % frameSkip !== 0;
-      frameCounter.current++;
+      // Skip first frame if lastTime wasn't set properly
+      if (deltaTime > 0 && deltaTime < 0.05) {
+        // Update game state
+        updateGame(deltaTime);
+
+        // Render the frame
+        renderGame(ctx, canvas);
+      }
 
       // Calculate FPS less frequently for better performance
       if (fpsRef.current.lastTime > 0) {
