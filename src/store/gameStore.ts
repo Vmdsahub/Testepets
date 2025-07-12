@@ -912,19 +912,39 @@ export const useGameStore = create<GameStore>()(
           { x: 25, y: 80 },
         ];
 
-        const points: ExplorationPoint[] = selectedNames.map((name, index) => ({
-          id: `${planetId}_point_${index + 1}`,
-          planetId,
-          name,
-          x: positions[index].x,
-          y: positions[index].y,
-          imageUrl:
-            "https://cdn.builder.io/api/v1/image/assets%2F6b84993f22904beeb2e1d8d2f128c032%2Faaff2921868f4bbfb24be01b9fdfa6a1?format=webp&width=800",
-          description: `Uma área fascinante conhecida como ${name}. Este local oferece uma experiência única de exploração.`,
-          discovered: false,
-          size: 1.0,
-          active: true,
-        }));
+        const points: ExplorationPoint[] = selectedNames.map((name, index) => {
+          // Special customization for Planície Dourada
+          if (name === "Planície Dourada") {
+            return {
+              id: `${planetId}_point_${index + 1}`,
+              planetId,
+              name,
+              x: positions[index].x,
+              y: positions[index].y,
+              imageUrl:
+                "https://cdn.builder.io/api/v1/image/assets%2Fa34588f934eb4ad690ceadbafd1050c4%2F719e8fc59de24ef8b3f4d79d3fb9993d?format=webp&width=800",
+              description: "", // Removed description as requested
+              discovered: false,
+              size: 0.7, // Smaller size as requested
+              active: true,
+            };
+          }
+
+          // Default configuration for other points
+          return {
+            id: `${planetId}_point_${index + 1}`,
+            planetId,
+            name,
+            x: positions[index].x,
+            y: positions[index].y,
+            imageUrl:
+              "https://cdn.builder.io/api/v1/image/assets%2F6b84993f22904beeb2e1d8d2f128c032%2Faaff2921868f4bbfb24be01b9fdfa6a1?format=webp&width=800",
+            description: `Uma área fascinante conhecida como ${name}. Este local oferece uma experiência única de exploração.`,
+            discovered: false,
+            size: 1.0,
+            active: true,
+          };
+        });
 
         set({ explorationPoints: points });
         return points;
@@ -937,6 +957,19 @@ export const useGameStore = create<GameStore>()(
           throw new Error("Exploration point not found");
         }
 
+        // Special handling for Planície Dourada
+        if (point.name === "Planície Dourada") {
+          const area: ExplorationArea = {
+            id: `${pointId}_area`,
+            pointId,
+            name: point.name,
+            imageUrl: point.imageUrl,
+            description: "", // No description as requested
+          };
+          return area;
+        }
+
+        // Default area for other points
         const area: ExplorationArea = {
           id: `${pointId}_area`,
           pointId,
