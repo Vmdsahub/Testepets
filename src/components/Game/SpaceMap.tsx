@@ -3992,11 +3992,14 @@ const SpaceMapComponent: React.FC = () => {
 
         // Render ship image if loaded, otherwise fallback to original drawing
         if (shipImageRef.current && shipImageRef.current.complete) {
-          const shipSize = 30; // Adjust size as needed
+          const shipSize = 36; // Increased by 20% (was 30, now 36)
 
           // Enable antialiasing for smooth ship rendering
           ctx.imageSmoothingEnabled = true;
           ctx.imageSmoothingQuality = "high";
+
+          // Flip horizontally to make ship face right instead of left
+          ctx.scale(-1, 1);
 
           ctx.drawImage(
             shipImageRef.current,
