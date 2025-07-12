@@ -407,7 +407,7 @@ const SpaceMapComponent: React.FC = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [barrierFlashTime, setBarrierFlashTime] = useState(0);
-  const [isSaving, setIsSaving] = useState(false);
+
   const [shipHP, setShipHP] = useState(() => {
     const savedHP = localStorage.getItem("ship-hp");
     return savedHP ? parseInt(savedHP, 10) : 3;
