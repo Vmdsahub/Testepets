@@ -2726,8 +2726,10 @@ const SpaceMapComponent: React.FC = () => {
               const hpSpeedModifier = shipHP <= 0 ? 0.15 : 1.0;
               const targetSpeed =
                 SHIP_MAX_SPEED * speedMultiplier * hpSpeedModifier;
-              newState.ship.vx += (dx / distance) * targetSpeed * 0.04;
-              newState.ship.vy += (dy / distance) * targetSpeed * 0.04;
+              newState.ship.vx +=
+                (dx / distance) * targetSpeed * 0.04 * normalizedDeltaTime;
+              newState.ship.vy +=
+                (dy / distance) * targetSpeed * 0.04 * normalizedDeltaTime;
             }
           }
         }
@@ -4360,7 +4362,7 @@ const SpaceMapComponent: React.FC = () => {
                       (p) => p.id === selectedWorldId,
                     );
                     if (planet) {
-                      console.log("✅ Confirming world position:", {
+                      console.log("�� Confirming world position:", {
                         selectedWorldId,
                         x: planet.x,
                         y: planet.y,
