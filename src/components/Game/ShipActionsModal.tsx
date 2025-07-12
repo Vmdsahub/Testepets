@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Search, Package, RefreshCw, ArrowLeft, Wrench } from "lucide-react";
 import { useGameStore } from "../../store/gameStore";
 import { ItemDropdownMenu } from "./ItemDropdownMenu";
+import { ShipInventoryModal } from "./ShipInventoryModal";
 
 interface ShipActionsModalProps {
   isOpen: boolean;
