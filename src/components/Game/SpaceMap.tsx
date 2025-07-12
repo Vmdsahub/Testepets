@@ -3634,7 +3634,7 @@ const SpaceMapComponent: React.FC = () => {
         const xenoCoin = xenoCoins[i];
 
         // Update rotation and animation
-        xenoCoin.rotation += xenoCoin.rotationSpeed * projectileDeltaTime;
+        xenoCoin.rotation += xenoCoin.rotationSpeed * deltaTime;
 
         // Check lifespan
         const age = currentTime - xenoCoin.createdAt;
