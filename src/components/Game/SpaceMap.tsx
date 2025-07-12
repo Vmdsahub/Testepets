@@ -247,7 +247,7 @@ const SpaceMapComponent: React.FC = () => {
     const transition = pendingScreenTransition.current;
     console.log("📋 Transição pendente:", transition);
     if (transition && transition.completed) {
-      console.log("🚀 Iniciando transição para planeta:", transition.planet);
+      console.log("���� Iniciando transição para planeta:", transition.planet);
       const planetData = {
         id: transition.planet.id,
         name: transition.planet.name,
@@ -3963,6 +3963,9 @@ const SpaceMapComponent: React.FC = () => {
         canvas.width,
         canvas.height,
       );
+
+      // Store current time for next frame
+      lastTime = currentTime;
 
       // Continue at maximum possible FPS (uncapped)
       gameLoopRef.current = requestAnimationFrame(gameLoop);
