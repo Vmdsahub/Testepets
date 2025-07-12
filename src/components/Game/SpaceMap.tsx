@@ -2562,7 +2562,7 @@ const SpaceMapComponent: React.FC = () => {
         initialShipY: gameState.ship.y,
       });
       setIsLandingAnimationActive(true);
-      console.log("���� Animação de pouso iniciada");
+      console.log("��� Animação de pouso iniciada");
 
       // Play landing sound
       playLandingSound().catch(() => {
@@ -3009,8 +3009,8 @@ const SpaceMapComponent: React.FC = () => {
           gameState.ship.vy * gameState.ship.vy,
       );
 
-      // Continuous movement sound control
-      const velocityThreshold = 0.1; // Lower threshold
+      // Continuous movement sound control (threshold in pixels/second)
+      const velocityThreshold = 5; // 5 pixels per second
       const isShipMoving =
         currentShipVelocity > velocityThreshold && !isLandingAnimationActive;
 
