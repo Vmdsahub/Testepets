@@ -2679,13 +2679,12 @@ const SpaceMapComponent: React.FC = () => {
             if (distance > 5) {
               // Apply speed reduction if ship HP is 0 (85% reduction = 15% of original speed)
               const hpSpeedModifier = shipHP <= 0 ? 0.15 : 1.0;
-              const targetSpeed = SHIP_MAX_SPEED * distance * hpSpeedModifier;
-              // Adjusted acceleration rate for new max speed
-              const accelerationRate = 100;
-              newState.ship.vx +=
-                (dx / distance) * targetSpeed * accelerationRate * deltaTime;
-              newState.ship.vy +=
-                (dy / distance) * targetSpeed * accelerationRate * deltaTime;
+              const targetSpeed =
+                SHIP_MAX_SPEED * Math.min(distance / 100, 1) * hpSpeedModifier;
+              // Simple acceleration based on distance
+              const acceleration = 0.15;
+              newState.ship.vx += (dx / distance) * targetSpeed * acceleration;
+              newState.ship.vy += (dy / distance) * targetSpeed * acceleration;
             }
           } else if (!isMobile && hasMouseMoved.current) {
             // Desktop mouse controls
