@@ -2387,7 +2387,7 @@ const SpaceMapComponent: React.FC = () => {
         }
 
         // Apply friction with deltaTime (convert per-frame to per-second)
-        const baseFriction = mouseInWindow ? FRICTION : 0.995;
+        const baseFriction = mouseInWindow ? 0.96 : 0.98; // Increased friction for smoother stops
         // Convert frame-based friction to time-based
         const frictionFactor = Math.pow(baseFriction, deltaTime * 60);
         newState.ship.vx *= frictionFactor;
