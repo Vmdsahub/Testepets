@@ -3204,9 +3204,13 @@ const SpaceMapComponent: React.FC = () => {
 
               // Apply speed reduction if ship HP is 0 (85% reduction = 15% of original speed)
               const hpSpeedModifier = shipHP <= 0 ? 0.15 : 1.0;
-              const targetSpeed = SHIP_MAX_SPEED * distance * hpSpeedModifier;
-              newState.ship.vx += (dx / distance) * targetSpeed * 0.04;
-              newState.ship.vy += (dy / distance) * targetSpeed * 0.04;
+              // Smooth speed scaling for mobile controls
+              const normalizedDistance = Math.min(distance / 150, 1); // Proper distance normalization
+              const speedMultiplier = Math.pow(normalizedDistance, 0.6); // Smooth curve
+              const targetSpeed =
+                SHIP_MAX_SPEED * speedMultiplier * hpSpeedModifier;
+              newState.ship.vx += (dx / distance) * targetSpeed * 0.025;
+              newState.ship.vy += (dy / distance) * targetSpeed * 0.025;
             }
           } else if (!isMobile && hasMouseMoved.current) {
             // Desktop mouse controls
