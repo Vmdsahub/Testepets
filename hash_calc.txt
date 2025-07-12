@@ -1,0 +1,34 @@
+Calculating hash for each planet to find which has "Planície Dourada":
+
+Planet IDs: planet-0, planet-1, planet-2, planet-3, planet-4, planet-5
+
+Hash calculation: hash = ((hash << 5) - hash + charCode) & 0xffffffff
+Then: setIndex = Math.abs(hash) % 6
+
+We need setIndex = 5 to get "Planície Dourada" (which is in pointTemplates[5])
+
+Let me calculate manually:
+
+planet-0: p=112, l=108, a=97, n=110, e=101, t=116, -=45, 0=48
+planet-1: p=112, l=108, a=97, n=110, e=101, t=116, -=45, 1=49
+planet-2: p=112, l=108, a=97, n=110, e=101, t=116, -=45, 2=50
+planet-3: p=112, l=108, a=97, n=110, e=101, t=116, -=45, 3=51
+planet-4: p=112, l=108, a=97, n=110, e=101, t=116, -=45, 4=52
+planet-5: p=112, l=108, a=97, n=110, e=101, t=116, -=45, 5=53
+
+For planet-1 specifically:
+hash = 0
+hash = ((0 << 5) - 0 + 112) & 0xffffffff = 112
+hash = ((112 << 5) - 112 + 108) & 0xffffffff = (3584 - 112 + 108) & 0xffffffff = 3580
+hash = ((3580 << 5) - 3580 + 97) & 0xffffffff = (114560 - 3580 + 97) & 0xffffffff = 111077
+hash = ((111077 << 5) - 111077 + 110) & 0xffffffff = (3554464 - 111077 + 110) & 0xffffffff = 3443497
+hash = ((3443497 << 5) - 3443497 + 101) & 0xffffffff = (110191904 - 3443497 + 101) & 0xffffffff = 106748508
+hash = ((106748508 << 5) - 106748508 + 116) & 0xffffffff = (3415952256 - 106748508 + 116) & 0xffffffff = 3309203864
+hash = ((3309203864 << 5) - 3309203864 + 45) & 0xffffffff = (105894523648 - 3309203864 + 45) & 0xffffffff = 1680085829 (after 32-bit wrap)
+hash = ((1680085829 << 5) - 1680085829 + 49) & 0xffffffff = (53762746528 - 1680085829 + 49) & 0xffffffff = 1016575748
+
+setIndex = Math.abs(1016575748) % 6 = 1016575748 % 6 = 2
+
+So planet-1 would have setIndex = 2, not 5.
+
+I need to test all planets or modify the code directly.
