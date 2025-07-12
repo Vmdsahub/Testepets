@@ -2142,7 +2142,7 @@ const SpaceMapComponent: React.FC = () => {
     const activeShip = getActiveShip();
     const shipImageUrl =
       activeShip?.imageUrl ||
-      "https://cdn.builder.io/api/v1/image/assets%2F927080298e954d2fba85d9a91618627d%2Fd89cbfd7d2604752a995652efb832852?format=webp&width=800";
+      "https://cdn.builder.io/api/v1/image/assets%2Fa34588f934eb4ad690ceadbafd1050c4%2F15bec815b4ff404988b6644d7d055efa?format=webp&width=800";
 
     const img = new Image();
     img.crossOrigin = "anonymous";
@@ -2365,7 +2365,7 @@ const SpaceMapComponent: React.FC = () => {
               setIsDragging(false);
               setDragOffset({ x: 0, y: 0 });
             } else if (selectedWorldId === planet.id && !isDragging) {
-              // Se já est����������� selecionado mas não dragging, inicie o drag
+              // Se já est����������� selecionado mas n��o dragging, inicie o drag
               setIsDragging(true);
               setDragOffset({ x: dx, y: dy });
             } else {
