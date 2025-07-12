@@ -420,39 +420,6 @@ const SpaceMapComponent: React.FC = () => {
     isPaused: showNPCModal,
   });
 
-  // Função de tiro que pode ser reutilizada
-  const shootProjectile = useCallback(() => {
-    const currentTime = Date.now();
-    const SHOOT_COOLDOWN = 333; // 333ms entre tiros (3 tiros/segundo)
-
-    // Check if ship can shoot (HP must be > 0)
-    if (shipHP <= 0) {
-      return false; // Cannot shoot when HP is 0
-    }
-
-    // Verificar cooldown
-    if (currentTime - lastShootTime.current >= SHOOT_COOLDOWN) {
-      const newProjectile: Projectile = {
-        x: gameState.ship.x,
-        y: gameState.ship.y,
-        vx: Math.cos(gameState.ship.angle) * PROJECTILE_SPEED, // pixels per second
-        vy: Math.sin(gameState.ship.angle) * PROJECTILE_SPEED, // pixels per second
-        life: PROJECTILE_LIFETIME,
-        maxLife: PROJECTILE_LIFETIME,
-      };
-      projectilesRef.current.push(newProjectile);
-      lastShootTime.current = currentTime;
-
-      // Tocar som de laser
-      playLaserShootSound().catch(() => {
-        // Som n��o é crítico, ignora erro
-      });
-
-      return true; // Tiro disparado
-    }
-    return false; // Cooldown ainda ativo
-  }, [gameState.ship.x, gameState.ship.y, gameState.ship.angle, shipHP]);
-
   // Mobile control callbacks
   const handleMobileMovement = useCallback(
     (direction: { x: number; y: number }) => {
@@ -460,10 +427,6 @@ const SpaceMapComponent: React.FC = () => {
     },
     [],
   );
-
-  const handleMobileShoot = useCallback(() => {
-    shootProjectile();
-  }, [shootProjectile]);
 
   // Function to check if click is on visible pixel of planet image
   const isClickOnPlanetPixel = useCallback(
