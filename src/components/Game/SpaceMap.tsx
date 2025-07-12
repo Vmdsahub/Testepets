@@ -167,8 +167,8 @@ interface GameState {
 }
 
 const WORLD_SIZE = 100000;
-const SHIP_MAX_SPEED = 2;
-const FRICTION = 0.88;
+const SHIP_MAX_SPEED = 60; // pixels per second (reduced by 80%)
+const FRICTION = 0.92;
 const CENTER_X = WORLD_SIZE / 2;
 const CENTER_Y = WORLD_SIZE / 2;
 const BARRIER_RADIUS = 600;
@@ -218,17 +218,14 @@ const SpaceMapComponent: React.FC = () => {
   const lastTrailTime = useRef<number>(0);
   const lastShootingStarTime = useRef(0);
   const lastShootTime = useRef(0);
-  const lastStarUpdateTime = useRef(0);
   const lastAsteroidSpawnTime = useRef(0);
-  const STAR_UPDATE_INTERVAL = 200; // 5 FPS = 200ms interval
   const ASTEROID_SPAWN_INTERVAL = 5000; // Check for chunk loading every 5 seconds
-  const MAX_ASTEROIDS = 200; // Much higher limit for natural world distribution
   const lastRadarCheckRef = useRef<Set<string>>(new Set());
   const shootingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const lastFrameTimeRef = useRef(performance.now());
   const frameCounter = useRef(0);
   const lastSmokeFrame = useRef(0);
-  const [isMousePressed, setIsMousePressed] = useState(false);
+
   const [canvasDimensions, setCanvasDimensions] = useState({
     width: window.innerWidth,
     height: window.innerHeight,
@@ -410,7 +407,7 @@ const SpaceMapComponent: React.FC = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [barrierFlashTime, setBarrierFlashTime] = useState(0);
-  const [isSaving, setIsSaving] = useState(false);
+
   const [shipHP, setShipHP] = useState(() => {
     const savedHP = localStorage.getItem("ship-hp");
     return savedHP ? parseInt(savedHP, 10) : 3;
@@ -496,8 +493,8 @@ const SpaceMapComponent: React.FC = () => {
       const newProjectile: Projectile = {
         x: gameState.ship.x,
         y: gameState.ship.y,
-        vx: Math.cos(gameState.ship.angle) * PROJECTILE_SPEED,
-        vy: Math.sin(gameState.ship.angle) * PROJECTILE_SPEED,
+        vx: Math.cos(gameState.ship.angle) * PROJECTILE_SPEED, // pixels per second
+        vy: Math.sin(gameState.ship.angle) * PROJECTILE_SPEED, // pixels per second
         life: PROJECTILE_LIFETIME,
         maxLife: PROJECTILE_LIFETIME,
       };
@@ -528,12 +525,7 @@ const SpaceMapComponent: React.FC = () => {
 
   // Function to check if click is on visible pixel of planet image
   const isClickOnPlanetPixel = useCallback(
-    (
-      planet: Planet,
-      clickWorldX: number,
-      clickWorldY: number,
-      canvas: HTMLCanvasElement,
-    ): boolean => {
+    (planet: Planet, clickWorldX: number, clickWorldY: number): boolean => {
       const img = planetImagesRef.current.get(planet.id);
       if (!img || !img.complete) {
         // Fallback to circle detection if image not loaded
@@ -572,7 +564,7 @@ const SpaceMapComponent: React.FC = () => {
         const pixelData = tempCtx.getImageData(imgX, imgY, 1, 1).data;
         const alpha = pixelData[3]; // Alpha channel
         return alpha > 50; // Consider pixel visible if alpha > 50
-      } catch (e) {
+      } catch {
         // Fallback to circle detection if there's an error
         return Math.sqrt(dx * dx + dy * dy) <= planet.size;
       }
@@ -585,7 +577,6 @@ const SpaceMapComponent: React.FC = () => {
     const colors = ["#ffffff", "#ffe4b5", "#ffd700", "#87ceeb", "#ff69b4"];
     const side = Math.floor(Math.random() * 4); // 0: top, 1: right, 2: bottom, 3: left
     const speed = 3 + Math.random() * 4;
-    const angle = Math.random() * Math.PI * 0.4 + Math.PI * 0.3; // Diagonal direction
 
     let startX, startY, vx, vy;
 
@@ -1348,6 +1339,17 @@ const SpaceMapComponent: React.FC = () => {
 
       ctx.save();
 
+      // Safety checks to prevent non-finite values
+      if (
+        !isFinite(shipScreenX) ||
+        !isFinite(shipScreenY) ||
+        !isFinite(pulse.radius) ||
+        !isFinite(currentOpacity)
+      ) {
+        ctx.restore();
+        return;
+      }
+
       // Gradiente verde 3D mais vibrante
       const gradient = ctx.createRadialGradient(
         shipScreenX,
@@ -1355,7 +1357,7 @@ const SpaceMapComponent: React.FC = () => {
         0,
         shipScreenX,
         shipScreenY,
-        pulse.radius,
+        Math.max(pulse.radius, 1), // Ensure minimum radius of 1
       );
       gradient.addColorStop(0, `rgba(150, 255, 150, ${currentOpacity})`); // Verde muito claro centro
       gradient.addColorStop(0.4, `rgba(50, 255, 50, ${currentOpacity})`); // Verde claro
@@ -2031,7 +2033,7 @@ const SpaceMapComponent: React.FC = () => {
     ];
 
     const planetNames = [
-      "Estação Galáctica",
+      "Estação Gal��ctica",
       "Base Orbital",
       "Mundo Alienígena",
       "Terra Verdejante",
@@ -2296,7 +2298,7 @@ const SpaceMapComponent: React.FC = () => {
               setIsDragging(false);
               setDragOffset({ x: 0, y: 0 });
             } else if (selectedWorldId === planet.id && !isDragging) {
-              // Se já est����������� selecionado mas não dragging, inicie o drag
+              // Se já est������������� selecionado mas não dragging, inicie o drag
               setIsDragging(true);
               setDragOffset({ x: dx, y: dy });
             } else {
@@ -2361,7 +2363,7 @@ const SpaceMapComponent: React.FC = () => {
         // Only check for planet click if ship is within interaction radius
         if (shipToPlanetDistance <= planet.interactionRadius) {
           // Check if the click was specifically on a visible pixel of the planet image
-          if (isClickOnPlanetPixel(planet, worldClickX, worldClickY, canvas)) {
+          if (isClickOnPlanetPixel(planet, worldClickX, worldClickY)) {
             setSelectedPlanet(planet);
             setShowLandingModal(true);
             clickedOnPlanet = true;
@@ -2398,8 +2400,6 @@ const SpaceMapComponent: React.FC = () => {
       if (isLandingAnimationActive) return;
 
       if (!user?.isAdmin || !isWorldEditMode) {
-        setIsMousePressed(true);
-
         // Primeiro tiro imediato
         shootProjectile();
 
@@ -2418,7 +2418,6 @@ const SpaceMapComponent: React.FC = () => {
 
   const handleMouseUp = useCallback(() => {
     // Parar tiro contínuo
-    setIsMousePressed(false);
     if (shootingIntervalRef.current) {
       clearInterval(shootingIntervalRef.current);
       shootingIntervalRef.current = null;
@@ -2563,7 +2562,7 @@ const SpaceMapComponent: React.FC = () => {
         initialShipY: gameState.ship.y,
       });
       setIsLandingAnimationActive(true);
-      console.log("🎬 Animação de pouso iniciada");
+      console.log("��� Animação de pouso iniciada");
 
       // Play landing sound
       playLandingSound().catch(() => {
@@ -2594,7 +2593,6 @@ const SpaceMapComponent: React.FC = () => {
 
   // Parar tiro quando mouse sai da ��rea do canvas
   const handleMouseLeaveCanvas = useCallback(() => {
-    setIsMousePressed(false);
     if (shootingIntervalRef.current) {
       clearInterval(shootingIntervalRef.current);
       shootingIntervalRef.current = null;
@@ -2618,33 +2616,20 @@ const SpaceMapComponent: React.FC = () => {
     ctx.imageSmoothingEnabled = false; // Disable smoothing for pixel-perfect rendering
     ctx.globalCompositeOperation = "source-over"; // Default, most GPU-optimized blend mode
 
-    let lastTime = 0;
+    let lastTime = performance.now();
 
-    const gameLoop = (currentTime: number) => {
-      // Stop game loop immediately if we're not on world screen
-      if (currentScreen !== "world") {
-        return;
-      }
-
-      const deltaTime = currentTime - lastTime; // FPS desbloqueado - sem limitação
-
-      // Intelligent frame skipping for large canvas - skip non-critical updates
-      const isLargeCanvas = canvas.width > 1000 || canvas.height > 600;
-      const frameSkip = isLargeCanvas ? 2 : 1;
-      const skipFrame = frameCounter.current % frameSkip !== 0;
-      frameCounter.current++;
-
-      // Calculate FPS less frequently for better performance
+    // FPS tracking function
+    const updateFPSTracking = (currentTime: number) => {
       if (fpsRef.current.lastTime > 0) {
         const frameTime = currentTime - fpsRef.current.lastTime;
         fpsRef.current.frameTimes.push(frameTime);
 
-        // Keep only last 30 frames for average (reduced from 60)
+        // Keep only last 30 frames for average
         if (fpsRef.current.frameTimes.length > 30) {
           fpsRef.current.frameTimes.shift();
         }
 
-        // Update FPS every 60 frames (less frequent)
+        // Update FPS every 60 frames
         fpsRef.current.frameCount++;
         if (fpsRef.current.frameCount >= 60) {
           const avgFrameTime =
@@ -2662,9 +2647,970 @@ const SpaceMapComponent: React.FC = () => {
           fpsRef.current.frameCount = 0;
         }
       }
-
       fpsRef.current.lastTime = currentTime;
-      lastTime = currentTime;
+    };
+
+    // Update ship physics and movement
+    const updateShipPhysics = (deltaTime: number) => {
+      // Skip ship physics during landing animation
+      if (isLandingAnimationActive) return;
+
+      setGameState((prevState) => {
+        const newState = { ...prevState };
+
+        // Ship movement controls - converted to use deltaTime in seconds
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+
+        if (hasMouseMoved.current || isMobile) {
+          if (isMobile && touchTargetRef.current.active) {
+            // Mobile touch controls
+            const worldTouchX =
+              touchTargetRef.current.x - centerX + newState.camera.x;
+            const worldTouchY =
+              touchTargetRef.current.y - centerY + newState.camera.y;
+
+            const dx = getWrappedDistance(worldTouchX, newState.ship.x);
+            const dy = getWrappedDistance(worldTouchY, newState.ship.y);
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            newState.ship.angle = Math.atan2(dy, dx);
+
+            if (distance > 5) {
+              // Apply speed reduction if ship HP is 0 (85% reduction = 15% of original speed)
+              const hpSpeedModifier = shipHP <= 0 ? 0.15 : 1.0;
+              const speedMultiplier = Math.min(distance / 100, 1);
+              const targetSpeed =
+                SHIP_MAX_SPEED * speedMultiplier * hpSpeedModifier;
+              // Acceleration in pixels per second squared (reduced)
+              const acceleration = 160; // pixels/s² (reduced by 80%)
+              newState.ship.vx += (dx / distance) * acceleration * deltaTime;
+              newState.ship.vy += (dy / distance) * acceleration * deltaTime;
+            }
+          } else if (!isMobile && hasMouseMoved.current) {
+            // Desktop mouse controls
+            const worldMouseX =
+              mouseRef.current.x - centerX + newState.camera.x;
+            const worldMouseY =
+              mouseRef.current.y - centerY + newState.camera.y;
+
+            const dx = getWrappedDistance(worldMouseX, newState.ship.x);
+            const dy = getWrappedDistance(worldMouseY, newState.ship.y);
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            newState.ship.angle = Math.atan2(dy, dx);
+
+            if (mouseInWindow && distance > 50) {
+              const speedMultiplier = Math.min(distance / 300, 1);
+              // Apply speed reduction if ship HP is 0 (85% reduction = 15% of original speed)
+              const hpSpeedModifier = shipHP <= 0 ? 0.15 : 1.0;
+              const targetSpeed =
+                SHIP_MAX_SPEED * speedMultiplier * hpSpeedModifier;
+              // Acceleration in pixels per second squared (reduced)
+              const acceleration = 120; // pixels/s² (reduced by 80%)
+              newState.ship.vx += (dx / distance) * acceleration * deltaTime;
+              newState.ship.vy += (dy / distance) * acceleration * deltaTime;
+            }
+          }
+        }
+
+        // Apply friction with deltaTime (convert per-frame to per-second)
+        const baseFriction = mouseInWindow ? FRICTION : 0.995;
+        // Convert frame-based friction to time-based
+        const frictionFactor = Math.pow(baseFriction, deltaTime * 60);
+        newState.ship.vx *= frictionFactor;
+        newState.ship.vy *= frictionFactor;
+
+        // Limit velocity to max speed
+        const currentSpeed = Math.sqrt(
+          newState.ship.vx * newState.ship.vx +
+            newState.ship.vy * newState.ship.vy,
+        );
+        if (currentSpeed > SHIP_MAX_SPEED) {
+          const ratio = SHIP_MAX_SPEED / currentSpeed;
+          newState.ship.vx *= ratio;
+          newState.ship.vy *= ratio;
+        }
+
+        // Calculate potential new position with deltaTime
+        const newX = newState.ship.x + newState.ship.vx * deltaTime;
+        const newY = newState.ship.y + newState.ship.vy * deltaTime;
+
+        // Apply barrier collision logic
+        if (isBarrierCollisionEnabled) {
+          const distanceFromCenter = Math.sqrt(
+            Math.pow(newX - CENTER_X, 2) + Math.pow(newY - CENTER_Y, 2),
+          );
+
+          if (distanceFromCenter <= BARRIER_RADIUS) {
+            // Ship can move normally within barrier
+            newState.ship.x = newX;
+            newState.ship.y = newY;
+          } else {
+            // Ship trying to move outside barrier - apply collision logic
+            setBarrierFlashTime(performance.now());
+
+            const centerToShipX = newState.ship.x - CENTER_X;
+            const centerToShipY = newState.ship.y - CENTER_Y;
+            const centerToShipDist = Math.sqrt(
+              centerToShipX * centerToShipX + centerToShipY * centerToShipY,
+            );
+
+            if (centerToShipDist > 0) {
+              const normalX = centerToShipX / centerToShipDist;
+              const normalY = centerToShipY / centerToShipDist;
+
+              const movementX = newX - newState.ship.x;
+              const movementY = newY - newState.ship.y;
+
+              const radialComponent = movementX * normalX + movementY * normalY;
+              const tangentX = movementX - radialComponent * normalX;
+              const tangentY = movementY - radialComponent * normalY;
+
+              // Always allow tangential movement
+              newState.ship.x += tangentX;
+              newState.ship.y += tangentY;
+
+              // Allow radial movement only if it's toward the center
+              if (radialComponent < 0) {
+                newState.ship.x += radialComponent * normalX;
+                newState.ship.y += radialComponent * normalY;
+              }
+
+              // Adjust velocity to prevent moving outward
+              const velocityDotNormal =
+                newState.ship.vx * normalX + newState.ship.vy * normalY;
+              if (velocityDotNormal > 0) {
+                newState.ship.vx -= velocityDotNormal * normalX;
+                newState.ship.vy -= velocityDotNormal * normalY;
+              }
+            }
+          }
+        } else {
+          // Barrier collision disabled - allow free movement
+          newState.ship.x = newX;
+          newState.ship.y = newY;
+        }
+
+        // Normalize coordinates
+        newState.ship.x = normalizeCoord(newState.ship.x);
+        newState.ship.y = normalizeCoord(newState.ship.y);
+
+        return newState;
+      });
+    };
+
+    // Update camera to follow ship
+    const updateCamera = (deltaTime: number) => {
+      setGameState((prevState) => {
+        const newState = { ...prevState };
+
+        // Camera follows ship (use current ship position for landing animation)
+        const targetX =
+          isLandingAnimationActive && landingAnimationData
+            ? (() => {
+                const planet = planetsRef.current.find(
+                  (p) => p.id === landingAnimationData.planetId,
+                );
+                if (!planet) return newState.ship.x;
+
+                const progress = Math.min(
+                  (performance.now() - landingAnimationData.startTime) /
+                    landingAnimationData.duration,
+                  1,
+                );
+
+                if (progress < 1) {
+                  const initialDx = getWrappedDistance(
+                    planet.x,
+                    landingAnimationData.initialShipX,
+                  );
+                  const initialDy = getWrappedDistance(
+                    planet.y,
+                    landingAnimationData.initialShipY,
+                  );
+                  const initialRadius = Math.sqrt(
+                    initialDx * initialDx + initialDy * initialDy,
+                  );
+                  const orbitSpeed = 1;
+                  const initialAngle = Math.atan2(initialDy, initialDx);
+                  const angleProgress =
+                    initialAngle + progress * orbitSpeed * Math.PI * 2;
+                  const currentRadius = initialRadius * (1 - progress * 0.9);
+                  return planet.x + Math.cos(angleProgress) * currentRadius;
+                }
+                return planet.x;
+              })()
+            : newState.ship.x;
+
+        const targetY =
+          isLandingAnimationActive && landingAnimationData
+            ? (() => {
+                const planet = planetsRef.current.find(
+                  (p) => p.id === landingAnimationData.planetId,
+                );
+                if (!planet) return newState.ship.y;
+
+                const progress = Math.min(
+                  (performance.now() - landingAnimationData.startTime) /
+                    landingAnimationData.duration,
+                  1,
+                );
+
+                if (progress < 1) {
+                  const initialDx = getWrappedDistance(
+                    planet.x,
+                    landingAnimationData.initialShipX,
+                  );
+                  const initialDy = getWrappedDistance(
+                    planet.y,
+                    landingAnimationData.initialShipY,
+                  );
+                  const initialRadius = Math.sqrt(
+                    initialDx * initialDx + initialDy * initialDy,
+                  );
+                  const orbitSpeed = 1;
+                  const initialAngle = Math.atan2(initialDy, initialDx);
+                  const angleProgress =
+                    initialAngle + progress * orbitSpeed * Math.PI * 2;
+                  const currentRadius = initialRadius * (1 - progress * 0.9);
+                  return planet.y + Math.sin(angleProgress) * currentRadius;
+                }
+                return planet.y;
+              })()
+            : newState.ship.y;
+
+        // Camera follow with deltaTime (speed in units per second)
+        const cameraFollowSpeed = 4.8; // units per second
+        const deltaX = getWrappedDistance(targetX, newState.camera.x);
+        const deltaY = getWrappedDistance(targetY, newState.camera.y);
+
+        newState.camera.x += deltaX * cameraFollowSpeed * deltaTime;
+        newState.camera.y += deltaY * cameraFollowSpeed * deltaTime;
+
+        newState.camera.x = normalizeCoord(newState.camera.x);
+        newState.camera.y = normalizeCoord(newState.camera.y);
+
+        return newState;
+      });
+    };
+
+    // Update game entities (projectiles, asteroids, particles, etc.)
+    const updateGameEntities = (deltaTime: number) => {
+      // Update projectiles with deltaTime
+      const projectiles = projectilesRef.current;
+      for (let i = projectiles.length - 1; i >= 0; i--) {
+        const proj = projectiles[i];
+        proj.x = normalizeCoord(proj.x + proj.vx * deltaTime);
+        proj.y = normalizeCoord(proj.y + proj.vy * deltaTime);
+        proj.life -= deltaTime;
+
+        if (proj.life <= 0) {
+          projectiles.splice(i, 1);
+        }
+      }
+
+      // Update NPC ship
+      npcShip.updateShip(deltaTime * 1000); // Convert to milliseconds for compatibility
+
+      // Load asteroids around camera (chunk-based system) - use current time
+      const currentTime = performance.now();
+      if (
+        currentTime - lastAsteroidSpawnTime.current >
+        ASTEROID_SPAWN_INTERVAL
+      ) {
+        loadAsteroidsAroundCamera();
+        lastAsteroidSpawnTime.current = currentTime;
+      }
+
+      // Update asteroids
+      const asteroids = asteroidsRef.current;
+      for (let i = asteroids.length - 1; i >= 0; i--) {
+        const asteroid = asteroids[i];
+
+        // Update position
+        asteroid.x = normalizeCoord(asteroid.x + asteroid.vx * deltaTime);
+        asteroid.y = normalizeCoord(asteroid.y + asteroid.vy * deltaTime);
+        asteroid.rotation += asteroid.rotationSpeed * deltaTime;
+
+        // Check collision with ship
+        const shipDistance = Math.sqrt(
+          Math.pow(asteroid.x - gameState.ship.x, 2) +
+            Math.pow(asteroid.y - gameState.ship.y, 2),
+        );
+
+        if (shipDistance < asteroid.size + 15) {
+          asteroids.splice(i, 1);
+          damageShip();
+          createDamageParticles(gameState.ship.x, gameState.ship.y);
+        }
+      }
+
+      // Update xenocoins
+      const xenoCoins = xenoCoinsRef.current;
+      for (let i = xenoCoins.length - 1; i >= 0; i--) {
+        const xenoCoin = xenoCoins[i];
+
+        // Check if ship is close enough to collect
+        const distance = Math.sqrt(
+          Math.pow(xenoCoin.x - gameState.ship.x, 2) +
+            Math.pow(xenoCoin.y - gameState.ship.y, 2),
+        );
+
+        if (distance < 25) {
+          // Collected!
+          setGameState((prevState) => ({
+            ...prevState,
+            user: {
+              ...prevState.user!,
+              totalXenocoins:
+                (prevState.user?.totalXenocoins || 0) + xenoCoin.value,
+            },
+          }));
+
+          collectXenoCoin(xenoCoin.value);
+          xenoCoins.splice(i, 1);
+          continue;
+        }
+
+        // Update rotation and animation
+        xenoCoin.rotation += xenoCoin.rotationSpeed * deltaTime;
+      }
+
+      // Update particles
+      const particles = particlesRef.current;
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const particle = particles[i];
+
+        // Update position and life
+        particle.x = normalizeCoord(particle.x + particle.vx * deltaTime);
+        particle.y = normalizeCoord(particle.y + particle.vy * deltaTime);
+        particle.rotation += particle.rotationSpeed * deltaTime;
+        particle.life -= deltaTime;
+
+        if (particle.life <= 0) {
+          particles.splice(i, 1);
+        }
+      }
+
+      // Update smoke particles
+      const smokeParticles = smokeParticlesRef.current;
+      for (let i = smokeParticles.length - 1; i >= 0; i--) {
+        const smoke = smokeParticles[i];
+
+        // Simple position update
+        smoke.x += smoke.vx * deltaTime;
+        smoke.y += smoke.vy * deltaTime;
+        smoke.life -= deltaTime;
+
+        if (smoke.life <= 0) {
+          smokeParticles.splice(i, 1);
+        }
+      }
+
+      // Handle ship movement sounds and trail generation
+      handleShipEffects(deltaTime);
+    };
+
+    // Handle ship-related effects (sounds, trails, etc.)
+    const handleShipEffects = (deltaTime: number) => {
+      // Calculate current ship velocity
+      const currentShipVelocity = Math.sqrt(
+        gameState.ship.vx * gameState.ship.vx +
+          gameState.ship.vy * gameState.ship.vy,
+      );
+
+      // Continuous movement sound control (threshold in pixels/second)
+      const velocityThreshold = 1; // 1 pixel per second
+      const isShipMoving =
+        currentShipVelocity > velocityThreshold && !isLandingAnimationActive;
+
+      if (isShipMoving && !movementSoundActiveRef.current) {
+        startContinuousMovementSound();
+        movementSoundActiveRef.current = true;
+      } else if (!isShipMoving && movementSoundActiveRef.current) {
+        stopContinuousMovementSound();
+        movementSoundActiveRef.current = false;
+      }
+
+      // Update movement sound volume
+      if (movementSoundActiveRef.current && !isLandingAnimationActive) {
+        updateContinuousMovementSound(currentShipVelocity, SHIP_MAX_SPEED);
+      }
+
+      // Create trail points based on time
+      const currentTime = performance.now();
+      if (
+        currentShipVelocity > 2 && // 2 pixels per second threshold
+        currentTime - lastTrailTime.current > 35
+      ) {
+        // Calculate trail position at the back of the ship
+        const trailOffset = 12;
+        const trailX =
+          gameState.ship.x - Math.cos(gameState.ship.angle) * trailOffset;
+        const trailY =
+          gameState.ship.y - Math.sin(gameState.ship.angle) * trailOffset;
+
+        createTrailPoint(trailX, trailY, currentTime, currentShipVelocity);
+        lastTrailTime.current = currentTime;
+      }
+    };
+
+    // Update game state with deltaTime in seconds
+    const updateGame = (deltaTime: number) => {
+      // Update ship physics and movement
+      updateShipPhysics(deltaTime);
+
+      // Update other game entities
+      updateGameEntities(deltaTime);
+
+      // Update camera
+      updateCamera(deltaTime);
+
+      // Save ship state for persistence (throttled)
+      saveShipState({
+        x: gameState.ship.x,
+        y: gameState.ship.y,
+        angle: gameState.ship.angle,
+        vx: gameState.ship.vx,
+        vy: gameState.ship.vy,
+        cameraX: gameState.camera.x,
+        cameraY: gameState.camera.y,
+      });
+
+      // Check for planets in range and create radar pulses
+      updateRadarPulses();
+    };
+
+    // Update radar pulses and planet detection
+    const updateRadarPulses = () => {
+      const currentShipState = gameState;
+      const currentPlanetsInRange = new Set<string>();
+
+      planetsRef.current.forEach((planet) => {
+        const shipToPlanetX = getWrappedDistance(
+          planet.x,
+          currentShipState.ship.x,
+        );
+        const shipToPlanetY = getWrappedDistance(
+          planet.y,
+          currentShipState.ship.y,
+        );
+        const shipToPlanetDistance = Math.sqrt(
+          shipToPlanetX * shipToPlanetX + shipToPlanetY * shipToPlanetY,
+        );
+
+        if (shipToPlanetDistance <= planet.interactionRadius) {
+          currentPlanetsInRange.add(planet.id);
+
+          // Create radar pulse if planet wasn't in range before
+          if (!lastRadarCheckRef.current.has(planet.id)) {
+            const currentTime = performance.now();
+            const newPulse = {
+              id: `pulse_${currentTime}_${Math.random()}`,
+              x: planet.x,
+              y: planet.y,
+              radius: 0,
+              maxRadius: planet.interactionRadius,
+              startTime: currentTime,
+              duration: 2000,
+              color: "#00ff00",
+              opacity: 0.8,
+            };
+            radarPulsesRef.current.push(newPulse);
+          }
+        }
+      });
+
+      // Update radar pulses
+      const currentTime = performance.now();
+      radarPulsesRef.current = radarPulsesRef.current.filter((pulse) => {
+        const elapsed = currentTime - pulse.startTime;
+        const progress = elapsed / pulse.duration;
+
+        if (progress >= 1) {
+          return false;
+        }
+
+        // Add safety checks to prevent NaN values
+        if (!isFinite(pulse.maxRadius) || !isFinite(progress)) {
+          return false; // Remove invalid pulse
+        }
+
+        pulse.radius = pulse.maxRadius * progress;
+        pulse.opacity = 0.8 * (1 - progress);
+        return true;
+      });
+
+      lastRadarCheckRef.current = currentPlanetsInRange;
+    };
+
+    // Setup canvas for rendering
+    const setupCanvasForRender = (
+      ctx: CanvasRenderingContext2D,
+      canvas: HTMLCanvasElement,
+    ) => {
+      // Handle canvas resize
+      if (
+        canvas.width !== canvas.offsetWidth ||
+        canvas.height !== canvas.offsetHeight
+      ) {
+        setCanvasDimensions({
+          width: canvas.offsetWidth,
+          height: canvas.offsetHeight,
+        });
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+        ctx.imageSmoothingEnabled = false;
+      }
+
+      // Clear the canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    };
+
+    // Render all game elements
+    const renderAllGameElements = (
+      ctx: CanvasRenderingContext2D,
+      canvas: HTMLCanvasElement,
+    ) => {
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+
+      // Aggressive viewport culling for larger canvas
+      const renderBuffer = Math.min(200, 50);
+      const renderViewport = {
+        left: -renderBuffer,
+        right: canvas.width + renderBuffer,
+        top: -renderBuffer,
+        bottom: canvas.height + renderBuffer,
+      };
+
+      // Render barrier circle (rotating, gray, transparent)
+      const barrierWrappedDeltaX = getWrappedDistance(
+        CENTER_X,
+        gameState.camera.x,
+      );
+      const barrierWrappedDeltaY = getWrappedDistance(
+        CENTER_Y,
+        gameState.camera.y,
+      );
+      const barrierScreenX = centerX + barrierWrappedDeltaX;
+      const barrierScreenY = centerY + barrierWrappedDeltaY;
+
+      if (isBarrierCollisionEnabled) {
+        const currentTime = performance.now();
+        const isFlashing = currentTime - barrierFlashTime < 500;
+        const flashAlpha = isFlashing ? 0.15 : 0.03;
+
+        ctx.save();
+        ctx.globalAlpha = flashAlpha;
+        ctx.strokeStyle = isFlashing ? "#ff4444" : "#666666";
+        ctx.lineWidth = 2;
+        ctx.setLineDash([10, 5]);
+        ctx.lineDashOffset = (currentTime * 0.05) % 15;
+        ctx.beginPath();
+        ctx.arc(barrierScreenX, barrierScreenY, BARRIER_RADIUS, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // Render planets
+      planetsRef.current.forEach((planet) => {
+        const wrappedDeltaX = getWrappedDistance(planet.x, gameState.camera.x);
+        const wrappedDeltaY = getWrappedDistance(planet.y, gameState.camera.y);
+        const screenX = centerX + wrappedDeltaX;
+        const screenY = centerY + wrappedDeltaY;
+
+        // Render interaction circle (only visible to admins)
+        if (user?.isAdmin) {
+          ctx.save();
+          ctx.globalAlpha = 0.3;
+          ctx.strokeStyle = "#00ff00";
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(
+            screenX,
+            screenY,
+            planet.interactionRadius || 50,
+            0,
+            Math.PI * 2,
+          );
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // Render planet image with rotation and antialiasing
+        const img = planetImagesRef.current.get(planet.id);
+        if (img && img.complete) {
+          ctx.save();
+          ctx.imageSmoothingEnabled = true;
+          ctx.translate(screenX, screenY);
+          ctx.rotate(planet.rotation || 0);
+          ctx.drawImage(
+            img,
+            -planet.size / 2,
+            -planet.size / 2,
+            planet.size,
+            planet.size,
+          );
+          ctx.restore();
+        } else {
+          // Fallback circle if image not loaded
+          ctx.save();
+          ctx.fillStyle = planet.color;
+          ctx.beginPath();
+          ctx.arc(screenX, screenY, planet.size / 2, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+      });
+
+      // Render all other game elements
+      renderGameEntities(ctx, canvas, centerX, centerY, renderViewport);
+
+      // Render ship and effects
+      renderShipAndEffects(ctx, canvas, centerX, centerY);
+
+      // Render NPC ship
+      npcShip.renderShip(
+        ctx,
+        gameState.camera.x,
+        gameState.camera.y,
+        canvas.width,
+        canvas.height,
+      );
+    };
+
+    // Render game entities (asteroids, particles, projectiles, etc.)
+    const renderGameEntities = (
+      ctx: CanvasRenderingContext2D,
+      canvas: HTMLCanvasElement,
+      centerX: number,
+      centerY: number,
+      renderViewport: any,
+    ) => {
+      // Render asteroids
+      const asteroidsForRender = asteroidsRef.current;
+      for (let i = 0; i < asteroidsForRender.length; i++) {
+        const asteroid = asteroidsForRender[i];
+        const wrappedDeltaX = getWrappedDistance(
+          asteroid.x,
+          gameState.camera.x,
+        );
+        const wrappedDeltaY = getWrappedDistance(
+          asteroid.y,
+          gameState.camera.y,
+        );
+        const screenX = centerX + wrappedDeltaX;
+        const screenY = centerY + wrappedDeltaY;
+
+        if (
+          screenX >= renderViewport.left &&
+          screenX <= renderViewport.right &&
+          screenY >= renderViewport.top &&
+          screenY <= renderViewport.bottom
+        ) {
+          drawAsteroid(ctx, asteroid, screenX, screenY);
+        }
+      }
+
+      // Render xenocoins
+      const xenoCoinsForRender = xenoCoinsRef.current;
+      for (let i = 0; i < xenoCoinsForRender.length; i++) {
+        const xenoCoin = xenoCoinsForRender[i];
+        const wrappedDeltaX = getWrappedDistance(
+          xenoCoin.x,
+          gameState.camera.x,
+        );
+        const wrappedDeltaY = getWrappedDistance(
+          xenoCoin.y,
+          gameState.camera.y,
+        );
+        const screenX = centerX + wrappedDeltaX;
+        const screenY = centerY + wrappedDeltaY;
+
+        if (
+          screenX >= renderViewport.left &&
+          screenX <= renderViewport.right &&
+          screenY >= renderViewport.top &&
+          screenY <= renderViewport.bottom
+        ) {
+          drawXenoCoin(ctx, xenoCoin, screenX, screenY);
+        }
+      }
+
+      // Render particles
+      const particlesForRender = particlesRef.current;
+      for (let i = 0; i < particlesForRender.length; i++) {
+        const particle = particlesForRender[i];
+        const wrappedDeltaX = getWrappedDistance(
+          particle.x,
+          gameState.camera.x,
+        );
+        const wrappedDeltaY = getWrappedDistance(
+          particle.y,
+          gameState.camera.y,
+        );
+        const screenX = centerX + wrappedDeltaX;
+        const screenY = centerY + wrappedDeltaY;
+
+        if (
+          screenX >= renderViewport.left - 50 &&
+          screenX <= renderViewport.right + 50 &&
+          screenY >= renderViewport.top - 50 &&
+          screenY <= renderViewport.bottom + 50
+        ) {
+          drawParticle(ctx, particle, screenX, screenY);
+        }
+      }
+
+      // Render smoke particles
+      const smokeParticlesForRender = smokeParticlesRef.current;
+      for (let i = 0; i < smokeParticlesForRender.length; i++) {
+        const smoke = smokeParticlesForRender[i];
+        const wrappedDeltaX = getWrappedDistance(smoke.x, gameState.camera.x);
+        const wrappedDeltaY = getWrappedDistance(smoke.y, gameState.camera.y);
+        const screenX = centerX + wrappedDeltaX;
+        const screenY = centerY + wrappedDeltaY;
+
+        if (
+          screenX >= renderViewport.left &&
+          screenX <= renderViewport.right &&
+          screenY >= renderViewport.top &&
+          screenY <= renderViewport.bottom
+        ) {
+          ctx.save();
+          ctx.globalAlpha = (smoke.life / smoke.maxLife) * 0.6;
+          ctx.fillStyle = smoke.color;
+          ctx.beginPath();
+          ctx.arc(screenX, screenY, smoke.size, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+      }
+
+      // Render projectiles
+      const projectilesForRender = projectilesRef.current;
+      for (let i = 0; i < projectilesForRender.length; i++) {
+        const proj = projectilesForRender[i];
+        const wrappedDeltaX = getWrappedDistance(proj.x, gameState.camera.x);
+        const wrappedDeltaY = getWrappedDistance(proj.y, gameState.camera.y);
+        const screenX = centerX + wrappedDeltaX;
+        const screenY = centerY + wrappedDeltaY;
+
+        if (
+          screenX >= renderViewport.left &&
+          screenX <= renderViewport.right &&
+          screenY >= renderViewport.top &&
+          screenY <= renderViewport.bottom
+        ) {
+          ctx.save();
+          ctx.globalAlpha = Math.max(0.3, proj.life / proj.maxLife);
+          ctx.strokeStyle = "#00ffff";
+          ctx.lineWidth = 3;
+          ctx.shadowColor = "#00ffff";
+          ctx.shadowBlur = 8;
+          ctx.beginPath();
+          ctx.moveTo(screenX - proj.vx * 0.5, screenY - proj.vy * 0.5);
+          ctx.lineTo(screenX + proj.vx * 0.5, screenY + proj.vy * 0.5);
+          ctx.stroke();
+          ctx.restore();
+        }
+      }
+
+      // Render shooting stars
+      const shootingStarsForRender = shootingStarsRef.current;
+      for (let i = 0; i < shootingStarsForRender.length; i++) {
+        drawShootingStar(ctx, shootingStarsForRender[i]);
+      }
+    };
+
+    // Render ship and related effects
+    const renderShipAndEffects = (
+      ctx: CanvasRenderingContext2D,
+      canvas: HTMLCanvasElement,
+      centerX: number,
+      centerY: number,
+    ) => {
+      // Render ship trail before ship
+      let shipWorldX = gameState.ship.x;
+      let shipWorldY = gameState.ship.y;
+
+      // Handle landing animation for trail positioning
+      if (isLandingAnimationActive && landingAnimationData) {
+        const currentTime = performance.now();
+        const elapsed = currentTime - landingAnimationData.startTime;
+        const progress = Math.min(elapsed / landingAnimationData.duration, 1);
+        const planet = planetsRef.current.find(
+          (p) => p.id === landingAnimationData.planetId,
+        );
+
+        if (planet && progress < 1) {
+          const initialDx = getWrappedDistance(
+            planet.x,
+            landingAnimationData.initialShipX,
+          );
+          const initialDy = getWrappedDistance(
+            planet.y,
+            landingAnimationData.initialShipY,
+          );
+          const initialRadius = Math.sqrt(
+            initialDx * initialDx + initialDy * initialDy,
+          );
+          const orbitSpeed = 1;
+          const initialAngle = Math.atan2(initialDy, initialDx);
+          const angleProgress =
+            initialAngle + progress * orbitSpeed * Math.PI * 2;
+          const currentRadius = initialRadius * (1 - progress * 0.9);
+
+          shipWorldX = planet.x + Math.cos(angleProgress) * currentRadius;
+          shipWorldY = planet.y + Math.sin(angleProgress) * currentRadius;
+        } else if (planet) {
+          shipWorldX = planet.x;
+          shipWorldY = planet.y;
+        }
+      }
+
+      const shipScreenX = centerX;
+      const shipScreenY = centerY;
+
+      // Render ship trail
+      drawShipTrail(ctx, shipScreenX, shipScreenY, shipWorldX, shipWorldY);
+
+      // Render ship
+      renderShip(ctx, canvas, centerX, centerY);
+
+      // Render radar pulses
+      radarPulsesRef.current.forEach((pulse) => {
+        drawRadarPulse(
+          ctx,
+          pulse,
+          shipScreenX,
+          shipScreenY,
+          shipWorldX,
+          shipWorldY,
+        );
+      });
+    };
+
+    // Render ship with landing animation support
+    const renderShip = (
+      ctx: CanvasRenderingContext2D,
+      canvas: HTMLCanvasElement,
+      centerX: number,
+      centerY: number,
+    ) => {
+      let shipScale = 1;
+      let shipAngle = gameState.ship.angle;
+      let shouldRenderShip = true;
+
+      // Handle landing animation
+      if (isLandingAnimationActive && landingAnimationData) {
+        const currentTime = performance.now();
+        const elapsed = currentTime - landingAnimationData.startTime;
+        const progress = Math.min(elapsed / landingAnimationData.duration, 1);
+
+        if (progress >= 1) {
+          // Animation complete - schedule transition
+          setTimeout(() => {
+            setIsLandingAnimationActive(false);
+            setLandingAnimationData(null);
+            setCurrentScreen("planet");
+          }, 100);
+          return;
+        }
+
+        // Scale and rotate ship during landing
+        shipScale = 1 - progress * 0.3;
+        shipAngle += progress * Math.PI * 4;
+      }
+
+      // Use persistent state for ship rendering on planet screen
+      if (currentScreen === "planet") {
+        shouldRenderShip = shipRenderState.shouldRender;
+        shipScale = shipRenderState.scale;
+        shipAngle = shipRenderState.angle;
+      }
+
+      // Don't render ship if hidden or on planet screen
+      if (shouldHideShipRef.current || currentScreen === "planet") {
+        shouldRenderShip = false;
+        shipScale = 0;
+      }
+
+      // Only render ship if it should be rendered and has visible scale
+      if (shouldRenderShip && shipScale > 0 && currentScreen !== "planet") {
+        ctx.save();
+        ctx.translate(centerX, centerY);
+        ctx.rotate(shipAngle);
+        ctx.scale(shipScale, shipScale);
+
+        // Render ship image if loaded, otherwise fallback to original drawing
+        if (shipImageRef.current && shipImageRef.current.complete) {
+          const shipSize = 30;
+          ctx.imageSmoothingEnabled = true;
+          ctx.drawImage(
+            shipImageRef.current,
+            -shipSize / 2,
+            -shipSize / 2,
+            shipSize,
+            shipSize,
+          );
+        } else {
+          // Fallback ship drawing
+          ctx.fillStyle = "#00aaff";
+          ctx.beginPath();
+          ctx.moveTo(15, 0);
+          ctx.lineTo(-10, -8);
+          ctx.lineTo(-5, 0);
+          ctx.lineTo(-10, 8);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.strokeStyle = "#ffffff";
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+
+        ctx.restore();
+      }
+    };
+
+    // Render the game
+    const renderGame = (
+      ctx: CanvasRenderingContext2D,
+      canvas: HTMLCanvasElement,
+    ) => {
+      // Clear canvas and setup
+      setupCanvasForRender(ctx, canvas);
+
+      // Render all game elements
+      renderAllGameElements(ctx, canvas);
+    };
+
+    const gameLoop = (currentTime: number) => {
+      // Stop game loop immediately if we're not on world screen
+      if (currentScreen !== "world") {
+        return;
+      }
+
+      // Calculate deltaTime in milliseconds
+      const deltaTimeMs = currentTime - lastTime;
+
+      // Convert to seconds and limit to 50ms (0.05s) maximum to prevent huge jumps
+      const deltaTime = Math.min(deltaTimeMs / 1000, 0.05);
+
+      // Skip first frame if lastTime wasn't set properly
+      if (deltaTime > 0 && deltaTime < 0.05) {
+        // Update FPS tracking
+        updateFPSTracking(currentTime);
+
+        // Update game state
+        updateGame(deltaTime);
+
+        // Render the frame
+        renderGame(ctx, canvas);
+      }
 
       if (
         canvas.width !== canvas.offsetWidth ||
@@ -2734,7 +3680,7 @@ const SpaceMapComponent: React.FC = () => {
           newState.ship.vx *= currentFriction;
           newState.ship.vy *= currentFriction;
 
-          // Calculate potential new position
+          // Calculate potential new position with frame rate independent movement
           const newX = newState.ship.x + newState.ship.vx;
           const newY = newState.ship.y + newState.ship.vy;
 
@@ -2834,31 +3780,8 @@ const SpaceMapComponent: React.FC = () => {
         movementSoundActiveRef.current = false;
       }
 
-      // Update sound parameters in real-time when moving (only if not landing)
-      if (movementSoundActiveRef.current && !isLandingAnimationActive) {
-        updateContinuousMovementSound(currentShipVelocity, SHIP_MAX_SPEED);
-      }
-
-      // Only create trail points if ship is moving and enough time has passed
-      if (
-        currentShipVelocity > 0.1 &&
-        currentTime - lastTrailTime.current > 35
-      ) {
-        // Calculate trail position at the back of the ship
-        const trailOffset = 12; // Distance from ship center to back
-        const trailX =
-          gameState.ship.x - Math.cos(gameState.ship.angle) * trailOffset;
-        const trailY =
-          gameState.ship.y - Math.sin(gameState.ship.angle) * trailOffset;
-
-        createTrailPoint(trailX, trailY, currentTime, currentShipVelocity);
-        lastTrailTime.current = currentTime;
-      }
-
       // Update trail points
       updateTrailPoints(deltaTime);
-
-      // Continue with game state update
       setGameState((prevState) => {
         const newState = { ...prevState };
 
@@ -3231,6 +4154,7 @@ const SpaceMapComponent: React.FC = () => {
       }
 
       // Create shooting stars less frequently for better performance - even less for large canvas
+      const isLargeCanvas = canvas.width > 1000 || canvas.height > 600;
       const shootingStarInterval = isLargeCanvas
         ? 25000 + Math.random() * 35000
         : 15000 + Math.random() * 20000;
@@ -3967,6 +4891,9 @@ const SpaceMapComponent: React.FC = () => {
         canvas.height,
       );
 
+      // Store current time for next frame
+      lastTime = currentTime;
+
       // Continue at maximum possible FPS (uncapped)
       gameLoopRef.current = requestAnimationFrame(gameLoop);
     };
@@ -4064,8 +4991,8 @@ const SpaceMapComponent: React.FC = () => {
           willChange: "transform, contents",
         }}
         onMouseMove={handleMouseMove}
-        onMouseLeave={(e) => {
-          handleMouseLeave(e);
+        onMouseLeave={() => {
+          handleMouseLeave();
           handleMouseLeaveCanvas();
         }}
         onMouseEnter={handleMouseEnter}
@@ -4210,7 +5137,7 @@ const SpaceMapComponent: React.FC = () => {
                 clearTimeout((window as any).worldSizeTimeout);
                 (window as any).worldSizeTimeout = setTimeout(async () => {
                   if (selectedWorldId) {
-                    console.log("📏 Saving world size:", {
+                    console.log("���� Saving world size:", {
                       selectedWorldId,
                       newSize,
                     });
@@ -4283,7 +5210,7 @@ const SpaceMapComponent: React.FC = () => {
           {/* Interaction Radius Control */}
           <div className="mb-3">
             <label className="block text-xs font-medium text-gray-700 mb-1">
-              ������rea de Pouso:{" "}
+              ��������rea de Pouso:{" "}
               {Math.round(
                 planetsRef.current.find((p) => p.id === selectedWorldId)
                   ?.interactionRadius || 90,
@@ -4353,7 +5280,7 @@ const SpaceMapComponent: React.FC = () => {
                       (p) => p.id === selectedWorldId,
                     );
                     if (planet) {
-                      console.log("✅ Confirming world position:", {
+                      console.log("�� Confirming world position:", {
                         selectedWorldId,
                         x: planet.x,
                         y: planet.y,
@@ -4378,7 +5305,7 @@ const SpaceMapComponent: React.FC = () => {
           <p className="text-xs text-gray-500 mt-2">
             ✅ Alterações salvas automaticamente
             <br />
-            ESC para cancelar • Clique fora para desselecionar
+            ESC para cancelar �� Clique fora para desselecionar
           </p>
         </div>
       )}
