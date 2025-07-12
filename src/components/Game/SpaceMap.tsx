@@ -2713,12 +2713,10 @@ const SpaceMapComponent: React.FC = () => {
           }
         }
 
-        // Apply physics - friction calculation in deltaTime
+        // Apply simple friction
         const currentFriction = mouseInWindow ? FRICTION : 0.995;
-        // Convert friction from per-frame to per-second
-        const frictionPerSecond = Math.pow(currentFriction, deltaTime * 60);
-        newState.ship.vx *= frictionPerSecond;
-        newState.ship.vy *= frictionPerSecond;
+        newState.ship.vx *= currentFriction;
+        newState.ship.vy *= currentFriction;
 
         // Calculate potential new position with deltaTime
         const newX = newState.ship.x + newState.ship.vx * deltaTime;
