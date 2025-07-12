@@ -57,7 +57,7 @@ export const ShipActionsModal: React.FC<ShipActionsModalProps> = ({
   const [currentView, setCurrentView] = useState<ModalView>("main");
   const [shipInventory, setShipInventory] = useState<ShipInventoryItem[]>([]);
   const [showShipInventoryModal, setShowShipInventoryModal] = useState(false);
-  const { user } = useGameStore();
+  const { user, getActiveShip } = useGameStore();
   const handleUseItem = useCallback(
     (item: ShipInventoryItem) => {
       if (item.name === "Kit de Reparos Básico" && shipHP < 3 && user) {
