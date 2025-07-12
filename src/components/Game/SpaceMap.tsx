@@ -2161,7 +2161,7 @@ const SpaceMapComponent: React.FC = () => {
         shipImageRef.current = fallbackImg;
       };
     };
-  }, [getActiveShip]); // Re-run when active ship changes
+  }, [shipStats.trailColor]); // Use shipStats as dependency since it changes when ship changes
 
   // Load asteroid image
   useEffect(() => {
