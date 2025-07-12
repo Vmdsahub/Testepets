@@ -3231,17 +3231,23 @@ const SpaceMapComponent: React.FC = () => {
             newState.ship.angle = Math.atan2(dy, dx);
 
             if (mouseInWindow && distance > 50) {
-              // Smooth speed scaling with exponential curve for more natural feel
-              const normalizedDistance = Math.min(distance / 400, 1); // Increased range for smoother scaling
-              const speedMultiplier = Math.pow(normalizedDistance, 0.7); // Power curve for smoother acceleration
+              // Very smooth speed scaling with exponential curve
+              const normalizedDistance = Math.min(distance / 500, 1); // Increased range for even smoother scaling
+              const speedMultiplier = Math.pow(normalizedDistance, 1.2); // Steeper curve for more gradual start
 
               // Apply speed reduction if ship HP is 0 (85% reduction = 15% of original speed)
               const hpSpeedModifier = shipHP <= 0 ? 0.15 : 1.0;
               const targetSpeed =
                 SHIP_MAX_SPEED * speedMultiplier * hpSpeedModifier;
-              // Reduced acceleration factor for smoother movement
-              newState.ship.vx += (dx / distance) * targetSpeed * 0.025;
-              newState.ship.vy += (dy / distance) * targetSpeed * 0.025;
+
+              // Calculate target velocity components
+              const targetVx = (dx / distance) * targetSpeed;
+              const targetVy = (dy / distance) * targetSpeed;
+
+              // Smooth interpolation towards target velocity (much slower)
+              const lerpFactor = Math.min(deltaTime * 2.5, 0.1); // Very gradual interpolation
+              newState.ship.vx += (targetVx - newState.ship.vx) * lerpFactor;
+              newState.ship.vy += (targetVy - newState.ship.vy) * lerpFactor;
             }
           }
         }
