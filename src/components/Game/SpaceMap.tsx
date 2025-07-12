@@ -3725,11 +3725,12 @@ const SpaceMapComponent: React.FC = () => {
         ctx.lineTo(endX, endY);
         ctx.stroke();
 
-        // Centro brilhante
+        // Centro brilhante (versão mais clara da cor base)
+        const lightColor = `rgba(${Math.min(255, rgb.r + 40)}, ${Math.min(255, rgb.g + 40)}, ${Math.min(255, rgb.b + 40)}, 0.9)`;
         ctx.globalAlpha = lifeRatio * 0.8;
-        ctx.strokeStyle = "#f8f8cc";
+        ctx.strokeStyle = lightColor;
         ctx.lineWidth = 1;
-        ctx.shadowColor = "#f8f8cc";
+        ctx.shadowColor = lightColor;
         ctx.shadowBlur = 3;
         ctx.beginPath();
         ctx.moveTo(screenX, screenY);
