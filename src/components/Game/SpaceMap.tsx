@@ -2408,7 +2408,6 @@ const SpaceMapComponent: React.FC = () => {
 
   const handleMouseUp = useCallback(() => {
     // Parar tiro contínuo
-    setIsMousePressed(false);
     if (shootingIntervalRef.current) {
       clearInterval(shootingIntervalRef.current);
       shootingIntervalRef.current = null;
