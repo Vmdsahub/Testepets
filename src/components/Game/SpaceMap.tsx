@@ -2649,21 +2649,6 @@ const SpaceMapComponent: React.FC = () => {
         }
       }
 
-      // Update smoke particles
-      const smokeParticles = smokeParticlesRef.current;
-      for (let i = smokeParticles.length - 1; i >= 0; i--) {
-        const smoke = smokeParticles[i];
-
-        // Simple position update
-        smoke.x += smoke.vx * deltaTime;
-        smoke.y += smoke.vy * deltaTime;
-        smoke.life -= deltaTime;
-
-        if (smoke.life <= 0) {
-          smokeParticles.splice(i, 1);
-        }
-      }
-
       // Handle ship movement sounds and trail generation
       handleShipEffects(deltaTime);
     };
@@ -3017,31 +3002,6 @@ const SpaceMapComponent: React.FC = () => {
           screenY <= renderViewport.bottom + 50
         ) {
           drawParticle(ctx, particle, screenX, screenY);
-        }
-      }
-
-      // Render smoke particles
-      const smokeParticlesForRender = smokeParticlesRef.current;
-      for (let i = 0; i < smokeParticlesForRender.length; i++) {
-        const smoke = smokeParticlesForRender[i];
-        const wrappedDeltaX = getWrappedDistance(smoke.x, gameState.camera.x);
-        const wrappedDeltaY = getWrappedDistance(smoke.y, gameState.camera.y);
-        const screenX = centerX + wrappedDeltaX;
-        const screenY = centerY + wrappedDeltaY;
-
-        if (
-          screenX >= renderViewport.left &&
-          screenX <= renderViewport.right &&
-          screenY >= renderViewport.top &&
-          screenY <= renderViewport.bottom
-        ) {
-          ctx.save();
-          ctx.globalAlpha = (smoke.life / smoke.maxLife) * 0.6;
-          ctx.fillStyle = smoke.color;
-          ctx.beginPath();
-          ctx.arc(screenX, screenY, smoke.size, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.restore();
         }
       }
 
@@ -3715,19 +3675,6 @@ const SpaceMapComponent: React.FC = () => {
         // Remove dead particles
         if (smoke.life <= 0) {
           smokeParticles.splice(i, 1);
-        }
-      }
-
-      // Create smoke trail if ship HP is 0 and not in landing animation
-      if (shipHP <= 0 && !isLandingAnimationActive) {
-        // Create smoke trail every 15 frames (4 times per second at 60fps)
-        if (frameCounter.current - lastSmokeFrame.current >= 15) {
-          createSmokeTrail(
-            gameState.ship.x,
-            gameState.ship.y,
-            gameState.ship.angle,
-          );
-          lastSmokeFrame.current = frameCounter.current;
         }
       }
 
