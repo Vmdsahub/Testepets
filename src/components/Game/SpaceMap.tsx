@@ -1625,7 +1625,7 @@ const SpaceMapComponent: React.FC = () => {
 
       ctx.restore();
     },
-    [getWrappedDistance],
+    [getWrappedDistance, shipStats.trailColor],
   );
 
   // Helper function to draw pure light points
