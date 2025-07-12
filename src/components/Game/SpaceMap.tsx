@@ -4143,6 +4143,7 @@ const SpaceMapComponent: React.FC = () => {
       }
 
       // Create shooting stars less frequently for better performance - even less for large canvas
+      const isLargeCanvas = canvas.width > 1000 || canvas.height > 600;
       const shootingStarInterval = isLargeCanvas
         ? 25000 + Math.random() * 35000
         : 15000 + Math.random() * 20000;
