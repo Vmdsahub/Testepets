@@ -2693,10 +2693,8 @@ const SpaceMapComponent: React.FC = () => {
               // Apply speed reduction if ship HP is 0 (85% reduction = 15% of original speed)
               const hpSpeedModifier = shipHP <= 0 ? 0.15 : 1.0;
               const targetSpeed = SHIP_MAX_SPEED * distance * hpSpeedModifier;
-              newState.ship.vx +=
-                (dx / distance) * targetSpeed * 0.04 * normalizedDeltaTime;
-              newState.ship.vy +=
-                (dy / distance) * targetSpeed * 0.04 * normalizedDeltaTime;
+              newState.ship.vx += (dx / distance) * targetSpeed * 0.04;
+              newState.ship.vy += (dy / distance) * targetSpeed * 0.04;
             }
           } else if (!isMobile && hasMouseMoved.current) {
             // Desktop mouse controls
@@ -2717,10 +2715,8 @@ const SpaceMapComponent: React.FC = () => {
               const hpSpeedModifier = shipHP <= 0 ? 0.15 : 1.0;
               const targetSpeed =
                 SHIP_MAX_SPEED * speedMultiplier * hpSpeedModifier;
-              newState.ship.vx +=
-                (dx / distance) * targetSpeed * 0.04 * normalizedDeltaTime;
-              newState.ship.vy +=
-                (dy / distance) * targetSpeed * 0.04 * normalizedDeltaTime;
+              newState.ship.vx += (dx / distance) * targetSpeed * 0.04;
+              newState.ship.vy += (dy / distance) * targetSpeed * 0.04;
             }
           }
         }
@@ -4378,7 +4374,7 @@ const SpaceMapComponent: React.FC = () => {
           <p className="text-xs text-gray-500 mt-2">
             ✅ Alterações salvas automaticamente
             <br />
-            ESC para cancelar • Clique fora para desselecionar
+            ESC para cancelar �� Clique fora para desselecionar
           </p>
         </div>
       )}
