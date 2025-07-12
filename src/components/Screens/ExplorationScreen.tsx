@@ -341,8 +341,8 @@ export const ExplorationScreen: React.FC = () => {
             )
           )}
 
-          {/* Back button */}
-          <div className="flex justify-center mt-6">
+          {/* Back buttons */}
+          <div className="flex justify-center mt-6 gap-3">
             <motion.button
               onClick={handleBack}
               className="px-6 py-3 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors font-medium text-gray-700 flex items-center gap-2"
@@ -351,6 +351,16 @@ export const ExplorationScreen: React.FC = () => {
             >
               <ArrowLeft className="w-4 h-4" />
               Voltar ao Planeta
+            </motion.button>
+
+            <motion.button
+              onClick={handleBackToWorld}
+              className="px-6 py-3 bg-blue-100 hover:bg-blue-200 rounded-full transition-colors font-medium text-blue-700 flex items-center gap-2"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Mapa Galáctico
             </motion.button>
           </div>
         </motion.div>
