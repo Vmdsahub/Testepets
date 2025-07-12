@@ -119,7 +119,7 @@ export const ExplorationScreen: React.FC = () => {
           <div
             className={`w-full relative rounded-2xl overflow-hidden mb-4 ${
               currentExplorationPoint.name === "Planície Dourada"
-                ? "h-64 sm:h-72"
+                ? "h-80 sm:h-96"
                 : "h-[calc(100vh-280px)] sm:h-[calc(100vh-300px)] md:h-[calc(100vh-320px)] lg:h-[calc(100vh-340px)]"
             }`}
           >
@@ -129,7 +129,11 @@ export const ExplorationScreen: React.FC = () => {
               transition={{ duration: 0.6 }}
               src={currentExplorationArea.imageUrl}
               alt={currentExplorationArea.name}
-              className="w-full h-full object-cover"
+              className={`w-full h-full ${
+                currentExplorationPoint.name === "Planície Dourada"
+                  ? "object-contain bg-gradient-to-b from-blue-50 to-blue-100"
+                  : "object-cover"
+              }`}
             />
 
             {/* Overlay info - only show for non-Planície Dourada locations */}
