@@ -11,6 +11,10 @@ export const ExplorationScreen: React.FC = () => {
     setCurrentExplorationPoint,
     setCurrentExplorationArea,
     getExplorationArea,
+    getAllShips,
+    getOwnedShips,
+    purchaseShip,
+    xenocoins,
   } = useGameStore();
 
   // State for dialogue system (similar to NPCModal)
