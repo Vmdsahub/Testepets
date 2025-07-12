@@ -3338,8 +3338,6 @@ const SpaceMapComponent: React.FC = () => {
         movementSoundActiveRef.current = false;
       }
 
-      // Update trail points
-      updateTrailPoints(deltaTime);
       setGameState((prevState) => {
         const newState = { ...prevState };
 
