@@ -2205,7 +2205,7 @@ const SpaceMapComponent: React.FC = () => {
         // Save to database with throttling
         clearTimeout((window as any).worldDragTimeout);
         (window as any).worldDragTimeout = setTimeout(() => {
-          console.log("������ Saving world drag position:", {
+          console.log("����� Saving world drag position:", {
             selectedWorldId,
             worldX,
             worldY,
@@ -2780,14 +2780,16 @@ const SpaceMapComponent: React.FC = () => {
                 const tangentY = movementY - radialComponent * normalY;
 
                 // Always allow tangential movement
-                newState.ship.x += tangentX;
-                newState.ship.y += tangentY;
+                newState.ship.x += tangentX * normalizedDeltaTime;
+                newState.ship.y += tangentY * normalizedDeltaTime;
 
                 // Allow radial movement only if it's toward the center (negative radial component)
                 if (radialComponent < 0) {
                   // Moving toward center - allow this movement
-                  newState.ship.x += radialComponent * normalX;
-                  newState.ship.y += radialComponent * normalY;
+                  newState.ship.x +=
+                    radialComponent * normalX * normalizedDeltaTime;
+                  newState.ship.y +=
+                    radialComponent * normalY * normalizedDeltaTime;
                 }
 
                 // Adjust velocity to prevent moving outward
