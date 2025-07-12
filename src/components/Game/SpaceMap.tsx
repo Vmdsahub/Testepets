@@ -4271,9 +4271,6 @@ const SpaceMapComponent: React.FC = () => {
     landingAnimationData,
     setCurrentPlanet,
     setCurrentScreen,
-    createTrailPoint,
-    updateTrailPoints,
-    drawShipTrail,
   ]);
 
   return (
