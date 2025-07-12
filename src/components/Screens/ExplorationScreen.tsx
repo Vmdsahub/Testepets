@@ -181,25 +181,125 @@ export const ExplorationScreen: React.FC = () => {
                 </div>
               </motion.div>
 
-              {/* Ship Store Section - Empty for future development */}
+              {/* Ship Store Section */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6, duration: 0.4 }}
                 className="bg-blue-50 border border-blue-200 rounded-xl p-4"
               >
-                <div className="text-center">
+                <div className="text-center mb-4">
                   <h4 className="font-semibold text-blue-900 mb-2">
                     Loja de Naves
                   </h4>
-                  <div className="bg-white border border-blue-100 rounded-lg p-8 text-center">
-                    <div className="text-blue-600 text-sm opacity-75">
-                      🚀 Em Breve: Venda de Naves Espaciais
-                    </div>
-                    <div className="text-blue-500 text-xs mt-2">
-                      Esta área será desenvolvida para venda de naves no futuro
-                    </div>
+                  <div className="text-blue-700 text-xs">
+                    Naves especiais para exploradores experientes
                   </div>
+                </div>
+
+                <div className="bg-white border border-blue-100 rounded-lg p-4">
+                  {(() => {
+                    const {
+                      getAllShips,
+                      getOwnedShips,
+                      purchaseShip,
+                      xenocoins,
+                    } = useGameStore();
+                    const availableShips = getAllShips().filter(
+                      (ship) => !ship.isDefault,
+                    );
+                    const ownedShips = getOwnedShips();
+
+                    return (
+                      <div className="grid gap-3">
+                        {availableShips.map((ship) => {
+                          const isOwned = ownedShips.find(
+                            (owned) => owned.id === ship.id,
+                          );
+                          const canAfford = xenocoins >= ship.price;
+
+                          return (
+                            <div
+                              key={ship.id}
+                              className="bg-gray-50 rounded-lg border border-gray-200 p-3"
+                            >
+                              <div className="flex items-center gap-3">
+                                {/* Ship Image */}
+                                <div className="flex-shrink-0">
+                                  <img
+                                    src={ship.imageUrl}
+                                    alt={ship.name}
+                                    className="w-16 h-16 object-contain bg-white rounded-lg border border-gray-100"
+                                  />
+                                </div>
+
+                                {/* Ship Info */}
+                                <div className="flex-1 min-w-0">
+                                  <div className="font-semibold text-gray-800 text-sm mb-1">
+                                    {ship.name}
+                                  </div>
+                                  <div className="text-xs text-gray-600 mb-2 line-clamp-2">
+                                    {ship.description}
+                                  </div>
+                                  <div className="flex items-center gap-2 text-xs">
+                                    <span className="bg-green-100 text-green-700 px-2 py-1 rounded">
+                                      +
+                                      {((ship.stats.speed - 1) * 100).toFixed(
+                                        0,
+                                      )}
+                                      % Velocidade
+                                    </span>
+                                    <span className="bg-red-100 text-red-700 px-2 py-1 rounded">
+                                      +
+                                      {(
+                                        (ship.stats.projectileDamage - 1) *
+                                        100
+                                      ).toFixed(0)}
+                                      % Dano
+                                    </span>
+                                  </div>
+                                </div>
+
+                                {/* Price and Buy Button */}
+                                <div className="text-center">
+                                  <div className="flex items-center justify-center gap-1 mb-2">
+                                    <img
+                                      src="https://cdn.builder.io/api/v1/image/assets%2Ff481900009a94cda953c032479392a30%2F3e6c6cb85c6a4d2ba05acb245bfbc214?format=webp&width=800"
+                                      alt="Xenocoins"
+                                      className="w-4 h-4"
+                                    />
+                                    <span className="font-semibold text-sm text-gray-800">
+                                      {ship.price}
+                                    </span>
+                                  </div>
+
+                                  {isOwned ? (
+                                    <div className="bg-green-100 text-green-700 px-3 py-1 rounded-md text-xs font-medium">
+                                      Possuída
+                                    </div>
+                                  ) : (
+                                    <motion.button
+                                      whileHover={{ scale: 1.05 }}
+                                      whileTap={{ scale: 0.95 }}
+                                      onClick={() => purchaseShip(ship.id)}
+                                      disabled={!canAfford}
+                                      className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+                                        canAfford
+                                          ? "bg-blue-600 text-white hover:bg-blue-700"
+                                          : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                      }`}
+                                    >
+                                      {canAfford ? "Comprar" : "Sem Moeda"}
+                                    </motion.button>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    );
+                  })()}
                 </div>
               </motion.div>
             </>
