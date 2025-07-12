@@ -528,6 +528,8 @@ const SpaceMapComponent: React.FC = () => {
         vy: Math.sin(gameState.ship.angle) * PROJECTILE_SPEED,
         life: PROJECTILE_LIFETIME,
         maxLife: PROJECTILE_LIFETIME,
+        color: shipStats.projectileColor,
+        damage: shipStats.projectileDamage,
       };
       projectilesRef.current.push(newProjectile);
       lastShootTime.current = currentTime;
