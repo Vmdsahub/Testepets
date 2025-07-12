@@ -2886,19 +2886,13 @@ const SpaceMapComponent: React.FC = () => {
 
     // Update game entities (projectiles, asteroids, particles, etc.)
     const updateGameEntities = (deltaTime: number) => {
-      // Update projectiles with frame-based system
+      // Update projectiles with deltaTime
       const projectiles = projectilesRef.current;
-      const projectileSpeedPerFrame = 10; // pixels per frame
       for (let i = projectiles.length - 1; i >= 0; i--) {
         const proj = projectiles[i];
-        const angle = Math.atan2(proj.vy, proj.vx);
-        proj.x = normalizeCoord(
-          proj.x + Math.cos(angle) * projectileSpeedPerFrame,
-        );
-        proj.y = normalizeCoord(
-          proj.y + Math.sin(angle) * projectileSpeedPerFrame,
-        );
-        proj.life -= 0.016; // Approximate frame time
+        proj.x = normalizeCoord(proj.x + proj.vx * deltaTime);
+        proj.y = normalizeCoord(proj.y + proj.vy * deltaTime);
+        proj.life -= deltaTime;
 
         if (proj.life <= 0) {
           projectiles.splice(i, 1);
