@@ -3021,7 +3021,7 @@ const SpaceMapComponent: React.FC = () => {
       // Create trail points based on time
       const currentTime = performance.now();
       if (
-        currentShipVelocity > 0.01 && // Lowered threshold
+        currentShipVelocity > 0.5 && // Adjusted threshold for new max speed
         currentTime - lastTrailTime.current > 35
       ) {
         // Calculate trail position at the back of the ship
@@ -5105,7 +5105,7 @@ const SpaceMapComponent: React.FC = () => {
                 clearTimeout((window as any).worldSizeTimeout);
                 (window as any).worldSizeTimeout = setTimeout(async () => {
                   if (selectedWorldId) {
-                    console.log("����� Saving world size:", {
+                    console.log("���� Saving world size:", {
                       selectedWorldId,
                       newSize,
                     });
@@ -5178,7 +5178,7 @@ const SpaceMapComponent: React.FC = () => {
           {/* Interaction Radius Control */}
           <div className="mb-3">
             <label className="block text-xs font-medium text-gray-700 mb-1">
-              ���������rea de Pouso:{" "}
+              ��������rea de Pouso:{" "}
               {Math.round(
                 planetsRef.current.find((p) => p.id === selectedWorldId)
                   ?.interactionRadius || 90,
