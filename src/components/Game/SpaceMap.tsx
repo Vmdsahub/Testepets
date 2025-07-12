@@ -2593,19 +2593,6 @@ const SpaceMapComponent: React.FC = () => {
 
     // Update game entities (projectiles, asteroids, particles, etc.)
     const updateGameEntities = (deltaTime: number) => {
-      // Update projectiles with deltaTime
-      const projectiles = projectilesRef.current;
-      for (let i = projectiles.length - 1; i >= 0; i--) {
-        const proj = projectiles[i];
-        proj.x = normalizeCoord(proj.x + proj.vx * deltaTime);
-        proj.y = normalizeCoord(proj.y + proj.vy * deltaTime);
-        proj.life -= deltaTime;
-
-        if (proj.life <= 0) {
-          projectiles.splice(i, 1);
-        }
-      }
-
       // Update NPC ship
       npcShip.updateShip(deltaTime * 1000); // Convert to milliseconds for compatibility
 
