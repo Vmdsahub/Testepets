@@ -2367,7 +2367,7 @@ const SpaceMapComponent: React.FC = () => {
             if (mouseInWindow && distance > 50) {
               // Very smooth speed scaling with exponential curve
               const normalizedDistance = Math.min(distance / 250, 1); // Much smaller range to reach max speed faster
-              const speedMultiplier = Math.pow(normalizedDistance, 0.8); // Gentler curve that still reaches 1.0
+              const speedMultiplier = Math.pow(normalizedDistance, 0.6); // Very permissive curve for high speeds
 
               // Apply speed reduction if ship HP is 0 (85% reduction = 15% of original speed)
               const hpSpeedModifier = shipHP <= 0 ? 0.15 : 1.0;
@@ -3247,7 +3247,7 @@ const SpaceMapComponent: React.FC = () => {
             if (mouseInWindow && distance > 50) {
               // Very smooth speed scaling with exponential curve
               const normalizedDistance = Math.min(distance / 250, 1); // Much smaller range to reach max speed faster
-              const speedMultiplier = Math.pow(normalizedDistance, 0.8); // Gentler curve that still reaches 1.0
+              const speedMultiplier = Math.pow(normalizedDistance, 0.6); // Very permissive curve for high speeds
 
               // Apply speed reduction if ship HP is 0 (85% reduction = 15% of original speed)
               const hpSpeedModifier = shipHP <= 0 ? 0.15 : 1.0;
