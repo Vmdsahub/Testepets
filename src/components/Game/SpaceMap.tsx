@@ -2390,8 +2390,6 @@ const SpaceMapComponent: React.FC = () => {
       if (isLandingAnimationActive) return;
 
       if (!user?.isAdmin || !isWorldEditMode) {
-        setIsMousePressed(true);
-
         // Primeiro tiro imediato
         shootProjectile();
 
