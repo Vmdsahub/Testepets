@@ -3049,6 +3049,430 @@ const SpaceMapComponent: React.FC = () => {
       updateCamera(deltaTime);
     };
 
+    // Setup canvas for rendering
+    const setupCanvasForRender = (
+      ctx: CanvasRenderingContext2D,
+      canvas: HTMLCanvasElement,
+    ) => {
+      // Handle canvas resize
+      if (
+        canvas.width !== canvas.offsetWidth ||
+        canvas.height !== canvas.offsetHeight
+      ) {
+        setCanvasDimensions({
+          width: canvas.offsetWidth,
+          height: canvas.offsetHeight,
+        });
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+        ctx.imageSmoothingEnabled = false;
+      }
+
+      // Clear the canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    };
+
+    // Render all game elements
+    const renderAllGameElements = (
+      ctx: CanvasRenderingContext2D,
+      canvas: HTMLCanvasElement,
+    ) => {
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+
+      // Aggressive viewport culling for larger canvas
+      const renderBuffer = Math.min(200, 50);
+      const renderViewport = {
+        left: -renderBuffer,
+        right: canvas.width + renderBuffer,
+        top: -renderBuffer,
+        bottom: canvas.height + renderBuffer,
+      };
+
+      // Render barrier circle (rotating, gray, transparent)
+      const barrierWrappedDeltaX = getWrappedDistance(
+        CENTER_X,
+        gameState.camera.x,
+      );
+      const barrierWrappedDeltaY = getWrappedDistance(
+        CENTER_Y,
+        gameState.camera.y,
+      );
+      const barrierScreenX = centerX + barrierWrappedDeltaX;
+      const barrierScreenY = centerY + barrierWrappedDeltaY;
+
+      if (isBarrierCollisionEnabled) {
+        const currentTime = performance.now();
+        const isFlashing = currentTime - barrierFlashTime < 500;
+        const flashAlpha = isFlashing ? 0.15 : 0.03;
+
+        ctx.save();
+        ctx.globalAlpha = flashAlpha;
+        ctx.strokeStyle = isFlashing ? "#ff4444" : "#666666";
+        ctx.lineWidth = 2;
+        ctx.setLineDash([10, 5]);
+        ctx.lineDashOffset = (currentTime * 0.05) % 15;
+        ctx.beginPath();
+        ctx.arc(barrierScreenX, barrierScreenY, BARRIER_RADIUS, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // Render planets
+      planetsRef.current.forEach((planet) => {
+        const wrappedDeltaX = getWrappedDistance(planet.x, gameState.camera.x);
+        const wrappedDeltaY = getWrappedDistance(planet.y, gameState.camera.y);
+        const screenX = centerX + wrappedDeltaX;
+        const screenY = centerY + wrappedDeltaY;
+
+        // Render interaction circle (only visible to admins)
+        if (user?.isAdmin) {
+          ctx.save();
+          ctx.globalAlpha = 0.3;
+          ctx.strokeStyle = "#00ff00";
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(
+            screenX,
+            screenY,
+            planet.interactionRadius || 50,
+            0,
+            Math.PI * 2,
+          );
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // Render planet image with rotation and antialiasing
+        const img = planetImagesRef.current.get(planet.id);
+        if (img && img.complete) {
+          ctx.save();
+          ctx.imageSmoothingEnabled = true;
+          ctx.translate(screenX, screenY);
+          ctx.rotate(planet.rotation || 0);
+          ctx.drawImage(
+            img,
+            -planet.size / 2,
+            -planet.size / 2,
+            planet.size,
+            planet.size,
+          );
+          ctx.restore();
+        } else {
+          // Fallback circle if image not loaded
+          ctx.save();
+          ctx.fillStyle = planet.color;
+          ctx.beginPath();
+          ctx.arc(screenX, screenY, planet.size / 2, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+      });
+
+      // Render all other game elements
+      renderGameEntities(ctx, canvas, centerX, centerY, renderViewport);
+
+      // Render ship and effects
+      renderShipAndEffects(ctx, canvas, centerX, centerY);
+
+      // Render NPC ship
+      npcShip.renderShip(
+        ctx,
+        gameState.camera.x,
+        gameState.camera.y,
+        canvas.width,
+        canvas.height,
+      );
+    };
+
+    // Render game entities (asteroids, particles, projectiles, etc.)
+    const renderGameEntities = (
+      ctx: CanvasRenderingContext2D,
+      canvas: HTMLCanvasElement,
+      centerX: number,
+      centerY: number,
+      renderViewport: any,
+    ) => {
+      // Render asteroids
+      const asteroidsForRender = asteroidsRef.current;
+      for (let i = 0; i < asteroidsForRender.length; i++) {
+        const asteroid = asteroidsForRender[i];
+        const wrappedDeltaX = getWrappedDistance(
+          asteroid.x,
+          gameState.camera.x,
+        );
+        const wrappedDeltaY = getWrappedDistance(
+          asteroid.y,
+          gameState.camera.y,
+        );
+        const screenX = centerX + wrappedDeltaX;
+        const screenY = centerY + wrappedDeltaY;
+
+        if (
+          screenX >= renderViewport.left &&
+          screenX <= renderViewport.right &&
+          screenY >= renderViewport.top &&
+          screenY <= renderViewport.bottom
+        ) {
+          drawAsteroid(ctx, asteroid, screenX, screenY);
+        }
+      }
+
+      // Render xenocoins
+      const xenoCoinsForRender = xenoCoinsRef.current;
+      for (let i = 0; i < xenoCoinsForRender.length; i++) {
+        const xenoCoin = xenoCoinsForRender[i];
+        const wrappedDeltaX = getWrappedDistance(
+          xenoCoin.x,
+          gameState.camera.x,
+        );
+        const wrappedDeltaY = getWrappedDistance(
+          xenoCoin.y,
+          gameState.camera.y,
+        );
+        const screenX = centerX + wrappedDeltaX;
+        const screenY = centerY + wrappedDeltaY;
+
+        if (
+          screenX >= renderViewport.left &&
+          screenX <= renderViewport.right &&
+          screenY >= renderViewport.top &&
+          screenY <= renderViewport.bottom
+        ) {
+          drawXenoCoin(ctx, xenoCoin, screenX, screenY);
+        }
+      }
+
+      // Render particles
+      const particlesForRender = particlesRef.current;
+      for (let i = 0; i < particlesForRender.length; i++) {
+        const particle = particlesForRender[i];
+        const wrappedDeltaX = getWrappedDistance(
+          particle.x,
+          gameState.camera.x,
+        );
+        const wrappedDeltaY = getWrappedDistance(
+          particle.y,
+          gameState.camera.y,
+        );
+        const screenX = centerX + wrappedDeltaX;
+        const screenY = centerY + wrappedDeltaY;
+
+        if (
+          screenX >= renderViewport.left - 50 &&
+          screenX <= renderViewport.right + 50 &&
+          screenY >= renderViewport.top - 50 &&
+          screenY <= renderViewport.bottom + 50
+        ) {
+          drawParticle(ctx, particle, screenX, screenY);
+        }
+      }
+
+      // Render smoke particles
+      const smokeParticlesForRender = smokeParticlesRef.current;
+      for (let i = 0; i < smokeParticlesForRender.length; i++) {
+        const smoke = smokeParticlesForRender[i];
+        const wrappedDeltaX = getWrappedDistance(smoke.x, gameState.camera.x);
+        const wrappedDeltaY = getWrappedDistance(smoke.y, gameState.camera.y);
+        const screenX = centerX + wrappedDeltaX;
+        const screenY = centerY + wrappedDeltaY;
+
+        if (
+          screenX >= renderViewport.left &&
+          screenX <= renderViewport.right &&
+          screenY >= renderViewport.top &&
+          screenY <= renderViewport.bottom
+        ) {
+          ctx.save();
+          ctx.globalAlpha = (smoke.life / smoke.maxLife) * 0.6;
+          ctx.fillStyle = smoke.color;
+          ctx.beginPath();
+          ctx.arc(screenX, screenY, smoke.size, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+      }
+
+      // Render projectiles
+      const projectilesForRender = projectilesRef.current;
+      for (let i = 0; i < projectilesForRender.length; i++) {
+        const proj = projectilesForRender[i];
+        const wrappedDeltaX = getWrappedDistance(proj.x, gameState.camera.x);
+        const wrappedDeltaY = getWrappedDistance(proj.y, gameState.camera.y);
+        const screenX = centerX + wrappedDeltaX;
+        const screenY = centerY + wrappedDeltaY;
+
+        if (
+          screenX >= renderViewport.left &&
+          screenX <= renderViewport.right &&
+          screenY >= renderViewport.top &&
+          screenY <= renderViewport.bottom
+        ) {
+          ctx.save();
+          ctx.globalAlpha = Math.max(0.3, proj.life / proj.maxLife);
+          ctx.strokeStyle = "#00ffff";
+          ctx.lineWidth = 3;
+          ctx.shadowColor = "#00ffff";
+          ctx.shadowBlur = 8;
+          ctx.beginPath();
+          ctx.moveTo(screenX - proj.vx * 0.5, screenY - proj.vy * 0.5);
+          ctx.lineTo(screenX + proj.vx * 0.5, screenY + proj.vy * 0.5);
+          ctx.stroke();
+          ctx.restore();
+        }
+      }
+
+      // Render shooting stars
+      const shootingStarsForRender = shootingStarsRef.current;
+      for (let i = 0; i < shootingStarsForRender.length; i++) {
+        drawShootingStar(ctx, shootingStarsForRender[i]);
+      }
+    };
+
+    // Render ship and related effects
+    const renderShipAndEffects = (
+      ctx: CanvasRenderingContext2D,
+      canvas: HTMLCanvasElement,
+      centerX: number,
+      centerY: number,
+    ) => {
+      // Render ship trail before ship
+      let shipWorldX = gameState.ship.x;
+      let shipWorldY = gameState.ship.y;
+
+      // Handle landing animation for trail positioning
+      if (isLandingAnimationActive && landingAnimationData) {
+        const currentTime = performance.now();
+        const elapsed = currentTime - landingAnimationData.startTime;
+        const progress = Math.min(elapsed / landingAnimationData.duration, 1);
+        const planet = planetsRef.current.find(
+          (p) => p.id === landingAnimationData.planetId,
+        );
+
+        if (planet && progress < 1) {
+          const initialDx = getWrappedDistance(
+            planet.x,
+            landingAnimationData.initialShipX,
+          );
+          const initialDy = getWrappedDistance(
+            planet.y,
+            landingAnimationData.initialShipY,
+          );
+          const initialRadius = Math.sqrt(
+            initialDx * initialDx + initialDy * initialDy,
+          );
+          const orbitSpeed = 1;
+          const initialAngle = Math.atan2(initialDy, initialDx);
+          const angleProgress =
+            initialAngle + progress * orbitSpeed * Math.PI * 2;
+          const currentRadius = initialRadius * (1 - progress * 0.9);
+
+          shipWorldX = planet.x + Math.cos(angleProgress) * currentRadius;
+          shipWorldY = planet.y + Math.sin(angleProgress) * currentRadius;
+        } else if (planet) {
+          shipWorldX = planet.x;
+          shipWorldY = planet.y;
+        }
+      }
+
+      const shipScreenX = centerX;
+      const shipScreenY = centerY;
+
+      // Render ship trail
+      renderShipTrail(ctx, shipScreenX, shipScreenY, shipWorldX, shipWorldY);
+
+      // Render ship
+      renderShip(ctx, canvas, centerX, centerY);
+
+      // Render radar pulses
+      radarPulsesRef.current.forEach((pulse) => {
+        drawRadarPulse(ctx, pulse, centerX, centerY);
+      });
+    };
+
+    // Render ship with landing animation support
+    const renderShip = (
+      ctx: CanvasRenderingContext2D,
+      canvas: HTMLCanvasElement,
+      centerX: number,
+      centerY: number,
+    ) => {
+      let shipScale = 1;
+      let shipAngle = gameState.ship.angle;
+      let shouldRenderShip = true;
+
+      // Handle landing animation
+      if (isLandingAnimationActive && landingAnimationData) {
+        const currentTime = performance.now();
+        const elapsed = currentTime - landingAnimationData.startTime;
+        const progress = Math.min(elapsed / landingAnimationData.duration, 1);
+
+        if (progress >= 1) {
+          // Animation complete - schedule transition
+          setTimeout(() => {
+            setIsLandingAnimationActive(false);
+            setLandingAnimationData(null);
+            setCurrentScreen("planet");
+          }, 100);
+          return;
+        }
+
+        // Scale and rotate ship during landing
+        shipScale = 1 - progress * 0.3;
+        shipAngle += progress * Math.PI * 4;
+      }
+
+      // Use persistent state for ship rendering on planet screen
+      if (currentScreen === "planet") {
+        shouldRenderShip = shipRenderState.shouldRender;
+        shipScale = shipRenderState.scale;
+        shipAngle = shipRenderState.angle;
+      }
+
+      // Don't render ship if hidden or on planet screen
+      if (shouldHideShipRef.current || currentScreen === "planet") {
+        shouldRenderShip = false;
+        shipScale = 0;
+      }
+
+      // Only render ship if it should be rendered and has visible scale
+      if (shouldRenderShip && shipScale > 0 && currentScreen !== "planet") {
+        ctx.save();
+        ctx.translate(centerX, centerY);
+        ctx.rotate(shipAngle);
+        ctx.scale(shipScale, shipScale);
+
+        // Render ship image if loaded, otherwise fallback to original drawing
+        if (shipImageRef.current && shipImageRef.current.complete) {
+          const shipSize = 30;
+          ctx.imageSmoothingEnabled = true;
+          ctx.drawImage(
+            shipImageRef.current,
+            -shipSize / 2,
+            -shipSize / 2,
+            shipSize,
+            shipSize,
+          );
+        } else {
+          // Fallback ship drawing
+          ctx.fillStyle = "#00aaff";
+          ctx.beginPath();
+          ctx.moveTo(15, 0);
+          ctx.lineTo(-10, -8);
+          ctx.lineTo(-5, 0);
+          ctx.lineTo(-10, 8);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.strokeStyle = "#ffffff";
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+
+        ctx.restore();
+      }
+    };
+
     // Render the game
     const renderGame = (
       ctx: CanvasRenderingContext2D,
