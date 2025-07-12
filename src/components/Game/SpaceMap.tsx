@@ -3112,6 +3112,11 @@ const SpaceMapComponent: React.FC = () => {
           return false;
         }
 
+        // Add safety checks to prevent NaN values
+        if (!isFinite(pulse.maxRadius) || !isFinite(progress)) {
+          return false; // Remove invalid pulse
+        }
+
         pulse.radius = pulse.maxRadius * progress;
         pulse.opacity = 0.8 * (1 - progress);
         return true;
@@ -5112,7 +5117,7 @@ const SpaceMapComponent: React.FC = () => {
                 clearTimeout((window as any).worldSizeTimeout);
                 (window as any).worldSizeTimeout = setTimeout(async () => {
                   if (selectedWorldId) {
-                    console.log("����� Saving world size:", {
+                    console.log("���� Saving world size:", {
                       selectedWorldId,
                       newSize,
                     });
