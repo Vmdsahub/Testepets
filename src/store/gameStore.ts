@@ -147,6 +147,14 @@ interface GameStore extends GameState {
   deleteRedeemCode: (codeId: string) => void;
   redeemCode: (code: string) => Promise<{ success: boolean; message: string }>;
 
+  // Ship management
+  getAllShips: () => Ship[];
+  getOwnedShips: () => Ship[];
+  getActiveShip: () => Ship | null;
+  purchaseShip: (shipId: string) => Promise<boolean>;
+  switchActiveShip: (shipId: string) => Promise<boolean>;
+  getShipById: (shipId: string) => Ship | null;
+
   // Daily check-in system
   dailyCheckin: () => void;
   canClaimDailyCheckin: () => boolean;
