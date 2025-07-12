@@ -850,7 +850,7 @@ export const useGameStore = create<GameStore>()(
       setCurrentScreen: (screen) => {
         console.log("🏪 gameStore.setCurrentScreen chamado:", screen);
         set({ currentScreen: screen });
-        console.log("✅ gameStore.setCurrentScreen conclu��do");
+        console.log("✅ gameStore.setCurrentScreen concluído");
       },
       setViewedUserId: (userId) => set({ viewedUserId: userId }),
       setCurrentPlanet: (planet) => {
@@ -2483,6 +2483,9 @@ export const useGameStore = create<GameStore>()(
         hatchingEgg: state.hatchingEgg,
         shipState: state.shipState,
         worldPositions: state.worldPositions,
+        ships: state.ships,
+        ownedShips: state.ownedShips,
+        activeShip: state.activeShip,
       }),
       onRehydrateStorage: () => (state) => {
         if (state) {
