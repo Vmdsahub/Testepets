@@ -3021,7 +3021,7 @@ const SpaceMapComponent: React.FC = () => {
       );
 
       // Continuous movement sound control (threshold in pixels/second)
-      const velocityThreshold = 5; // 5 pixels per second
+      const velocityThreshold = 1; // 1 pixel per second
       const isShipMoving =
         currentShipVelocity > velocityThreshold && !isLandingAnimationActive;
 
@@ -4318,7 +4318,7 @@ const SpaceMapComponent: React.FC = () => {
 
       // Rotaç���o lenta baseada no tempo
       const rotationTime = currentTime * 0.0005; // Muito lenta
-      const dashOffset = (rotationTime * 50) % 20; // Offset dos tra��os para simular rotação
+      const dashOffset = (rotationTime * 50) % 20; // Offset dos tra��os para simular rotaç��o
 
       ctx.setLineDash([10, 10]);
       ctx.lineDashOffset = -dashOffset; // Anima os traços
