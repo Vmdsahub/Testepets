@@ -2606,7 +2606,7 @@ const SpaceMapComponent: React.FC = () => {
     ctx.imageSmoothingEnabled = false; // Disable smoothing for pixel-perfect rendering
     ctx.globalCompositeOperation = "source-over"; // Default, most GPU-optimized blend mode
 
-    let lastTime = 0;
+    let lastTime = performance.now();
 
     const gameLoop = (currentTime: number) => {
       // Stop game loop immediately if we're not on world screen
@@ -2614,13 +2614,11 @@ const SpaceMapComponent: React.FC = () => {
         return;
       }
 
-      const deltaTime = lastTime === 0 ? 16.67 : currentTime - lastTime; // FPS desbloqueado - sem limitação
+      // Calculate deltaTime in milliseconds
+      const deltaTimeMs = currentTime - lastTime;
 
-      // Clamp deltaTime to prevent huge spikes (max 33.33ms = 30fps minimum)
-      const clampedDeltaTime = Math.min(deltaTime, 33.33);
-
-      // Normalize deltaTime to 60fps (16.67ms per frame) for consistent physics
-      const normalizedDeltaTime = clampedDeltaTime / 16.67;
+      // Convert to seconds and limit to 50ms (0.05s) maximum to prevent huge jumps
+      const deltaTime = Math.min(deltaTimeMs / 1000, 0.05);
 
       // Intelligent frame skipping for large canvas - skip non-critical updates
       const isLargeCanvas = canvas.width > 1000 || canvas.height > 600;
