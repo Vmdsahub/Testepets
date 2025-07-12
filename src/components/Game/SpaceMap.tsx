@@ -3572,27 +3572,13 @@ const SpaceMapComponent: React.FC = () => {
         }
       });
 
-      // Update projectiles with uncapped delta time for unlimited FPS
+      // Update with delta time for unlimited FPS
       const currentFrameTime = performance.now();
-      const projectileDeltaTime =
-        (currentFrameTime - lastFrameTimeRef.current) / 1000;
+      const deltaTime = (currentFrameTime - lastFrameTimeRef.current) / 1000;
       lastFrameTimeRef.current = currentFrameTime;
 
-      // Use for loop for better performance than map/filter
-      const projectiles = projectilesRef.current;
-      for (let i = projectiles.length - 1; i >= 0; i--) {
-        const proj = projectiles[i];
-        proj.x = normalizeCoord(proj.x + proj.vx * projectileDeltaTime);
-        proj.y = normalizeCoord(proj.y + proj.vy * projectileDeltaTime);
-        proj.life -= projectileDeltaTime;
-
-        if (proj.life <= 0) {
-          projectiles.splice(i, 1);
-        }
-      }
-
       // Update NPC ship
-      npcShip.updateShip(projectileDeltaTime * 1000); // Convert to milliseconds
+      npcShip.updateShip(deltaTime * 1000); // Convert to milliseconds
 
       // Load asteroids around camera (chunk-based system)
       if (
