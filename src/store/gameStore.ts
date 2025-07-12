@@ -844,6 +844,17 @@ export const useGameStore = create<GameStore>()(
           });
         } else {
           set({ user });
+
+          // Initialize default ship if no active ship is set
+          const currentState = get();
+          if (!currentState.activeShip) {
+            const defaultShip = currentState.ships.find(
+              (ship) => ship.isDefault,
+            );
+            if (defaultShip) {
+              set({ activeShip: defaultShip });
+            }
+          }
         }
       },
       setActivePet: (pet) => set({ activePet: pet }),
