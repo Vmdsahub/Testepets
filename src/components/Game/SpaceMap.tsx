@@ -167,12 +167,12 @@ interface GameState {
 }
 
 const WORLD_SIZE = 100000;
-const SHIP_MAX_SPEED = 2;
+const BASE_SHIP_MAX_SPEED = 2;
 const FRICTION = 0.88;
 const CENTER_X = WORLD_SIZE / 2;
 const CENTER_Y = WORLD_SIZE / 2;
 const BARRIER_RADIUS = 600;
-const PROJECTILE_SPEED = 600; // pixels per second (consistent across all FPS)
+const BASE_PROJECTILE_SPEED = 600; // pixels per second (consistent across all FPS)
 const PROJECTILE_LIFETIME = 4.0; // seconds
 
 // Pre-render buffer size
