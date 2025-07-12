@@ -2678,6 +2678,9 @@ const SpaceMapComponent: React.FC = () => {
 
       // Skip first frame if lastTime wasn't set properly
       if (deltaTime > 0 && deltaTime < 0.05) {
+        // Update FPS tracking
+        updateFPSTracking(currentTime);
+
         // Update game state
         updateGame(deltaTime);
 
