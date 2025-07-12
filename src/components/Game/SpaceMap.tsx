@@ -4030,17 +4030,6 @@ const SpaceMapComponent: React.FC = () => {
               1,
             );
             const landingIntensity = Math.max(normalizedOrbitalSpeed, 0.4);
-
-            // Calculate trail position at the back of the ship during landing
-            const trailOffset = 12;
-            const currentShipAngle = angleProgress + Math.PI / 2;
-            const trailX =
-              shipWorldX - Math.cos(currentShipAngle) * trailOffset;
-            const trailY =
-              shipWorldY - Math.sin(currentShipAngle) * trailOffset;
-
-            createTrailPoint(trailX, trailY, currentTime, landingIntensity);
-            lastTrailTime.current = currentTime;
           }
         }
       }
