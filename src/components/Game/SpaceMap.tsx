@@ -2371,8 +2371,13 @@ const SpaceMapComponent: React.FC = () => {
 
               // Apply speed reduction if ship HP is 0 (85% reduction = 15% of original speed)
               const hpSpeedModifier = shipHP <= 0 ? 0.15 : 1.0;
+              // Add small boost for very far distances to ensure max speed is reached
+              const finalSpeedMultiplier = Math.min(
+                speedMultiplier + (normalizedDistance > 0.8 ? 0.1 : 0),
+                1.0,
+              );
               const targetSpeed =
-                SHIP_MAX_SPEED * speedMultiplier * hpSpeedModifier;
+                SHIP_MAX_SPEED * finalSpeedMultiplier * hpSpeedModifier;
 
               // Calculate target velocity components
               const targetVx = (dx / distance) * targetSpeed;
@@ -3251,8 +3256,13 @@ const SpaceMapComponent: React.FC = () => {
 
               // Apply speed reduction if ship HP is 0 (85% reduction = 15% of original speed)
               const hpSpeedModifier = shipHP <= 0 ? 0.15 : 1.0;
+              // Add small boost for very far distances to ensure max speed is reached
+              const finalSpeedMultiplier = Math.min(
+                speedMultiplier + (normalizedDistance > 0.8 ? 0.1 : 0),
+                1.0,
+              );
               const targetSpeed =
-                SHIP_MAX_SPEED * speedMultiplier * hpSpeedModifier;
+                SHIP_MAX_SPEED * finalSpeedMultiplier * hpSpeedModifier;
 
               // Calculate target velocity components
               const targetVx = (dx / distance) * targetSpeed;
@@ -4683,7 +4693,7 @@ const SpaceMapComponent: React.FC = () => {
             <div className="text-yellow-400 font-bold mb-1">
               ��� MODO EDIÇ��O
             </div>
-            <div>��� 1º Click: Selecionar mundo</div>
+            <div>��� 1�� Click: Selecionar mundo</div>
             <div>
               • 2º Click: {isDragging ? "Confirmar posição" : "Ativar arrastar"}
             </div>
