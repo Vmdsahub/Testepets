@@ -845,12 +845,15 @@ export const useGameStore = create<GameStore>()(
         } else {
           set({ user });
 
-          // Initialize default ship if no active ship is set
+          // Initialize default ship if no active ship is set or force update to latest version
           const currentState = get();
-          if (!currentState.activeShip) {
-            const defaultShip = currentState.ships.find(
-              (ship) => ship.isDefault,
-            );
+          const defaultShip = currentState.ships.find((ship) => ship.isDefault);
+
+          if (
+            !currentState.activeShip ||
+            (currentState.activeShip.isDefault && defaultShip)
+          ) {
+            // Force update the default ship to ensure latest image and properties
             if (defaultShip) {
               set({ activeShip: defaultShip });
             }
