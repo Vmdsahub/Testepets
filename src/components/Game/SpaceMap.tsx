@@ -2336,15 +2336,20 @@ const SpaceMapComponent: React.FC = () => {
             if (distance > 5) {
               // Apply speed reduction if ship HP is 0 (85% reduction = 15% of original speed)
               const hpSpeedModifier = shipHP <= 0 ? 0.15 : 1.0;
-              // Smooth speed scaling for mobile controls
-              const normalizedDistance = Math.min(distance / 150, 1); // Adjusted range for mobile
-              const speedMultiplier = Math.pow(normalizedDistance, 0.6); // Slightly different curve for mobile
+              // Very smooth speed scaling for mobile controls
+              const normalizedDistance = Math.min(distance / 200, 1); // Adjusted range for mobile
+              const speedMultiplier = Math.pow(normalizedDistance, 1.1); // Steeper curve for gradual start
               const targetSpeed =
                 SHIP_MAX_SPEED * speedMultiplier * hpSpeedModifier;
-              // Reduced acceleration for smoother movement
-              const acceleration = 100; // pixels/s² (further reduced for smoothness)
-              newState.ship.vx += (dx / distance) * acceleration * deltaTime;
-              newState.ship.vy += (dy / distance) * acceleration * deltaTime;
+
+              // Calculate target velocity components
+              const targetVx = (dx / distance) * targetSpeed;
+              const targetVy = (dy / distance) * targetSpeed;
+
+              // Smooth interpolation towards target velocity (mobile)
+              const lerpFactor = Math.min(deltaTime * 3.0, 0.12); // Slightly faster for mobile responsiveness
+              newState.ship.vx += (targetVx - newState.ship.vx) * lerpFactor;
+              newState.ship.vy += (targetVy - newState.ship.vy) * lerpFactor;
             }
           } else if (!isMobile && hasMouseMoved.current) {
             // Desktop mouse controls
