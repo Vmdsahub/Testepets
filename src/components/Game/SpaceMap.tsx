@@ -4891,8 +4891,8 @@ const SpaceMapComponent: React.FC = () => {
       {isMobile && !showLandingModal && !isLandingAnimationActive && (
         <MobileTouchControls
           onMovement={handleMobileMovement}
-          onShoot={handleMobileShoot}
-          isShootingDisabled={shipHP <= 0}
+          onShoot={() => {}} // Sistema de tiro removido
+          isShootingDisabled={true}
         />
       )}
     </div>
