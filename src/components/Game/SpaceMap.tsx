@@ -3998,8 +3998,8 @@ const SpaceMapComponent: React.FC = () => {
           ctx.imageSmoothingEnabled = true;
           ctx.imageSmoothingQuality = "high";
 
-          // Flip horizontally to make ship face right instead of left
-          ctx.scale(-1, 1);
+          // Rotate 180 degrees to make ship face right instead of left
+          ctx.rotate(Math.PI);
 
           ctx.drawImage(
             shipImageRef.current,
