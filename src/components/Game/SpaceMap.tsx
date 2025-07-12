@@ -2358,13 +2358,16 @@ const SpaceMapComponent: React.FC = () => {
             newState.ship.angle = Math.atan2(dy, dx);
 
             if (mouseInWindow && distance > 50) {
-              const speedMultiplier = Math.min(distance / 300, 1);
+              // Smooth speed scaling with exponential curve for more natural feel
+              const normalizedDistance = Math.min(distance / 400, 1); // Increased range for smoother scaling
+              const speedMultiplier = Math.pow(normalizedDistance, 0.7); // Power curve for smoother acceleration
+
               // Apply speed reduction if ship HP is 0 (85% reduction = 15% of original speed)
               const hpSpeedModifier = shipHP <= 0 ? 0.15 : 1.0;
               const targetSpeed =
                 SHIP_MAX_SPEED * speedMultiplier * hpSpeedModifier;
-              // Acceleration in pixels per second squared (reduced)
-              const acceleration = 120; // pixels/s² (reduced by 80%)
+              // Reduced acceleration for smoother movement
+              const acceleration = 80; // pixels/s² (further reduced for smoothness)
               newState.ship.vx += (dx / distance) * acceleration * deltaTime;
               newState.ship.vy += (dy / distance) * acceleration * deltaTime;
             }
