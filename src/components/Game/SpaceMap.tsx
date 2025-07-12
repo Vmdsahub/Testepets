@@ -3619,10 +3619,10 @@ const SpaceMapComponent: React.FC = () => {
         const particle = particles[i];
 
         // Update position and life
-        particle.x = normalizeCoord(particle.x + particle.vx * deltaTime);
-        particle.y = normalizeCoord(particle.y + particle.vy * deltaTime);
-        particle.rotation += particle.rotationSpeed * deltaTime;
-        particle.life -= deltaTime;
+        particle.x = normalizeCoord(particle.x + particle.vx * frameDeltaTime);
+        particle.y = normalizeCoord(particle.y + particle.vy * frameDeltaTime);
+        particle.rotation += particle.rotationSpeed * frameDeltaTime;
+        particle.life -= frameDeltaTime;
 
         // Apply physics (slow down over time)
         particle.vx *= 0.98;
