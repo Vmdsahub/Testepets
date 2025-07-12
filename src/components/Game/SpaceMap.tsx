@@ -31,7 +31,7 @@ interface Star {
   drift: { x: number; y: number };
   pulse: number;
   baseX: number; // Posição base para movimento oscilatório
-  baseY: number; // Posi��ão base para movimento oscilatório
+  baseY: number; // Posição base para movimento oscilatório
   floatAmplitude: { x: number; y: number }; // Amplitude do movimento de flutua���ão
   floatPhase: { x: number; y: number }; // Fase do movimento senoidal
 }
@@ -2721,9 +2721,9 @@ const SpaceMapComponent: React.FC = () => {
         newState.ship.vx *= frictionFactor;
         newState.ship.vy *= frictionFactor;
 
-        // Calculate potential new position
-        const newX = newState.ship.x + newState.ship.vx;
-        const newY = newState.ship.y + newState.ship.vy;
+        // Calculate potential new position with deltaTime
+        const newX = newState.ship.x + newState.ship.vx * deltaTime;
+        const newY = newState.ship.y + newState.ship.vy * deltaTime;
 
         // Apply barrier collision logic
         if (isBarrierCollisionEnabled) {
