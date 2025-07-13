@@ -158,6 +158,24 @@ function App() {
     }
   }, [isAuthenticated, currentScreen]);
 
+  // Redirect users without pets to Vila Ancestral
+  useEffect(() => {
+    if (
+      isAuthenticated &&
+      gameUser &&
+      pets.length === 0 &&
+      currentScreen !== "planet"
+    ) {
+      // Find Vila Ancestral planet and navigate there
+      setCurrentPlanet({
+        id: "planet-5",
+        name: "Vila Ancestral",
+        color: "#dda0dd",
+      });
+      setCurrentScreen("planet");
+    }
+  }, [isAuthenticated, gameUser, pets.length, currentScreen]);
+
   const renderScreen = useMemo(() => {
     console.log("🖥️ App.tsx renderScreen executado:", {
       currentScreen,
