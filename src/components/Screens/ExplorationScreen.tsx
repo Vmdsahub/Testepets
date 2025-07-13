@@ -186,7 +186,9 @@ export const ExplorationScreen: React.FC = () => {
               >
                 <div className="text-center mb-3">
                   <h3 className="text-lg font-bold text-gray-800">
-                    Guardian da Planície
+                    {currentExplorationPoint.name === "Planície Dourada"
+                      ? "Guardian da Planície"
+                      : "Bahrun"}
                   </h3>
                   <div className="w-24 h-0.5 bg-gray-200 mx-auto rounded-full mt-1"></div>
                 </div>
