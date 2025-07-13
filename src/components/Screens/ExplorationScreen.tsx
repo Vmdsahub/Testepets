@@ -4,6 +4,7 @@ import { ArrowLeft, Info, MapPin } from "lucide-react";
 import { useGameStore } from "../../store/gameStore";
 import { MemoryCrystalsGame } from "../Game/MemoryCrystalsGame";
 import { EggSelectionScreen } from "../Pet/EggSelectionScreen";
+import { FishingGame } from "../Game/FishingGame";
 
 export const ExplorationScreen: React.FC = () => {
   const {
