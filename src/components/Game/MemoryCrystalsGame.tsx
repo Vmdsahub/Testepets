@@ -100,20 +100,36 @@ export const MemoryCrystalsGame: React.FC<MemoryCrystalsGameProps> = ({
     // Update bird
     setBird((prev) => {
       const newBird = { ...prev };
+
+      // Add hover effect - bird naturally wants to stay in center
+      const centerY = CANVAS_HEIGHT / 2;
+      const distanceFromCenter = Math.abs(newBird.y - centerY);
+
+      // Apply gentle centering force
+      if (newBird.y > centerY) {
+        newBird.velocity -= 0.02; // Gentle upward force when below center
+      } else {
+        newBird.velocity += 0.02; // Gentle downward force when above center
+      }
+
+      // Apply minimal gravity
       newBird.velocity += GRAVITY;
 
-      // Add velocity damping for more control
-      newBird.velocity *= 0.98;
+      // Strong velocity damping for smooth movement
+      newBird.velocity *= 0.95;
 
-      // Limit maximum fall speed
-      if (newBird.velocity > 4) {
-        newBird.velocity = 4;
+      // Limit maximum speed (much lower)
+      if (newBird.velocity > 2) {
+        newBird.velocity = 2;
+      }
+      if (newBird.velocity < -2) {
+        newBird.velocity = -2;
       }
 
       newBird.y += newBird.velocity;
 
-      // Check boundaries with some margin
-      if (newBird.y < -5 || newBird.y > CANVAS_HEIGHT - BIRD_SIZE + 5) {
+      // Check boundaries with generous margin
+      if (newBird.y < -10 || newBird.y > CANVAS_HEIGHT - BIRD_SIZE + 10) {
         endGame();
         return prev;
       }
