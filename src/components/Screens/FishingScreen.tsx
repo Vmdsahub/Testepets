@@ -140,9 +140,11 @@ export const FishingScreen: React.FC = () => {
       setTargetPosition({ x, y });
       setIsLaunching(true);
 
-      // Start launch animation
+      // Start launch animation - immediate hook position update
+      setHookPosition({ x, y });
+
+      // After launch animation completes
       setTimeout(() => {
-        setHookPosition({ x, y });
         setIsLaunching(false);
         setIsFishing(true);
 
