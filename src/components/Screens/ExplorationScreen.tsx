@@ -173,8 +173,9 @@ export const ExplorationScreen: React.FC = () => {
             )}
           </div>
 
-          {/* Planície Dourada Special Content */}
-          {currentExplorationPoint.name === "Planície Dourada" ? (
+          {/* Special Content for Planície Dourada and Túneis Profundos */}
+          {currentExplorationPoint.name === "Planície Dourada" ||
+          currentExplorationPoint.name === "Túneis Profundos" ? (
             <>
               {/* Dialogue Box */}
               <motion.div
