@@ -17,7 +17,6 @@ import {
 import { useGameStore } from "../../store/gameStore";
 import { ExplorationPoint } from "../../types/game";
 import { EggSelectionScreen } from "../Pet/EggSelectionScreen";
-import { EggSelectionScreen } from "../Pet/EggSelectionScreen";
 
 interface Planet {
   id: string;
