@@ -86,14 +86,11 @@ export const PlanetScreen: React.FC = () => {
   // Handler para seleção de ovos
   // Handler para confirmação automática ao clicar no ovo
   const handleEggClick = (egg: any) => {
-    console.log("🥚 Ovo clicado:", egg);
     setIsConfirming(true);
 
     setTimeout(() => {
-      console.log("🥚 Configurando ovo para chocagem:", egg);
       setSelectedEggForHatching(egg);
       setIsHatchingInProgress(true);
-      console.log("🥚 Navegando para tela de pets...");
       setCurrentScreen("pet");
     }, 1500);
   };
