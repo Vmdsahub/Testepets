@@ -2520,6 +2520,13 @@ export const useGameStore = create<GameStore>()(
         set({ worldPositions: defaultPositions });
       },
 
+      // Função para forçar recarregamento das posições
+      forceReloadWorldPositions: async () => {
+        console.log("📍 Forcing reload of world positions...");
+        set({ worldPositions: [] }); // Limpa o cache
+        await get().loadWorldPositions(); // Recarrega
+      },
+
       subscribeToWorldPositions: () => {
         // No need for real-time subscriptions with localStorage
         console.log(
