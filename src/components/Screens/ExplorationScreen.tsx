@@ -653,6 +653,18 @@ export const ExplorationScreen: React.FC = () => {
           </div>
         </motion.div>
       </div>
+
+      {/* Fishing Game Modal */}
+      {showFishingGame && (
+        <FishingGame
+          onClose={() => setShowFishingGame(false)}
+          onFishCaught={(fish) => {
+            console.log("Peixe capturado:", fish);
+            // Aqui você pode adicionar lógica para salvar o peixe no inventário
+            setShowFishingGame(false);
+          }}
+        />
+      )}
     </motion.div>
   );
 };
