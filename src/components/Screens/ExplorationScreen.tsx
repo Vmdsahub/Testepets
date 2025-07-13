@@ -120,6 +120,24 @@ export const ExplorationScreen: React.FC = () => {
     setCurrentMinigame(null);
   };
 
+  // Handle egg selection
+  const handleEggSelected = (egg: any) => {
+    setSelectedEggForHatching(egg);
+    setIsHatchingInProgress(true);
+    setShowEggSelection(false);
+    // Navigate back to pet screen to show hatching
+    setCurrentExplorationPoint(null);
+    setCurrentExplorationArea(null);
+    setCurrentScreen("world");
+    setTimeout(() => {
+      setCurrentScreen("pet");
+    }, 100);
+  };
+
+  const handleBackFromEggSelection = () => {
+    setShowEggSelection(false);
+  };
+
   // Render minigame if one is active
   if (currentMinigame === "memory-crystals") {
     return <MemoryCrystalsGame onBack={handleBackFromMinigame} />;
