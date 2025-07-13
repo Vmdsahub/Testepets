@@ -254,7 +254,7 @@ export const PlanetScreen: React.FC = () => {
   const generatePlanetImage = (color: string) => {
     // Se for a Vila Ancestral (planet-5), usar a imagem específica
     if (currentPlanet?.id === "planet-5") {
-      return "https://cdn.builder.io/api/v1/image/assets%2F14397f3b3f9049c3ad3ca64e1b66afd5%2F93a4cd7c0ad245e5ba9abebe11152d46?format=webp&width=800";
+      return "https://cdn.builder.io/api/v1/image/assets%2F9116099af5104b05bb8ec173428706be%2F5a3fc747439f4da399f72eb8c23a5c1b?format=webp&width=800";
     }
 
     // Para outros planetas, usar SVG placeholder
