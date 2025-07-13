@@ -46,7 +46,7 @@ export const ExplorationScreen: React.FC = () => {
 
   // Dialogue text for Santuário dos Ovos
   const EGG_SANCTUARY_DIALOGUE =
-    "Saudações, jovem guardi��o. Este é o Santuário dos Ovos Ancestrais, onde os ovos sagrados aguardam por seus companheiros destinados. Escolha sabiamente, pois esta decisão moldará sua jornada...";
+    "Saudações, jovem guardião. Este é o Santuário dos Ovos Ancestrais, onde os ovos sagrados aguardam por seus companheiros destinados. Escolha sabiamente, pois esta decisão moldará sua jornada...";
 
   // Alien characters for translation effect
   const ALIEN_CHARS = "◊◈◇◆☾☽⟡⟢⧿⧾⬟⬠⬢⬣⬡⬠⧨⧿⟐⟑ξζηθικλμνοπρστυφχψω";
@@ -88,10 +88,11 @@ export const ExplorationScreen: React.FC = () => {
   // Typewriter effect for dialogue
   useEffect(() => {
     const pointName = currentExplorationPoint?.name;
+    const planetId = currentExplorationPoint?.planetId;
     if (
       pointName !== "Planície Dourada" &&
       pointName !== "Túneis Profundos" &&
-      pointName !== "Santuário dos Ovos"
+      planetId !== "planet-5"
     ) {
       return;
     }
