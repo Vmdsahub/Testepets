@@ -53,6 +53,7 @@ export const PlanetScreen: React.FC = () => {
   const [editingName, setEditingName] = useState<string | null>(null);
   const [editingValue, setEditingValue] = useState<string>("");
   const [selectedPoint, setSelectedPoint] = useState<string | null>(null);
+  const [showEggSelection, setShowEggSelection] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   if (!currentPlanet) {
