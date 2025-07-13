@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Info, MapPin } from "lucide-react";
 import { useGameStore } from "../../store/gameStore";
 import { MemoryCrystalsGame } from "../Game/MemoryCrystalsGame";
+import { EggSelectionScreen } from "../Pet/EggSelectionScreen";
 
 export const ExplorationScreen: React.FC = () => {
   const {
