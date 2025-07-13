@@ -585,6 +585,21 @@ export const ExplorationScreen: React.FC = () => {
                       >
                         🎣 Entrar no Templo
                       </motion.button>
+
+                      {/* Botão de teste direto */}
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => {
+                          console.log(
+                            "🔥 TESTE: Botão clicado, indo para fishing...",
+                          );
+                          setCurrentScreen("fishing");
+                        }}
+                        className="bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 transition-colors mt-2"
+                      >
+                        🔥 TESTE - Fishing Direct
+                      </motion.button>
                     </div>
                   ) : (
                     <div className="bg-white border border-indigo-100 rounded-lg p-4 text-center">
