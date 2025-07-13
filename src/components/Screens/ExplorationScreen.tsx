@@ -212,7 +212,7 @@ export const ExplorationScreen: React.FC = () => {
           <div
             className={`w-full relative rounded-2xl overflow-hidden mb-4 ${
               currentExplorationPoint.name === "Planície Dourada" ||
-              currentExplorationPoint.name === "Túneis Profundos"
+              currentExplorationPoint.name === "T��neis Profundos"
                 ? "h-80 sm:h-96"
                 : "h-[calc(100vh-280px)] sm:h-[calc(100vh-300px)] md:h-[calc(100vh-320px)] lg:h-[calc(100vh-340px)]"
             }`}
@@ -269,9 +269,11 @@ export const ExplorationScreen: React.FC = () => {
                       ? "Guardian da Planície"
                       : currentExplorationPoint.name === "Túneis Profundos"
                         ? "Bahrun"
-                        : currentExplorationPoint.planetId === "planet-5"
+                        : currentExplorationPoint.name === "Santuário dos Ovos"
                           ? "Ancião Guardião"
-                          : "Guardião"}
+                          : currentExplorationPoint.planetId === "planet-5"
+                            ? "Sábio Ancestral"
+                            : "Guardião"}
                   </h3>
                   <div className="w-24 h-0.5 bg-gray-200 mx-auto rounded-full mt-1"></div>
                 </div>
@@ -447,7 +449,7 @@ export const ExplorationScreen: React.FC = () => {
                       },
                       {
                         id: "ancient-symbols",
-                        name: "Símbolos Ancestrais",
+                        name: "S��mbolos Ancestrais",
                         description:
                           "Decifre os mistérios das civilizações perdidas",
                         color: "bg-purple-500",
