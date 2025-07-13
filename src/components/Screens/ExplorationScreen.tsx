@@ -44,6 +44,10 @@ export const ExplorationScreen: React.FC = () => {
   const DEEP_TUNNELS_DIALOGUE =
     "Bem-vindo aos Túneis Profundos, explorador. Estas passagens antigas guardam segredos de civilizações perdidas. Aqui você pode acessar nossos minijogos especiais e testar suas habilidades...";
 
+  // Dialogue text for Santuário dos Ovos
+  const EGG_SANCTUARY_DIALOGUE =
+    "Saudações, jovem guardião. Este é o Santuário dos Ovos Ancestrais, onde os ovos sagrados aguardam por seus companheiros destinados. Escolha sabiamente, pois esta decisão moldará sua jornada...";
+
   // Alien characters for translation effect
   const ALIEN_CHARS = "◊◈◇◆☾☽⟡⟢⧿⧾⬟⬠⬢⬣⬡⬠⧨⧿⟐⟑ξζηθικλμνοπρστυφχψω";
 
