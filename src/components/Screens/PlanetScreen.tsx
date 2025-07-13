@@ -38,6 +38,11 @@ export const PlanetScreen: React.FC = () => {
     addExplorationPoint,
     removeExplorationPoint,
     saveExplorationPoints,
+    pets,
+    selectedEggForHatching,
+    isHatchingInProgress,
+    setSelectedEggForHatching,
+    setIsHatchingInProgress,
   } = useGameStore();
 
   console.log("🌍 PlanetScreen renderizado:", { currentPlanet, user });
@@ -47,7 +52,55 @@ export const PlanetScreen: React.FC = () => {
   const [editingName, setEditingName] = useState<string | null>(null);
   const [editingValue, setEditingValue] = useState<string>("");
   const [selectedPoint, setSelectedPoint] = useState<string | null>(null);
+  const [isConfirming, setIsConfirming] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Dados dos ovos - agora apenas 3
+  const eggs = [
+    {
+      id: "dragon-egg",
+      name: "Ovo de Dragão",
+      emoji: "🥚",
+      imageUrl:
+        "https://cdn.builder.io/api/v1/image/assets%2F9116099af5104b05bb8ec173428706be%2F20ac2024c3a446118504d6b27650be3b?format=webp&width=800",
+      species: "Dragon",
+    },
+    {
+      id: "phoenix-egg",
+      name: "Ovo de Fênix",
+      emoji: "🔥",
+      imageUrl:
+        "https://cdn.builder.io/api/v1/image/assets%2F9116099af5104b05bb8ec173428706be%2F81b26ebe63f048ee987dd9e59c5817dd?format=webp&width=800",
+      species: "Phoenix",
+    },
+    {
+      id: "griffin-egg",
+      name: "Ovo de Grifo",
+      emoji: "🪶",
+      imageUrl:
+        "https://cdn.builder.io/api/v1/image/assets%2F9116099af5104b05bb8ec173428706be%2F20ac2024c3a446118504d6b27650be3b?format=webp&width=800",
+      species: "Griffin",
+    },
+  ];
+
+  // Handler para seleção de ovos
+  // Handler para confirmação automática ao clicar no ovo
+  const handleEggClick = (egg: any) => {
+    setIsConfirming(true);
+
+    setTimeout(() => {
+      setSelectedEggForHatching(egg);
+      setIsHatchingInProgress(true);
+      setCurrentScreen("pet");
+    }, 1500);
+  };
+
+  // Generate exploration points for this planet - MOVED BEFORE EARLY RETURNS
+  useEffect(() => {
+    if (currentPlanet) {
+      generateExplorationPoints(currentPlanet.id);
+    }
+  }, [currentPlanet.id, generateExplorationPoints]);
 
   if (!currentPlanet) {
     console.log(
@@ -60,13 +113,6 @@ export const PlanetScreen: React.FC = () => {
     "✅ PlanetScreen: currentPlanet existe, continuando renderização:",
     currentPlanet,
   );
-
-  // Generate exploration points for this planet
-  useEffect(() => {
-    if (currentPlanet) {
-      generateExplorationPoints(currentPlanet.id);
-    }
-  }, [currentPlanet.id, generateExplorationPoints]);
 
   // Handle exploration point click
   const handleExplorationPointClick = (point: ExplorationPoint) => {
@@ -204,8 +250,14 @@ export const PlanetScreen: React.FC = () => {
     setEditingValue("");
   };
 
-  // Gerar uma imagem placeholder baseada na cor do planeta
+  // Gerar uma imagem baseada no planeta
   const generatePlanetImage = (color: string) => {
+    // Se for a Vila Ancestral (planet-5), usar a imagem específica
+    if (currentPlanet?.id === "planet-5") {
+      return "https://cdn.builder.io/api/v1/image/assets%2F9116099af5104b05bb8ec173428706be%2F5a3fc747439f4da399f72eb8c23a5c1b?format=webp&width=800";
+    }
+
+    // Para outros planetas, usar SVG placeholder
     return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600' viewBox='0 0 800 600'%3E%3Cdefs%3E%3CradialGradient id='planet' cx='40%25' cy='40%25'%3E%3Cstop offset='0%25' stop-color='${encodeURIComponent(color)}' stop-opacity='1'/%3E%3Cstop offset='70%25' stop-color='${encodeURIComponent(color)}' stop-opacity='0.8'/%3E%3Cstop offset='100%25' stop-color='%23000' stop-opacity='0.6'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect width='800' height='600' fill='%23000011'/%3E%3Ccircle cx='400' cy='300' r='200' fill='url(%23planet)' /%3E%3Ccircle cx='350' cy='250' r='15' fill='%23ffffff' fill-opacity='0.3'/%3E%3Ccircle cx='420' cy='320' r='10' fill='%23ffffff' fill-opacity='0.2'/%3E%3Ccircle cx='450' cy='280' r='8' fill='%23ffffff' fill-opacity='0.4'/%3E%3C/svg%3E`;
   };
 
@@ -277,6 +329,81 @@ export const PlanetScreen: React.FC = () => {
                 Modo de Edição
               </div>
             )}
+
+            {/* Vila Ancestral Egg Cards - only show if user has no pets and not hatching */}
+            {currentPlanet.id === "planet-5" &&
+              pets.length === 0 &&
+              !isPlanetEditMode &&
+              !isHatchingInProgress && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.3, duration: 0.4 }}
+                  className="absolute inset-0 bg-black/50 backdrop-blur-sm flex flex-col items-center justify-center z-20"
+                >
+                  {/* Egg cards centralizados */}
+                  <div className="flex gap-8 mb-8">
+                    {eggs.map((egg, index) => (
+                      <motion.div
+                        key={egg.id}
+                        initial={{ opacity: 0, scale: 0.8, y: 50 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        transition={{
+                          delay: 0.5 + index * 0.1,
+                          duration: 0.4,
+                        }}
+                      >
+                        <motion.div
+                          onClick={() => handleEggClick(egg)}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          className="w-48 h-64 bg-transparent rounded-2xl cursor-pointer transition-all hover:drop-shadow-2xl"
+                        >
+                          <div className="w-full h-full flex items-center justify-center">
+                            <img
+                              src={egg.imageUrl}
+                              alt={egg.name}
+                              className="w-full h-full object-contain"
+                            />
+                          </div>
+                        </motion.div>
+                      </motion.div>
+                    ))}
+                  </div>
+
+                  {/* Welcome message abaixo dos cards */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.8, duration: 0.4 }}
+                    className="bg-white/95 backdrop-blur-sm rounded-xl shadow-lg border border-purple-200 p-6 max-w-lg mx-4"
+                  >
+                    <div className="text-center">
+                      <div className="text-4xl mb-3">🏛️</div>
+                      <h2 className="text-xl font-bold text-purple-900 mb-2">
+                        Uma longa jornada se inicia aqui...
+                      </h2>
+                      <p className="text-purple-700 text-sm">
+                        Um Ovo misterioso aparece na Vila ancestral
+                      </p>
+                    </div>
+                  </motion.div>
+
+                  {/* Loading indicator when confirming */}
+                  {isConfirming && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="mt-6 flex items-center gap-3 text-white"
+                    >
+                      <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      <span className="text-lg font-medium">
+                        Preparando sua jornada...
+                      </span>
+                    </motion.div>
+                  )}
+                </motion.div>
+              )}
 
             {/* Exploration Points */}
             {explorationPoints
