@@ -60,6 +60,7 @@ export const PlanetScreen: React.FC = () => {
     {
       id: "dragon-egg",
       name: "Ovo de Dragão",
+      emoji: "🥚",
       imageUrl:
         "https://cdn.builder.io/api/v1/image/assets%2F9116099af5104b05bb8ec173428706be%2F20ac2024c3a446118504d6b27650be3b?format=webp&width=800",
       species: "Dragon",
@@ -67,6 +68,7 @@ export const PlanetScreen: React.FC = () => {
     {
       id: "phoenix-egg",
       name: "Ovo de Fênix",
+      emoji: "🔥",
       imageUrl:
         "https://cdn.builder.io/api/v1/image/assets%2F9116099af5104b05bb8ec173428706be%2F81b26ebe63f048ee987dd9e59c5817dd?format=webp&width=800",
       species: "Phoenix",
@@ -74,6 +76,7 @@ export const PlanetScreen: React.FC = () => {
     {
       id: "griffin-egg",
       name: "Ovo de Grifo",
+      emoji: "🪶",
       imageUrl:
         "https://cdn.builder.io/api/v1/image/assets%2F9116099af5104b05bb8ec173428706be%2F20ac2024c3a446118504d6b27650be3b?format=webp&width=800",
       species: "Griffin",
