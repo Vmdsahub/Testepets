@@ -143,6 +143,18 @@ export const ExplorationScreen: React.FC = () => {
     return <MemoryCrystalsGame onBack={handleBackFromMinigame} />;
   }
 
+  // Render egg selection if active
+  if (showEggSelection) {
+    return (
+      <div className="pb-24">
+        <EggSelectionScreen
+          onEggSelected={handleEggSelected}
+          onBack={handleBackFromEggSelection}
+        />
+      </div>
+    );
+  }
+
   const handleBack = () => {
     setCurrentExplorationPoint(null);
     setCurrentExplorationArea(null);
