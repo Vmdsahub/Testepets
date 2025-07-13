@@ -500,35 +500,7 @@ export const ExplorationScreen: React.FC = () => {
                     ))}
                   </div>
                 </motion.div>
-              ) : currentExplorationPoint.planetId === "planet-5" ? (
-                /* Other Vila Ancestral locations */
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.6, duration: 0.4 }}
-                  className="bg-indigo-50 border border-indigo-200 rounded-xl p-4"
-                >
-                  <div className="text-center mb-4">
-                    <h4 className="font-semibold text-indigo-900 mb-2">
-                      {currentExplorationPoint.name}
-                    </h4>
-                    <div className="text-indigo-700 text-xs">
-                      Explore os mistérios ancestrais
-                    </div>
-                  </div>
-
-                  <div className="bg-white border border-indigo-100 rounded-lg p-4 text-center">
-                    <div className="text-4xl mb-2">🏛️</div>
-                    <p className="text-indigo-800 text-sm">
-                      Este local sagrado guarda segredos antigos. Em breve você
-                      poderá explorar suas maravilhas.
-                    </p>
-                    <div className="mt-3 bg-indigo-100 text-indigo-700 px-3 py-2 rounded text-xs font-medium">
-                      Em Desenvolvimento
-                    </div>
-                  </div>
-                </motion.div>
-              ) : null}
+                            )}
             </>
           ) : (
             /* Additional Info Panel for other locations */
