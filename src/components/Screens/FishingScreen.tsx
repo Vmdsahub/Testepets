@@ -340,23 +340,44 @@ export const FishingScreen: React.FC = () => {
       {/* Dynamic Fishing Hook */}
       <motion.div
         className="absolute z-20 text-3xl pointer-events-none"
-        style={{
-          left: `${hookPosition.x}%`,
-          top: `${hookPosition.y}%`,
-          transform: "translate(-50%, -50%)",
+        initial={{
+          left: "50%",
+          top: "calc(100% - 128px)",
         }}
-        animate={
-          isFishing
-            ? {
-                rotate: [0, 8, -8, 0],
-                y: [0, -3, 3, 0],
-              }
-            : {}
-        }
+        animate={{
+          left:
+            isLaunching || isRetracting || isFishing
+              ? `${hookPosition.x}%`
+              : "50%",
+          top:
+            isLaunching || isRetracting || isFishing
+              ? `${hookPosition.y}%`
+              : "calc(100% - 128px)",
+          rotate: isFishing ? [0, 8, -8, 0] : 0,
+          y: isFishing ? [0, -3, 3, 0] : 0,
+        }}
         transition={{
-          duration: 2.5,
-          ease: "easeInOut",
-          repeat: isFishing ? Infinity : 0,
+          left: {
+            duration: isLaunching ? 1.2 : isRetracting ? 0.8 : 0,
+            ease: isLaunching ? "easeOut" : "easeIn",
+          },
+          top: {
+            duration: isLaunching ? 1.2 : isRetracting ? 0.8 : 0,
+            ease: isLaunching ? "easeOut" : "easeIn",
+          },
+          rotate: {
+            duration: 2.5,
+            ease: "easeInOut",
+            repeat: isFishing ? Infinity : 0,
+          },
+          y: {
+            duration: 2.5,
+            ease: "easeInOut",
+            repeat: isFishing ? Infinity : 0,
+          },
+        }}
+        style={{
+          transform: "translate(-50%, -50%)",
         }}
       >
         🪝
