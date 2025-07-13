@@ -29,6 +29,10 @@ export const ExplorationScreen: React.FC = () => {
   const GOLDEN_PLAINS_DIALOGUE =
     "Olá, temos algumas naves em nossa coleção especial. Cada uma foi cuidadosamente selecionada para exploradores como você...";
 
+  // Dialogue text for Túneis Profundos
+  const DEEP_TUNNELS_DIALOGUE =
+    "Bem-vindo aos Túneis Profundos, explorador. Estas passagens antigas guardam segredos de civilizações perdidas. Aqui você pode acessar nossos minijogos especiais e testar suas habilidades...";
+
   // Alien characters for translation effect
   const ALIEN_CHARS = "◊◈◇◆☾☽⟡⟢⧿⧾⬟⬠⬢⬣⬡⬠⧨��⟐⟑ξζηθικλμνοπρστυφχψω";
 
