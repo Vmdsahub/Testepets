@@ -46,7 +46,7 @@ export const ExplorationScreen: React.FC = () => {
 
   // Dialogue text for Santuário dos Ovos
   const EGG_SANCTUARY_DIALOGUE =
-    "Saudações, jovem guardião. Este é o Santuário dos Ovos Ancestrais, onde os ovos sagrados aguardam por seus companheiros destinados. Escolha sabiamente, pois esta decisão moldar�� sua jornada...";
+    "Saudações, jovem guardião. Este é o Santuário dos Ovos Ancestrais, onde os ovos sagrados aguardam por seus companheiros destinados. Escolha sabiamente, pois esta decisão moldará sua jornada...";
 
   // Alien characters for translation effect
   const ALIEN_CHARS = "◊◈◇◆☾☽⟡⟢⧿⧾⬟⬠⬢⬣⬡⬠⧨⧿⟐���ξζηθικλμνοπρστυφχψω";
@@ -102,7 +102,9 @@ export const ExplorationScreen: React.FC = () => {
         ? GOLDEN_PLAINS_DIALOGUE
         : pointName === "Túneis Profundos"
           ? DEEP_TUNNELS_DIALOGUE
-          : "Bem-vindos a este local fascinante. Aqui você pode explorar e descobrir os mistérios que este lugar guarda...";
+          : pointName === "Santuário dos Ovos"
+            ? EGG_SANCTUARY_DIALOGUE
+            : "Bem-vindos a este local sagrado da Vila Ancestral. Aqui a sabedoria antiga ecoa através dos tempos...";
 
     if (currentIndex < dialogue.length) {
       // First show alien character
@@ -252,7 +254,9 @@ export const ExplorationScreen: React.FC = () => {
 
           {/* Special Content for Planície Dourada, Túneis Profundos, and Vila Ancestral */}
           {currentExplorationPoint.name === "Planície Dourada" ||
-          currentExplorationPoint.name === "Túneis Profundos" ? (
+          currentExplorationPoint.name === "Túneis Profundos" ||
+          currentExplorationPoint.name === "Santuário dos Ovos" ||
+          currentExplorationPoint.planetId === "planet-5" ? (
             <>
               {/* Dialogue Box */}
               <motion.div
@@ -267,7 +271,11 @@ export const ExplorationScreen: React.FC = () => {
                       ? "Guardian da Planície"
                       : currentExplorationPoint.name === "Túneis Profundos"
                         ? "Bahrun"
-                        : "Guardião"}
+                        : currentExplorationPoint.name === "Santuário dos Ovos"
+                          ? "Ancião Guardião"
+                          : currentExplorationPoint.planetId === "planet-5"
+                            ? "Sábio Ancestral"
+                            : "Guardião"}
                   </h3>
                   <div className="w-24 h-0.5 bg-gray-200 mx-auto rounded-full mt-1"></div>
                 </div>
@@ -284,7 +292,41 @@ export const ExplorationScreen: React.FC = () => {
               </motion.div>
 
               {/* Content Section */}
-              {currentExplorationPoint.name === "Planície Dourada" ? (
+              {currentExplorationPoint.name === "Santuário dos Ovos" ? (
+                /* Egg Selection Section for Santuário dos Ovos */
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.6, duration: 0.4 }}
+                  className="bg-purple-50 border border-purple-200 rounded-xl p-4"
+                >
+                  <div className="text-center mb-4">
+                    <h4 className="font-semibold text-purple-900 mb-2">
+                      Santuário dos Ovos Ancestrais
+                    </h4>
+                    <div className="text-purple-700 text-xs">
+                      Escolha seu primeiro companheiro para começar sua jornada
+                    </div>
+                  </div>
+
+                  <motion.button
+                    onClick={() => setShowEggSelection(true)}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="w-full bg-purple-600 text-white py-4 px-6 rounded-lg font-medium hover:bg-purple-700 transition-colors flex items-center justify-center gap-3"
+                  >
+                    <span className="text-2xl">🥚</span>
+                    <div className="text-left">
+                      <div className="font-semibold">
+                        Escolher Ovo Ancestral
+                      </div>
+                      <div className="text-sm opacity-90">
+                        Comece sua jornada
+                      </div>
+                    </div>
+                  </motion.button>
+                </motion.div>
+              ) : currentExplorationPoint.name === "Planície Dourada" ? (
                 /* Ship Store Section for Planície Dourada */
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
@@ -498,9 +540,37 @@ export const ExplorationScreen: React.FC = () => {
                         </div>
                       </motion.div>
                     ))}
-                                    </div>
+                  </div>
                 </motion.div>
-              )}
+              ) : currentExplorationPoint.planetId === "planet-5" ? (
+                /* Other Vila Ancestral locations */
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.6, duration: 0.4 }}
+                  className="bg-indigo-50 border border-indigo-200 rounded-xl p-4"
+                >
+                  <div className="text-center mb-4">
+                    <h4 className="font-semibold text-indigo-900 mb-2">
+                      {currentExplorationPoint.name}
+                    </h4>
+                    <div className="text-indigo-700 text-xs">
+                      Explore os mistérios ancestrais
+                    </div>
+                  </div>
+
+                  <div className="bg-white border border-indigo-100 rounded-lg p-4 text-center">
+                    <div className="text-4xl mb-2">🏛️</div>
+                    <p className="text-indigo-800 text-sm">
+                      Este local sagrado guarda segredos antigos. Em breve você
+                      poderá explorar suas maravilhas.
+                    </p>
+                    <div className="mt-3 bg-indigo-100 text-indigo-700 px-3 py-2 rounded text-xs font-medium">
+                      Em Desenvolvimento
+                    </div>
+                  </div>
+                </motion.div>
+              ) : null}
             </>
           ) : (
             /* Additional Info Panel for other locations */
