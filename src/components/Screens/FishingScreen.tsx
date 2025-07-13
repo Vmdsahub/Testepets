@@ -314,33 +314,28 @@ export const FishingScreen: React.FC = () => {
       {/* Fishing Rod (bottom of screen) */}
       <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-2 h-32 bg-gradient-to-t from-amber-800 to-amber-600 rounded-t-full z-10" />
 
-      {/* Dynamic Fishing Line - SVG approach */}
-      <svg
-        className="absolute inset-0 w-full h-full z-10 pointer-events-none"
-        style={{ overflow: "visible" }}
-      >
-        <motion.line
-          x1="50%"
-          y1="calc(100% - 128px)"
-          x2={`${hookPosition.x}%`}
-          y2={`${hookPosition.y}%`}
-          stroke="#374151"
-          strokeWidth="2"
-          initial={{ pathLength: 0 }}
-          animate={{
-            pathLength:
-              isLaunching || isRetracting || isFishing
-                ? 1
-                : lineLength > 0
-                  ? 1
-                  : 0,
-          }}
-          transition={{
-            duration: isLaunching ? 0.8 : isRetracting ? 0.6 : 0.3,
-            ease: "easeOut",
-          }}
-        />
-      </svg>
+      {/* Realistic Fishing Line Animation */}
+      {(isLaunching || isRetracting || isFishing || lineLength > 0) && (
+        <svg
+          className="absolute inset-0 w-full h-full z-10 pointer-events-none"
+          style={{ overflow: "visible" }}
+        >
+          <motion.path
+            d={`M 50% calc(100% - 128px) Q ${(50 + hookPosition.x) / 2}% ${Math.min(hookPosition.y - 10, 30)}% ${hookPosition.x}% ${hookPosition.y}%`}
+            stroke="#374151"
+            strokeWidth="2"
+            fill="none"
+            initial={{ pathLength: 0 }}
+            animate={{
+              pathLength: isLaunching ? [0, 1] : isRetracting ? [1, 0] : 1,
+            }}
+            transition={{
+              duration: isLaunching ? 1.2 : isRetracting ? 0.8 : 0,
+              ease: isLaunching ? "easeOut" : "easeIn",
+            }}
+          />
+        </svg>
+      )}
 
       {/* Dynamic Fishing Hook */}
       <motion.div
