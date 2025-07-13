@@ -416,7 +416,7 @@ export const ExplorationScreen: React.FC = () => {
                           <p className="text-xs text-gray-600 leading-tight">
                             {game.description}
                           </p>
-                          <div className="mt-2 bg-purple-100 text-purple-700 px-2 py-1 rounded text-xs font-medium">
+                          <div className="mt-2 bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs font-medium">
                             Em Desenvolvimento
                           </div>
                         </div>
