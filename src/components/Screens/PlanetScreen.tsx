@@ -52,7 +52,8 @@ export const PlanetScreen: React.FC = () => {
   const [editingName, setEditingName] = useState<string | null>(null);
   const [editingValue, setEditingValue] = useState<string>("");
   const [selectedPoint, setSelectedPoint] = useState<string | null>(null);
-  const [showEggSelection, setShowEggSelection] = useState(false);
+  const [selectedEgg, setSelectedEgg] = useState<string | null>(null);
+  const [isConfirming, setIsConfirming] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Handler para seleção de ovos
