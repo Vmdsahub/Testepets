@@ -56,7 +56,7 @@ export const PlanetScreen: React.FC = () => {
   const [isConfirming, setIsConfirming] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Dados dos ovos
+  // Dados dos ovos - agora apenas 3
   const eggs = [
     {
       id: "dragon-egg",
@@ -75,12 +75,6 @@ export const PlanetScreen: React.FC = () => {
       name: "Ovo de Grifo",
       emoji: "🪶",
       species: "Griffin",
-    },
-    {
-      id: "unicorn-egg",
-      name: "Ovo de Unicórnio",
-      emoji: "🌟",
-      species: "Unicorn",
     },
   ];
 
@@ -652,7 +646,7 @@ export const PlanetScreen: React.FC = () => {
               className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4"
             >
               <h4 className="font-semibold text-blue-900 mb-2">
-                Modo de Edição Ativo
+                Modo de Ediç��o Ativo
               </h4>
               <div className="text-blue-800 text-sm space-y-1">
                 <p>
