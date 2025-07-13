@@ -71,7 +71,11 @@ export const ExplorationScreen: React.FC = () => {
   // Reset dialogue when point changes
   useEffect(() => {
     const pointName = currentExplorationPoint?.name;
-    if (pointName === "Planície Dourada" || pointName === "Túneis Profundos") {
+    if (
+      pointName === "Planície Dourada" ||
+      pointName === "Túneis Profundos" ||
+      pointName === "Santuário dos Ovos"
+    ) {
       setDisplayedText("");
       setCurrentIndex(0);
       setIsTypingComplete(false);
@@ -83,14 +87,20 @@ export const ExplorationScreen: React.FC = () => {
   // Typewriter effect for dialogue
   useEffect(() => {
     const pointName = currentExplorationPoint?.name;
-    if (pointName !== "Planície Dourada" && pointName !== "Túneis Profundos") {
+    if (
+      pointName !== "Planície Dourada" &&
+      pointName !== "Túneis Profundos" &&
+      pointName !== "Santuário dos Ovos"
+    ) {
       return;
     }
 
     const dialogue =
       pointName === "Planície Dourada"
         ? GOLDEN_PLAINS_DIALOGUE
-        : DEEP_TUNNELS_DIALOGUE;
+        : pointName === "Túneis Profundos"
+          ? DEEP_TUNNELS_DIALOGUE
+          : EGG_SANCTUARY_DIALOGUE;
 
     if (currentIndex < dialogue.length) {
       // First show alien character
