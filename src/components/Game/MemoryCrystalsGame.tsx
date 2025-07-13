@@ -84,8 +84,8 @@ export const MemoryCrystalsGame: React.FC<MemoryCrystalsGameProps> = ({
 
   // Generate new pipe
   const generatePipe = useCallback((x: number): Pipe => {
-    const minHeight = 120; // More space at top
-    const maxHeight = CANVAS_HEIGHT - PIPE_GAP - 120; // More space at bottom
+    const minHeight = 150; // Much more space at top
+    const maxHeight = CANVAS_HEIGHT - PIPE_GAP - 150; // Much more space at bottom
     const height = Math.random() * (maxHeight - minHeight) + minHeight;
     return { x, height, passed: false };
   }, []);
