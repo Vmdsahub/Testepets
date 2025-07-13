@@ -77,16 +77,30 @@ export const EggSelectionScreen: React.FC<EggSelectionScreenProps> = ({
     <div className="max-w-md mx-auto">
       {/* Header Card */}
       <motion.div
-        className="bg-white rounded-3xl shadow-xl p-6 border border-gray-100 mb-6 text-center"
+        className="bg-white rounded-3xl shadow-xl p-6 border border-gray-100 mb-6"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
-          Escolha seu Ovo
-        </h2>
-        <p className="text-gray-600">
-          Selecione um ovo para começar sua aventura
-        </p>
+        <div className="flex items-center justify-between mb-4">
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5 text-gray-600" />
+            </button>
+          )}
+          <div className={`text-center ${onBack ? "flex-1" : ""}`}>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              Escolha seu Ovo
+            </h2>
+            <p className="text-gray-600">
+              Selecione um ovo para começar sua aventura
+            </p>
+          </div>
+          {onBack && <div className="w-9" />}{" "}
+          {/* Spacer for center alignment */}
+        </div>
       </motion.div>
 
       {/* Egg Grid */}
