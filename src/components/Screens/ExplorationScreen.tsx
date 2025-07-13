@@ -269,11 +269,7 @@ export const ExplorationScreen: React.FC = () => {
                       ? "Guardian da Planície"
                       : currentExplorationPoint.name === "Túneis Profundos"
                         ? "Bahrun"
-                        : currentExplorationPoint.name === "Santuário dos Ovos"
-                          ? "Ancião Guardião"
-                          : currentExplorationPoint.planetId === "planet-5"
-                            ? "Sábio Ancestral"
-                            : "Guardião"}
+                        : "Guardião"}
                   </h3>
                   <div className="w-24 h-0.5 bg-gray-200 mx-auto rounded-full mt-1"></div>
                 </div>
