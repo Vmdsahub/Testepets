@@ -159,23 +159,7 @@ function App() {
     }
   }, [isAuthenticated, currentScreen]);
 
-  // Redirect users without pets to Vila Ancestral
-  useEffect(() => {
-    if (
-      isAuthenticated &&
-      gameUser &&
-      pets.length === 0 &&
-      currentScreen !== "planet"
-    ) {
-      // Find Vila Ancestral planet and navigate there
-      setCurrentPlanet({
-        id: "planet-5",
-        name: "Vila Ancestral",
-        color: "#dda0dd",
-      });
-      setCurrentScreen("planet");
-    }
-  }, [isAuthenticated, gameUser, pets.length, currentScreen]);
+  // Note: Users can now freely navigate even without pets
 
   const renderScreen = useMemo(() => {
     console.log("🖥️ App.tsx renderScreen executado:", {
@@ -213,6 +197,8 @@ function App() {
         return <PlanetScreen />;
       case "exploration":
         return <ExplorationScreen />;
+      case "fishing":
+        return <FishingScreen />;
       // Modal screens are now handled by ModalManager when on world screen
       case "pet":
       case "inventory":
@@ -286,7 +272,9 @@ function App() {
           </button>
         )}
 
-        {["world", "planet", "exploration"].includes(currentScreen) ? (
+        {["world", "planet", "exploration", "fishing"].includes(
+          currentScreen,
+        ) ? (
           // Fullscreen layout for world-related screens with pill navigations
           <div className="fixed inset-0 overflow-hidden">
             <TopPillNavigation
