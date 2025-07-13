@@ -39,10 +39,11 @@ export const ExplorationScreen: React.FC = () => {
   // Auto-redirect to fishing game when entering Templo dos Anciões
   useEffect(() => {
     console.log("🔍 Current exploration point:", currentExplorationPoint?.name);
-    if (currentExplorationPoint?.name === "Templo dos Anciões") {
-      console.log("🎣 Redirecting to fishing game...");
-      setCurrentScreen("fishing");
-    }
+    // Temporarily disabled auto-redirect
+    // if (currentExplorationPoint?.name === "Templo dos Anciões") {
+    //   console.log("🎣 Redirecting to fishing game...");
+    //   setCurrentScreen("fishing");
+    // }
   }, [currentExplorationPoint, setCurrentScreen]);
 
   // Dialogue text for Planície Dourada
