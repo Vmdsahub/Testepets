@@ -24,7 +24,7 @@ export const MemoryCrystalsGame: React.FC<MemoryCrystalsGameProps> = ({
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>();
-  const { xenocoins, addXenocoins } = useGameStore();
+  const { xenocoins, updateCurrency } = useGameStore();
 
   // Game constants
   const CANVAS_WIDTH = 400;
