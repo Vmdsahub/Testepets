@@ -194,6 +194,7 @@ interface GameStore extends GameState {
     updates: Partial<WorldPosition>,
   ) => void;
   loadWorldPositions: () => Promise<void>;
+  forceReloadWorldPositions: () => Promise<void>;
   subscribeToWorldPositions: () => void;
   unsubscribeFromWorldPositions: () => void;
 
@@ -1095,7 +1096,7 @@ export const useGameStore = create<GameStore>()(
             y: positions[index].y,
             imageUrl:
               "https://cdn.builder.io/api/v1/image/assets%2F6b84993f22904beeb2e1d8d2f128c032%2Faaff2921868f4bbfb24be01b9fdfa6a1?format=webp&width=800",
-            description: `Uma área fascinante conhecida como ${name}. Este local oferece uma experiência ��nica de exploração.`,
+            description: `Uma área fascinante conhecida como ${name}. Este local oferece uma experiência ��nica de exploraç��o.`,
             discovered: false,
             size: 1.0,
             active: true,
