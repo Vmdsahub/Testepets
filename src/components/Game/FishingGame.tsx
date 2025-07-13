@@ -1,462 +1,487 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { X, Target } from "lucide-react";
+import React, { useRef, useEffect, useState, useCallback } from "react";
+import { motion } from "framer-motion";
+import { ArrowLeft } from "lucide-react";
 
 interface Fish {
   id: string;
   name: string;
   imageUrl: string;
-  rarity: "common" | "rare" | "legendary";
-  speed: number; // Velocidade do movimento do peixe na barra
-  size: number; // Tamanho da zona do peixe na barra (0-1)
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  size: number;
+  depth: number;
+  caught: boolean;
+  silhouette: boolean;
+}
+
+interface Hook {
+  x: number;
+  y: number;
+  isDropping: boolean;
+  isRising: boolean;
+  caughtFish: Fish | null;
+}
+
+interface Camera {
+  x: number;
+  y: number;
+  targetX: number;
+  targetY: number;
 }
 
 interface FishingGameProps {
-  onClose: () => void;
+  onBack: () => void;
   onFishCaught: (fish: Fish) => void;
 }
 
-const FISH_DATA: Fish[] = [
-  {
-    id: "crystal-fish",
-    name: "Peixe Cristalino",
-    imageUrl:
-      "https://cdn.builder.io/api/v1/image/assets%2F14397f3b3f9049c3ad3ca64e1b66afd5%2F3c3112f8a28e4b8d9b5a3ca4741db1d5?format=webp&width=800",
-    rarity: "common",
-    speed: 0.02,
-    size: 0.15,
-  },
-];
-
 export const FishingGame: React.FC<FishingGameProps> = ({
-  onClose,
+  onBack,
   onFishCaught,
 }) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [gameState, setGameState] = useState<
-    "idle" | "casting" | "waiting" | "fishing" | "success" | "failed"
+    "idle" | "casting" | "fishing" | "caught"
   >("idle");
-  const [fishPosition, setFishPosition] = useState(0.5); // Posição do peixe na barra (0-1)
-  const [fishDirection, setFishDirection] = useState(1); // 1 para cima, -1 para baixo
-  const [playerPosition, setPlayerPosition] = useState(0.1); // Posição da barra do jogador (0-1)
-  const [tension, setTension] = useState(0.5); // Tensão da linha (0-1)
-  const [progress, setProgress] = useState(0); // Progresso da captura (0-1)
-  const [currentFish, setCurrentFish] = useState<Fish | null>(null);
-  const [holdTime, setHoldTime] = useState(0);
+  const [score, setScore] = useState(0);
 
-  const gameLoopRef = useRef<NodeJS.Timeout | null>(null);
-  const castingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const waitingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  // Game objects
+  const [camera, setCamera] = useState<Camera>({
+    x: 0,
+    y: 0,
+    targetX: 0,
+    targetY: 0,
+  });
+  const [hook, setHook] = useState<Hook>({
+    x: 400,
+    y: 50,
+    isDropping: false,
+    isRising: false,
+    caughtFish: null,
+  });
+  const [fish, setFish] = useState<Fish[]>([]);
 
-  // Constantes do jogo
-  const PLAYER_BAR_HEIGHT = 0.2; // Altura da barra do jogador
-  const TENSION_DECAY = 0.008; // Velocidade de redução da tensão
-  const PROGRESS_RATE = 0.015; // Velocidade de ganho de progresso quando na zona
-  const PROGRESS_LOSS = 0.02; // Velocidade de perda de progresso quando fora da zona
+  // Game constants
+  const WATER_LEVEL = 150;
+  const HOOK_SPEED = 3;
+  const FISH_SPAWN_COUNT = 5;
+  const CANVAS_WIDTH = 800;
+  const CANVAS_HEIGHT = 600;
+  const WATER_DEPTH = CANVAS_HEIGHT - WATER_LEVEL;
 
-  // Iniciar o jogo de pesca
-  const startFishing = useCallback(() => {
-    setGameState("casting");
-    setProgress(0);
-    setTension(0.5);
-    setPlayerPosition(0.1);
+  // Initialize fish
+  const initializeFish = useCallback(() => {
+    const newFish: Fish[] = [];
 
-    // Simula o tempo de lançamento
-    castingTimeoutRef.current = setTimeout(() => {
-      setGameState("waiting");
+    for (let i = 0; i < FISH_SPAWN_COUNT; i++) {
+      newFish.push({
+        id: `fish-${i}`,
+        name: `Peixe ${i + 1}`,
+        imageUrl:
+          "https://cdn.builder.io/api/v1/image/assets%2F14397f3b3f9049c3ad3ca64e1b66afd5%2F3c3112f8a28e4b8d9b5a3ca4741db1d5?format=webp&width=800",
+        x: Math.random() * (CANVAS_WIDTH - 100) + 50,
+        y: WATER_LEVEL + Math.random() * (WATER_DEPTH - 100) + 50,
+        vx: (Math.random() - 0.5) * 2,
+        vy: (Math.random() - 0.5) * 1,
+        size: 30 + Math.random() * 20,
+        depth: Math.random(),
+        caught: false,
+        silhouette: true,
+      });
+    }
 
-      // Simula tempo de espera até um peixe morder
-      const waitTime = Math.random() * 3000 + 2000; // 2-5 segundos
-      waitingTimeoutRef.current = setTimeout(() => {
-        // Escolhe um peixe aleatório
-        const randomFish =
-          FISH_DATA[Math.floor(Math.random() * FISH_DATA.length)];
-        setCurrentFish(randomFish);
-        setGameState("fishing");
-
-        // Posição inicial aleatória do peixe
-        setFishPosition(Math.random() * 0.8 + 0.1);
-      }, waitTime);
-    }, 1500);
+    setFish(newFish);
   }, []);
 
-  // Game loop para quando está pescando
-  useEffect(() => {
-    if (gameState === "fishing" && currentFish) {
-      gameLoopRef.current = setInterval(() => {
-        setFishPosition((prev) => {
-          let newPos = prev + fishDirection * currentFish.speed;
+  // Draw background layer
+  const drawBackground = (ctx: CanvasRenderingContext2D) => {
+    // Sky gradient
+    const skyGradient = ctx.createLinearGradient(0, 0, 0, WATER_LEVEL);
+    skyGradient.addColorStop(0, "#87CEEB"); // Sky blue
+    skyGradient.addColorStop(1, "#B0E0E6"); // Powder blue
 
-          // Rebater nas bordas
-          if (newPos <= 0) {
-            setFishDirection(1);
-            newPos = 0;
-          } else if (newPos >= 1) {
-            setFishDirection(-1);
-            newPos = 1;
+    ctx.fillStyle = skyGradient;
+    ctx.fillRect(-camera.x, -camera.y, CANVAS_WIDTH * 2, WATER_LEVEL);
+
+    // Clouds
+    ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
+    for (let i = 0; i < 3; i++) {
+      const cloudX = i * 200 + 100 - camera.x * 0.5; // Parallax effect
+      const cloudY = 30 - camera.y * 0.3;
+
+      // Simple cloud shape
+      ctx.beginPath();
+      ctx.arc(cloudX, cloudY, 30, 0, Math.PI * 2);
+      ctx.arc(cloudX + 25, cloudY, 35, 0, Math.PI * 2);
+      ctx.arc(cloudX + 50, cloudY, 30, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  };
+
+  // Draw water layer
+  const drawWater = (ctx: CanvasRenderingContext2D) => {
+    // Water surface
+    ctx.fillStyle = "#1E90FF";
+    ctx.fillRect(-camera.x, WATER_LEVEL - camera.y, CANVAS_WIDTH * 2, 5);
+
+    // Water depth gradient
+    const waterGradient = ctx.createLinearGradient(
+      0,
+      WATER_LEVEL,
+      0,
+      CANVAS_HEIGHT,
+    );
+    waterGradient.addColorStop(0, "#4169E1"); // Royal blue
+    waterGradient.addColorStop(0.5, "#1E3A8A"); // Dark blue
+    waterGradient.addColorStop(1, "#0F172A"); // Very dark blue
+
+    ctx.fillStyle = waterGradient;
+    ctx.fillRect(
+      -camera.x,
+      WATER_LEVEL - camera.y,
+      CANVAS_WIDTH * 2,
+      WATER_DEPTH,
+    );
+
+    // Water bubbles
+    ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
+    for (let i = 0; i < 10; i++) {
+      const bubbleX =
+        Math.sin(Date.now() * 0.001 + i) * 100 + i * 80 - camera.x;
+      const bubbleY =
+        WATER_LEVEL + Math.sin(Date.now() * 0.002 + i) * 50 + i * 40 - camera.y;
+
+      if (bubbleY > WATER_LEVEL - camera.y) {
+        ctx.beginPath();
+        ctx.arc(
+          bubbleX,
+          bubbleY,
+          3 + Math.sin(Date.now() * 0.003 + i) * 2,
+          0,
+          Math.PI * 2,
+        );
+        ctx.fill();
+      }
+    }
+  };
+
+  // Draw fish
+  const drawFish = (ctx: CanvasRenderingContext2D) => {
+    fish.forEach((f) => {
+      if (f.caught) return;
+
+      const fishX = f.x - camera.x;
+      const fishY = f.y - camera.y;
+
+      if (f.silhouette) {
+        // Draw silhouette
+        ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
+        ctx.beginPath();
+
+        // Fish body (ellipse)
+        ctx.save();
+        ctx.translate(fishX, fishY);
+        ctx.scale(f.vx > 0 ? 1 : -1, 1); // Flip based on direction
+
+        // Body
+        ctx.beginPath();
+        ctx.ellipse(0, 0, f.size * 0.6, f.size * 0.4, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Tail
+        ctx.beginPath();
+        ctx.moveTo(-f.size * 0.6, 0);
+        ctx.lineTo(-f.size * 1.2, -f.size * 0.3);
+        ctx.lineTo(-f.size * 1.2, f.size * 0.3);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.restore();
+      } else {
+        // Draw actual fish image (after caught)
+        const img = new Image();
+        img.src = f.imageUrl;
+
+        ctx.save();
+        ctx.translate(fishX, fishY);
+        ctx.scale(f.vx > 0 ? 1 : -1, 1);
+        ctx.drawImage(img, -f.size / 2, -f.size / 2, f.size, f.size);
+        ctx.restore();
+      }
+    });
+  };
+
+  // Draw hook and line
+  const drawHook = (ctx: CanvasRenderingContext2D) => {
+    const hookX = hook.x - camera.x;
+    const hookY = hook.y - camera.y;
+
+    // Fishing line
+    ctx.strokeStyle = "#8B4513";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(hookX, -camera.y); // From top of screen
+    ctx.lineTo(hookX, hookY);
+    ctx.stroke();
+
+    // Hook
+    ctx.fillStyle = "#C0C0C0";
+    ctx.fillRect(hookX - 3, hookY - 8, 6, 16);
+
+    // Hook curve
+    ctx.strokeStyle = "#C0C0C0";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(hookX + 5, hookY, 5, 0, Math.PI);
+    ctx.stroke();
+
+    // Caught fish
+    if (hook.caughtFish) {
+      const fishX = hookX;
+      const fishY = hookY + 20;
+
+      const img = new Image();
+      img.src = hook.caughtFish.imageUrl;
+      ctx.drawImage(
+        img,
+        fishX - hook.caughtFish.size / 2,
+        fishY - hook.caughtFish.size / 2,
+        hook.caughtFish.size,
+        hook.caughtFish.size,
+      );
+    }
+  };
+
+  // Update fish movement
+  const updateFish = useCallback(() => {
+    setFish((prevFish) =>
+      prevFish.map((f) => {
+        if (f.caught) return f;
+
+        let newX = f.x + f.vx;
+        let newY = f.y + f.vy;
+        let newVx = f.vx;
+        let newVy = f.vy;
+
+        // Bounce off walls
+        if (newX <= 0 || newX >= CANVAS_WIDTH) {
+          newVx = -newVx;
+          newX = Math.max(0, Math.min(CANVAS_WIDTH, newX));
+        }
+
+        // Stay in water
+        if (newY <= WATER_LEVEL || newY >= CANVAS_HEIGHT - 20) {
+          newVy = -newVy;
+          newY = Math.max(WATER_LEVEL, Math.min(CANVAS_HEIGHT - 20, newY));
+        }
+
+        // Random direction change
+        if (Math.random() < 0.01) {
+          newVx += (Math.random() - 0.5) * 0.5;
+          newVy += (Math.random() - 0.5) * 0.3;
+
+          // Limit speed
+          const speed = Math.sqrt(newVx * newVx + newVy * newVy);
+          if (speed > 2) {
+            newVx = (newVx / speed) * 2;
+            newVy = (newVy / speed) * 2;
           }
+        }
 
-          // Mudança aleatória de direção
-          if (Math.random() < 0.02) {
-            setFishDirection((prev) => -prev);
-          }
+        return {
+          ...f,
+          x: newX,
+          y: newY,
+          vx: newVx,
+          vy: newVy,
+        };
+      }),
+    );
+  }, []);
 
-          return newPos;
-        });
+  // Update hook movement
+  const updateHook = useCallback(() => {
+    setHook((prevHook) => {
+      let newHook = { ...prevHook };
 
-        // Verificar se o jogador está na zona do peixe
-        const fishZoneStart = fishPosition - currentFish.size / 2;
-        const fishZoneEnd = fishPosition + currentFish.size / 2;
-        const playerZoneStart = playerPosition;
-        const playerZoneEnd = playerPosition + PLAYER_BAR_HEIGHT;
+      if (newHook.isDropping) {
+        newHook.y += HOOK_SPEED;
 
-        const inZone = !(
-          playerZoneEnd < fishZoneStart || playerZoneStart > fishZoneEnd
+        // Check collision with fish
+        const caughtFish = fish.find(
+          (f) =>
+            !f.caught &&
+            Math.abs(f.x - newHook.x) < f.size / 2 &&
+            Math.abs(f.y - newHook.y) < f.size / 2,
         );
 
-        if (inZone) {
-          setProgress((prev) => Math.min(1, prev + PROGRESS_RATE));
-          setTension((prev) => Math.max(0, prev - TENSION_DECAY));
-        } else {
-          setProgress((prev) => Math.max(0, prev - PROGRESS_LOSS));
-          setTension((prev) => Math.min(1, prev + TENSION_DECAY));
+        if (caughtFish) {
+          newHook.caughtFish = { ...caughtFish, silhouette: false };
+          newHook.isDropping = false;
+          newHook.isRising = true;
+
+          // Mark fish as caught
+          setFish((prevFish) =>
+            prevFish.map((f) =>
+              f.id === caughtFish.id ? { ...f, caught: true } : f,
+            ),
+          );
+
+          setGameState("caught");
         }
 
-        // Verificar condições de vitória/derrota
-        setProgress((currentProgress) => {
-          if (currentProgress >= 1) {
-            setGameState("success");
-            return 1;
-          }
-          return currentProgress;
-        });
-
-        setTension((currentTension) => {
-          if (currentTension >= 1) {
-            setGameState("failed");
-            return 1;
-          }
-          return currentTension;
-        });
-      }, 16); // ~60 FPS
-    }
-
-    return () => {
-      if (gameLoopRef.current) {
-        clearInterval(gameLoopRef.current);
-      }
-    };
-  }, [gameState, fishPosition, playerPosition, currentFish, fishDirection]);
-
-  // Controle do jogador (segurar para subir)
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.code === "Space" && gameState === "fishing") {
-        e.preventDefault();
-        setHoldTime((prev) => prev + 1);
-      }
-    };
-
-    const handleKeyUp = (e: KeyboardEvent) => {
-      if (e.code === "Space") {
-        setHoldTime(0);
-      }
-    };
-
-    const handleMouseDown = () => {
-      if (gameState === "fishing") {
-        setHoldTime((prev) => prev + 1);
-      }
-    };
-
-    const handleMouseUp = () => {
-      setHoldTime(0);
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("keyup", handleKeyUp);
-    window.addEventListener("mousedown", handleMouseDown);
-    window.addEventListener("mouseup", handleMouseUp);
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("keyup", handleKeyUp);
-      window.removeEventListener("mousedown", handleMouseDown);
-      window.removeEventListener("mouseup", handleMouseUp);
-    };
-  }, [gameState]);
-
-  // Atualizar posição do jogador baseado no hold time
-  useEffect(() => {
-    if (gameState === "fishing") {
-      const interval = setInterval(() => {
-        if (holdTime > 0) {
-          setPlayerPosition((prev) => Math.max(0, prev - 0.02)); // Sobe quando segura
-        } else {
-          setPlayerPosition((prev) =>
-            Math.min(1 - PLAYER_BAR_HEIGHT, prev + 0.015),
-          ); // Desce quando solta
+        // Stop at bottom
+        if (newHook.y >= CANVAS_HEIGHT - 20) {
+          newHook.isDropping = false;
+          newHook.isRising = true;
         }
-      }, 16);
+      }
 
-      return () => clearInterval(interval);
-    }
-  }, [gameState, holdTime]);
+      if (newHook.isRising) {
+        newHook.y -= HOOK_SPEED;
 
-  // Limpar timeouts
+        // Return to surface
+        if (newHook.y <= 50) {
+          newHook.y = 50;
+          newHook.isRising = false;
+
+          if (newHook.caughtFish) {
+            onFishCaught(newHook.caughtFish);
+            setScore((prev) => prev + 1);
+            newHook.caughtFish = null;
+          }
+
+          setGameState("idle");
+        }
+      }
+
+      return newHook;
+    });
+  }, [fish, onFishCaught]);
+
+  // Update camera to follow hook
+  const updateCamera = useCallback(() => {
+    setCamera((prevCamera) => {
+      const newCamera = { ...prevCamera };
+
+      // Target follows hook
+      newCamera.targetX = hook.x - CANVAS_WIDTH / 2;
+      newCamera.targetY = hook.y - CANVAS_HEIGHT / 2;
+
+      // Smooth camera movement
+      newCamera.x += (newCamera.targetX - newCamera.x) * 0.1;
+      newCamera.y += (newCamera.targetY - newCamera.y) * 0.1;
+
+      // Limit camera bounds
+      newCamera.x = Math.max(
+        -CANVAS_WIDTH / 2,
+        Math.min(CANVAS_WIDTH / 2, newCamera.x),
+      );
+      newCamera.y = Math.max(-100, Math.min(CANVAS_HEIGHT / 2, newCamera.y));
+
+      return newCamera;
+    });
+  }, [hook.x, hook.y]);
+
+  // Game loop
   useEffect(() => {
-    return () => {
-      if (castingTimeoutRef.current) clearTimeout(castingTimeoutRef.current);
-      if (waitingTimeoutRef.current) clearTimeout(waitingTimeoutRef.current);
-      if (gameLoopRef.current) clearInterval(gameLoopRef.current);
+    const gameLoop = setInterval(() => {
+      updateFish();
+      updateHook();
+      updateCamera();
+    }, 16); // ~60 FPS
+
+    return () => clearInterval(gameLoop);
+  }, [updateFish, updateHook, updateCamera]);
+
+  // Render loop
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const render = () => {
+      // Clear canvas
+      ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+      // Draw layers
+      drawBackground(ctx);
+      drawWater(ctx);
+      drawFish(ctx);
+      drawHook(ctx);
+
+      requestAnimationFrame(render);
     };
-  }, []);
 
-  // Lidar com sucesso
-  useEffect(() => {
-    if (gameState === "success" && currentFish) {
-      setTimeout(() => {
-        onFishCaught(currentFish);
-        onClose();
-      }, 2000);
-    }
-  }, [gameState, currentFish, onFishCaught, onClose]);
+    render();
+  }, [camera, hook, fish]);
 
-  // Lidar com falha
+  // Initialize game
   useEffect(() => {
-    if (gameState === "failed") {
-      setTimeout(() => {
-        setGameState("idle");
-        setCurrentFish(null);
-      }, 2000);
+    initializeFish();
+  }, [initializeFish]);
+
+  // Handle click to cast
+  const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (gameState === "idle") {
+      const rect = canvasRef.current?.getBoundingClientRect();
+      if (rect) {
+        const x = e.clientX - rect.left;
+
+        setHook((prev) => ({
+          ...prev,
+          x: x + camera.x,
+          isDropping: true,
+          isRising: false,
+          caughtFish: null,
+        }));
+
+        setGameState("casting");
+      }
     }
-  }, [gameState]);
+  };
 
   return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4"
+    <div className="w-full h-screen bg-black relative overflow-hidden">
+      {/* Back button */}
+      <motion.button
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+        onClick={onBack}
+        className="absolute top-4 left-4 z-10 bg-white/20 backdrop-blur text-white p-2 rounded-lg hover:bg-white/30 transition-colors"
       >
-        <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.9, opacity: 0 }}
-          className="bg-gradient-to-b from-sky-400 to-blue-800 rounded-xl shadow-2xl max-w-md w-full h-96 relative overflow-hidden"
-        >
-          {/* Background - Água com ondas */}
-          <div className="absolute inset-0 bg-gradient-to-b from-sky-300/30 to-blue-900/50">
-            <div className="absolute inset-0 opacity-20">
-              {[...Array(5)].map((_, i) => (
-                <motion.div
-                  key={i}
-                  className="absolute w-full h-2 bg-white/20 rounded-full"
-                  style={{ top: `${20 + i * 15}%` }}
-                  animate={{
-                    x: ["-100%", "100%"],
-                  }}
-                  transition={{
-                    duration: 3 + i,
-                    repeat: Infinity,
-                    ease: "linear",
-                  }}
-                />
-              ))}
-            </div>
-          </div>
+        <ArrowLeft className="w-6 h-6" />
+      </motion.button>
 
-          {/* Header */}
-          <div className="relative z-10 p-4 bg-black/20">
-            <div className="flex items-center justify-between">
-              <h2 className="text-white font-bold text-lg">
-                🎣 Pesca Ancestral
-              </h2>
-              <button
-                onClick={onClose}
-                className="text-white/80 hover:text-white transition-colors"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-          </div>
+      {/* Score */}
+      <div className="absolute top-4 right-4 z-10 bg-white/20 backdrop-blur text-white px-4 py-2 rounded-lg">
+        Peixes: {score}
+      </div>
 
-          {/* Game Area */}
-          <div className="relative z-10 flex-1 px-4 pb-4">
-            {gameState === "idle" && (
-              <div className="h-full flex flex-col items-center justify-center text-center">
-                <div className="text-6xl mb-4">🏛️</div>
-                <h3 className="text-white text-xl font-bold mb-2">
-                  Templo dos Anciões
-                </h3>
-                <p className="text-white/80 mb-6 text-sm">
-                  As águas sagradas do templo escondem criaturas místicas.
-                </p>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={startFishing}
-                  className="bg-white/20 backdrop-blur text-white px-6 py-3 rounded-lg font-medium hover:bg-white/30 transition-colors"
-                >
-                  <Target className="w-5 h-5 inline mr-2" />
-                  Lançar Anzol
-                </motion.button>
-              </div>
-            )}
+      {/* Instructions */}
+      {gameState === "idle" && (
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10 bg-white/20 backdrop-blur text-white px-4 py-2 rounded-lg text-center">
+          Clique na água para lançar o anzol
+        </div>
+      )}
 
-            {gameState === "casting" && (
-              <div className="h-full flex items-center justify-center">
-                <div className="text-center">
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{
-                      duration: 1,
-                      repeat: Infinity,
-                      ease: "linear",
-                    }}
-                    className="text-4xl mb-4"
-                  >
-                    🎣
-                  </motion.div>
-                  <p className="text-white">Lançando anzol...</p>
-                </div>
-              </div>
-            )}
+      {/* Game Canvas */}
+      <canvas
+        ref={canvasRef}
+        width={CANVAS_WIDTH}
+        height={CANVAS_HEIGHT}
+        onClick={handleCanvasClick}
+        className="w-full h-full object-cover cursor-crosshair"
+        style={{ imageRendering: "pixelated" }}
+      />
 
-            {gameState === "waiting" && (
-              <div className="h-full flex items-center justify-center">
-                <div className="text-center">
-                  <motion.div
-                    animate={{ y: [0, -10, 0] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                    className="text-4xl mb-4"
-                  >
-                    🎣
-                  </motion.div>
-                  <p className="text-white">Aguardando um peixe...</p>
-                </div>
-              </div>
-            )}
-
-            {gameState === "fishing" && currentFish && (
-              <div className="h-full relative">
-                {/* Fishing Bar */}
-                <div className="absolute right-4 top-4 bottom-4 w-8 bg-black/30 rounded-lg overflow-hidden">
-                  {/* Zona do Peixe */}
-                  <motion.div
-                    className="absolute w-full bg-green-400/60 rounded"
-                    style={{
-                      height: `${currentFish.size * 100}%`,
-                      top: `${(fishPosition - currentFish.size / 2) * 100}%`,
-                    }}
-                  />
-
-                  {/* Barra do Jogador */}
-                  <motion.div
-                    className="absolute w-full bg-white border-2 border-black rounded"
-                    style={{
-                      height: `${PLAYER_BAR_HEIGHT * 100}%`,
-                      top: `${playerPosition * 100}%`,
-                    }}
-                  />
-                </div>
-
-                {/* Progress Bar */}
-                <div className="absolute bottom-4 left-4 right-16">
-                  <div className="bg-black/30 rounded-full h-4 overflow-hidden">
-                    <motion.div
-                      className="h-full bg-gradient-to-r from-green-400 to-green-600"
-                      style={{ width: `${progress * 100}%` }}
-                    />
-                  </div>
-                  <p className="text-white text-xs mt-1">
-                    Progresso da Captura
-                  </p>
-                </div>
-
-                {/* Tension Bar */}
-                <div className="absolute top-16 left-4 right-16">
-                  <div className="bg-black/30 rounded-full h-3 overflow-hidden">
-                    <motion.div
-                      className="h-full bg-gradient-to-r from-yellow-400 to-red-600"
-                      style={{ width: `${tension * 100}%` }}
-                    />
-                  </div>
-                  <p className="text-white text-xs mt-1">Tensão da Linha</p>
-                </div>
-
-                {/* Fish Image */}
-                <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                  <motion.img
-                    src={currentFish.imageUrl}
-                    alt={currentFish.name}
-                    className="w-24 h-24 object-contain"
-                    animate={{
-                      x: [0, 5, -5, 0],
-                      y: [0, -2, 2, 0],
-                    }}
-                    transition={{
-                      duration: 1.5,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}
-                  />
-                </div>
-
-                {/* Instructions */}
-                <div className="absolute top-32 left-4">
-                  <p className="text-white text-xs bg-black/40 px-2 py-1 rounded">
-                    Segure para subir a barra
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {gameState === "success" && currentFish && (
-              <div className="h-full flex items-center justify-center">
-                <div className="text-center">
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="text-6xl mb-4"
-                  >
-                    🎉
-                  </motion.div>
-                  <h3 className="text-white text-xl font-bold mb-2">
-                    Capturado!
-                  </h3>
-                  <img
-                    src={currentFish.imageUrl}
-                    alt={currentFish.name}
-                    className="w-20 h-20 object-contain mx-auto mb-2"
-                  />
-                  <p className="text-white">{currentFish.name}</p>
-                </div>
-              </div>
-            )}
-
-            {gameState === "failed" && (
-              <div className="h-full flex items-center justify-center">
-                <div className="text-center">
-                  <div className="text-4xl mb-4">💔</div>
-                  <h3 className="text-white text-xl font-bold mb-2">
-                    O peixe escapou!
-                  </h3>
-                  <p className="text-white/80 mb-4">A linha arrebentou...</p>
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={startFishing}
-                    className="bg-white/20 backdrop-blur text-white px-4 py-2 rounded-lg font-medium hover:bg-white/30 transition-colors"
-                  >
-                    Tentar Novamente
-                  </motion.button>
-                </div>
-              </div>
-            )}
-          </div>
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>
+      {/* Title */}
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-0 text-white/10 text-8xl font-bold pointer-events-none select-none">
+        🏛️ TEMPLO DOS ANCIÕES
+      </div>
+    </div>
   );
 };
