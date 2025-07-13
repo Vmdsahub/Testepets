@@ -107,6 +107,16 @@ export const ExplorationScreen: React.FC = () => {
     return null;
   }
 
+  // Handle minigame navigation
+  const handleBackFromMinigame = () => {
+    setCurrentMinigame(null);
+  };
+
+  // Render minigame if one is active
+  if (currentMinigame === "memory-crystals") {
+    return <MemoryCrystalsGame onBack={handleBackFromMinigame} />;
+  }
+
   const handleBack = () => {
     setCurrentExplorationPoint(null);
     setCurrentExplorationArea(null);
