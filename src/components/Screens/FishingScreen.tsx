@@ -316,17 +316,20 @@ export const FishingScreen: React.FC = () => {
       {/* Fishing Rod (bottom of screen) */}
       <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-2 h-32 bg-gradient-to-t from-amber-800 to-amber-600 rounded-t-full z-10" />
 
-      {/* Realistic Fishing Line Animation */}
-      {(isLaunching || isRetracting || isFishing || lineLength > 0) && (
+      {/* Fishing Line - Simple and Visible */}
+      {(isLaunching || isRetracting || isFishing) && (
         <svg
           className="absolute inset-0 w-full h-full z-10 pointer-events-none"
-          style={{ overflow: "visible" }}
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
         >
-          <motion.path
-            d={`M 50% calc(100% - 128px) Q ${(50 + hookPosition.x) / 2}% ${Math.min(hookPosition.y - 10, 30)}% ${hookPosition.x}% ${hookPosition.y}%`}
+          <motion.line
+            x1="50"
+            y1="87"
+            x2={hookPosition.x}
+            y2={hookPosition.y}
             stroke="#374151"
-            strokeWidth="2"
-            fill="none"
+            strokeWidth="0.5"
             initial={{ pathLength: 0 }}
             animate={{
               pathLength: isLaunching ? [0, 1] : isRetracting ? [1, 0] : 1,
