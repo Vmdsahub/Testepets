@@ -192,7 +192,7 @@ export const FishingScreen: React.FC = () => {
             startRetraction();
           }, 1000);
         }, 2000);
-      }, 800); // Hook travel time
+      }, 1200); // Extended hook travel time for smooth animation
     },
     [isLaunching, isRetracting, isFishing, fish, addXenocoins],
   );
@@ -437,7 +437,7 @@ export const FishingScreen: React.FC = () => {
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
           >
             <div className="bg-white rounded-xl shadow-xl p-6 text-center border-4 border-yellow-400">
-              <div className="text-6xl mb-2">🎣</div>
+              <div className="text-6xl mb-2">��</div>
               <div className="text-2xl font-bold text-gray-800 mb-1">
                 {showCatch.name}
               </div>
