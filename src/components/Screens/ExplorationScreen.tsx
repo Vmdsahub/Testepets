@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, Info, MapPin } from "lucide-react";
 import { useGameStore } from "../../store/gameStore";
@@ -35,6 +35,13 @@ export const ExplorationScreen: React.FC = () => {
 
   // State for egg selection
   const [showEggSelection, setShowEggSelection] = useState(false);
+
+  // Auto-redirect to fishing game when entering Templo dos Anciões
+  useEffect(() => {
+    if (currentExplorationPoint?.name === "Templo dos Anciões") {
+      setCurrentScreen("fishing");
+    }
+  }, [currentExplorationPoint, setCurrentScreen]);
 
   // Dialogue text for Planície Dourada
   const GOLDEN_PLAINS_DIALOGUE =
@@ -234,7 +241,7 @@ export const ExplorationScreen: React.FC = () => {
             />
 
             {/* Overlay info - only show for locations without special content */}
-            {currentExplorationPoint.name !== "Planície Dourada" &&
+            {currentExplorationPoint.name !== "Plan��cie Dourada" &&
               currentExplorationPoint.name !== "Túneis Profundos" &&
               currentExplorationPoint.planetId !== "planet-5" && (
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
@@ -559,16 +566,35 @@ export const ExplorationScreen: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="bg-white border border-indigo-100 rounded-lg p-4 text-center">
-                    <div className="text-4xl mb-2">🏛️</div>
-                    <p className="text-indigo-800 text-sm">
-                      Este local sagrado guarda segredos antigos. Em breve você
-                      poderá explorar suas maravilhas.
-                    </p>
-                    <div className="mt-3 bg-indigo-100 text-indigo-700 px-3 py-2 rounded text-xs font-medium">
-                      Em Desenvolvimento
+                  {currentExplorationPoint.name === "Templo dos Anciões" ? (
+                    <div className="bg-white border border-indigo-100 rounded-lg p-4 text-center">
+                      <div className="text-4xl mb-2">🏛️</div>
+                      <p className="text-indigo-800 text-sm mb-4">
+                        As águas sagradas do templo escondem criaturas místicas
+                        que os anciões protegiam. Teste suas habilidades de
+                        pesca neste local sagrado.
+                      </p>
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => setCurrentScreen("fishing")}
+                        className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                      >
+                        🎣 Entrar no Templo
+                      </motion.button>
                     </div>
-                  </div>
+                  ) : (
+                    <div className="bg-white border border-indigo-100 rounded-lg p-4 text-center">
+                      <div className="text-4xl mb-2">🏛️</div>
+                      <p className="text-indigo-800 text-sm">
+                        Este local sagrado guarda segredos antigos. Em breve
+                        você poderá explorar suas maravilhas.
+                      </p>
+                      <div className="mt-3 bg-indigo-100 text-indigo-700 px-3 py-2 rounded text-xs font-medium">
+                        Em Desenvolvimento
+                      </div>
+                    </div>
+                  )}
                 </motion.div>
               ) : null}
             </>

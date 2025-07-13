@@ -194,6 +194,7 @@ interface GameStore extends GameState {
     updates: Partial<WorldPosition>,
   ) => void;
   loadWorldPositions: () => Promise<void>;
+  forceReloadWorldPositions: () => Promise<void>;
   subscribeToWorldPositions: () => void;
   unsubscribeFromWorldPositions: () => void;
 
@@ -1095,7 +1096,7 @@ export const useGameStore = create<GameStore>()(
             y: positions[index].y,
             imageUrl:
               "https://cdn.builder.io/api/v1/image/assets%2F6b84993f22904beeb2e1d8d2f128c032%2Faaff2921868f4bbfb24be01b9fdfa6a1?format=webp&width=800",
-            description: `Uma área fascinante conhecida como ${name}. Este local oferece uma experiência ��nica de exploração.`,
+            description: `Uma área fascinante conhecida como ${name}. Este local oferece uma experiência ��nica de exploraç��o.`,
             discovered: false,
             size: 1.0,
             active: true,
@@ -2080,7 +2081,7 @@ export const useGameStore = create<GameStore>()(
             usedBy: [...redeemCode.usedBy, state.user.id],
           });
 
-          const message = `Código resgatado com sucesso! Recompensas: ${rewardMessages.join(", ")}`;
+          const message = `C��digo resgatado com sucesso! Recompensas: ${rewardMessages.join(", ")}`;
 
           get().addNotification({
             type: "success",
@@ -2408,16 +2409,10 @@ export const useGameStore = create<GameStore>()(
       },
 
       loadWorldPositions: async () => {
-        const state = get();
-
-        // Se já tem posições no store, usa elas
-        if (state.worldPositions.length > 0) {
-          console.log(
-            "📍 Using world positions from store:",
-            state.worldPositions,
-          );
-          return;
-        }
+        // Usar posições padrão temporariamente para teste da nova imagem
+        console.log(
+          "📍 Using default positions with updated Vila Ancestral image...",
+        );
 
         // Se não tem, cria posições padrão
         const defaultPositions = [
@@ -2501,7 +2496,7 @@ export const useGameStore = create<GameStore>()(
             color: "#dda0dd",
             interactionRadius: 110, // Área de pouso grande - vila acolhedora
             imageUrl:
-              "https://cdn.builder.io/api/v1/image/assets%2Ff94d2a386a444693b9fbdff90d783a66%2F76c4f943e6e045938d8e5efb84a2a969?format=webp&width=800",
+              "https://cdn.builder.io/api/v1/image/assets%2F14397f3b3f9049c3ad3ca64e1b66afd5%2F93a4cd7c0ad245e5ba9abebe11152d46?format=webp&width=800",
             createdAt: new Date(),
             updatedAt: new Date(),
           },
@@ -2509,6 +2504,13 @@ export const useGameStore = create<GameStore>()(
 
         console.log("📍 Creating default world positions");
         set({ worldPositions: defaultPositions });
+      },
+
+      // Função para forçar recarregamento das posições
+      forceReloadWorldPositions: async () => {
+        console.log("📍 Forcing reload of world positions...");
+        set({ worldPositions: [] }); // Limpa o cache
+        await get().loadWorldPositions(); // Recarrega
       },
 
       subscribeToWorldPositions: () => {

@@ -15,6 +15,7 @@ import { OtherUserCollectiblesScreen } from "./components/Screens/OtherUserColle
 import { SpaceMap } from "./components/Game/SpaceMap";
 import { PlanetScreen } from "./components/Screens/PlanetScreen";
 import { ExplorationScreen } from "./components/Screens/ExplorationScreen";
+import { FishingScreen } from "./components/Screens/FishingScreen";
 import { useAuthStore } from "./store/authStore";
 import { useGameStore } from "./store/gameStore";
 import { preloadAllSounds } from "./utils/soundManager";
@@ -303,6 +304,7 @@ function App() {
               {currentScreen === "world" && <SpaceMap />}
               {currentScreen === "planet" && <PlanetScreen />}
               {currentScreen === "exploration" && <ExplorationScreen />}
+              {currentScreen === "fishing" && <FishingScreen />}
             </div>
             {/* Modals persist outside AnimatePresence */}
             <ModalManager openModals={openModals} onCloseModal={closeModal} />
