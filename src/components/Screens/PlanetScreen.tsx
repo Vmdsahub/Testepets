@@ -253,8 +253,14 @@ export const PlanetScreen: React.FC = () => {
     setEditingValue("");
   };
 
-  // Gerar uma imagem placeholder baseada na cor do planeta
+  // Gerar uma imagem baseada no planeta
   const generatePlanetImage = (color: string) => {
+    // Se for a Vila Ancestral (planet-5), usar a imagem específica
+    if (currentPlanet?.id === "planet-5") {
+      return "https://cdn.builder.io/api/v1/image/assets%2F9116099af5104b05bb8ec173428706be%2F5a3fc747439f4da399f72eb8c23a5c1b?format=webp&width=800";
+    }
+
+    // Para outros planetas, usar SVG placeholder
     return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600' viewBox='0 0 800 600'%3E%3Cdefs%3E%3CradialGradient id='planet' cx='40%25' cy='40%25'%3E%3Cstop offset='0%25' stop-color='${encodeURIComponent(color)}' stop-opacity='1'/%3E%3Cstop offset='70%25' stop-color='${encodeURIComponent(color)}' stop-opacity='0.8'/%3E%3Cstop offset='100%25' stop-color='%23000' stop-opacity='0.6'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect width='800' height='600' fill='%23000011'/%3E%3Ccircle cx='400' cy='300' r='200' fill='url(%23planet)' /%3E%3Ccircle cx='350' cy='250' r='15' fill='%23ffffff' fill-opacity='0.3'/%3E%3Ccircle cx='420' cy='320' r='10' fill='%23ffffff' fill-opacity='0.2'/%3E%3Ccircle cx='450' cy='280' r='8' fill='%23ffffff' fill-opacity='0.4'/%3E%3C/svg%3E`;
   };
 
