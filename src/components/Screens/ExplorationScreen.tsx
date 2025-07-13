@@ -102,9 +102,7 @@ export const ExplorationScreen: React.FC = () => {
         ? GOLDEN_PLAINS_DIALOGUE
         : pointName === "Túneis Profundos"
           ? DEEP_TUNNELS_DIALOGUE
-          : pointName === "Santuário dos Ovos"
-            ? EGG_SANCTUARY_DIALOGUE
-            : "Bem-vindos a este local sagrado da Vila Ancestral. Aqui a sabedoria antiga ecoa através dos tempos...";
+          : "Bem-vindos a este local fascinante. Aqui você pode explorar e descobrir os mistérios que este lugar guarda...";
 
     if (currentIndex < dialogue.length) {
       // First show alien character
