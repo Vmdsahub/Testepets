@@ -39,6 +39,7 @@ const eggs: Egg[] = [
 
 interface EggSelectionScreenProps {
   onEggSelected: (egg: Egg) => void;
+  onBack?: () => void;
 }
 
 export const EggSelectionScreen: React.FC<EggSelectionScreenProps> = ({
