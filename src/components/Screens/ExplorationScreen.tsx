@@ -263,7 +263,9 @@ export const ExplorationScreen: React.FC = () => {
                   <h3 className="text-lg font-bold text-gray-800">
                     {currentExplorationPoint.name === "Planície Dourada"
                       ? "Guardian da Planície"
-                      : "Bahrun"}
+                      : currentExplorationPoint.name === "Túneis Profundos"
+                        ? "Bahrun"
+                        : "Ancião Guardião"}
                   </h3>
                   <div className="w-24 h-0.5 bg-gray-200 mx-auto rounded-full mt-1"></div>
                 </div>
