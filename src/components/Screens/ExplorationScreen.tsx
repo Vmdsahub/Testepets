@@ -8,9 +8,11 @@ export const ExplorationScreen: React.FC = () => {
   const {
     currentExplorationPoint,
     currentExplorationArea,
+    currentMinigame,
     setCurrentScreen,
     setCurrentExplorationPoint,
     setCurrentExplorationArea,
+    setCurrentMinigame,
     getExplorationArea,
     getAllShips,
     getOwnedShips,
@@ -356,7 +358,7 @@ export const ExplorationScreen: React.FC = () => {
                         description:
                           "Teste sua memória com padrões cristalinos",
                         color: "bg-blue-500",
-                        icon: "🔹",
+                        icon: "����",
                       },
                       {
                         id: "tunnel-runner",
