@@ -321,10 +321,11 @@ export const PlanetScreen: React.FC = () => {
               </div>
             )}
 
-            {/* Vila Ancestral Egg Cards - only show if user has no pets */}
+            {/* Vila Ancestral Egg Cards - only show if user has no pets and not hatching */}
             {currentPlanet.id === "planet-5" &&
               pets.length === 0 &&
-              !isPlanetEditMode && (
+              !isPlanetEditMode &&
+              !isHatchingInProgress && (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
