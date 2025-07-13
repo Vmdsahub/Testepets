@@ -53,6 +53,18 @@ export const ExplorationScreen: React.FC = () => {
     setCurrentExplorationArea,
   ]);
 
+  // Reset dialogue when point changes
+  useEffect(() => {
+    const pointName = currentExplorationPoint?.name;
+    if (pointName === "Planície Dourada" || pointName === "Túneis Profundos") {
+      setDisplayedText("");
+      setCurrentIndex(0);
+      setIsTypingComplete(false);
+      setCurrentAlienChar("");
+      setIsShowingAlien(false);
+    }
+  }, [currentExplorationPoint?.name]);
+
   // Typewriter effect for dialogue
   useEffect(() => {
     const pointName = currentExplorationPoint?.name;
@@ -64,12 +76,6 @@ export const ExplorationScreen: React.FC = () => {
       pointName === "Planície Dourada"
         ? GOLDEN_PLAINS_DIALOGUE
         : DEEP_TUNNELS_DIALOGUE;
-
-    setDisplayedText("");
-    setCurrentIndex(0);
-    setIsTypingComplete(false);
-    setCurrentAlienChar("");
-    setIsShowingAlien(false);
 
     if (currentIndex < dialogue.length) {
       // First show alien character
@@ -92,7 +98,7 @@ export const ExplorationScreen: React.FC = () => {
         clearTimeout(intervalRef.current);
       }
     };
-  }, [currentExplorationPoint, currentIndex]);
+  }, [currentIndex, currentExplorationPoint?.name]);
 
   if (!currentExplorationPoint || !currentExplorationArea) {
     return null;
