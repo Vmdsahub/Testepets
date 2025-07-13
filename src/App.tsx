@@ -42,6 +42,8 @@ function App() {
     currentScreen,
     currentPlanet,
     user: gameUser,
+    pets,
+    activePet,
     setUser,
     setCurrentScreen,
     setCurrentPlanet,
