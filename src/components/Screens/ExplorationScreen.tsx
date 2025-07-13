@@ -504,7 +504,7 @@ export const ExplorationScreen: React.FC = () => {
                   </div>
                 </motion.div>
               ) : (
-                /* Egg Selection Section for Santuário dos Ovos */
+                /* Egg Selection Section for Vila Ancestral */
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
