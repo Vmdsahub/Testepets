@@ -351,26 +351,16 @@ export const FishingScreen: React.FC = () => {
           transform: "translate(-50%, -50%)",
         }}
         animate={
-          isLaunching
+          isFishing
             ? {
-                x: [0, (targetPosition.x - 50) * 8],
-                y: [0, (targetPosition.y - 100) * 8],
+                rotate: [0, 8, -8, 0],
+                y: [0, -3, 3, 0],
               }
-            : isRetracting
-              ? {
-                  x: [(targetPosition.x - 50) * 8, 0],
-                  y: [(targetPosition.y - 100) * 8, 0],
-                }
-              : isFishing
-                ? {
-                    rotate: [0, 15, -15, 0],
-                    y: [0, -5, 5, 0],
-                  }
-                : {}
+            : {}
         }
         transition={{
-          duration: isLaunching ? 0.8 : isRetracting ? 0.6 : 2,
-          ease: isLaunching || isRetracting ? "easeOut" : "easeInOut",
+          duration: 2.5,
+          ease: "easeInOut",
           repeat: isFishing ? Infinity : 0,
         }}
       >
