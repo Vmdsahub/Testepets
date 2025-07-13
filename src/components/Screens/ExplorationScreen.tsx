@@ -574,10 +574,10 @@ export const ExplorationScreen: React.FC = () => {
                       <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        onClick={() => setShowFishingGame(true)}
+                        onClick={() => setCurrentScreen("fishing")}
                         className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors"
                       >
-                        🎣 Iniciar Pesca Ancestral
+                        🎣 Entrar no Templo
                       </motion.button>
                     </div>
                   ) : (
