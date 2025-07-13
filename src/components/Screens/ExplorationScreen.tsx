@@ -397,8 +397,8 @@ export const ExplorationScreen: React.FC = () => {
                       );
                     })()}
                   </div>
-                </motion.div>
-              ) : (
+                                </motion.div>
+              ) : currentExplorationPoint.name === "Túneis Profundos" ? (
                 /* Minigame Cards Section for Túneis Profundos */
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
