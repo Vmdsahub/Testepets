@@ -331,111 +331,111 @@ export const PlanetScreen: React.FC = () => {
             {currentPlanet.id === "planet-5" &&
               pets.length === 0 &&
               !isPlanetEditMode && (
-                <>
-                  {/* Welcome overlay */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.3, duration: 0.4 }}
+                  className="absolute inset-0 bg-black/50 backdrop-blur-sm flex flex-col items-center justify-center z-20"
+                >
+                  {/* Egg cards centralizados */}
+                  <div className="flex gap-6 mb-8">
+                    {eggs.map((egg, index) => {
+                      const isSelected = selectedEgg === egg.id;
+
+                      return (
+                        <motion.div
+                          key={egg.id}
+                          initial={{ opacity: 0, scale: 0.8, y: 50 }}
+                          animate={{ opacity: 1, scale: 1, y: 0 }}
+                          transition={{
+                            delay: 0.5 + index * 0.1,
+                            duration: 0.4,
+                          }}
+                        >
+                          <motion.div
+                            onClick={() => handleEggClick(egg)}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className={`w-36 h-48 bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border-2 cursor-pointer transition-all ${
+                              isSelected
+                                ? "border-purple-500 ring-4 ring-purple-200/50 bg-purple-50/95"
+                                : "border-gray-200 hover:border-purple-300 hover:shadow-3xl"
+                            }`}
+                          >
+                            <div className="p-4 h-full flex flex-col items-center justify-center text-center">
+                              <div className="text-6xl mb-3">{egg.emoji}</div>
+                              <h3 className="text-sm font-bold text-gray-900 leading-tight mb-1">
+                                {egg.name}
+                              </h3>
+                              <p className="text-xs text-gray-600">
+                                {egg.species}
+                              </p>
+                              {isSelected && (
+                                <motion.div
+                                  initial={{ scale: 0 }}
+                                  animate={{ scale: 1 }}
+                                  className="mt-3"
+                                >
+                                  <div className="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center">
+                                    <Star className="w-3 h-3 text-white fill-white" />
+                                  </div>
+                                </motion.div>
+                              )}
+                            </div>
+                          </motion.div>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Welcome message abaixo dos cards */}
                   <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.3, duration: 0.4 }}
-                    className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-white/95 backdrop-blur-sm rounded-xl shadow-lg border border-purple-200 p-4 z-10"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.8, duration: 0.4 }}
+                    className="bg-white/95 backdrop-blur-sm rounded-xl shadow-lg border border-purple-200 p-6 max-w-md mx-4"
                   >
                     <div className="text-center">
-                      <div className="text-3xl mb-2">🏛️</div>
-                      <h2 className="text-lg font-bold text-purple-900 mb-1">
+                      <div className="text-4xl mb-3">🏛️</div>
+                      <h2 className="text-xl font-bold text-purple-900 mb-2">
                         Bem-vindo à Vila Ancestral
                       </h2>
-                      <p className="text-purple-700 text-xs max-w-sm">
+                      <p className="text-purple-700 text-sm">
                         Escolha seu primeiro companheiro entre os ovos
-                        ancestrais
+                        ancestrais para começar sua jornada épica
                       </p>
                     </div>
                   </motion.div>
-
-                  {/* Egg cards positioned on the sides */}
-                  {eggs.map((egg, index) => {
-                    const positions = [
-                      { left: "8%", top: "25%" }, // Esquerda superior
-                      { right: "8%", top: "25%" }, // Direita superior
-                      { left: "8%", bottom: "25%" }, // Esquerda inferior
-                      { right: "8%", bottom: "25%" }, // Direita inferior
-                    ];
-
-                    const position = positions[index] || positions[0];
-                    const isSelected = selectedEgg === egg.id;
-
-                    return (
-                      <motion.div
-                        key={egg.id}
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.6 + index * 0.1, duration: 0.4 }}
-                        className="absolute"
-                        style={position}
-                      >
-                        <motion.div
-                          onClick={() => handleEggClick(egg)}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          className={`w-24 h-32 bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border-2 cursor-pointer transition-all ${
-                            isSelected
-                              ? "border-purple-500 ring-2 ring-purple-200 bg-purple-50/90"
-                              : "border-gray-200 hover:border-purple-300 hover:shadow-xl"
-                          }`}
-                        >
-                          <div className="p-3 h-full flex flex-col items-center justify-center text-center">
-                            <div className="text-3xl mb-2">{egg.emoji}</div>
-                            <h3 className="text-xs font-bold text-gray-900 leading-tight">
-                              {egg.name}
-                            </h3>
-                            <p className="text-xs text-gray-600 mt-1">
-                              {egg.species}
-                            </p>
-                            {isSelected && (
-                              <motion.div
-                                initial={{ scale: 0 }}
-                                animate={{ scale: 1 }}
-                                className="mt-2"
-                              >
-                                <div className="w-4 h-4 bg-purple-500 rounded-full flex items-center justify-center">
-                                  <Star className="w-2 h-2 text-white fill-white" />
-                                </div>
-                              </motion.div>
-                            )}
-                          </div>
-                        </motion.div>
-                      </motion.div>
-                    );
-                  })}
 
                   {/* Confirm button - shows when an egg is selected */}
                   {selectedEgg && (
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="absolute bottom-4 left-1/2 transform -translate-x-1/2"
+                      className="mt-6"
                     >
                       <motion.button
                         onClick={handleConfirmEggSelection}
                         disabled={isConfirming}
-                        className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3 px-6 rounded-xl font-medium hover:from-purple-700 hover:to-indigo-700 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                        className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-4 px-8 rounded-xl font-medium hover:from-purple-700 hover:to-indigo-700 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3"
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                       >
                         {isConfirming ? (
                           <>
-                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                            <span>Preparando...</span>
+                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            <span className="text-lg">Preparando...</span>
                           </>
                         ) : (
                           <>
-                            <span>❤️</span>
-                            <span>Confirmar Escolha</span>
+                            <span className="text-2xl">❤️</span>
+                            <span className="text-lg">Confirmar Escolha</span>
                           </>
                         )}
                       </motion.button>
                     </motion.div>
                   )}
-                </>
+                </motion.div>
               )}
 
             {/* Exploration Points */}
@@ -646,7 +646,7 @@ export const PlanetScreen: React.FC = () => {
               className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4"
             >
               <h4 className="font-semibold text-blue-900 mb-2">
-                Modo de Ediç��o Ativo
+                Modo de Edição Ativo
               </h4>
               <div className="text-blue-800 text-sm space-y-1">
                 <p>
