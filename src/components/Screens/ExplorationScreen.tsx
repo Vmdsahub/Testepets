@@ -138,7 +138,8 @@ export const ExplorationScreen: React.FC = () => {
           {/* Main Image */}
           <div
             className={`w-full relative rounded-2xl overflow-hidden mb-4 ${
-              currentExplorationPoint.name === "Planície Dourada"
+              currentExplorationPoint.name === "Planície Dourada" ||
+              currentExplorationPoint.name === "Túneis Profundos"
                 ? "h-80 sm:h-96"
                 : "h-[calc(100vh-280px)] sm:h-[calc(100vh-300px)] md:h-[calc(100vh-320px)] lg:h-[calc(100vh-340px)]"
             }`}
@@ -150,7 +151,8 @@ export const ExplorationScreen: React.FC = () => {
               src={currentExplorationArea.imageUrl}
               alt={currentExplorationArea.name}
               className={`w-full h-full ${
-                currentExplorationPoint.name === "Planície Dourada"
+                currentExplorationPoint.name === "Planície Dourada" ||
+                currentExplorationPoint.name === "Túneis Profundos"
                   ? "object-contain bg-gradient-to-b from-blue-50 to-blue-100"
                   : "object-cover"
               }`}
