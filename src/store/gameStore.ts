@@ -40,6 +40,10 @@ interface GameStore extends GameState {
   generateExplorationPoints: (planetId: string) => ExplorationPoint[];
   getExplorationArea: (pointId: string) => ExplorationArea;
 
+  // Minigames
+  currentMinigame: string | null;
+  setCurrentMinigame: (minigame: string | null) => void;
+
   // Planet editing mode (admin only)
   isPlanetEditMode: boolean;
   setPlanetEditMode: (enabled: boolean) => void;
