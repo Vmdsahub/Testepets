@@ -19,6 +19,10 @@ export const ExplorationScreen: React.FC = () => {
     getOwnedShips,
     purchaseShip,
     xenocoins,
+    selectedEggForHatching,
+    isHatchingInProgress,
+    setSelectedEggForHatching,
+    setIsHatchingInProgress,
   } = useGameStore();
 
   // State for dialogue system (similar to NPCModal)
