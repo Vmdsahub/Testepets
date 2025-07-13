@@ -33,6 +33,9 @@ export const ExplorationScreen: React.FC = () => {
   const [isShowingAlien, setIsShowingAlien] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
+  // State for egg selection
+  const [showEggSelection, setShowEggSelection] = useState(false);
+
   // Dialogue text for Planície Dourada
   const GOLDEN_PLAINS_DIALOGUE =
     "Olá, temos algumas naves em nossa coleção especial. Cada uma foi cuidadosamente selecionada para exploradores como você...";
