@@ -9,8 +9,6 @@ interface Fish {
   y: number;
   speed: number;
   direction: number;
-  type: "common" | "rare" | "legendary";
-  emoji: string;
   name: string;
   points: number;
   size: number;
@@ -18,102 +16,72 @@ interface Fish {
 
 interface CaughtFish {
   id: string;
-  type: "common" | "rare" | "legendary";
-  emoji: string;
   name: string;
   points: number;
 }
-
-const FISH_TYPES = {
-  common: [
-    { emoji: "🐟", name: "Peixe Comum", points: 10 },
-    { emoji: "🐠", name: "Peixe Tropical", points: 15 },
-    { emoji: "🎣", name: "Sardinha", points: 8 },
-  ],
-  rare: [
-    { emoji: "🐡", name: "Baiacu Sagrado", points: 50 },
-    { emoji: "🦈", name: "Tubarão Místico", points: 75 },
-    { emoji: "🐙", name: "Polvo Ancestral", points: 60 },
-  ],
-  legendary: [
-    { emoji: "🐋", name: "Baleia dos Anciões", points: 200 },
-    { emoji: "🦑", name: "Kraken Dourado", points: 300 },
-    { emoji: "🌊", name: "Espírito das Águas", points: 500 },
-  ],
-};
 
 export const FishingScreen: React.FC = () => {
   const { setCurrentScreen, addXenocoins } = useGameStore();
 
   // Game state
-  const [fishes, setFishes] = useState<Fish[]>([]);
-  const [hookPosition, setHookPosition] = useState({ x: 50, y: 20 });
-  const [lineLength, setLineLength] = useState(0);
-  const [isHookInWater, setIsHookInWater] = useState(false);
+  const [fish, setFish] = useState<Fish | null>(null);
+  const [hookPosition, setHookPosition] = useState({ x: 50, y: 100 });
+  const [targetPosition, setTargetPosition] = useState({ x: 50, y: 50 });
+  const [isLaunching, setIsLaunching] = useState(false);
+  const [isRetracting, setIsRetracting] = useState(false);
   const [isFishing, setIsFishing] = useState(false);
   const [caughtFishes, setCaughtFishes] = useState<CaughtFish[]>([]);
   const [totalScore, setTotalScore] = useState(0);
   const [gameTime, setGameTime] = useState(0);
   const [showCatch, setShowCatch] = useState<CaughtFish | null>(null);
+  const [lineLength, setLineLength] = useState(0);
+  const [hookAngle, setHookAngle] = useState(0);
 
   // Refs
   const gameLoopRef = useRef<number>();
   const fishSpawnRef = useRef<NodeJS.Timeout>();
   const gameContainer = useRef<HTMLDivElement>(null);
 
-  // Generate random fish
+  // Generate the single fish
   const generateFish = useCallback((): Fish => {
-    const typeRandom = Math.random();
-    let type: "common" | "rare" | "legendary";
-
-    if (typeRandom > 0.95) type = "legendary";
-    else if (typeRandom > 0.8) type = "rare";
-    else type = "common";
-
-    const fishData =
-      FISH_TYPES[type][Math.floor(Math.random() * FISH_TYPES[type].length)];
-
     return {
-      id: Date.now() + Math.random().toString(),
-      x: Math.random() > 0.5 ? -10 : 110,
-      y: 40 + Math.random() * 50, // Fish swim in water area
-      speed: 0.5 + Math.random() * 1.5,
+      id: "mystical-fish",
+      x: Math.random() * 80 + 10, // Keep fish in visible area
+      y: 45 + Math.random() * 35, // Fish swim in water area
+      speed: 0.3 + Math.random() * 0.7,
       direction: Math.random() > 0.5 ? 1 : -1,
-      type,
-      emoji: fishData.emoji,
-      name: fishData.name,
-      points: fishData.points,
-      size: type === "legendary" ? 3 : type === "rare" ? 2.5 : 2,
+      name: "Peixe Místico dos Anciões",
+      points: 100,
+      size: 2.5,
     };
   }, []);
 
-  // Initialize fishes
+  // Initialize fish
   useEffect(() => {
-    const initialFishes = Array.from({ length: 8 }, generateFish);
-    setFishes(initialFishes);
+    setFish(generateFish());
   }, [generateFish]);
 
   // Game loop for fish movement
   useEffect(() => {
     const gameLoop = () => {
-      setFishes((prevFishes) =>
-        prevFishes.map((fish) => {
-          let newX = fish.x + fish.speed * fish.direction;
-          let newDirection = fish.direction;
+      setFish((prevFish) => {
+        if (!prevFish) return null;
 
-          // Reverse direction if fish reaches boundaries
-          if (newX > 100 || newX < 0) {
-            newDirection = -fish.direction;
-            newX = Math.max(0, Math.min(100, newX));
-          }
+        let newX = prevFish.x + prevFish.speed * prevFish.direction;
+        let newDirection = prevFish.direction;
 
-          return {
-            ...fish,
-            x: newX,
-            direction: newDirection,
-          };
-        }),
-      );
+        // Reverse direction if fish reaches boundaries
+        if (newX > 90 || newX < 10) {
+          newDirection = -prevFish.direction;
+          newX = Math.max(10, Math.min(90, newX));
+        }
+
+        return {
+          ...prevFish,
+          x: newX,
+          direction: newDirection,
+        };
+      });
 
       gameLoopRef.current = requestAnimationFrame(gameLoop);
     };
@@ -127,23 +95,15 @@ export const FishingScreen: React.FC = () => {
     };
   }, []);
 
-  // Spawn new fish periodically
+  // Respawn fish after it's caught
   useEffect(() => {
-    fishSpawnRef.current = setInterval(() => {
-      setFishes((prevFishes) => {
-        if (prevFishes.length < 12) {
-          return [...prevFishes, generateFish()];
-        }
-        return prevFishes;
-      });
-    }, 3000);
-
-    return () => {
-      if (fishSpawnRef.current) {
-        clearInterval(fishSpawnRef.current);
-      }
-    };
-  }, [generateFish]);
+    if (!fish) {
+      const timeout = setTimeout(() => {
+        setFish(generateFish());
+      }, 3000);
+      return () => clearTimeout(timeout);
+    }
+  }, [fish, generateFish]);
 
   // Game timer
   useEffect(() => {
@@ -154,10 +114,21 @@ export const FishingScreen: React.FC = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // Handle hook movement and fishing
+  // Calculate line length and angle
+  useEffect(() => {
+    const deltaX = targetPosition.x - 50;
+    const deltaY = targetPosition.y - 100;
+    const length = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    const angle = Math.atan2(deltaX, deltaY) * (180 / Math.PI);
+
+    setLineLength(length);
+    setHookAngle(angle);
+  }, [targetPosition]);
+
+  // Handle fishing launch
   const handleScreenClick = useCallback(
     (event: React.MouseEvent) => {
-      if (isFishing) return;
+      if (isLaunching || isRetracting || isFishing) return;
 
       const rect = gameContainer.current?.getBoundingClientRect();
       if (!rect) return;
@@ -165,61 +136,75 @@ export const FishingScreen: React.FC = () => {
       const x = ((event.clientX - rect.left) / rect.width) * 100;
       const y = ((event.clientY - rect.top) / rect.height) * 100;
 
-      setHookPosition({ x, y: Math.max(20, y) });
+      // Only allow fishing in water area
+      if (y < 35) return;
 
-      // If clicking in water area, start fishing
-      if (y > 35) {
+      setTargetPosition({ x, y });
+      setIsLaunching(true);
+
+      // Start launch animation
+      setTimeout(() => {
+        setHookPosition({ x, y });
+        setIsLaunching(false);
         setIsFishing(true);
-        setIsHookInWater(true);
-        setLineLength(y - 20);
 
-        // Check for fish catch after a delay
+        // Check for fish catch after hook settles
         setTimeout(() => {
+          if (!fish) {
+            // No fish to catch, start retracting
+            setIsFishing(false);
+            startRetraction();
+            return;
+          }
+
           const hookX = x;
           const hookY = y;
 
-          // Check if hook is near any fish
-          const caughtFish = fishes.find((fish) => {
-            const distance = Math.sqrt(
-              Math.pow(fish.x - hookX, 2) + Math.pow(fish.y - hookY, 2),
-            );
-            return distance < 8; // Catch radius
-          });
+          // Check if hook is near the fish
+          const distance = Math.sqrt(
+            Math.pow(fish.x - hookX, 2) + Math.pow(fish.y - hookY, 2),
+          );
 
-          if (caughtFish) {
-            // Remove caught fish from the water
-            setFishes((prev) => prev.filter((f) => f.id !== caughtFish.id));
-
-            // Add to caught fishes
+          if (distance < 12) {
+            // Catch radius
+            // Fish caught!
             const newCatch: CaughtFish = {
-              id: caughtFish.id,
-              type: caughtFish.type,
-              emoji: caughtFish.emoji,
-              name: caughtFish.name,
-              points: caughtFish.points,
+              id: fish.id,
+              name: fish.name,
+              points: fish.points,
             };
 
             setCaughtFishes((prev) => [...prev, newCatch]);
-            setTotalScore((prev) => prev + caughtFish.points);
+            setTotalScore((prev) => prev + fish.points);
             setShowCatch(newCatch);
-            addXenocoins(Math.floor(caughtFish.points / 5));
+            addXenocoins(Math.floor(fish.points / 5));
+
+            // Remove the fish
+            setFish(null);
 
             // Hide catch notification after 2 seconds
             setTimeout(() => setShowCatch(null), 2000);
           }
 
-          // Reset fishing state
+          // Always retract after fishing attempt
+          setIsFishing(false);
           setTimeout(() => {
-            setIsFishing(false);
-            setIsHookInWater(false);
-            setLineLength(0);
-            setHookPosition({ x: 50, y: 20 });
+            startRetraction();
           }, 1000);
-        }, 1500);
-      }
+        }, 2000);
+      }, 800); // Hook travel time
     },
-    [isFishing, fishes, addXenocoins],
+    [isLaunching, isRetracting, isFishing, fish, addXenocoins],
   );
+
+  const startRetraction = () => {
+    setIsRetracting(true);
+    setTimeout(() => {
+      setHookPosition({ x: 50, y: 100 });
+      setTargetPosition({ x: 50, y: 50 });
+      setIsRetracting(false);
+    }, 600);
+  };
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -319,55 +304,95 @@ export const FishingScreen: React.FC = () => {
           />
         ))}
 
-        {/* Fish */}
-        {fishes.map((fish) => (
+        {/* Single Mystical Fish */}
+        {fish && (
           <motion.div
-            key={fish.id}
-            className="absolute text-center pointer-events-none"
+            className="absolute pointer-events-none"
             style={{
               left: `${fish.x}%`,
               top: `${fish.y}%`,
-              fontSize: `${fish.size}rem`,
               transform: fish.direction > 0 ? "scaleX(-1)" : "scaleX(1)",
             }}
             animate={{
-              y: [0, -5, 0],
-              rotate: [0, fish.direction * 2, 0],
+              y: [0, -8, 0],
+              rotate: [0, fish.direction * 3, 0],
             }}
             transition={{
-              duration: 2 + Math.random(),
+              duration: 2.5 + Math.random(),
               repeat: Infinity,
             }}
           >
-            {fish.emoji}
+            <img
+              src="https://cdn.builder.io/api/v1/image/assets%2Fce46587856fe4a08b8f584f94123bade%2Fb2f6ea722aff420ab4d228a5ff95d846?format=webp&width=800"
+              alt="Peixe Místico"
+              className="w-20 h-20 object-contain drop-shadow-lg"
+              style={{
+                filter: "drop-shadow(0 0 10px rgba(59, 130, 246, 0.5))",
+              }}
+            />
           </motion.div>
-        ))}
+        )}
       </div>
 
-      {/* Fishing Line */}
-      {lineLength > 0 && (
-        <div
-          className="absolute bg-gray-800 z-10"
-          style={{
-            left: `${hookPosition.x}%`,
-            top: "20%",
-            width: "2px",
-            height: `${lineLength}%`,
-            transformOrigin: "top",
-          }}
-        />
-      )}
+      {/* Fishing Rod (bottom of screen) */}
+      <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-2 h-32 bg-gradient-to-t from-amber-800 to-amber-600 rounded-t-full z-10" />
 
-      {/* Fishing Hook */}
+      {/* Dynamic Fishing Line */}
       <motion.div
-        className="absolute z-20 text-2xl pointer-events-none"
+        className="absolute bottom-32 left-1/2 bg-gray-700 origin-bottom z-10"
+        style={{
+          width: "1.5px",
+          height: `${lineLength * 2}px`,
+          transform: `translateX(-50%) rotate(${hookAngle}deg)`,
+        }}
+        animate={
+          isLaunching
+            ? {
+                height: [`0px`, `${lineLength * 2}px`],
+              }
+            : isRetracting
+              ? {
+                  height: [`${lineLength * 2}px`, `0px`],
+                }
+              : {}
+        }
+        transition={{
+          duration: isLaunching ? 0.8 : isRetracting ? 0.6 : 0,
+          ease: "easeOut",
+        }}
+      />
+
+      {/* Dynamic Fishing Hook */}
+      <motion.div
+        className="absolute z-20 text-3xl pointer-events-none"
         style={{
           left: `${hookPosition.x}%`,
           top: `${hookPosition.y}%`,
           transform: "translate(-50%, -50%)",
         }}
-        animate={isFishing ? { rotate: [0, 10, -10, 0] } : {}}
-        transition={{ duration: 0.5, repeat: isFishing ? Infinity : 0 }}
+        animate={
+          isLaunching
+            ? {
+                x: [0, (targetPosition.x - 50) * 8],
+                y: [0, (targetPosition.y - 100) * 8],
+              }
+            : isRetracting
+              ? {
+                  x: [(targetPosition.x - 50) * 8, 0],
+                  y: [(targetPosition.y - 100) * 8, 0],
+                }
+              : isFishing
+                ? {
+                    rotate: [0, 15, -15, 0],
+                    y: [0, -5, 5, 0],
+                  }
+                : {}
+        }
+        transition={{
+          duration: isLaunching ? 0.8 : isRetracting ? 0.6 : 2,
+          ease: isLaunching || isRetracting ? "easeOut" : "easeInOut",
+          repeat: isFishing ? Infinity : 0,
+        }}
       >
         🪝
       </motion.div>
@@ -401,10 +426,14 @@ export const FishingScreen: React.FC = () => {
       {/* Instructions */}
       <div className="absolute bottom-4 left-4 right-4 text-center z-30">
         <div className="bg-black/30 backdrop-blur text-white p-3 rounded-lg text-sm">
-          {isFishing ? (
+          {isLaunching ? (
+            <div className="animate-pulse">🎣 Lançando anzol...</div>
+          ) : isFishing ? (
             <div className="animate-pulse">🎣 Pescando... Aguarde!</div>
+          ) : isRetracting ? (
+            <div className="animate-pulse">↩️ Recolhendo linha...</div>
           ) : (
-            <div>Clique na água para pescar! 🌊</div>
+            <div>Clique na água para lançar o anzol! 🌊</div>
           )}
         </div>
       </div>
@@ -420,7 +449,7 @@ export const FishingScreen: React.FC = () => {
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
           >
             <div className="bg-white rounded-xl shadow-xl p-6 text-center border-4 border-yellow-400">
-              <div className="text-6xl mb-2">{showCatch.emoji}</div>
+              <div className="text-6xl mb-2">🎣</div>
               <div className="text-2xl font-bold text-gray-800 mb-1">
                 {showCatch.name}
               </div>
@@ -435,7 +464,7 @@ export const FishingScreen: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {/* Caught Fish Collection (Side Panel) */}
+      {/* Caught Fish Collection */}
       {caughtFishes.length > 0 && (
         <div className="absolute right-4 top-24 bottom-20 w-48 bg-black/30 backdrop-blur rounded-lg p-3 overflow-y-auto z-30">
           <h3 className="text-white font-bold text-center mb-3 flex items-center justify-center gap-2">
@@ -446,16 +475,14 @@ export const FishingScreen: React.FC = () => {
             {caughtFishes.map((fish, index) => (
               <div
                 key={`${fish.id}-${index}`}
-                className={`p-2 rounded text-white text-xs ${
-                  fish.type === "legendary"
-                    ? "bg-yellow-600/50"
-                    : fish.type === "rare"
-                      ? "bg-purple-600/50"
-                      : "bg-blue-600/50"
-                }`}
+                className="p-2 rounded text-white text-xs bg-blue-600/50"
               >
                 <div className="flex items-center gap-2">
-                  <span className="text-lg">{fish.emoji}</span>
+                  <img
+                    src="https://cdn.builder.io/api/v1/image/assets%2Fce46587856fe4a08b8f584f94123bade%2Fb2f6ea722aff420ab4d228a5ff95d846?format=webp&width=800"
+                    alt="Peixe Capturado"
+                    className="w-8 h-8 object-contain"
+                  />
                   <div>
                     <div className="font-semibold">{fish.name}</div>
                     <div className="text-yellow-300">+{fish.points}pts</div>
