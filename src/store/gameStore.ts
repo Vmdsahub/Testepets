@@ -805,6 +805,9 @@ export const useGameStore = create<GameStore>()(
       currentExplorationArea: null,
       explorationPoints: [],
 
+      // Minigames state
+      currentMinigame: null,
+
       // Planet editing state
       isPlanetEditMode: false,
 
