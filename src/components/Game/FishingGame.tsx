@@ -11,24 +11,8 @@ interface Fish {
   vx: number;
   vy: number;
   size: number;
-  depth: number;
   caught: boolean;
   silhouette: boolean;
-}
-
-interface Hook {
-  x: number;
-  y: number;
-  isDropping: boolean;
-  isRising: boolean;
-  caughtFish: Fish | null;
-}
-
-interface Camera {
-  x: number;
-  y: number;
-  targetX: number;
-  targetY: number;
 }
 
 interface FishingGameProps {
@@ -41,420 +25,286 @@ export const FishingGame: React.FC<FishingGameProps> = ({
   onFishCaught,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [gameState, setGameState] = useState<
-    "idle" | "casting" | "fishing" | "caught"
-  >("idle");
+  const animationFrameRef = useRef<number>();
+  const [gameStarted, setGameStarted] = useState(false);
   const [score, setScore] = useState(0);
 
-  // Game objects
-  const [camera, setCamera] = useState<Camera>({
-    x: 0,
-    y: 0,
-    targetX: 0,
-    targetY: 0,
-  });
-  const [hook, setHook] = useState<Hook>({
+  // Game state
+  const fishRef = useRef<Fish[]>([]);
+  const hookRef = useRef({
     x: 400,
     y: 50,
     isDropping: false,
     isRising: false,
-    caughtFish: null,
+    caughtFish: null as Fish | null,
   });
-  const [fish, setFish] = useState<Fish[]>([]);
+  const cameraRef = useRef({ x: 0, y: 0 });
 
-  // Game constants
+  // Constants
   const WATER_LEVEL = 150;
-  const HOOK_SPEED = 3;
-  const FISH_SPAWN_COUNT = 5;
   const CANVAS_WIDTH = 800;
   const CANVAS_HEIGHT = 600;
-  const WATER_DEPTH = CANVAS_HEIGHT - WATER_LEVEL;
 
   // Initialize fish
   const initializeFish = useCallback(() => {
-    const newFish: Fish[] = [];
-
-    for (let i = 0; i < FISH_SPAWN_COUNT; i++) {
-      newFish.push({
-        id: `fish-${i}`,
-        name: `Peixe ${i + 1}`,
+    fishRef.current = [
+      {
+        id: "fish-1",
+        name: "Peixe Cristalino",
         imageUrl:
           "https://cdn.builder.io/api/v1/image/assets%2F14397f3b3f9049c3ad3ca64e1b66afd5%2F3c3112f8a28e4b8d9b5a3ca4741db1d5?format=webp&width=800",
-        x: Math.random() * (CANVAS_WIDTH - 100) + 50,
-        y: WATER_LEVEL + Math.random() * (WATER_DEPTH - 100) + 50,
-        vx: (Math.random() - 0.5) * 2,
-        vy: (Math.random() - 0.5) * 1,
-        size: 30 + Math.random() * 20,
-        depth: Math.random(),
+        x: 200,
+        y: 300,
+        vx: 1,
+        vy: 0.5,
+        size: 40,
         caught: false,
         silhouette: true,
-      });
-    }
-
-    setFish(newFish);
+      },
+      {
+        id: "fish-2",
+        name: "Peixe Dourado",
+        imageUrl:
+          "https://cdn.builder.io/api/v1/image/assets%2F14397f3b3f9049c3ad3ca64e1b66afd5%2F3c3112f8a28e4b8d9b5a3ca4741db1d5?format=webp&width=800",
+        x: 500,
+        y: 400,
+        vx: -1.5,
+        vy: -0.3,
+        size: 35,
+        caught: false,
+        silhouette: true,
+      },
+    ];
   }, []);
 
-  // Draw background layer
-  const drawBackground = (ctx: CanvasRenderingContext2D) => {
-    // Sky gradient
-    const skyGradient = ctx.createLinearGradient(0, 0, 0, WATER_LEVEL);
-    skyGradient.addColorStop(0, "#87CEEB"); // Sky blue
-    skyGradient.addColorStop(1, "#B0E0E6"); // Powder blue
-
-    ctx.fillStyle = skyGradient;
-    ctx.fillRect(-camera.x, -camera.y, CANVAS_WIDTH * 2, WATER_LEVEL);
-
-    // Clouds
-    ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
-    for (let i = 0; i < 3; i++) {
-      const cloudX = i * 200 + 100 - camera.x * 0.5; // Parallax effect
-      const cloudY = 30 - camera.y * 0.3;
-
-      // Simple cloud shape
-      ctx.beginPath();
-      ctx.arc(cloudX, cloudY, 30, 0, Math.PI * 2);
-      ctx.arc(cloudX + 25, cloudY, 35, 0, Math.PI * 2);
-      ctx.arc(cloudX + 50, cloudY, 30, 0, Math.PI * 2);
-      ctx.fill();
-    }
-  };
-
-  // Draw water layer
-  const drawWater = (ctx: CanvasRenderingContext2D) => {
-    // Water surface
-    ctx.fillStyle = "#1E90FF";
-    ctx.fillRect(-camera.x, WATER_LEVEL - camera.y, CANVAS_WIDTH * 2, 5);
-
-    // Water depth gradient
-    const waterGradient = ctx.createLinearGradient(
-      0,
-      WATER_LEVEL,
-      0,
-      CANVAS_HEIGHT,
-    );
-    waterGradient.addColorStop(0, "#4169E1"); // Royal blue
-    waterGradient.addColorStop(0.5, "#1E3A8A"); // Dark blue
-    waterGradient.addColorStop(1, "#0F172A"); // Very dark blue
-
-    ctx.fillStyle = waterGradient;
-    ctx.fillRect(
-      -camera.x,
-      WATER_LEVEL - camera.y,
-      CANVAS_WIDTH * 2,
-      WATER_DEPTH,
-    );
-
-    // Water bubbles
-    ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
-    for (let i = 0; i < 10; i++) {
-      const bubbleX =
-        Math.sin(Date.now() * 0.001 + i) * 100 + i * 80 - camera.x;
-      const bubbleY =
-        WATER_LEVEL + Math.sin(Date.now() * 0.002 + i) * 50 + i * 40 - camera.y;
-
-      if (bubbleY > WATER_LEVEL - camera.y) {
-        ctx.beginPath();
-        ctx.arc(
-          bubbleX,
-          bubbleY,
-          3 + Math.sin(Date.now() * 0.003 + i) * 2,
-          0,
-          Math.PI * 2,
-        );
-        ctx.fill();
-      }
-    }
-  };
-
-  // Draw fish
-  const drawFish = (ctx: CanvasRenderingContext2D) => {
-    fish.forEach((f) => {
-      if (f.caught) return;
-
-      const fishX = f.x - camera.x;
-      const fishY = f.y - camera.y;
-
-      if (f.silhouette) {
-        // Draw silhouette
-        ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
-        ctx.beginPath();
-
-        // Fish body (ellipse)
-        ctx.save();
-        ctx.translate(fishX, fishY);
-        ctx.scale(f.vx > 0 ? 1 : -1, 1); // Flip based on direction
-
-        // Body
-        ctx.beginPath();
-        ctx.ellipse(0, 0, f.size * 0.6, f.size * 0.4, 0, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Tail
-        ctx.beginPath();
-        ctx.moveTo(-f.size * 0.6, 0);
-        ctx.lineTo(-f.size * 1.2, -f.size * 0.3);
-        ctx.lineTo(-f.size * 1.2, f.size * 0.3);
-        ctx.closePath();
-        ctx.fill();
-
-        ctx.restore();
-      } else {
-        // Draw actual fish image (after caught)
-        const img = new Image();
-        img.src = f.imageUrl;
-
-        ctx.save();
-        ctx.translate(fishX, fishY);
-        ctx.scale(f.vx > 0 ? 1 : -1, 1);
-        ctx.drawImage(img, -f.size / 2, -f.size / 2, f.size, f.size);
-        ctx.restore();
-      }
-    });
-  };
-
-  // Draw hook and line
-  const drawHook = (ctx: CanvasRenderingContext2D) => {
-    const hookX = hook.x - camera.x;
-    const hookY = hook.y - camera.y;
-
-    // Fishing line
-    ctx.strokeStyle = "#8B4513";
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(hookX, -camera.y); // From top of screen
-    ctx.lineTo(hookX, hookY);
-    ctx.stroke();
-
-    // Hook
-    ctx.fillStyle = "#C0C0C0";
-    ctx.fillRect(hookX - 3, hookY - 8, 6, 16);
-
-    // Hook curve
-    ctx.strokeStyle = "#C0C0C0";
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.arc(hookX + 5, hookY, 5, 0, Math.PI);
-    ctx.stroke();
-
-    // Caught fish
-    if (hook.caughtFish) {
-      const fishX = hookX;
-      const fishY = hookY + 20;
-
-      const img = new Image();
-      img.src = hook.caughtFish.imageUrl;
-      ctx.drawImage(
-        img,
-        fishX - hook.caughtFish.size / 2,
-        fishY - hook.caughtFish.size / 2,
-        hook.caughtFish.size,
-        hook.caughtFish.size,
-      );
-    }
-  };
-
-  // Update fish movement
-  const updateFish = useCallback(() => {
-    setFish((prevFish) =>
-      prevFish.map((f) => {
-        if (f.caught) return f;
-
-        let newX = f.x + f.vx;
-        let newY = f.y + f.vy;
-        let newVx = f.vx;
-        let newVy = f.vy;
-
-        // Bounce off walls
-        if (newX <= 0 || newX >= CANVAS_WIDTH) {
-          newVx = -newVx;
-          newX = Math.max(0, Math.min(CANVAS_WIDTH, newX));
-        }
-
-        // Stay in water
-        if (newY <= WATER_LEVEL || newY >= CANVAS_HEIGHT - 20) {
-          newVy = -newVy;
-          newY = Math.max(WATER_LEVEL, Math.min(CANVAS_HEIGHT - 20, newY));
-        }
-
-        // Random direction change
-        if (Math.random() < 0.01) {
-          newVx += (Math.random() - 0.5) * 0.5;
-          newVy += (Math.random() - 0.5) * 0.3;
-
-          // Limit speed
-          const speed = Math.sqrt(newVx * newVx + newVy * newVy);
-          if (speed > 2) {
-            newVx = (newVx / speed) * 2;
-            newVy = (newVy / speed) * 2;
-          }
-        }
-
-        return {
-          ...f,
-          x: newX,
-          y: newY,
-          vx: newVx,
-          vy: newVy,
-        };
-      }),
-    );
-  }, []);
-
-  // Update hook movement
-  const updateHook = useCallback(() => {
-    setHook((prevHook) => {
-      let newHook = { ...prevHook };
-
-      if (newHook.isDropping) {
-        newHook.y += HOOK_SPEED;
-
-        // Check collision with fish
-        const caughtFish = fish.find(
-          (f) =>
-            !f.caught &&
-            Math.abs(f.x - newHook.x) < f.size / 2 &&
-            Math.abs(f.y - newHook.y) < f.size / 2,
-        );
-
-        if (caughtFish) {
-          newHook.caughtFish = { ...caughtFish, silhouette: false };
-          newHook.isDropping = false;
-          newHook.isRising = true;
-
-          // Mark fish as caught
-          setFish((prevFish) =>
-            prevFish.map((f) =>
-              f.id === caughtFish.id ? { ...f, caught: true } : f,
-            ),
-          );
-
-          setGameState("caught");
-        }
-
-        // Stop at bottom
-        if (newHook.y >= CANVAS_HEIGHT - 20) {
-          newHook.isDropping = false;
-          newHook.isRising = true;
-        }
-      }
-
-      if (newHook.isRising) {
-        newHook.y -= HOOK_SPEED;
-
-        // Return to surface
-        if (newHook.y <= 50) {
-          newHook.y = 50;
-          newHook.isRising = false;
-
-          if (newHook.caughtFish) {
-            onFishCaught(newHook.caughtFish);
-            setScore((prev) => prev + 1);
-            newHook.caughtFish = null;
-          }
-
-          setGameState("idle");
-        }
-      }
-
-      return newHook;
-    });
-  }, [fish, onFishCaught]);
-
-  // Update camera to follow hook
-  const updateCamera = useCallback(() => {
-    setCamera((prevCamera) => {
-      const newCamera = { ...prevCamera };
-
-      // Target follows hook
-      newCamera.targetX = hook.x - CANVAS_WIDTH / 2;
-      newCamera.targetY = hook.y - CANVAS_HEIGHT / 2;
-
-      // Smooth camera movement
-      newCamera.x += (newCamera.targetX - newCamera.x) * 0.1;
-      newCamera.y += (newCamera.targetY - newCamera.y) * 0.1;
-
-      // Limit camera bounds
-      newCamera.x = Math.max(
-        -CANVAS_WIDTH / 2,
-        Math.min(CANVAS_WIDTH / 2, newCamera.x),
-      );
-      newCamera.y = Math.max(-100, Math.min(CANVAS_HEIGHT / 2, newCamera.y));
-
-      return newCamera;
-    });
-  }, [hook.x, hook.y]);
-
-  // Game loop
-  useEffect(() => {
-    const gameLoop = setInterval(() => {
-      updateFish();
-      updateHook();
-      updateCamera();
-    }, 16); // ~60 FPS
-
-    return () => clearInterval(gameLoop);
-  }, [updateFish, updateHook, updateCamera]);
-
-  // Render loop
-  useEffect(() => {
+  // Draw function
+  const draw = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const render = () => {
-      // Clear canvas
-      ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    // Clear canvas
+    ctx.fillStyle = "#1a1a2e";
+    ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-      // Draw layers
-      drawBackground(ctx);
-      drawWater(ctx);
-      drawFish(ctx);
-      drawHook(ctx);
+    // Draw water
+    const waterGradient = ctx.createLinearGradient(
+      0,
+      WATER_LEVEL,
+      0,
+      CANVAS_HEIGHT,
+    );
+    waterGradient.addColorStop(0, "#2196F3");
+    waterGradient.addColorStop(1, "#0D47A1");
+    ctx.fillStyle = waterGradient;
+    ctx.fillRect(0, WATER_LEVEL, CANVAS_WIDTH, CANVAS_HEIGHT - WATER_LEVEL);
 
-      requestAnimationFrame(render);
-    };
+    // Draw water surface
+    ctx.fillStyle = "#64B5F6";
+    ctx.fillRect(0, WATER_LEVEL - 5, CANVAS_WIDTH, 10);
 
-    render();
-  }, [camera, hook, fish]);
+    // Draw fish
+    fishRef.current.forEach((fish) => {
+      if (fish.caught) return;
 
-  // Initialize game
-  useEffect(() => {
-    initializeFish();
-  }, [initializeFish]);
+      ctx.save();
+      ctx.translate(fish.x, fish.y);
 
-  // Handle click to cast
-  const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (gameState === "idle") {
-      const rect = canvasRef.current?.getBoundingClientRect();
-      if (rect) {
-        const x = e.clientX - rect.left;
+      if (fish.silhouette) {
+        // Draw silhouette
+        ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+        ctx.beginPath();
+        ctx.ellipse(0, 0, fish.size / 2, fish.size / 3, 0, 0, Math.PI * 2);
+        ctx.fill();
 
-        setHook((prev) => ({
-          ...prev,
-          x: x + camera.x,
-          isDropping: true,
-          isRising: false,
-          caughtFish: null,
-        }));
+        // Tail
+        ctx.beginPath();
+        ctx.moveTo(-fish.size / 2, 0);
+        ctx.lineTo(-fish.size, -fish.size / 4);
+        ctx.lineTo(-fish.size, fish.size / 4);
+        ctx.closePath();
+        ctx.fill();
+      } else {
+        // Draw revealed fish (simple colored fish for now)
+        ctx.fillStyle = "#4FC3F7";
+        ctx.beginPath();
+        ctx.ellipse(0, 0, fish.size / 2, fish.size / 3, 0, 0, Math.PI * 2);
+        ctx.fill();
 
-        setGameState("casting");
+        // Tail
+        ctx.fillStyle = "#29B6F6";
+        ctx.beginPath();
+        ctx.moveTo(-fish.size / 2, 0);
+        ctx.lineTo(-fish.size, -fish.size / 4);
+        ctx.lineTo(-fish.size, fish.size / 4);
+        ctx.closePath();
+        ctx.fill();
+
+        // Eye
+        ctx.fillStyle = "#000";
+        ctx.beginPath();
+        ctx.arc(fish.size / 4, -fish.size / 6, 3, 0, Math.PI * 2);
+        ctx.fill();
       }
+
+      ctx.restore();
+    });
+
+    // Draw hook and line
+    const hook = hookRef.current;
+    ctx.strokeStyle = "#8D6E63";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(hook.x, 0);
+    ctx.lineTo(hook.x, hook.y);
+    ctx.stroke();
+
+    // Hook
+    ctx.fillStyle = "#757575";
+    ctx.fillRect(hook.x - 4, hook.y - 6, 8, 12);
+
+    // Caught fish
+    if (hook.caughtFish) {
+      ctx.save();
+      ctx.translate(hook.x, hook.y + 25);
+      ctx.fillStyle = "#4FC3F7";
+      ctx.beginPath();
+      ctx.ellipse(
+        0,
+        0,
+        hook.caughtFish.size / 2,
+        hook.caughtFish.size / 3,
+        0,
+        0,
+        Math.PI * 2,
+      );
+      ctx.fill();
+      ctx.restore();
+    }
+  }, []);
+
+  // Update fish movement
+  const updateFish = useCallback(() => {
+    fishRef.current = fishRef.current.map((fish) => {
+      if (fish.caught) return fish;
+
+      let newX = fish.x + fish.vx;
+      let newY = fish.y + fish.vy;
+      let newVx = fish.vx;
+      let newVy = fish.vy;
+
+      // Bounce off walls
+      if (newX <= 20 || newX >= CANVAS_WIDTH - 20) {
+        newVx = -newVx;
+      }
+
+      // Stay in water
+      if (newY <= WATER_LEVEL + 20 || newY >= CANVAS_HEIGHT - 20) {
+        newVy = -newVy;
+      }
+
+      return { ...fish, x: newX, y: newY, vx: newVx, vy: newVy };
+    });
+  }, []);
+
+  // Update hook
+  const updateHook = useCallback(() => {
+    const hook = hookRef.current;
+
+    if (hook.isDropping) {
+      hook.y += 3;
+
+      // Check fish collision
+      const caughtFish = fishRef.current.find(
+        (fish) =>
+          !fish.caught &&
+          Math.abs(fish.x - hook.x) < fish.size / 2 &&
+          Math.abs(fish.y - hook.y) < fish.size / 2,
+      );
+
+      if (caughtFish) {
+        hook.caughtFish = { ...caughtFish, silhouette: false };
+        hook.isDropping = false;
+        hook.isRising = true;
+
+        // Mark fish as caught
+        fishRef.current = fishRef.current.map((fish) =>
+          fish.id === caughtFish.id ? { ...fish, caught: true } : fish,
+        );
+      }
+
+      // Hit bottom
+      if (hook.y >= CANVAS_HEIGHT - 50) {
+        hook.isDropping = false;
+        hook.isRising = true;
+      }
+    }
+
+    if (hook.isRising) {
+      hook.y -= 3;
+
+      if (hook.y <= 50) {
+        hook.y = 50;
+        hook.isRising = false;
+
+        if (hook.caughtFish) {
+          onFishCaught(hook.caughtFish);
+          setScore((prev) => prev + 1);
+          hook.caughtFish = null;
+        }
+      }
+    }
+  }, [onFishCaught]);
+
+  // Game loop
+  const gameLoop = useCallback(() => {
+    updateFish();
+    updateHook();
+    draw();
+
+    animationFrameRef.current = requestAnimationFrame(gameLoop);
+  }, [updateFish, updateHook, draw]);
+
+  // Start game
+  useEffect(() => {
+    if (!gameStarted) {
+      setGameStarted(true);
+      initializeFish();
+    }
+
+    if (gameStarted) {
+      gameLoop();
+    }
+
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, [gameStarted, gameLoop, initializeFish]);
+
+  // Handle canvas click
+  const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const rect = canvasRef.current?.getBoundingClientRect();
+    if (rect && !hookRef.current.isDropping && !hookRef.current.isRising) {
+      const x = e.clientX - rect.left;
+      hookRef.current.x = x;
+      hookRef.current.y = 50;
+      hookRef.current.isDropping = true;
     }
   };
 
   return (
-    <div className="w-full h-screen bg-black relative overflow-hidden">
+    <div className="w-full h-screen bg-black flex items-center justify-center relative">
       {/* Back button */}
-      <motion.button
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
+      <button
         onClick={onBack}
-        className="absolute top-4 left-4 z-10 bg-white/20 backdrop-blur text-white p-2 rounded-lg hover:bg-white/30 transition-colors"
+        className="absolute top-4 left-4 z-10 bg-white/20 backdrop-blur text-white p-3 rounded-lg hover:bg-white/30 transition-colors"
       >
         <ArrowLeft className="w-6 h-6" />
-      </motion.button>
+      </button>
 
       {/* Score */}
       <div className="absolute top-4 right-4 z-10 bg-white/20 backdrop-blur text-white px-4 py-2 rounded-lg">
@@ -462,11 +312,9 @@ export const FishingGame: React.FC<FishingGameProps> = ({
       </div>
 
       {/* Instructions */}
-      {gameState === "idle" && (
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10 bg-white/20 backdrop-blur text-white px-4 py-2 rounded-lg text-center">
-          Clique na água para lançar o anzol
-        </div>
-      )}
+      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10 bg-white/20 backdrop-blur text-white px-6 py-3 rounded-lg">
+        Clique na água para pescar
+      </div>
 
       {/* Game Canvas */}
       <canvas
@@ -474,14 +322,8 @@ export const FishingGame: React.FC<FishingGameProps> = ({
         width={CANVAS_WIDTH}
         height={CANVAS_HEIGHT}
         onClick={handleCanvasClick}
-        className="w-full h-full object-cover cursor-crosshair"
-        style={{ imageRendering: "pixelated" }}
+        className="border border-gray-600 rounded-lg cursor-crosshair bg-blue-900"
       />
-
-      {/* Title */}
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-0 text-white/10 text-8xl font-bold pointer-events-none select-none">
-        🏛️ TEMPLO DOS ANCIÕES
-      </div>
     </div>
   );
 };
