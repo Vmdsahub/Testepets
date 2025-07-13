@@ -903,6 +903,9 @@ export const useGameStore = create<GameStore>()(
       setCurrentExplorationArea: (area) =>
         set({ currentExplorationArea: area }),
 
+      // Minigames
+      setCurrentMinigame: (minigame) => set({ currentMinigame: minigame }),
+
       generateExplorationPoints: (planetId) => {
         // First try to load from storage
         const stored = get().loadExplorationPointsFromStorage(planetId);
