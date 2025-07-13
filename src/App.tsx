@@ -301,22 +301,10 @@ function App() {
               openModals={openModals}
             />
             <div className="h-full w-full">
-              {console.log("📱 Current screen:", currentScreen)}
               {currentScreen === "world" && <SpaceMap />}
               {currentScreen === "planet" && <PlanetScreen />}
               {currentScreen === "exploration" && <ExplorationScreen />}
-              {currentScreen === "fishing" && (
-                <div>
-                  {console.log("🎣 Rendering FishingGame...")}
-                  <FishingGame
-                    onBack={() => setCurrentScreen("exploration")}
-                    onFishCaught={(fish) => {
-                      console.log("Peixe capturado:", fish);
-                      // Aqui você pode adicionar lógica para salvar o peixe no inventário
-                    }}
-                  />
-                </div>
-              )}
+              {currentScreen === "fishing" && <FishingScreen />}
             </div>
             {/* Modals persist outside AnimatePresence */}
             <ModalManager openModals={openModals} onCloseModal={closeModal} />
