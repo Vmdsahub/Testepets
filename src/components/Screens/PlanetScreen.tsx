@@ -56,7 +56,7 @@ export const PlanetScreen: React.FC = () => {
   const [showEggSelection, setShowEggSelection] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Handler para seleção de ovos
+  // Handler para seleç��o de ovos
   const handleEggSelected = (egg: any) => {
     setSelectedEggForHatching(egg);
     setIsHatchingInProgress(true);
@@ -309,6 +309,47 @@ export const PlanetScreen: React.FC = () => {
                 Modo de Edição
               </div>
             )}
+
+            {/* Vila Ancestral Egg Selection - only show if user has no pets */}
+            {currentPlanet.id === "planet-5" &&
+              pets.length === 0 &&
+              !isPlanetEditMode && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.5, duration: 0.4 }}
+                  className="absolute inset-4 bg-white/95 backdrop-blur-sm rounded-xl shadow-2xl border border-purple-200 flex flex-col items-center justify-center p-6"
+                >
+                  <div className="text-center mb-6">
+                    <div className="text-6xl mb-4">🏛️</div>
+                    <h2 className="text-2xl font-bold text-purple-900 mb-2">
+                      Bem-vindo à Vila Ancestral
+                    </h2>
+                    <p className="text-purple-700 text-sm max-w-md">
+                      Este é um local sagrado onde você pode escolher seu
+                      primeiro companheiro. Os ovos ancestrais aguardam por
+                      alguém digno para começar uma nova jornada.
+                    </p>
+                  </div>
+
+                  <motion.button
+                    onClick={() => setShowEggSelection(true)}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-4 px-8 rounded-xl font-medium hover:from-purple-700 hover:to-indigo-700 transition-all shadow-lg flex items-center gap-3"
+                  >
+                    <span className="text-3xl">🥚</span>
+                    <div className="text-left">
+                      <div className="font-semibold text-lg">
+                        Escolher Ovo Ancestral
+                      </div>
+                      <div className="text-sm opacity-90">
+                        Comece sua jornada épica
+                      </div>
+                    </div>
+                  </motion.button>
+                </motion.div>
+              )}
 
             {/* Exploration Points */}
             {explorationPoints
