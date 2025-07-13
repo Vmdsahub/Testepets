@@ -123,18 +123,6 @@ export const PlanetScreen: React.FC = () => {
     currentPlanet,
   );
 
-  // Se estiver na Vila Ancestral e mostrando seleção de ovos
-  if (currentPlanet.id === "planet-5" && showEggSelection) {
-    return (
-      <div className="pb-24">
-        <EggSelectionScreen
-          onEggSelected={handleEggSelected}
-          onBack={handleBackFromEggSelection}
-        />
-      </div>
-    );
-  }
-
   // Handle exploration point click
   const handleExplorationPointClick = (point: ExplorationPoint) => {
     if (isPlanetEditMode) {
