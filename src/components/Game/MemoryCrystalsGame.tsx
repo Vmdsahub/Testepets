@@ -53,7 +53,7 @@ export const MemoryCrystalsGame: React.FC<MemoryCrystalsGameProps> = ({
   // Initialize game
   const initGame = useCallback(() => {
     setBird({ x: 100, y: CANVAS_HEIGHT / 2, velocity: 0 });
-    setPipes([{ x: CANVAS_WIDTH + 100, height: 200, passed: false }]);
+    setPipes([{ x: CANVAS_WIDTH + 200, height: 250, passed: false }]); // Start further away with safe height
     setScore(0);
     setGameStatus("waiting");
   }, []);
