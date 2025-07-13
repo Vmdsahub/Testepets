@@ -93,11 +93,42 @@ export const MemoryCrystalsGame: React.FC<MemoryCrystalsGameProps> = ({
   // Game over
   const endGame = useCallback(() => {
     setGameStatus("gameOver");
+    setShowRewardOptions(true);
     if (score > highScore) {
       setHighScore(score);
       localStorage.setItem("memory-crystals-high-score", score.toString());
     }
   }, [score, highScore]);
+
+  // Reward functions
+  const canClaimReward = dailyRewards < 3 && score > 0;
+
+  const claimXenocoins = useCallback(() => {
+    if (!canClaimReward) return;
+
+    const rewardAmount = score * 10; // 10 xenocoins per point
+    addXenocoins(rewardAmount);
+
+    // Update daily rewards count
+    const today = new Date().toDateString();
+    const newCount = dailyRewards + 1;
+    setDailyRewards(newCount);
+    localStorage.setItem(
+      "memory-crystals-daily-rewards",
+      JSON.stringify({
+        date: today,
+        count: newCount,
+      }),
+    );
+
+    setShowRewardOptions(false);
+    initGame();
+  }, [canClaimReward, score, addXenocoins, dailyRewards, initGame]);
+
+  const tryAgain = useCallback(() => {
+    setShowRewardOptions(false);
+    initGame();
+  }, [initGame]);
 
   // Generate new pipe
   const generatePipe = useCallback((x: number): Pipe => {
