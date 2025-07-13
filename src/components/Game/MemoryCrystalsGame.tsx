@@ -27,12 +27,12 @@ export const MemoryCrystalsGame: React.FC<MemoryCrystalsGameProps> = ({
   // Game constants
   const CANVAS_WIDTH = 400;
   const CANVAS_HEIGHT = 600;
-  const BIRD_SIZE = 20;
+  const BIRD_SIZE = 16; // Smaller bird for easier navigation
   const PIPE_WIDTH = 50;
-  const PIPE_GAP = 150;
-  const GRAVITY = 0.4;
-  const JUMP_FORCE = -7;
-  const PIPE_SPEED = 2;
+  const PIPE_GAP = 180; // Bigger gap between pipes
+  const GRAVITY = 0.3; // Reduced gravity for slower fall
+  const JUMP_FORCE = -6; // Slightly less jump force for better control
+  const PIPE_SPEED = 1.5; // Slower pipe movement
 
   // Game state
   const [bird, setBird] = useState<Bird>({
