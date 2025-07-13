@@ -56,17 +56,52 @@ export const PlanetScreen: React.FC = () => {
   const [isConfirming, setIsConfirming] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Dados dos ovos
+  const eggs = [
+    {
+      id: "dragon-egg",
+      name: "Ovo de Dragão",
+      emoji: "🥚",
+      species: "Dragon",
+    },
+    {
+      id: "phoenix-egg",
+      name: "Ovo de Fênix",
+      emoji: "🔥",
+      species: "Phoenix",
+    },
+    {
+      id: "griffin-egg",
+      name: "Ovo de Grifo",
+      emoji: "🪶",
+      species: "Griffin",
+    },
+    {
+      id: "unicorn-egg",
+      name: "Ovo de Unicórnio",
+      emoji: "🌟",
+      species: "Unicorn",
+    },
+  ];
+
   // Handler para seleção de ovos
-  const handleEggSelected = (egg: any) => {
-    setSelectedEggForHatching(egg);
-    setIsHatchingInProgress(true);
-    setShowEggSelection(false);
-    // Navigate to pet screen to show hatching
-    setCurrentScreen("pet");
+  const handleEggClick = (egg: any) => {
+    setSelectedEgg(egg.id);
   };
 
-  const handleBackFromEggSelection = () => {
-    setShowEggSelection(false);
+  const handleConfirmEggSelection = () => {
+    if (!selectedEgg) return;
+
+    const egg = eggs.find((e) => e.id === selectedEgg);
+    if (egg) {
+      setIsConfirming(true);
+
+      setTimeout(() => {
+        setSelectedEggForHatching(egg);
+        setIsHatchingInProgress(true);
+        setCurrentScreen("pet");
+      }, 1500);
+    }
   };
 
   // Generate exploration points for this planet - MOVED BEFORE EARLY RETURNS
