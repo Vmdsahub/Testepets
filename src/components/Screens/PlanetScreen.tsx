@@ -367,46 +367,30 @@ export const PlanetScreen: React.FC = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.8, duration: 0.4 }}
-                    className="bg-white/95 backdrop-blur-sm rounded-xl shadow-lg border border-purple-200 p-6 max-w-md mx-4"
+                    className="bg-white/95 backdrop-blur-sm rounded-xl shadow-lg border border-purple-200 p-6 max-w-lg mx-4"
                   >
                     <div className="text-center">
                       <div className="text-4xl mb-3">🏛️</div>
                       <h2 className="text-xl font-bold text-purple-900 mb-2">
-                        Bem-vindo à Vila Ancestral
+                        Uma longa jornada se inicia aqui...
                       </h2>
                       <p className="text-purple-700 text-sm">
-                        Escolha seu primeiro companheiro entre os ovos
-                        ancestrais para começar sua jornada épica
+                        Um Ovo misterioso aparece na Vila ancestral
                       </p>
                     </div>
                   </motion.div>
 
-                  {/* Confirm button - shows when an egg is selected */}
-                  {selectedEgg && (
+                  {/* Loading indicator when confirming */}
+                  {isConfirming && (
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="mt-6"
+                      className="mt-6 flex items-center gap-3 text-white"
                     >
-                      <motion.button
-                        onClick={handleConfirmEggSelection}
-                        disabled={isConfirming}
-                        className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-4 px-8 rounded-xl font-medium hover:from-purple-700 hover:to-indigo-700 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3"
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                      >
-                        {isConfirming ? (
-                          <>
-                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                            <span className="text-lg">Preparando...</span>
-                          </>
-                        ) : (
-                          <>
-                            <span className="text-2xl">❤️</span>
-                            <span className="text-lg">Confirmar Escolha</span>
-                          </>
-                        )}
-                      </motion.button>
+                      <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      <span className="text-lg font-medium">
+                        Preparando sua jornada...
+                      </span>
                     </motion.div>
                   )}
                 </motion.div>
