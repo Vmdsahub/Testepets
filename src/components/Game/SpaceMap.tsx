@@ -2142,7 +2142,7 @@ const SpaceMapComponent: React.FC = () => {
     const activeShip = getActiveShip();
     const shipImageUrl =
       activeShip?.imageUrl ||
-      "https://cdn.builder.io/api/v1/image/assets%2Fa34588f934eb4ad690ceadbafd1050c4%2F08167028f08f4996b97ed7703ce66292?format=webp&width=800";
+      "https://cdn.builder.io/api/v1/image/assets%2Fb6d85109083b414cb45e23273725417f%2F1d8f2abb8c5d40e28fb6562c1deaf30b?format=webp&width=800&v=3";
 
     const img = new Image();
     img.crossOrigin = "anonymous";
@@ -2156,7 +2156,7 @@ const SpaceMapComponent: React.FC = () => {
       const fallbackImg = new Image();
       fallbackImg.crossOrigin = "anonymous";
       fallbackImg.src =
-        "https://cdn.builder.io/api/v1/image/assets%2Fa34588f934eb4ad690ceadbafd1050c4%2F08167028f08f4996b97ed7703ce66292?format=webp&width=800";
+        "https://cdn.builder.io/api/v1/image/assets%2Fb6d85109083b414cb45e23273725417f%2F1d8f2abb8c5d40e28fb6562c1deaf30b?format=webp&width=800&v=3";
       fallbackImg.onload = () => {
         shipImageRef.current = fallbackImg;
       };
@@ -2323,7 +2323,7 @@ const SpaceMapComponent: React.FC = () => {
       // Player ship is always at center of screen
       const shipScreenX = centerX;
       const shipScreenY = centerY;
-      const shipSize = 30; // Same as defined in render function
+      const shipSize = 36; // Same as defined in render function (increased by 20%)
 
       const distance = Math.sqrt(
         Math.pow(clickX - shipScreenX, 2) + Math.pow(clickY - shipScreenY, 2),
@@ -3992,11 +3992,14 @@ const SpaceMapComponent: React.FC = () => {
 
         // Render ship image if loaded, otherwise fallback to original drawing
         if (shipImageRef.current && shipImageRef.current.complete) {
-          const shipSize = 30; // Adjust size as needed
+          const shipSize = 36; // Increased by 20% (was 30, now 36)
 
           // Enable antialiasing for smooth ship rendering
           ctx.imageSmoothingEnabled = true;
           ctx.imageSmoothingQuality = "high";
+
+          // Rotate 90 degrees to make ship face forward instead of left
+          ctx.rotate(Math.PI / 2);
 
           ctx.drawImage(
             shipImageRef.current,

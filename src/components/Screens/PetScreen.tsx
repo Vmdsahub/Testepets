@@ -62,12 +62,38 @@ export const PetScreen: React.FC = () => {
     );
   }
 
-  // If no pets exist, show egg selection screen
+  // If no pets exist, show message to go to Vila Ancestral
   if (!activePet && pets.length === 0) {
     return (
-      <div className="pb-24">
-        <EggSelectionScreen onEggSelected={handleEggSelected} />
-      </div>
+      <motion.div
+        className="max-w-md mx-auto pb-24"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+      >
+        <div className="bg-white rounded-3xl shadow-xl p-8 border border-gray-100 text-center">
+          <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Plus className="w-12 h-12 text-gray-400" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            Nenhum Pet Encontrado
+          </h2>
+          <p className="text-gray-600 mb-6">
+            Visite a Vila Ancestral para escolher seu primeiro ovo e criar seu
+            pet!
+          </p>
+          <motion.button
+            onClick={() => {
+              setCurrentScreen("world");
+              // Navigate to Vila Ancestral will be handled by the auto-redirect logic
+            }}
+            className="px-6 py-3 bg-purple-600 text-white rounded-full font-medium hover:bg-purple-700 transition-colors"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            Ir para Vila Ancestral
+          </motion.button>
+        </div>
+      </motion.div>
     );
   }
 

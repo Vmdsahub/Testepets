@@ -40,6 +40,10 @@ interface GameStore extends GameState {
   generateExplorationPoints: (planetId: string) => ExplorationPoint[];
   getExplorationArea: (pointId: string) => ExplorationArea;
 
+  // Minigames
+  currentMinigame: string | null;
+  setCurrentMinigame: (minigame: string | null) => void;
+
   // Planet editing mode (admin only)
   isPlanetEditMode: boolean;
   setPlanetEditMode: (enabled: boolean) => void;
@@ -749,7 +753,7 @@ export const useGameStore = create<GameStore>()(
           description:
             "Uma nave versátil projetada para exploração espacial de longo alcance. Equipada com propulsores iônicos avançados e sistema de navegação quântica.",
           imageUrl:
-            "https://cdn.builder.io/api/v1/image/assets%2Fa34588f934eb4ad690ceadbafd1050c4%2F08167028f08f4996b97ed7703ce66292?format=webp&width=800",
+            "https://cdn.builder.io/api/v1/image/assets%2Fb6d85109083b414cb45e23273725417f%2F1d8f2abb8c5d40e28fb6562c1deaf30b?format=webp&width=800&v=3",
           price: 0,
           currency: "xenocoins",
           stats: {
@@ -800,6 +804,9 @@ export const useGameStore = create<GameStore>()(
       currentExplorationPoint: null,
       currentExplorationArea: null,
       explorationPoints: [],
+
+      // Minigames state
+      currentMinigame: null,
 
       // Planet editing state
       isPlanetEditMode: false,
@@ -896,6 +903,9 @@ export const useGameStore = create<GameStore>()(
       setCurrentExplorationArea: (area) =>
         set({ currentExplorationArea: area }),
 
+      // Minigames
+      setCurrentMinigame: (minigame) => set({ currentMinigame: minigame }),
+
       generateExplorationPoints: (planetId) => {
         // First try to load from storage
         const stored = get().loadExplorationPointsFromStorage(planetId);
@@ -976,6 +986,7 @@ export const useGameStore = create<GameStore>()(
         for (let i = 0; i < planetId.length; i++) {
           hash = ((hash << 5) - hash + planetId.charCodeAt(i)) & 0xffffffff;
         }
+
         const setIndex = Math.abs(hash) % pointTemplates.length;
         const selectedNames = pointTemplates[setIndex];
 
@@ -1002,6 +1013,24 @@ export const useGameStore = create<GameStore>()(
               description: "", // Removed description as requested
               discovered: false,
               size: 0.7, // Smaller size as requested
+              active: true,
+            };
+          }
+
+          // Special customization for Túneis Profundos
+          if (name === "Túneis Profundos") {
+            return {
+              id: `${planetId}_point_${index + 1}`,
+              planetId,
+              name,
+              x: positions[index].x,
+              y: positions[index].y,
+              imageUrl:
+                "https://cdn.builder.io/api/v1/image/assets%2Fb6d85109083b414cb45e23273725417f%2Fd527502264bb4e169df3a43d9509b587?format=webp&width=800",
+              description:
+                "Túneis profundos que se estendem nas profundezas do planeta, lar de mistérios antigos e tecnologias perdidas.",
+              discovered: false,
+              size: 1.0,
               active: true,
             };
           }
@@ -2441,7 +2470,7 @@ export const useGameStore = create<GameStore>()(
       unsubscribeFromWorldPositions: () => {
         // No need for real-time subscriptions with localStorage
         console.log(
-          "📍 World positions using localStorage - no unsubscription needed",
+          "��� World positions using localStorage - no unsubscription needed",
         );
       },
 
@@ -2477,7 +2506,7 @@ export const useGameStore = create<GameStore>()(
       },
     }),
     {
-      name: "xenopets-game-store",
+      name: "xenopets-game-store-v2",
       partialize: (state) => ({
         user: state.user,
         activePet: state.activePet,
