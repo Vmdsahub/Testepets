@@ -158,7 +158,8 @@ export const MemoryCrystalsGame: React.FC<MemoryCrystalsGameProps> = ({
 
       // Generate new pipes
       const lastPipe = newPipes[newPipes.length - 1];
-      if (!lastPipe || lastPipe.x < CANVAS_WIDTH - 200) {
+      if (!lastPipe || lastPipe.x < CANVAS_WIDTH - 250) {
+        // More spacing between pipes
         newPipes.push(generatePipe(CANVAS_WIDTH));
       }
 
