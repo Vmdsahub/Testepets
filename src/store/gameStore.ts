@@ -2081,7 +2081,7 @@ export const useGameStore = create<GameStore>()(
             usedBy: [...redeemCode.usedBy, state.user.id],
           });
 
-          const message = `Código resgatado com sucesso! Recompensas: ${rewardMessages.join(", ")}`;
+          const message = `C��digo resgatado com sucesso! Recompensas: ${rewardMessages.join(", ")}`;
 
           get().addNotification({
             type: "success",
@@ -2409,25 +2409,10 @@ export const useGameStore = create<GameStore>()(
       },
 
       loadWorldPositions: async () => {
-        try {
-          // Tentar buscar do banco de dados primeiro
-          console.log("📍 Trying to load world positions from database...");
-          const worldPositions = await gameService.getWorldPositions();
-
-          if (worldPositions && worldPositions.length > 0) {
-            console.log(
-              "📍 Loaded world positions from database:",
-              worldPositions,
-            );
-            set({ worldPositions });
-            return;
-          }
-        } catch (error) {
-          console.error(
-            "📍 Error loading from database, using defaults:",
-            error,
-          );
-        }
+        // Usar posições padrão temporariamente para teste da nova imagem
+        console.log(
+          "📍 Using default positions with updated Vila Ancestral image...",
+        );
 
         // Se não tem, cria posições padrão
         const defaultPositions = [
