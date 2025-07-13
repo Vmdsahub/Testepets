@@ -25,13 +25,6 @@ export const PetScreen: React.FC = () => {
     clearHatchingEgg,
   } = useGameStore();
 
-  console.log("🐾 PetScreen - Estados:", {
-    selectedEggForHatching,
-    isHatchingInProgress,
-    pets: pets.length,
-    activePet: !!activePet,
-  });
-
   const [isLoading, setIsLoading] = useState(false);
 
   const handleEggSelected = (egg: any) => {
