@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, RotateCcw } from "lucide-react";
+import { ArrowLeft, RotateCcw, Coins, RefreshCw } from "lucide-react";
+import { useGameStore } from "../../store/gameStore";
 
 interface Bird {
   x: number;
