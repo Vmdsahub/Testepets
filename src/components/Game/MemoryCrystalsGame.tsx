@@ -101,10 +101,19 @@ export const MemoryCrystalsGame: React.FC<MemoryCrystalsGameProps> = ({
     setBird((prev) => {
       const newBird = { ...prev };
       newBird.velocity += GRAVITY;
+
+      // Add velocity damping for more control
+      newBird.velocity *= 0.98;
+
+      // Limit maximum fall speed
+      if (newBird.velocity > 4) {
+        newBird.velocity = 4;
+      }
+
       newBird.y += newBird.velocity;
 
-      // Check boundaries
-      if (newBird.y < 0 || newBird.y > CANVAS_HEIGHT - BIRD_SIZE) {
+      // Check boundaries with some margin
+      if (newBird.y < -5 || newBird.y > CANVAS_HEIGHT - BIRD_SIZE + 5) {
         endGame();
         return prev;
       }
