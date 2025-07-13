@@ -499,7 +499,74 @@ export const MemoryCrystalsGame: React.FC<MemoryCrystalsGameProps> = ({
             <div className="font-semibold text-gray-800">{highScore}</div>
             <div className="text-xs text-gray-600">Recorde</div>
           </div>
+          <div className="text-center">
+            <div className="font-semibold text-gray-800">{dailyRewards}/3</div>
+            <div className="text-xs text-gray-600">Resgates Hoje</div>
+          </div>
         </div>
+
+        {/* Reward Options Overlay */}
+        {showRewardOptions && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          >
+            <motion.div
+              initial={{ y: 20 }}
+              animate={{ y: 0 }}
+              className="bg-white rounded-2xl p-6 mx-4 max-w-sm w-full"
+            >
+              <div className="text-center mb-6">
+                <h3 className="text-xl font-bold text-gray-800 mb-2">
+                  Fim de Jogo!
+                </h3>
+                <p className="text-gray-600">Pontuação: {score}</p>
+                {score > 0 && (
+                  <p className="text-blue-600 text-sm">
+                    Potencial ganho: {score * 10} Xenocoins
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-3">
+                {canClaimReward ? (
+                  <motion.button
+                    onClick={claimXenocoins}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium flex items-center justify-center gap-2 hover:bg-blue-700 transition-colors"
+                  >
+                    <Coins className="w-5 h-5" />
+                    Resgatar {score * 10} Xenocoins
+                  </motion.button>
+                ) : (
+                  <div className="w-full bg-gray-100 text-gray-500 py-3 px-4 rounded-lg font-medium text-center">
+                    {dailyRewards >= 3
+                      ? "Limite diário atingido (3/3)"
+                      : "Sem pontuação para resgatar"}
+                  </div>
+                )}
+
+                <motion.button
+                  onClick={tryAgain}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="w-full bg-gray-600 text-white py-3 px-4 rounded-lg font-medium flex items-center justify-center gap-2 hover:bg-gray-700 transition-colors"
+                >
+                  <RefreshCw className="w-5 h-5" />
+                  Tentar Novamente
+                </motion.button>
+              </div>
+
+              {dailyRewards < 3 && (
+                <div className="mt-4 text-center text-sm text-gray-500">
+                  Resgates restantes hoje: {3 - dailyRewards}
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
       </div>
     </motion.div>
   );
