@@ -233,7 +233,8 @@ export const ExplorationScreen: React.FC = () => {
 
             {/* Overlay info - only show for locations without special content */}
             {currentExplorationPoint.name !== "Planície Dourada" &&
-              currentExplorationPoint.name !== "Túneis Profundos" && (
+              currentExplorationPoint.name !== "Túneis Profundos" &&
+              currentExplorationPoint.planetId !== "planet-5" && (
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
                   <div className="text-white">
                     <h3 className="text-lg font-semibold mb-1">
