@@ -39,6 +39,11 @@ export const PlanetScreen: React.FC = () => {
     addExplorationPoint,
     removeExplorationPoint,
     saveExplorationPoints,
+    pets,
+    selectedEggForHatching,
+    isHatchingInProgress,
+    setSelectedEggForHatching,
+    setIsHatchingInProgress,
   } = useGameStore();
 
   console.log("🌍 PlanetScreen renderizado:", { currentPlanet, user });
