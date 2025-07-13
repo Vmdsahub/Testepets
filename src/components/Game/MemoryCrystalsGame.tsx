@@ -1,12 +1,17 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, RotateCcw, Play } from "lucide-react";
+import { ArrowLeft, RotateCcw } from "lucide-react";
 
-interface GameState {
-  bird: { x: number; y: number; velocity: number };
-  pipes: Array<{ x: number; height: number; passed: boolean }>;
-  score: number;
-  gameStatus: "waiting" | "playing" | "gameOver";
+interface Bird {
+  x: number;
+  y: number;
+  velocity: number;
+}
+
+interface Pipe {
+  x: number;
+  height: number;
+  passed: boolean;
 }
 
 interface MemoryCrystalsGameProps {
@@ -18,7 +23,6 @@ export const MemoryCrystalsGame: React.FC<MemoryCrystalsGameProps> = ({
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>();
-  const lastTimeRef = useRef<number>(0);
 
   // Game constants
   const CANVAS_WIDTH = 400;
@@ -26,150 +30,143 @@ export const MemoryCrystalsGame: React.FC<MemoryCrystalsGameProps> = ({
   const BIRD_SIZE = 20;
   const PIPE_WIDTH = 50;
   const PIPE_GAP = 150;
-  const GRAVITY = 0.5;
-  const JUMP_FORCE = -8;
+  const GRAVITY = 0.4;
+  const JUMP_FORCE = -7;
   const PIPE_SPEED = 2;
 
   // Game state
-  const [gameState, setGameState] = useState<GameState>({
-    bird: { x: 100, y: CANVAS_HEIGHT / 2, velocity: 0 },
-    pipes: [],
-    score: 0,
-    gameStatus: "waiting",
+  const [bird, setBird] = useState<Bird>({
+    x: 100,
+    y: CANVAS_HEIGHT / 2,
+    velocity: 0,
   });
-
+  const [pipes, setPipes] = useState<Pipe[]>([]);
+  const [score, setScore] = useState(0);
+  const [gameStatus, setGameStatus] = useState<
+    "waiting" | "playing" | "gameOver"
+  >("waiting");
   const [highScore, setHighScore] = useState(() => {
     const saved = localStorage.getItem("memory-crystals-high-score");
     return saved ? parseInt(saved, 10) : 0;
   });
 
-  // Generate a new pipe
-  const generatePipe = useCallback((x: number) => {
+  // Initialize game
+  const initGame = useCallback(() => {
+    setBird({ x: 100, y: CANVAS_HEIGHT / 2, velocity: 0 });
+    setPipes([{ x: CANVAS_WIDTH + 100, height: 200, passed: false }]);
+    setScore(0);
+    setGameStatus("waiting");
+  }, []);
+
+  // Start game
+  const startGame = useCallback(() => {
+    setGameStatus("playing");
+  }, []);
+
+  // Jump
+  const jump = useCallback(() => {
+    if (gameStatus === "waiting") {
+      startGame();
+      setBird((prev) => ({ ...prev, velocity: JUMP_FORCE }));
+    } else if (gameStatus === "playing") {
+      setBird((prev) => ({ ...prev, velocity: JUMP_FORCE }));
+    }
+  }, [gameStatus, startGame]);
+
+  // Game over
+  const endGame = useCallback(() => {
+    setGameStatus("gameOver");
+    if (score > highScore) {
+      setHighScore(score);
+      localStorage.setItem("memory-crystals-high-score", score.toString());
+    }
+  }, [score, highScore]);
+
+  // Generate new pipe
+  const generatePipe = useCallback((x: number): Pipe => {
     const minHeight = 100;
     const maxHeight = CANVAS_HEIGHT - PIPE_GAP - minHeight;
     const height = Math.random() * (maxHeight - minHeight) + minHeight;
     return { x, height, passed: false };
   }, []);
 
-  // Initialize game
-  const initGame = useCallback(() => {
-    setGameState({
-      bird: { x: 100, y: CANVAS_HEIGHT / 2, velocity: 0 },
-      pipes: [generatePipe(CANVAS_WIDTH)],
-      score: 0,
-      gameStatus: "waiting",
-    });
-  }, [generatePipe]);
-
-  // Start game
-  const startGame = useCallback(() => {
-    setGameState((prev) => ({ ...prev, gameStatus: "playing" }));
-  }, []);
-
-  // Jump
-  const jump = useCallback(() => {
-    if (gameState.gameStatus === "waiting") {
-      startGame();
+  // Game loop
+  const gameLoop = useCallback(() => {
+    if (gameStatus !== "playing") {
+      animationRef.current = requestAnimationFrame(gameLoop);
+      return;
     }
-    if (gameState.gameStatus === "playing") {
-      setGameState((prev) => ({
-        ...prev,
-        bird: { ...prev.bird, velocity: JUMP_FORCE },
-      }));
-    }
-  }, [gameState.gameStatus, startGame]);
 
-  // Game over
-  const gameOver = useCallback(() => {
-    setGameState((prev) => {
-      const newHighScore = Math.max(prev.score, highScore);
-      if (newHighScore > highScore) {
-        setHighScore(newHighScore);
-        localStorage.setItem(
-          "memory-crystals-high-score",
-          newHighScore.toString(),
-        );
+    // Update bird
+    setBird((prev) => {
+      const newBird = { ...prev };
+      newBird.velocity += GRAVITY;
+      newBird.y += newBird.velocity;
+
+      // Check boundaries
+      if (newBird.y < 0 || newBird.y > CANVAS_HEIGHT - BIRD_SIZE) {
+        endGame();
+        return prev;
       }
-      return { ...prev, gameStatus: "gameOver" };
+
+      return newBird;
     });
-  }, [highScore]);
 
-  // Update game physics
-  const updateGame = useCallback(
-    (deltaTime: number) => {
-      if (gameState.gameStatus !== "playing") return;
+    // Update pipes
+    setPipes((prev) => {
+      const newPipes = [...prev];
 
-      setGameState((prev) => {
-        const newBird = { ...prev.bird };
-        const newPipes = [...prev.pipes];
-        let newScore = prev.score;
+      // Move pipes and check collisions
+      for (let i = newPipes.length - 1; i >= 0; i--) {
+        const pipe = newPipes[i];
+        pipe.x -= PIPE_SPEED;
 
-        // Update bird physics
-        newBird.velocity += GRAVITY;
-        newBird.y += newBird.velocity;
-
-        // Check boundaries
-        if (newBird.y < 0 || newBird.y > CANVAS_HEIGHT - BIRD_SIZE) {
-          gameOver();
-          return prev;
+        // Remove pipes that are off screen
+        if (pipe.x + PIPE_WIDTH < 0) {
+          newPipes.splice(i, 1);
+          continue;
         }
 
-        // Update pipes
-        for (let i = newPipes.length - 1; i >= 0; i--) {
-          const pipe = newPipes[i];
-          pipe.x -= PIPE_SPEED;
-
-          // Remove pipes that are off screen
-          if (pipe.x + PIPE_WIDTH < 0) {
-            newPipes.splice(i, 1);
-            continue;
-          }
-
-          // Check if bird passed pipe
-          if (!pipe.passed && newBird.x > pipe.x + PIPE_WIDTH) {
-            pipe.passed = true;
-            newScore++;
-          }
-
-          // Collision detection
-          const birdLeft = newBird.x;
-          const birdRight = newBird.x + BIRD_SIZE;
-          const birdTop = newBird.y;
-          const birdBottom = newBird.y + BIRD_SIZE;
-
-          const pipeLeft = pipe.x;
-          const pipeRight = pipe.x + PIPE_WIDTH;
-
-          if (birdRight > pipeLeft && birdLeft < pipeRight) {
-            // Check collision with top pipe
-            if (birdTop < pipe.height) {
-              gameOver();
-              return prev;
-            }
-            // Check collision with bottom pipe
-            if (birdBottom > pipe.height + PIPE_GAP) {
-              gameOver();
-              return prev;
-            }
-          }
+        // Check if bird passed pipe
+        if (!pipe.passed && bird.x > pipe.x + PIPE_WIDTH) {
+          pipe.passed = true;
+          setScore((prev) => prev + 1);
         }
 
-        // Generate new pipes
-        const lastPipe = newPipes[newPipes.length - 1];
-        if (!lastPipe || lastPipe.x < CANVAS_WIDTH - 200) {
-          newPipes.push(generatePipe(CANVAS_WIDTH));
-        }
+        // Collision detection
+        const birdLeft = bird.x;
+        const birdRight = bird.x + BIRD_SIZE;
+        const birdTop = bird.y;
+        const birdBottom = bird.y + BIRD_SIZE;
 
-        return {
-          bird: newBird,
-          pipes: newPipes,
-          score: newScore,
-          gameStatus: "playing",
-        };
-      });
-    },
-    [gameState.gameStatus, gameOver, generatePipe],
-  );
+        const pipeLeft = pipe.x;
+        const pipeRight = pipe.x + PIPE_WIDTH;
+
+        if (birdRight > pipeLeft && birdLeft < pipeRight) {
+          // Check collision with top pipe
+          if (birdTop < pipe.height) {
+            endGame();
+            return prev;
+          }
+          // Check collision with bottom pipe
+          if (birdBottom > pipe.height + PIPE_GAP) {
+            endGame();
+            return prev;
+          }
+        }
+      }
+
+      // Generate new pipes
+      const lastPipe = newPipes[newPipes.length - 1];
+      if (!lastPipe || lastPipe.x < CANVAS_WIDTH - 200) {
+        newPipes.push(generatePipe(CANVAS_WIDTH));
+      }
+
+      return newPipes;
+    });
+
+    animationRef.current = requestAnimationFrame(gameLoop);
+  }, [gameStatus, bird, endGame, generatePipe]);
 
   // Render game
   const render = useCallback(() => {
@@ -188,10 +185,7 @@ export const MemoryCrystalsGame: React.FC<MemoryCrystalsGameProps> = ({
 
     // Draw bird (crystal)
     ctx.save();
-    ctx.translate(
-      gameState.bird.x + BIRD_SIZE / 2,
-      gameState.bird.y + BIRD_SIZE / 2,
-    );
+    ctx.translate(bird.x + BIRD_SIZE / 2, bird.y + BIRD_SIZE / 2);
 
     // Crystal shape
     ctx.fillStyle = "#60a5fa";
@@ -219,7 +213,7 @@ export const MemoryCrystalsGame: React.FC<MemoryCrystalsGameProps> = ({
     ctx.restore();
 
     // Draw pipes (crystal formations)
-    gameState.pipes.forEach((pipe) => {
+    pipes.forEach((pipe) => {
       // Top pipe
       const topPipeGradient = ctx.createLinearGradient(
         pipe.x,
@@ -265,10 +259,10 @@ export const MemoryCrystalsGame: React.FC<MemoryCrystalsGameProps> = ({
     ctx.fillStyle = "#ffffff";
     ctx.font = "bold 24px Arial";
     ctx.textAlign = "center";
-    ctx.fillText(`Cristais: ${gameState.score}`, CANVAS_WIDTH / 2, 50);
+    ctx.fillText(`Cristais: ${score}`, CANVAS_WIDTH / 2, 50);
 
     // Draw game status text
-    if (gameState.gameStatus === "waiting") {
+    if (gameStatus === "waiting") {
       ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
       ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
@@ -292,7 +286,7 @@ export const MemoryCrystalsGame: React.FC<MemoryCrystalsGameProps> = ({
       );
     }
 
-    if (gameState.gameStatus === "gameOver") {
+    if (gameStatus === "gameOver") {
       ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
       ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
@@ -300,67 +294,59 @@ export const MemoryCrystalsGame: React.FC<MemoryCrystalsGameProps> = ({
       ctx.font = "bold 24px Arial";
       ctx.fillText("Fim de Jogo!", CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 40);
       ctx.font = "18px Arial";
-      ctx.fillText(
-        `Pontuação: ${gameState.score}`,
-        CANVAS_WIDTH / 2,
-        CANVAS_HEIGHT / 2,
-      );
+      ctx.fillText(`Pontuação: ${score}`, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
       ctx.fillText(
         `Recorde: ${highScore}`,
         CANVAS_WIDTH / 2,
         CANVAS_HEIGHT / 2 + 30,
       );
     }
-  }, [gameState, highScore]);
-
-  // Game loop
-  const gameLoop = useCallback(
-    (timestamp: number) => {
-      const deltaTime = timestamp - lastTimeRef.current;
-      lastTimeRef.current = timestamp;
-
-      updateGame(deltaTime);
-      render();
-
-      animationRef.current = requestAnimationFrame(gameLoop);
-    },
-    [updateGame, render],
-  );
+  }, [bird, pipes, score, gameStatus, highScore]);
 
   // Initialize game on mount
   useEffect(() => {
     initGame();
   }, [initGame]);
 
-  // Start game loop
+  // Start animation loop
   useEffect(() => {
-    lastTimeRef.current = performance.now();
-    animationRef.current = requestAnimationFrame(gameLoop);
+    const animate = () => {
+      render();
+      gameLoop();
+    };
+
+    animationRef.current = requestAnimationFrame(animate);
 
     return () => {
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [gameLoop]);
+  }, [render, gameLoop]);
 
   // Handle canvas clicks
-  const handleCanvasClick = useCallback(() => {
-    jump();
-  }, [jump]);
+  const handleCanvasClick = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      console.log("Canvas clicked, game status:", gameStatus);
+      jump();
+    },
+    [jump, gameStatus],
+  );
 
   // Handle keyboard input
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
       if (event.code === "Space" || event.code === "ArrowUp") {
         event.preventDefault();
+        console.log("Key pressed, game status:", gameStatus);
         jump();
       }
     };
 
     window.addEventListener("keydown", handleKeyPress);
     return () => window.removeEventListener("keydown", handleKeyPress);
-  }, [jump]);
+  }, [jump, gameStatus]);
 
   return (
     <motion.div
@@ -376,7 +362,7 @@ export const MemoryCrystalsGame: React.FC<MemoryCrystalsGameProps> = ({
             Cristais da Memória
           </h1>
           <div className="flex gap-2">
-            {gameState.gameStatus === "gameOver" && (
+            {gameStatus === "gameOver" && (
               <motion.button
                 onClick={initGame}
                 className="p-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition-colors"
@@ -411,6 +397,18 @@ export const MemoryCrystalsGame: React.FC<MemoryCrystalsGameProps> = ({
           />
         </div>
 
+        {/* Game Status Info */}
+        <div className="text-center text-sm text-gray-600 mb-4">
+          <p className="font-medium">
+            Status:{" "}
+            {gameStatus === "waiting"
+              ? "Aguardando"
+              : gameStatus === "playing"
+                ? "Jogando"
+                : "Fim de Jogo"}
+          </p>
+        </div>
+
         {/* Controls Info */}
         <div className="text-center text-sm text-gray-600">
           <p className="mb-1">🖱️ Clique ou pressione Espaço para voar</p>
@@ -420,13 +418,35 @@ export const MemoryCrystalsGame: React.FC<MemoryCrystalsGameProps> = ({
         {/* Stats */}
         <div className="flex justify-between items-center mt-4 p-3 bg-gray-50 rounded-lg">
           <div className="text-center">
-            <div className="font-semibold text-gray-800">{gameState.score}</div>
+            <div className="font-semibold text-gray-800">{score}</div>
             <div className="text-xs text-gray-600">Pontuação</div>
           </div>
           <div className="text-center">
             <div className="font-semibold text-gray-800">{highScore}</div>
             <div className="text-xs text-gray-600">Recorde</div>
           </div>
+        </div>
+
+        {/* Debug buttons for testing */}
+        <div className="flex justify-center gap-2 mt-4">
+          <button
+            onClick={() => {
+              console.log("Start game button clicked");
+              setGameStatus("playing");
+            }}
+            className="px-3 py-1 bg-green-100 text-green-700 rounded text-sm"
+          >
+            Forçar Início
+          </button>
+          <button
+            onClick={() => {
+              console.log("Jump button clicked");
+              jump();
+            }}
+            className="px-3 py-1 bg-blue-100 text-blue-700 rounded text-sm"
+          >
+            Teste Pulo
+          </button>
         </div>
       </div>
     </motion.div>
