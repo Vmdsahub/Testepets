@@ -56,6 +56,19 @@ export const PlanetScreen: React.FC = () => {
   const [showEggSelection, setShowEggSelection] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Handler para seleção de ovos
+  const handleEggSelected = (egg: any) => {
+    setSelectedEggForHatching(egg);
+    setIsHatchingInProgress(true);
+    setShowEggSelection(false);
+    // Navigate to pet screen to show hatching
+    setCurrentScreen("pet");
+  };
+
+  const handleBackFromEggSelection = () => {
+    setShowEggSelection(false);
+  };
+
   if (!currentPlanet) {
     console.log(
       "❌ PlanetScreen: currentPlanet é null/undefined, retornando null",
@@ -67,6 +80,18 @@ export const PlanetScreen: React.FC = () => {
     "✅ PlanetScreen: currentPlanet existe, continuando renderização:",
     currentPlanet,
   );
+
+  // Se estiver na Vila Ancestral e mostrando seleção de ovos
+  if (currentPlanet.id === "planet-5" && showEggSelection) {
+    return (
+      <div className="pb-24">
+        <EggSelectionScreen
+          onEggSelected={handleEggSelected}
+          onBack={handleBackFromEggSelection}
+        />
+      </div>
+    );
+  }
 
   // Generate exploration points for this planet
   useEffect(() => {
