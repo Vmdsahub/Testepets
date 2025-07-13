@@ -253,6 +253,7 @@ export const ExplorationScreen: React.FC = () => {
           {/* Special Content for Planície Dourada, Túneis Profundos, and Vila Ancestral */}
           {currentExplorationPoint.name === "Planície Dourada" ||
           currentExplorationPoint.name === "Túneis Profundos" ||
+          currentExplorationPoint.name === "Santuário dos Ovos" ||
           currentExplorationPoint.planetId === "planet-5" ? (
             <>
               {/* Dialogue Box */}
