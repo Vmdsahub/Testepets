@@ -333,45 +333,115 @@ export const PlanetScreen: React.FC = () => {
               </div>
             )}
 
-            {/* Vila Ancestral Egg Selection - only show if user has no pets */}
+            {/* Vila Ancestral Egg Cards - only show if user has no pets */}
             {currentPlanet.id === "planet-5" &&
               pets.length === 0 &&
               !isPlanetEditMode && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.5, duration: 0.4 }}
-                  className="absolute inset-4 bg-white/95 backdrop-blur-sm rounded-xl shadow-2xl border border-purple-200 flex flex-col items-center justify-center p-6"
-                >
-                  <div className="text-center mb-6">
-                    <div className="text-6xl mb-4">🏛️</div>
-                    <h2 className="text-2xl font-bold text-purple-900 mb-2">
-                      Bem-vindo à Vila Ancestral
-                    </h2>
-                    <p className="text-purple-700 text-sm max-w-md">
-                      Este é um local sagrado onde você pode escolher seu
-                      primeiro companheiro. Os ovos ancestrais aguardam por
-                      alguém digno para começar uma nova jornada.
-                    </p>
-                  </div>
-
-                  <motion.button
-                    onClick={() => setShowEggSelection(true)}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-4 px-8 rounded-xl font-medium hover:from-purple-700 hover:to-indigo-700 transition-all shadow-lg flex items-center gap-3"
+                <>
+                  {/* Welcome overlay */}
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.3, duration: 0.4 }}
+                    className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-white/95 backdrop-blur-sm rounded-xl shadow-lg border border-purple-200 p-4 z-10"
                   >
-                    <span className="text-3xl">🥚</span>
-                    <div className="text-left">
-                      <div className="font-semibold text-lg">
-                        Escolher Ovo Ancestral
-                      </div>
-                      <div className="text-sm opacity-90">
-                        Comece sua jornada épica
-                      </div>
+                    <div className="text-center">
+                      <div className="text-3xl mb-2">🏛️</div>
+                      <h2 className="text-lg font-bold text-purple-900 mb-1">
+                        Bem-vindo à Vila Ancestral
+                      </h2>
+                      <p className="text-purple-700 text-xs max-w-sm">
+                        Escolha seu primeiro companheiro entre os ovos
+                        ancestrais
+                      </p>
                     </div>
-                  </motion.button>
-                </motion.div>
+                  </motion.div>
+
+                  {/* Egg cards positioned on the sides */}
+                  {eggs.map((egg, index) => {
+                    const positions = [
+                      { left: "8%", top: "25%" }, // Esquerda superior
+                      { right: "8%", top: "25%" }, // Direita superior
+                      { left: "8%", bottom: "25%" }, // Esquerda inferior
+                      { right: "8%", bottom: "25%" }, // Direita inferior
+                    ];
+
+                    const position = positions[index] || positions[0];
+                    const isSelected = selectedEgg === egg.id;
+
+                    return (
+                      <motion.div
+                        key={egg.id}
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.6 + index * 0.1, duration: 0.4 }}
+                        className="absolute"
+                        style={position}
+                      >
+                        <motion.div
+                          onClick={() => handleEggClick(egg)}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          className={`w-24 h-32 bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border-2 cursor-pointer transition-all ${
+                            isSelected
+                              ? "border-purple-500 ring-2 ring-purple-200 bg-purple-50/90"
+                              : "border-gray-200 hover:border-purple-300 hover:shadow-xl"
+                          }`}
+                        >
+                          <div className="p-3 h-full flex flex-col items-center justify-center text-center">
+                            <div className="text-3xl mb-2">{egg.emoji}</div>
+                            <h3 className="text-xs font-bold text-gray-900 leading-tight">
+                              {egg.name}
+                            </h3>
+                            <p className="text-xs text-gray-600 mt-1">
+                              {egg.species}
+                            </p>
+                            {isSelected && (
+                              <motion.div
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                className="mt-2"
+                              >
+                                <div className="w-4 h-4 bg-purple-500 rounded-full flex items-center justify-center">
+                                  <Star className="w-2 h-2 text-white fill-white" />
+                                </div>
+                              </motion.div>
+                            )}
+                          </div>
+                        </motion.div>
+                      </motion.div>
+                    );
+                  })}
+
+                  {/* Confirm button - shows when an egg is selected */}
+                  {selectedEgg && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="absolute bottom-4 left-1/2 transform -translate-x-1/2"
+                    >
+                      <motion.button
+                        onClick={handleConfirmEggSelection}
+                        disabled={isConfirming}
+                        className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3 px-6 rounded-xl font-medium hover:from-purple-700 hover:to-indigo-700 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        {isConfirming ? (
+                          <>
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            <span>Preparando...</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>❤️</span>
+                            <span>Confirmar Escolha</span>
+                          </>
+                        )}
+                      </motion.button>
+                    </motion.div>
+                  )}
+                </>
               )}
 
             {/* Exploration Points */}
