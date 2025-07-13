@@ -397,7 +397,7 @@ export const ExplorationScreen: React.FC = () => {
                       );
                     })()}
                   </div>
-                                </motion.div>
+                </motion.div>
               ) : currentExplorationPoint.name === "Túneis Profundos" ? (
                 /* Minigame Cards Section for Túneis Profundos */
                 <motion.div
@@ -497,6 +497,40 @@ export const ExplorationScreen: React.FC = () => {
                       </motion.div>
                     ))}
                   </div>
+                </motion.div>
+              ) : (
+                /* Egg Selection Section for Santuário dos Ovos */
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.6, duration: 0.4 }}
+                  className="bg-purple-50 border border-purple-200 rounded-xl p-4"
+                >
+                  <div className="text-center mb-4">
+                    <h4 className="font-semibold text-purple-900 mb-2">
+                      Santuário dos Ovos Ancestrais
+                    </h4>
+                    <div className="text-purple-700 text-xs">
+                      Escolha seu companheiro ancestral
+                    </div>
+                  </div>
+
+                  <motion.button
+                    onClick={() => setShowEggSelection(true)}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="w-full bg-purple-600 text-white py-4 px-6 rounded-lg font-medium hover:bg-purple-700 transition-colors flex items-center justify-center gap-3"
+                  >
+                    <span className="text-2xl">🥚</span>
+                    <div className="text-left">
+                      <div className="font-semibold">
+                        Escolher Ovo Ancestral
+                      </div>
+                      <div className="text-sm opacity-90">
+                        Comece sua jornada
+                      </div>
+                    </div>
+                  </motion.button>
                 </motion.div>
               )}
             </>
