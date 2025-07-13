@@ -24,6 +24,8 @@ export const FishingGame: React.FC<FishingGameProps> = ({
   onBack,
   onFishCaught,
 }) => {
+  console.log("🎣 FishingGame component loaded!");
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationFrameRef = useRef<number>();
   const [gameStarted, setGameStarted] = useState(false);
