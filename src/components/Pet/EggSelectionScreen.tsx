@@ -44,6 +44,7 @@ interface EggSelectionScreenProps {
 
 export const EggSelectionScreen: React.FC<EggSelectionScreenProps> = ({
   onEggSelected,
+  onBack,
 }) => {
   const [selectedEgg, setSelectedEgg] = useState<Egg | null>(null);
   const [isConfirming, setIsConfirming] = useState(false);
