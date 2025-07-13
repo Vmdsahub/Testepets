@@ -233,9 +233,10 @@ export const ExplorationScreen: React.FC = () => {
               )}
           </div>
 
-          {/* Special Content for Planície Dourada and Túneis Profundos */}
+          {/* Special Content for Planície Dourada, Túneis Profundos, and Santuário dos Ovos */}
           {currentExplorationPoint.name === "Planície Dourada" ||
-          currentExplorationPoint.name === "Túneis Profundos" ? (
+          currentExplorationPoint.name === "Túneis Profundos" ||
+          currentExplorationPoint.name === "Santuário dos Ovos" ? (
             <>
               {/* Dialogue Box */}
               <motion.div
