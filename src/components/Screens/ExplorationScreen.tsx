@@ -34,7 +34,7 @@ export const ExplorationScreen: React.FC = () => {
     "Bem-vindo aos Túneis Profundos, explorador. Estas passagens antigas guardam segredos de civilizações perdidas. Aqui você pode acessar nossos minijogos especiais e testar suas habilidades...";
 
   // Alien characters for translation effect
-  const ALIEN_CHARS = "◊◈◇◆☾☽⟡⟢⧿⧾⬟⬠⬢⬣⬡⬠⧨��⟐⟑ξζηθικλμνοπρστυφχψω";
+  const ALIEN_CHARS = "◊◈◇◆☾☽⟡⟢⧿⧾⬟⬠⬢⬣⬡⬠⧨⧿⟐⟑ξζηθικλμνοπρστυφχψω";
 
   const generateAlienChar = () => {
     return ALIEN_CHARS[Math.floor(Math.random() * ALIEN_CHARS.length)];
@@ -156,21 +156,22 @@ export const ExplorationScreen: React.FC = () => {
               }`}
             />
 
-            {/* Overlay info - only show for non-Planície Dourada locations */}
-            {currentExplorationPoint.name !== "Planície Dourada" && (
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                <div className="text-white">
-                  <h3 className="text-lg font-semibold mb-1">
-                    {currentExplorationPoint.name}
-                  </h3>
-                  {currentExplorationArea.description && (
-                    <p className="text-sm text-gray-200 leading-relaxed">
-                      {currentExplorationArea.description}
-                    </p>
-                  )}
+            {/* Overlay info - only show for locations without special content */}
+            {currentExplorationPoint.name !== "Planície Dourada" &&
+              currentExplorationPoint.name !== "Túneis Profundos" && (
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
+                  <div className="text-white">
+                    <h3 className="text-lg font-semibold mb-1">
+                      {currentExplorationPoint.name}
+                    </h3>
+                    {currentExplorationArea.description && (
+                      <p className="text-sm text-gray-200 leading-relaxed">
+                        {currentExplorationArea.description}
+                      </p>
+                    )}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
           </div>
 
           {/* Special Content for Planície Dourada and Túneis Profundos */}
@@ -204,7 +205,7 @@ export const ExplorationScreen: React.FC = () => {
                 </div>
               </motion.div>
 
-                            {/* Content Section */}
+              {/* Content Section */}
               {currentExplorationPoint.name === "Planície Dourada" ? (
                 /* Ship Store Section for Planície Dourada */
                 <motion.div
@@ -343,7 +344,8 @@ export const ExplorationScreen: React.FC = () => {
                       {
                         id: "memory-crystals",
                         name: "Cristais da Memória",
-                        description: "Teste sua memória com padrões cristalinos",
+                        description:
+                          "Teste sua memória com padrões cristalinos",
                         color: "bg-blue-500",
                         icon: "🔹",
                       },
@@ -364,7 +366,8 @@ export const ExplorationScreen: React.FC = () => {
                       {
                         id: "ancient-symbols",
                         name: "Símbolos Ancestrais",
-                        description: "Decifre os mistérios das civilizações perdidas",
+                        description:
+                          "Decifre os mistérios das civilizações perdidas",
                         color: "bg-purple-500",
                         icon: "🔮",
                       },
@@ -393,7 +396,9 @@ export const ExplorationScreen: React.FC = () => {
                           alert(`Minijogo "${game.name}" em desenvolvimento!`);
                         }}
                       >
-                        <div className={`w-full h-20 ${game.color} rounded-lg mb-3 flex items-center justify-center text-2xl text-white`}>
+                        <div
+                          className={`w-full h-20 ${game.color} rounded-lg mb-3 flex items-center justify-center text-2xl text-white`}
+                        >
                           {game.icon}
                         </div>
                         <div className="text-center">
@@ -412,114 +417,6 @@ export const ExplorationScreen: React.FC = () => {
                   </div>
                 </motion.div>
               )}
-                <div className="text-center mb-4">
-                  <h4 className="font-semibold text-blue-900 mb-2">
-                    Loja de Naves
-                  </h4>
-                  <div className="text-blue-700 text-xs">
-                    Naves especiais para exploradores experientes
-                  </div>
-                </div>
-
-                <div className="bg-white border border-blue-100 rounded-lg p-4">
-                  {(() => {
-                    const availableShips = getAllShips().filter(
-                      (ship) => !ship.isDefault,
-                    );
-                    const ownedShips = getOwnedShips();
-
-                    return (
-                      <div className="grid gap-3">
-                        {availableShips.map((ship) => {
-                          const isOwned = ownedShips.find(
-                            (owned) => owned.id === ship.id,
-                          );
-                          const canAfford = xenocoins >= ship.price;
-
-                          return (
-                            <div
-                              key={ship.id}
-                              className="bg-gray-50 rounded-lg border border-gray-200 p-3"
-                            >
-                              <div className="flex items-center gap-3">
-                                {/* Ship Image */}
-                                <div className="flex-shrink-0">
-                                  <img
-                                    src={ship.imageUrl}
-                                    alt={ship.name}
-                                    className="w-16 h-16 object-contain bg-white rounded-lg border border-gray-100"
-                                  />
-                                </div>
-
-                                {/* Ship Info */}
-                                <div className="flex-1 min-w-0">
-                                  <div className="font-semibold text-gray-800 text-sm mb-1">
-                                    {ship.name}
-                                  </div>
-                                  <div className="text-xs text-gray-600 mb-2 line-clamp-2">
-                                    {ship.description}
-                                  </div>
-                                  <div className="flex items-center gap-2 text-xs">
-                                    <span className="bg-green-100 text-green-700 px-2 py-1 rounded">
-                                      +
-                                      {((ship.stats.speed - 1) * 100).toFixed(
-                                        0,
-                                      )}
-                                      % Velocidade
-                                    </span>
-                                    <span className="bg-red-100 text-red-700 px-2 py-1 rounded">
-                                      +
-                                      {(
-                                        (ship.stats.projectileDamage - 1) *
-                                        100
-                                      ).toFixed(0)}
-                                      % Dano
-                                    </span>
-                                  </div>
-                                </div>
-
-                                {/* Price and Buy Button */}
-                                <div className="text-center">
-                                  <div className="flex items-center justify-center gap-1 mb-2">
-                                    <img
-                                      src="https://cdn.builder.io/api/v1/image/assets%2Ff481900009a94cda953c032479392a30%2F3e6c6cb85c6a4d2ba05acb245bfbc214?format=webp&width=800"
-                                      alt="Xenocoins"
-                                      className="w-4 h-4"
-                                    />
-                                    <span className="font-semibold text-sm text-gray-800">
-                                      {ship.price}
-                                    </span>
-                                  </div>
-
-                                  {isOwned ? (
-                                    <div className="bg-green-100 text-green-700 px-3 py-1 rounded-md text-xs font-medium">
-                                      Possuída
-                                    </div>
-                                  ) : (
-                                    <motion.button
-                                      whileHover={{ scale: 1.05 }}
-                                      whileTap={{ scale: 0.95 }}
-                                      onClick={() => purchaseShip(ship.id)}
-                                      disabled={!canAfford}
-                                      className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
-                                        canAfford
-                                          ? "bg-blue-600 text-white hover:bg-blue-700"
-                                          : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                                      }`}
-                                    >
-                                      {canAfford ? "Comprar" : "Sem Moeda"}
-                                    </motion.button>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    );
-                  })()}
-                </div>
-              </motion.div>
             </>
           ) : (
             /* Additional Info Panel for other locations */
