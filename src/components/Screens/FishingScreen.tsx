@@ -280,28 +280,6 @@ export const FishingScreen: React.FC = () => {
           transition={{ duration: 8, repeat: Infinity, repeatType: "reverse" }}
         />
 
-        {/* Water bubbles */}
-        {Array.from({ length: 15 }).map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-2 h-2 bg-white rounded-full opacity-20"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-            animate={{
-              y: [-20, -40, -20],
-              opacity: [0.2, 0.5, 0.2],
-              scale: [1, 1.2, 1],
-            }}
-            transition={{
-              duration: 8 + Math.random() * 4,
-              repeat: Infinity,
-              delay: Math.random() * 3,
-            }}
-          />
-        ))}
-
         {/* Single Mystical Fish */}
         {fish && (
           <motion.div
@@ -338,26 +316,26 @@ export const FishingScreen: React.FC = () => {
 
       {/* Dynamic Fishing Line */}
       <motion.div
-        className="absolute bottom-32 left-1/2 bg-gray-700 origin-bottom z-10"
+        className="absolute bg-gray-800 z-10"
         style={{
-          width: "1.5px",
-          height: `${lineLength * 2}px`,
-          transform: `translateX(-50%) rotate(${hookAngle}deg)`,
-        }}
-        animate={
-          isLaunching
-            ? {
-                height: [`0px`, `${lineLength * 2}px`],
-              }
-            : isRetracting
-              ? {
-                  height: [`${lineLength * 2}px`, `0px`],
-                }
-              : {}
-        }
-        transition={{
-          duration: isLaunching ? 0.8 : isRetracting ? 0.6 : 0,
-          ease: "easeOut",
+          left: "50%",
+          top: "calc(100% - 128px)", // From rod tip
+          width: "2px",
+          height: `${Math.sqrt(
+            Math.pow((hookPosition.x - 50) * 8, 2) +
+              Math.pow(
+                (hookPosition.y - (100 - (128 / window.innerHeight) * 100)) * 8,
+                2,
+              ),
+          )}px`,
+          transformOrigin: "top center",
+          transform: `translateX(-50%) rotate(${
+            Math.atan2(
+              (hookPosition.x - 50) * 8,
+              (hookPosition.y - (100 - (128 / window.innerHeight) * 100)) * 8,
+            ) *
+            (180 / Math.PI)
+          }deg)`,
         }}
       />
 
