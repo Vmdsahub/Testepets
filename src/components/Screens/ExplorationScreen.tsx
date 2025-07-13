@@ -358,7 +358,7 @@ export const ExplorationScreen: React.FC = () => {
                         description:
                           "Teste sua memória com padrões cristalinos",
                         color: "bg-blue-500",
-                        icon: "����",
+                        icon: "🔹",
                       },
                       {
                         id: "tunnel-runner",
@@ -403,8 +403,14 @@ export const ExplorationScreen: React.FC = () => {
                         whileTap={{ scale: 0.98 }}
                         className="bg-white border border-gray-200 rounded-lg p-3 cursor-pointer hover:shadow-md transition-all"
                         onClick={() => {
-                          // TODO: Implementar navegação para minijogos
-                          alert(`Minijogo "${game.name}" em desenvolvimento!`);
+                          if (game.id === "memory-crystals") {
+                            setCurrentMinigame("memory-crystals");
+                          } else {
+                            // TODO: Implementar outros minijogos
+                            alert(
+                              `Minijogo "${game.name}" em desenvolvimento!`,
+                            );
+                          }
                         }}
                       >
                         <div
