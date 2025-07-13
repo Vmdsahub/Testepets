@@ -987,57 +987,6 @@ export const useGameStore = create<GameStore>()(
           hash = ((hash << 5) - hash + planetId.charCodeAt(i)) & 0xffffffff;
         }
 
-        // Special handling for Vila Ancestral (planet-5)
-        if (planetId === "planet-5") {
-          const vilaAncestralPoints: ExplorationPoint[] = [
-            {
-              id: `${planetId}_point_1`,
-              planetId,
-              name: "Santuário dos Ovos",
-              x: 45,
-              y: 35,
-              imageUrl:
-                "https://cdn.builder.io/api/v1/image/assets%2Fa34588f934eb4ad690ceadbafd1050c4%2F719e8fc59de24ef8b3f4d79d3fb9993d?format=webp&width=800",
-              description:
-                "O sagrado Santuário dos Ovos Ancestrais, onde os ovos aguardam seus companheiros destinados.",
-              discovered: false,
-              size: 1.2,
-              active: true,
-            },
-            {
-              id: `${planetId}_point_2`,
-              planetId,
-              name: "Templo dos Anciões",
-              x: 25,
-              y: 65,
-              imageUrl:
-                "https://cdn.builder.io/api/v1/image/assets%2F6b84993f22904beeb2e1d8d2f128c032%2Faaff2921868f4bbfb24be01b9fdfa6a1?format=webp&width=800",
-              description:
-                "Um antigo templo onde os sábios da Vila Ancestral compartilham conhecimento.",
-              discovered: false,
-              size: 1.0,
-              active: true,
-            },
-            {
-              id: `${planetId}_point_3`,
-              planetId,
-              name: "Jardins Sagrados",
-              x: 70,
-              y: 50,
-              imageUrl:
-                "https://cdn.builder.io/api/v1/image/assets%2F6b84993f22904beeb2e1d8d2f128c032%2Faaff2921868f4bbfb24be01b9fdfa6a1?format=webp&width=800",
-              description:
-                "Jardins místicos onde a energia ancestral flui livremente.",
-              discovered: false,
-              size: 0.9,
-              active: true,
-            },
-          ];
-
-          set({ explorationPoints: vilaAncestralPoints });
-          return vilaAncestralPoints;
-        }
-
         const setIndex = Math.abs(hash) % pointTemplates.length;
         const selectedNames = pointTemplates[setIndex];
 
@@ -2147,7 +2096,7 @@ export const useGameStore = create<GameStore>()(
           get().addNotification({
             type: "warning",
             title: "Aviso",
-            message: "Você já possui esta nave.",
+            message: "Voc�� já possui esta nave.",
             isRead: false,
           });
           return false;
