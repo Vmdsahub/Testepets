@@ -82,23 +82,15 @@ export const PlanetScreen: React.FC = () => {
   ];
 
   // Handler para seleção de ovos
+  // Handler para confirmação automática ao clicar no ovo
   const handleEggClick = (egg: any) => {
-    setSelectedEgg(egg.id);
-  };
+    setIsConfirming(true);
 
-  const handleConfirmEggSelection = () => {
-    if (!selectedEgg) return;
-
-    const egg = eggs.find((e) => e.id === selectedEgg);
-    if (egg) {
-      setIsConfirming(true);
-
-      setTimeout(() => {
-        setSelectedEggForHatching(egg);
-        setIsHatchingInProgress(true);
-        setCurrentScreen("pet");
-      }, 1500);
-    }
+    setTimeout(() => {
+      setSelectedEggForHatching(egg);
+      setIsHatchingInProgress(true);
+      setCurrentScreen("pet");
+    }, 1500);
   };
 
   // Generate exploration points for this planet - MOVED BEFORE EARLY RETURNS
