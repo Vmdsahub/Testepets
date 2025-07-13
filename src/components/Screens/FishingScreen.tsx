@@ -289,7 +289,7 @@ export const FishingScreen: React.FC = () => {
             style={{
               left: `${fish.x}%`,
               top: `${fish.y}%`,
-              transform: fish.direction > 0 ? "scaleX(-1)" : "scaleX(1)",
+              transform: fish.direction > 0 ? "scaleX(1)" : "scaleX(-1)",
             }}
             animate={{
               y: [0, -4, 0],
