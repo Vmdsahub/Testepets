@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, Star } from "lucide-react";
+import { Heart, Star, ArrowLeft } from "lucide-react";
 import { useGameStore } from "../../store/gameStore";
 
 interface Egg {
