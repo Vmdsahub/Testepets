@@ -427,28 +427,6 @@ export const MemoryCrystalsGame: React.FC<MemoryCrystalsGameProps> = ({
             <div className="text-xs text-gray-600">Recorde</div>
           </div>
         </div>
-
-        {/* Debug buttons for testing */}
-        <div className="flex justify-center gap-2 mt-4">
-          <button
-            onClick={() => {
-              console.log("Start game button clicked");
-              setGameStatus("playing");
-            }}
-            className="px-3 py-1 bg-green-100 text-green-700 rounded text-sm"
-          >
-            Forçar Início
-          </button>
-          <button
-            onClick={() => {
-              console.log("Jump button clicked");
-              jump();
-            }}
-            className="px-3 py-1 bg-blue-100 text-blue-700 rounded text-sm"
-          >
-            Teste Pulo
-          </button>
-        </div>
       </div>
     </motion.div>
   );
