@@ -213,6 +213,8 @@ function App() {
         return <PlanetScreen />;
       case "exploration":
         return <ExplorationScreen />;
+      case "fishing":
+        return <FishingScreen />;
       // Modal screens are now handled by ModalManager when on world screen
       case "pet":
       case "inventory":
