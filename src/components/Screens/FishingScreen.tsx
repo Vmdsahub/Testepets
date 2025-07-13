@@ -48,7 +48,7 @@ export const FishingScreen: React.FC = () => {
       id: "mystical-fish",
       x: Math.random() * 80 + 10, // Keep fish in visible area
       y: 45 + Math.random() * 35, // Fish swim in water area
-      speed: 0.3 + Math.random() * 0.7,
+      speed: 0.05 + Math.random() * 0.1,
       direction: Math.random() > 0.5 ? 1 : -1,
       name: "Peixe Místico dos Anciões",
       points: 100,
@@ -297,9 +297,9 @@ export const FishingScreen: React.FC = () => {
               scale: [1, 1.2, 1],
             }}
             transition={{
-              duration: 3 + Math.random() * 2,
+              duration: 8 + Math.random() * 4,
               repeat: Infinity,
-              delay: Math.random() * 2,
+              delay: Math.random() * 3,
             }}
           />
         ))}
@@ -311,15 +311,16 @@ export const FishingScreen: React.FC = () => {
             style={{
               left: `${fish.x}%`,
               top: `${fish.y}%`,
-              transform: fish.direction > 0 ? "scaleX(-1)" : "scaleX(1)",
+              transform: fish.direction < 0 ? "scaleX(-1)" : "scaleX(1)",
             }}
             animate={{
-              y: [0, -8, 0],
-              rotate: [0, fish.direction * 3, 0],
+              y: [0, -4, 0],
+              rotate: [0, fish.direction * 1, 0],
             }}
             transition={{
-              duration: 2.5 + Math.random(),
+              duration: 4 + Math.random() * 2,
               repeat: Infinity,
+              ease: "easeInOut",
             }}
           >
             <img
