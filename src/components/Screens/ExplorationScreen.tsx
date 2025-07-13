@@ -49,7 +49,7 @@ export const ExplorationScreen: React.FC = () => {
     "Saudações, jovem guardião. Este é o Santuário dos Ovos Ancestrais, onde os ovos sagrados aguardam por seus companheiros destinados. Escolha sabiamente, pois esta decisão moldará sua jornada...";
 
   // Alien characters for translation effect
-  const ALIEN_CHARS = "◊◈◇◆☾☽⟡⟢⧿⧾⬟⬠⬢⬣⬡⬠⧨⧿⟐⟑ξζηθικλμνοπρστυφχψω";
+  const ALIEN_CHARS = "◊◈◇◆☾☽⟡⟢⧿⧾⬟⬠⬢⬣⬡⬠⧨⧿⟐���ξζηθικλμνοπρστυφχψω";
 
   const generateAlienChar = () => {
     return ALIEN_CHARS[Math.floor(Math.random() * ALIEN_CHARS.length)];
@@ -267,7 +267,9 @@ export const ExplorationScreen: React.FC = () => {
                       ? "Guardian da Planície"
                       : currentExplorationPoint.name === "Túneis Profundos"
                         ? "Bahrun"
-                        : "Ancião Guardião"}
+                        : currentExplorationPoint.planetId === "planet-5"
+                          ? "Ancião Guardião"
+                          : "Guardião"}
                   </h3>
                   <div className="w-24 h-0.5 bg-gray-200 mx-auto rounded-full mt-1"></div>
                 </div>
@@ -454,7 +456,7 @@ export const ExplorationScreen: React.FC = () => {
                         name: "Câmaras do Eco",
                         description: "Reproduza sequências sonoras complexas",
                         color: "bg-pink-500",
-                        icon: "🎵",
+                        icon: "��",
                       },
                       {
                         id: "crystal-mining",
