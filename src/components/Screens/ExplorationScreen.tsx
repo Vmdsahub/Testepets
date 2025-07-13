@@ -336,13 +336,13 @@ export const ExplorationScreen: React.FC = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.6, duration: 0.4 }}
-                  className="bg-purple-50 border border-purple-200 rounded-xl p-4"
+                  className="bg-gray-50 border border-gray-200 rounded-xl p-4"
                 >
                   <div className="text-center mb-4">
-                    <h4 className="font-semibold text-purple-900 mb-2">
+                    <h4 className="font-semibold text-gray-900 mb-2">
                       Centro de Minijogos
                     </h4>
-                    <div className="text-purple-700 text-xs">
+                    <div className="text-gray-700 text-xs">
                       Teste suas habilidades em desafios únicos
                     </div>
                   </div>
