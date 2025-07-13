@@ -333,54 +333,33 @@ export const PlanetScreen: React.FC = () => {
                   className="absolute inset-0 bg-black/50 backdrop-blur-sm flex flex-col items-center justify-center z-20"
                 >
                   {/* Egg cards centralizados */}
-                  <div className="flex gap-6 mb-8">
-                    {eggs.map((egg, index) => {
-                      const isSelected = selectedEgg === egg.id;
-
-                      return (
+                  <div className="flex gap-8 mb-8">
+                    {eggs.map((egg, index) => (
+                      <motion.div
+                        key={egg.id}
+                        initial={{ opacity: 0, scale: 0.8, y: 50 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        transition={{
+                          delay: 0.5 + index * 0.1,
+                          duration: 0.4,
+                        }}
+                      >
                         <motion.div
-                          key={egg.id}
-                          initial={{ opacity: 0, scale: 0.8, y: 50 }}
-                          animate={{ opacity: 1, scale: 1, y: 0 }}
-                          transition={{
-                            delay: 0.5 + index * 0.1,
-                            duration: 0.4,
-                          }}
+                          onClick={() => handleEggClick(egg)}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          className="w-48 h-64 bg-transparent rounded-2xl cursor-pointer transition-all hover:drop-shadow-2xl"
                         >
-                          <motion.div
-                            onClick={() => handleEggClick(egg)}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className={`w-36 h-48 bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border-2 cursor-pointer transition-all ${
-                              isSelected
-                                ? "border-purple-500 ring-4 ring-purple-200/50 bg-purple-50/95"
-                                : "border-gray-200 hover:border-purple-300 hover:shadow-3xl"
-                            }`}
-                          >
-                            <div className="p-4 h-full flex flex-col items-center justify-center text-center">
-                              <div className="text-6xl mb-3">{egg.emoji}</div>
-                              <h3 className="text-sm font-bold text-gray-900 leading-tight mb-1">
-                                {egg.name}
-                              </h3>
-                              <p className="text-xs text-gray-600">
-                                {egg.species}
-                              </p>
-                              {isSelected && (
-                                <motion.div
-                                  initial={{ scale: 0 }}
-                                  animate={{ scale: 1 }}
-                                  className="mt-3"
-                                >
-                                  <div className="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center">
-                                    <Star className="w-3 h-3 text-white fill-white" />
-                                  </div>
-                                </motion.div>
-                              )}
-                            </div>
-                          </motion.div>
+                          <div className="w-full h-full flex items-center justify-center">
+                            <img
+                              src={egg.imageUrl}
+                              alt={egg.name}
+                              className="w-full h-full object-contain"
+                            />
+                          </div>
                         </motion.div>
-                      );
-                    })}
+                      </motion.div>
+                    ))}
                   </div>
 
                   {/* Welcome message abaixo dos cards */}
