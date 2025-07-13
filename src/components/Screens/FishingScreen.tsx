@@ -61,19 +61,20 @@ export const FishingScreen: React.FC = () => {
     setFish(generateFish());
   }, [generateFish]);
 
-  // Game loop for fish movement
+  // Game loop for fish movement (slower, time-based)
   useEffect(() => {
     const gameLoop = () => {
       setFish((prevFish) => {
         if (!prevFish) return null;
 
-        let newX = prevFish.x + prevFish.speed * prevFish.direction;
+        // Movimento mais lento baseado em tempo
+        let newX = prevFish.x + prevFish.speed * prevFish.direction * 0.5; // Reduzir ainda mais
         let newDirection = prevFish.direction;
 
         // Reverse direction if fish reaches boundaries
-        if (newX > 90 || newX < 10) {
+        if (newX > 85 || newX < 15) {
           newDirection = -prevFish.direction;
-          newX = Math.max(10, Math.min(90, newX));
+          newX = Math.max(15, Math.min(85, newX));
         }
 
         return {
@@ -82,16 +83,13 @@ export const FishingScreen: React.FC = () => {
           direction: newDirection,
         };
       });
-
-      gameLoopRef.current = requestAnimationFrame(gameLoop);
     };
 
-    gameLoopRef.current = requestAnimationFrame(gameLoop);
+    // Usar intervalo em vez de requestAnimationFrame para controle mais preciso
+    const interval = setInterval(gameLoop, 50); // 20fps em vez de 60fps
 
     return () => {
-      if (gameLoopRef.current) {
-        cancelAnimationFrame(gameLoopRef.current);
-      }
+      clearInterval(interval);
     };
   }, []);
 
