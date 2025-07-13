@@ -513,10 +513,10 @@ export const ExplorationScreen: React.FC = () => {
                 >
                   <div className="text-center mb-4">
                     <h4 className="font-semibold text-purple-900 mb-2">
-                      Santuário dos Ovos Ancestrais
+                      Vila Ancestral - Seleção de Ovos
                     </h4>
                     <div className="text-purple-700 text-xs">
-                      Escolha seu companheiro ancestral
+                      Escolha seu primeiro companheiro para começar sua jornada
                     </div>
                   </div>
 
