@@ -36,9 +36,6 @@ export const ExplorationScreen: React.FC = () => {
   // State for egg selection
   const [showEggSelection, setShowEggSelection] = useState(false);
 
-  // State for fishing game
-  const [showFishingGame, setShowFishingGame] = useState(false);
-
   // Dialogue text for Planície Dourada
   const GOLDEN_PLAINS_DIALOGUE =
     "Olá, temos algumas naves em nossa coleção especial. Cada uma foi cuidadosamente selecionada para exploradores como você...";
@@ -659,7 +656,7 @@ export const ExplorationScreen: React.FC = () => {
           onClose={() => setShowFishingGame(false)}
           onFishCaught={(fish) => {
             console.log("Peixe capturado:", fish);
-            // Aqui você pode adicionar lógica para salvar o peixe no inventário
+            // Aqui você pode adicionar l��gica para salvar o peixe no inventário
             setShowFishingGame(false);
           }}
         />
