@@ -69,6 +69,13 @@ export const PlanetScreen: React.FC = () => {
     setShowEggSelection(false);
   };
 
+  // Generate exploration points for this planet - MOVED BEFORE EARLY RETURNS
+  useEffect(() => {
+    if (currentPlanet) {
+      generateExplorationPoints(currentPlanet.id);
+    }
+  }, [currentPlanet.id, generateExplorationPoints]);
+
   if (!currentPlanet) {
     console.log(
       "❌ PlanetScreen: currentPlanet é null/undefined, retornando null",
@@ -92,13 +99,6 @@ export const PlanetScreen: React.FC = () => {
       </div>
     );
   }
-
-  // Generate exploration points for this planet
-  useEffect(() => {
-    if (currentPlanet) {
-      generateExplorationPoints(currentPlanet.id);
-    }
-  }, [currentPlanet.id, generateExplorationPoints]);
 
   // Handle exploration point click
   const handleExplorationPointClick = (point: ExplorationPoint) => {
