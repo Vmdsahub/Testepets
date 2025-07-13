@@ -2408,15 +2408,24 @@ export const useGameStore = create<GameStore>()(
       },
 
       loadWorldPositions: async () => {
-        const state = get();
+        try {
+          // Tentar buscar do banco de dados primeiro
+          console.log("📍 Trying to load world positions from database...");
+          const worldPositions = await gameService.getWorldPositions();
 
-        // Se já tem posições no store, usa elas
-        if (state.worldPositions.length > 0) {
-          console.log(
-            "📍 Using world positions from store:",
-            state.worldPositions,
+          if (worldPositions && worldPositions.length > 0) {
+            console.log(
+              "📍 Loaded world positions from database:",
+              worldPositions,
+            );
+            set({ worldPositions });
+            return;
+          }
+        } catch (error) {
+          console.error(
+            "📍 Error loading from database, using defaults:",
+            error,
           );
-          return;
         }
 
         // Se não tem, cria posições padrão
