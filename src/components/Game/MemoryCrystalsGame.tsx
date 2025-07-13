@@ -360,7 +360,7 @@ export const MemoryCrystalsGame: React.FC<MemoryCrystalsGameProps> = ({
       );
     }
 
-    if (gameStatus === "gameOver") {
+    if (gameStatus === "gameOver" && !showRewardOptions) {
       ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
       ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
