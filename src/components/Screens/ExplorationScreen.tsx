@@ -36,6 +36,13 @@ export const ExplorationScreen: React.FC = () => {
   // State for egg selection
   const [showEggSelection, setShowEggSelection] = useState(false);
 
+  // Auto-redirect to fishing game when entering Templo dos Anciões
+  useEffect(() => {
+    if (currentExplorationPoint?.name === "Templo dos Anciões") {
+      setCurrentScreen("fishing");
+    }
+  }, [currentExplorationPoint, setCurrentScreen]);
+
   // Dialogue text for Planície Dourada
   const GOLDEN_PLAINS_DIALOGUE =
     "Olá, temos algumas naves em nossa coleção especial. Cada uma foi cuidadosamente selecionada para exploradores como você...";
