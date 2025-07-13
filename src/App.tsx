@@ -288,7 +288,9 @@ function App() {
           </button>
         )}
 
-        {["world", "planet", "exploration"].includes(currentScreen) ? (
+        {["world", "planet", "exploration", "fishing"].includes(
+          currentScreen,
+        ) ? (
           // Fullscreen layout for world-related screens with pill navigations
           <div className="fixed inset-0 overflow-hidden">
             <TopPillNavigation
