@@ -53,11 +53,17 @@ export const ExplorationScreen: React.FC = () => {
     setCurrentExplorationArea,
   ]);
 
-  // Typewriter effect for Planície Dourada dialogue
+  // Typewriter effect for dialogue
   useEffect(() => {
-    if (currentExplorationPoint?.name !== "Planície Dourada") {
+    const pointName = currentExplorationPoint?.name;
+    if (pointName !== "Planície Dourada" && pointName !== "Túneis Profundos") {
       return;
     }
+
+    const dialogue =
+      pointName === "Planície Dourada"
+        ? GOLDEN_PLAINS_DIALOGUE
+        : DEEP_TUNNELS_DIALOGUE;
 
     setDisplayedText("");
     setCurrentIndex(0);
@@ -65,7 +71,7 @@ export const ExplorationScreen: React.FC = () => {
     setCurrentAlienChar("");
     setIsShowingAlien(false);
 
-    if (currentIndex < GOLDEN_PLAINS_DIALOGUE.length) {
+    if (currentIndex < dialogue.length) {
       // First show alien character
       setIsShowingAlien(true);
       setCurrentAlienChar(generateAlienChar());
@@ -73,7 +79,7 @@ export const ExplorationScreen: React.FC = () => {
       // After showing alien char, replace with real character
       intervalRef.current = setTimeout(() => {
         setIsShowingAlien(false);
-        setDisplayedText((prev) => prev + GOLDEN_PLAINS_DIALOGUE[currentIndex]);
+        setDisplayedText((prev) => prev + dialogue[currentIndex]);
         setCurrentIndex((prev) => prev + 1);
       }, 40); // Show alien char for 40ms, then continue quickly
     } else {
