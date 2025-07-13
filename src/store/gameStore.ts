@@ -1006,6 +1006,24 @@ export const useGameStore = create<GameStore>()(
             };
           }
 
+          // Special customization for Túneis Profundos
+          if (name === "Túneis Profundos") {
+            return {
+              id: `${planetId}_point_${index + 1}`,
+              planetId,
+              name,
+              x: positions[index].x,
+              y: positions[index].y,
+              imageUrl:
+                "https://cdn.builder.io/api/v1/image/assets%2Fb6d85109083b414cb45e23273725417f%2Fd527502264bb4e169df3a43d9509b587?format=webp&width=800",
+              description:
+                "Túneis profundos que se estendem nas profundezas do planeta, lar de mistérios antigos e tecnologias perdidas.",
+              discovered: false,
+              size: 1.0,
+              active: true,
+            };
+          }
+
           // Default configuration for other points
           return {
             id: `${planetId}_point_${index + 1}`,
