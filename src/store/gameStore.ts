@@ -986,56 +986,6 @@ export const useGameStore = create<GameStore>()(
         for (let i = 0; i < planetId.length; i++) {
           hash = ((hash << 5) - hash + planetId.charCodeAt(i)) & 0xffffffff;
         }
-        // Special handling for Vila Ancestral (planet-5)
-        if (planetId === "planet-5") {
-          const vilaPoints: ExplorationPoint[] = [
-            {
-              id: `${planetId}_point_1`,
-              planetId,
-              name: "Santuário dos Ovos",
-              x: 30,
-              y: 40,
-              imageUrl:
-                "https://cdn.builder.io/api/v1/image/assets%2Ff94d2a386a444693b9fbdff90d783a66%2F76c4f943e6e045938d8e5efb84a2a969?format=webp&width=800",
-              description:
-                "O local sagrado onde os ovos ancestrais são guardados e escolhidos pelos novos guardiões.",
-              discovered: false,
-              size: 1.2,
-              active: true,
-            },
-            {
-              id: `${planetId}_point_2`,
-              planetId,
-              name: "Templo dos Ancestrais",
-              x: 60,
-              y: 30,
-              imageUrl:
-                "https://cdn.builder.io/api/v1/image/assets%2F6b84993f22904beeb2e1d8d2f128c032%2Faaff2921868f4bbfb24be01b9fdfa6a1?format=webp&width=800",
-              description:
-                "Um antigo templo onde os anciões compartilham sabedoria sobre os pets ancestrais.",
-              discovered: false,
-              size: 1.0,
-              active: true,
-            },
-            {
-              id: `${planetId}_point_3`,
-              planetId,
-              name: "Jardim Sagrado",
-              x: 45,
-              y: 70,
-              imageUrl:
-                "https://cdn.builder.io/api/v1/image/assets%2F6b84993f22904beeb2e1d8d2f128c032%2Faaff2921868f4bbfb24be01b9fdfa6a1?format=webp&width=800",
-              description:
-                "Um jardim místico onde os pets recém-nascidos fazem seus primeiros passos.",
-              discovered: false,
-              size: 1.0,
-              active: true,
-            },
-          ];
-
-          set({ explorationPoints: vilaPoints });
-          return vilaPoints;
-        }
 
         const setIndex = Math.abs(hash) % pointTemplates.length;
         const selectedNames = pointTemplates[setIndex];
@@ -2412,7 +2362,7 @@ export const useGameStore = create<GameStore>()(
         // Se já tem posições no store, usa elas
         if (state.worldPositions.length > 0) {
           console.log(
-            "��� Using world positions from store:",
+            "📍 Using world positions from store:",
             state.worldPositions,
           );
           return;
