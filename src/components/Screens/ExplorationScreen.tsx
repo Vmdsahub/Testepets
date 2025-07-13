@@ -46,7 +46,7 @@ export const ExplorationScreen: React.FC = () => {
 
   // Dialogue text for Santuário dos Ovos
   const EGG_SANCTUARY_DIALOGUE =
-    "Saudações, jovem guardião. Este é o Santuário dos Ovos Ancestrais, onde os ovos sagrados aguardam por seus companheiros destinados. Escolha sabiamente, pois esta decisão moldará sua jornada...";
+    "Saudações, jovem guardião. Este é o Santuário dos Ovos Ancestrais, onde os ovos sagrados aguardam por seus companheiros destinados. Escolha sabiamente, pois esta decisão moldar�� sua jornada...";
 
   // Alien characters for translation effect
   const ALIEN_CHARS = "◊◈◇◆☾☽⟡⟢⧿⧾⬟⬠⬢⬣⬡⬠⧨⧿⟐���ξζηθικλμνοπρστυφχψω";
@@ -498,9 +498,9 @@ export const ExplorationScreen: React.FC = () => {
                         </div>
                       </motion.div>
                     ))}
-                  </div>
+                                    </div>
                 </motion.div>
-                            )}
+              )}
             </>
           ) : (
             /* Additional Info Panel for other locations */
