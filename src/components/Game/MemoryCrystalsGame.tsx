@@ -52,6 +52,21 @@ export const MemoryCrystalsGame: React.FC<MemoryCrystalsGameProps> = ({
     return saved ? parseInt(saved, 10) : 0;
   });
 
+  // Daily rewards tracking
+  const [dailyRewards, setDailyRewards] = useState(() => {
+    const today = new Date().toDateString();
+    const saved = localStorage.getItem("memory-crystals-daily-rewards");
+    if (saved) {
+      const data = JSON.parse(saved);
+      if (data.date === today) {
+        return data.count;
+      }
+    }
+    return 0;
+  });
+
+  const [showRewardOptions, setShowRewardOptions] = useState(false);
+
   // Initialize game
   const initGame = useCallback(() => {
     setBird({ x: 100, y: CANVAS_HEIGHT / 2, velocity: 0 });
