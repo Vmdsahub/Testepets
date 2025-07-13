@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useGameStore } from "../../store/gameStore";
 import { ExplorationPoint } from "../../types/game";
+import { EggSelectionScreen } from "../Pet/EggSelectionScreen";
 
 interface Planet {
   id: string;
