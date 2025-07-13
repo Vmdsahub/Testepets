@@ -2501,7 +2501,7 @@ export const useGameStore = create<GameStore>()(
             color: "#dda0dd",
             interactionRadius: 110, // Área de pouso grande - vila acolhedora
             imageUrl:
-              "https://cdn.builder.io/api/v1/image/assets%2Ff94d2a386a444693b9fbdff90d783a66%2F76c4f943e6e045938d8e5efb84a2a969?format=webp&width=800",
+              "https://cdn.builder.io/api/v1/image/assets%2F14397f3b3f9049c3ad3ca64e1b66afd5%2F93a4cd7c0ad245e5ba9abebe11152d46?format=webp&width=800",
             createdAt: new Date(),
             updatedAt: new Date(),
           },
