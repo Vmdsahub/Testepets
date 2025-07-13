@@ -8,5 +8,10 @@ if (typeof window !== "undefined") {
     const store = useGameStore.getState();
     console.log("🔄 Forçando reload das world positions...");
     store.forceReloadWorldPositions();
+
+    // Remove este script após 5 segundos
+    setTimeout(() => {
+      console.log("🔄 Reload das world positions concluído");
+    }, 5000);
   }, 1000);
 }
