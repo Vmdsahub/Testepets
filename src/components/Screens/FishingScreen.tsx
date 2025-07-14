@@ -56,8 +56,8 @@ class WaterEffect {
             varying vec2 v_texCoord;
             varying vec2 v_position;
             
-            void main() {
-                v_texCoord = a_texCoord;
+                        void main() {
+                v_texCoord = vec2(a_texCoord.x, 1.0 - a_texCoord.y);
                 v_position = a_position;
                 gl_Position = vec4(a_position, 0.0, 1.0);
             }
