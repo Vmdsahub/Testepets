@@ -707,22 +707,20 @@ export const FishingScreen: React.FC = () => {
       const waterEffect = new WaterEffect();
 
       // Apply settings from database
-      if (waterEffect.setupControls) {
-        waterEffect.waveIntensity = fishingSettings.waveIntensity;
-        waterEffect.distortionAmount = fishingSettings.distortionAmount;
-        waterEffect.animationSpeed = fishingSettings.animationSpeed;
+      waterEffect.waveIntensity = fishingSettings.waveIntensity;
+      waterEffect.distortionAmount = fishingSettings.distortionAmount;
+      waterEffect.animationSpeed = fishingSettings.animationSpeed;
 
-        // Update background if custom image is set
-        if (fishingSettings.backgroundImageUrl) {
-          const img = new Image();
-          img.crossOrigin = "anonymous";
-          img.onload = () => {
-            if (waterEffect.updateBackgroundFromImage) {
-              waterEffect.updateBackgroundFromImage(img);
-            }
-          };
-          img.src = fishingSettings.backgroundImageUrl;
-        }
+      // Update background if custom image is set
+      if (fishingSettings.backgroundImageUrl) {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = () => {
+          if (waterEffect.updateBackgroundFromImage) {
+            waterEffect.updateBackgroundFromImage(img);
+          }
+        };
+        img.src = fishingSettings.backgroundImageUrl;
       }
 
       waterEffectRef.current = waterEffect;
