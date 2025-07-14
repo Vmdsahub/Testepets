@@ -213,8 +213,6 @@ class FishingSystem {
     const reelDuration = 2000; // 2 segundos para recolher totalmente
     const reelProgress = Math.min(reelTime / reelDuration, 1);
 
-    let allPointsReeled = true;
-
     // Recolher pontos de trás para frente (do anzol para a vara)
     for (let i = this.linePoints.length - 1; i >= 0; i--) {
       const point = this.linePoints[i];
