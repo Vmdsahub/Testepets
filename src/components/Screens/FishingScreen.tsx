@@ -893,6 +893,12 @@ export const FishingScreen: React.FC = () => {
       try {
         const waterEffect = new WaterEffect();
 
+        // Configurar callback para abrir modal
+        waterEffect.onGameStart = () => {
+          console.log("Opening fishing game modal");
+          setShowFishingModal(true);
+        };
+
         // Apply settings from database if available
         if (fishingSettings) {
           waterEffect.waveIntensity = fishingSettings.waveIntensity;
