@@ -194,8 +194,16 @@ class FishingSystem {
   }
 
   private reelIn() {
-    this.isLineOut = false;
-    this.linePoints = [];
+    if (!this.isLineOut || this.isReelingIn) return;
+
+    this.isReelingIn = true;
+    this.reelStartTime = Date.now();
+
+    // Marcar todos os pontos para recolhimento
+    this.linePoints.forEach((point, index) => {
+      point.reelProgress = 0;
+      point.castPhase = "reeling";
+    });
   }
 
   private updateLinePhysics() {
