@@ -12,11 +12,17 @@ import { FishingRod } from "../Game/FishingRod";
 class WaterEffect {
   constructor() {
     this.canvas = document.getElementById("waterCanvas");
+
+    if (!this.canvas) {
+      console.warn("Canvas element not found");
+      return;
+    }
+
     this.gl =
       this.canvas.getContext("webgl2") || this.canvas.getContext("webgl");
 
     if (!this.gl) {
-      alert("WebGL não é suportado neste navegador");
+      console.warn("WebGL não é suportado neste navegador");
       return;
     }
 
