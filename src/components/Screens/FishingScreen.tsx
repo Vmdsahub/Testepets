@@ -201,13 +201,9 @@ class WaterEffect {
                                 vec2 fishPos = vec2(fishX, fishY);
                 vec2 fishSize = vec2(0.08, 0.06); // Diminuído de 0.15x0.12 para 0.08x0.06
 
-                                                                // Calcula direção suave baseada na velocidade instantânea
-                float fishSlowTime = u_fishTime * 0.2;
-                float currentX = 0.5 + (sin(fishSlowTime * 0.6) * 0.35 + sin(fishSlowTime * 1.2) * 0.25 + cos(fishSlowTime * 0.3) * 0.15);
-                float futureTime = fishSlowTime + 0.01;
-                float futureX = 0.5 + (sin(futureTime * 0.6) * 0.35 + sin(futureTime * 1.2) * 0.25 + cos(futureTime * 0.3) * 0.15);
-
-                float velocity = futureX - currentX;
+                                                                                // Direção baseada no movimento atual
+                float cycleTime = ((u_fishTime + u_fishTimeOffset) * 0.3) * 0.5;
+                float velocity = cos(cycleTime) * 0.48; // Derivada do sin(cycleTime)
                 bool facingRight = velocity > 0.0;
 
                 // Calcula UV do peixe garantindo orientação sempre correta
