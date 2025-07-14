@@ -43,7 +43,7 @@ class WaterEffect {
     this.fishTime = 0;
 
     // Estados do jogo de pesca
-    this.gameState = "idle"; // 'idle', 'hook_cast', 'fish_reacting', 'fish_moving', 'fish_hooked', 'transitioning'
+    this.gameState = "idle"; // 'idle', 'hook_cast', 'fish_reacting', 'fish_moving', 'fish_hooked'
     this.hookPosition = { x: 0.5, y: 0.5 };
     this.fishTargetPosition = { x: 0.5, y: 0.65 };
     this.fishReactionStartTime = 0;
@@ -51,9 +51,7 @@ class WaterEffect {
     this.originalFishMovement = { moveX: 0, moveY: 0 };
     this.exclamationTime = 0;
     this.onGameStart = null; // Callback para abrir modal
-    this.transitionStartTime = 0;
-    this.transitionDuration = 800; // 0.8 segundos para transição suave (400ms parado + 400ms transição)
-    this.transitionStartPosition = { x: 0.5, y: 0.65 };
+    this.fishTimeOffset = 0; // Offset para sincronizar movimento natural com posição atual
 
     this.init();
     this.render();
