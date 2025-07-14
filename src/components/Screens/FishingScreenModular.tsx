@@ -339,8 +339,8 @@ class ModularWaterEffect {
           fishY = naturalFishY;
         }
         
-                // Imagem original com peixe
-        vec4 originalColor = getColorWithFish(uv, fishX, fishY, facingRight);
+                                // Imagem original com peixe
+        vec4 originalColor = getColorWithFish(uv, fishX, fishY, fishAngle);
         
         // Verificar se está na área da água
         bool inWater = isInWaterArea(uv);
@@ -351,7 +351,7 @@ class ModularWaterEffect {
           vec2 refraction = calculateRefraction(uv, u_time) * waterMask;
           vec2 distortedUV = uv + refraction;
           
-                    vec4 backgroundColor = getColorWithFish(distortedUV, fishX, fishY, facingRight);
+                                        vec4 backgroundColor = getColorWithFish(distortedUV, fishX, fishY, fishAngle);
           
           float depth = (sin(uv.x * 3.0) + sin(uv.y * 4.0)) * 0.1 + 0.9;
           backgroundColor.rgb *= depth;
