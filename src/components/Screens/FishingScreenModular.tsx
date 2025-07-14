@@ -1167,7 +1167,10 @@ export const FishingScreenModular: React.FC = () => {
 
   // Handlers para arrastar área da água
   const handleMouseDown = (e: React.MouseEvent) => {
-    if (!isAdmin || !editMode) return;
+    if (!isAdmin) return;
+
+    // Verificar se Shift está pressionado para arrastar
+    if (!e.shiftKey) return;
 
     const rect = overlayCanvasRef.current?.getBoundingClientRect();
     if (!rect) return;
