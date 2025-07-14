@@ -1154,7 +1154,7 @@ export const FishingScreenModular: React.FC = () => {
         break;
     }
     ctx.stroke();
-  }, [waterArea, isAdmin, isDragging]);
+  }, [waterArea, isAdmin, isDragging, isShiftPressed]);
 
   // Verificar se ponto está na área da água
   const isPointInWaterArea = (x: number, y: number): boolean => {
