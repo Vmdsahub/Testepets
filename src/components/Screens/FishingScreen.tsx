@@ -231,28 +231,21 @@ class WaterEffect {
                                 // Calcular posição do peixe baseada no estado do jogo
                 float fishX, fishY;
 
-                                                                if (u_gameState >= 2.0) { // fish_reacting, fish_moving, fish_hooked, ou transitioning
-                    // Usar posição alvo quando o peixe está reagindo/se movendo/em transição
+                                                                                if (u_gameState >= 2.0) { // fish_reacting, fish_moving, fish_hooked
+                    // Usar posição alvo quando o peixe está reagindo/se movendo
                     fishX = u_fishTargetPosition.x;
                     fishY = u_fishTargetPosition.y;
-                } else if (u_gameState == 0.0) { // idle - movimento natural
-                    // Movimento natural do peixe com tempo independente
-                    float slowTime = u_fishTime * 0.2; // Movimento mais lento e independente
+                } else {
+                    // idle (0.0) e hook_cast (1.0) - movimento natural com offset
+                    float adjustedTime = (u_fishTime + u_fishTimeOffset) * 0.2;
 
                     // Padrão de movimento complexo usando múltiplas ondas
-                    float moveX = sin(slowTime * 0.7) * 0.3 + sin(slowTime * 1.3) * 0.15 + cos(slowTime * 0.4) * 0.1;
-                    float moveY = cos(slowTime * 0.5) * 0.08 + sin(slowTime * 1.1) * 0.06 + sin(slowTime * 0.8) * 0.04;
+                    float moveX = sin(adjustedTime * 0.7) * 0.3 + sin(adjustedTime * 1.3) * 0.15 + cos(adjustedTime * 0.4) * 0.1;
+                    float moveY = cos(adjustedTime * 0.5) * 0.08 + sin(adjustedTime * 1.1) * 0.06 + sin(adjustedTime * 0.8) * 0.04;
 
                     // Normaliza para manter dentro dos limites (0.1 a 0.9 em X, área da água em Y)
                     fishX = 0.5 + moveX * 0.35; // Entre 0.15 e 0.85
                     fishY = 0.65 + moveY * 0.15; // Entre 0.5 e 0.8 (área da água)
-                } else {
-                    // hook_cast (1.0) - continuar movimento natural
-                    float slowTime = u_fishTime * 0.2;
-                    float moveX = sin(slowTime * 0.7) * 0.3 + sin(slowTime * 1.3) * 0.15 + cos(slowTime * 0.4) * 0.1;
-                    float moveY = cos(slowTime * 0.5) * 0.08 + sin(slowTime * 1.1) * 0.06 + sin(slowTime * 0.8) * 0.04;
-                    fishX = 0.5 + moveX * 0.35;
-                    fishY = 0.65 + moveY * 0.15;
                 }
 
                 // Cria máscara de água (60% da tela de baixo para cima)
@@ -1390,7 +1383,7 @@ export const FishingScreen: React.FC = () => {
             }}
           >
             <h2 style={{ marginTop: 0, color: "#333", fontSize: "24px" }}>
-              �� Peixe Fisgado!
+              🎣 Peixe Fisgado!
             </h2>
             <p
               style={{ color: "#666", marginBottom: "30px", fontSize: "16px" }}
