@@ -750,7 +750,7 @@ export const FishingScreen: React.FC = () => {
     setting: keyof FishingSettings,
     value: number,
   ) => {
-    if (!isAdmin || !fishingSettings) return;
+    if (!isAdmin) return;
 
     setIsUpdatingSettings(true);
 
