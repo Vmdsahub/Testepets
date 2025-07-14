@@ -64,29 +64,29 @@ const WaterEffectWebGL: React.FC = () => {
     
     // Multiple wave layers
     vec2 getWaveDistortion(vec2 uv, float time) {
-      // Primary waves - large, slow
+            // Primary waves - large, very slow
       vec2 wave1 = vec2(
-        sin(time * 0.5 + uv.x * 4.0 + uv.y * 2.0) * 0.02,
-        cos(time * 0.6 + uv.y * 3.0 + uv.x * 1.5) * 0.02
+        sin(time * 0.3 + uv.x * 2.5 + uv.y * 1.5) * 0.006,
+        cos(time * 0.35 + uv.y * 2.0 + uv.x * 1.0) * 0.006
       );
       
-      // Secondary waves - medium, faster
+            // Secondary waves - medium, gentle
       vec2 wave2 = vec2(
-        sin(time * 1.2 + uv.x * 8.0 - uv.y * 4.0) * 0.015,
-        cos(time * 1.1 + uv.y * 6.0 + uv.x * 3.0) * 0.015
+        sin(time * 0.7 + uv.x * 4.0 - uv.y * 2.5) * 0.004,
+        cos(time * 0.65 + uv.y * 3.5 + uv.x * 2.0) * 0.004
       );
       
-      // Tertiary waves - small, rapid
+            // Tertiary waves - small, subtle
       vec2 wave3 = vec2(
-        sin(time * 2.0 + uv.x * 16.0 + uv.y * 8.0) * 0.01,
-        cos(time * 1.8 + uv.y * 12.0 - uv.x * 6.0) * 0.01
+        sin(time * 1.0 + uv.x * 8.0 + uv.y * 4.0) * 0.002,
+        cos(time * 0.9 + uv.y * 6.0 - uv.x * 3.0) * 0.002
       );
       
-      // Noise-based organic distortion
-      float noiseScale = 0.008;
+            // Noise-based organic distortion - much subtler
+      float noiseScale = 0.002;
       vec2 noiseDistortion = vec2(
-        fbm(uv * 6.0 + time * 0.3) * noiseScale,
-        fbm(uv * 5.0 - time * 0.25) * noiseScale
+        fbm(uv * 3.0 + time * 0.15) * noiseScale,
+        fbm(uv * 2.5 - time * 0.12) * noiseScale
       );
       
       return wave1 + wave2 + wave3 + noiseDistortion;
