@@ -225,22 +225,25 @@ class ModularWaterEffect {
       }
 
       // Função para obter cor com peixe (mantida original)
-            vec4 getColorWithFish(vec2 coords, float fishX, float fishY, bool facingRight) {
+            vec4 getColorWithFish(vec2 coords, float fishX, float fishY, float fishAngle) {
         vec4 bgColor = texture2D(u_backgroundTexture, coords);
         
         vec2 fishPos = vec2(fishX, fishY);
         vec2 fishSize = vec2(0.08, 0.06);
 
-                        // Direção é passada como parâmetro
+                                // Aplicar rotação livre baseada no ângulo
+        vec2 localPos = coords - fishPos;
 
-        vec2 localUV = (coords - fishPos + fishSize * 0.5) / fishSize;
-        vec2 fishUV;
+        // Rotacionar coordenadas baseado no ângulo do peixe
+        float cosAngle = cos(-fishAngle);
+        float sinAngle = sin(-fishAngle);
 
-        if (facingRight) {
-          fishUV = vec2(1.0 - localUV.x, localUV.y);
-        } else {
-          fishUV = localUV;
-        }
+        vec2 rotatedPos = vec2(
+          localPos.x * cosAngle - localPos.y * sinAngle,
+          localPos.x * sinAngle + localPos.y * cosAngle
+        );
+
+        vec2 fishUV = (rotatedPos + fishSize * 0.5) / fishSize;
 
                                 if (fishUV.x >= 0.0 && fishUV.x <= 1.0 && fishUV.y >= 0.0 && fishUV.y <= 1.0 && isInWaterArea(coords)) {
           vec4 fishColor = texture2D(u_fishTexture, fishUV);
