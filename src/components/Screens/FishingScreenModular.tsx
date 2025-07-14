@@ -306,12 +306,13 @@ class ModularWaterEffect {
 
         // Posição futura para calcular velocidade
         float futureTime = time + deltaT;
-        float futureNoiseX1 = sin(futureTime * 0.7 + 123.45) * cos(futureTime * 0.5 + 67.89);
-        float futureNoiseY1 = cos(futureTime * 0.6 + 234.56) * sin(futureTime * 0.8 + 78.90);
-        float futureNoiseX2 = sin(futureTime * 2.3 + 345.67) * 0.3;
-        float futureNoiseY2 = cos(futureTime * 1.9 + 456.78) * 0.3;
-        float futureNoiseX3 = sin(futureTime * 0.2 + 567.89) * 0.8;
-        float futureNoiseY3 = cos(futureTime * 0.15 + 678.90) * 0.8;
+                // Usar as MESMAS frequências baixas para consistência
+        float futureNoiseX1 = sin(futureTime * 0.3 + 123.45) * cos(futureTime * 0.2 + 67.89);
+        float futureNoiseY1 = cos(futureTime * 0.25 + 234.56) * sin(futureTime * 0.35 + 78.90);
+        float futureNoiseX2 = sin(futureTime * 0.8 + 345.67) * 0.2;
+        float futureNoiseY2 = cos(futureTime * 0.6 + 456.78) * 0.2;
+        float futureNoiseX3 = sin(futureTime * 0.1 + 567.89) * 0.9;
+        float futureNoiseY3 = cos(futureTime * 0.08 + 678.90) * 0.9;
 
         float futureMoveX = (futureNoiseX1 + futureNoiseX2 + futureNoiseX3) / 3.0;
         float futureMoveY = (futureNoiseY1 + futureNoiseY2 + futureNoiseY3) / 3.0;
