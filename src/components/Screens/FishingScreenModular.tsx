@@ -889,7 +889,7 @@ class ModularWaterEffect {
           ? 1
           : this.waterArea.shape === "triangle"
             ? 2
-            : 3;
+            : 0;
     this.gl.uniform1f(this.uniforms.waterShape, shapeValue);
 
     // Ativa texturas
