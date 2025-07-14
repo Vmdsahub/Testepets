@@ -475,6 +475,10 @@ class FishingSystem {
     const rodTipX = rodBaseX + Math.cos(angle) * rodLength;
     const rodTipY = rodBaseY + Math.sin(angle) * rodLength;
 
+    // Armazenar posição anterior para calcular movimento
+    this.previousRodTip.x = this.fishingRodTip.x;
+    this.previousRodTip.y = this.fishingRodTip.y;
+
     this.fishingRodTip.x = rodTipX;
     this.fishingRodTip.y = rodTipY;
 
