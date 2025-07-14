@@ -42,6 +42,18 @@ class WaterEffect {
     this.time = 0;
     this.fishTime = 0;
 
+    // Sistema de Steering Behaviors para movimento orgânico
+    this.fishPosition = { x: 0.5, y: 0.7 }; // Posição atual
+    this.fishVelocity = { x: 0, y: 0 }; // Velocidade atual
+    this.fishAcceleration = { x: 0, y: 0 }; // Aceleração
+    this.wanderTarget = { x: 0.6, y: 0.8 }; // Alvo de wandering
+    this.wanderAngle = 0; // Ângulo para wandering
+    this.maxSpeed = 0.0002; // Velocidade máxima (reduzida de 0.0008 para 0.0002)
+    this.maxForce = 0.00003; // Força máxima de steering (reduzida para movimento mais suave)
+    this.wanderRadius = 0.08; // Raio do círculo de wandering (menor para curvas mais suaves)
+    this.wanderDistance = 0.05; // Distância do círculo de wandering (menor)
+    this.wanderJitter = 0.3; // Variação no wandering (reduzida para movimento mais suave)
+
     // Estados do jogo de pesca
     this.gameState = "idle"; // 'idle', 'hook_cast', 'fish_reacting', 'fish_moving', 'fish_hooked'
     this.hookPosition = { x: 0.5, y: 0.5 };
@@ -105,8 +117,10 @@ class WaterEffect {
             uniform vec2 u_fishTargetPosition;
                         uniform float u_showExclamation;
                         uniform float u_fishTimeOffset;
-            uniform float u_transitionSmoothing; // 0.0 = movimento completo, 1.0 = movimento reduzido
+                        uniform float u_transitionSmoothing; // 0.0 = movimento completo, 1.0 = movimento reduzido
             uniform vec2 u_transitionStartPosition; // Posição onde o peixe estava quando iniciou a transição
+            uniform vec2 u_fishPosition; // Posição atual calculada pelo steering system
+            uniform vec2 u_fishVelocity; // Velocidade atual para rotação
                         uniform sampler2D u_backgroundTexture;
             uniform sampler2D u_noiseTexture;
             uniform sampler2D u_fishTexture;
@@ -201,23 +215,28 @@ class WaterEffect {
                                 vec2 fishPos = vec2(fishX, fishY);
                 vec2 fishSize = vec2(0.08, 0.06); // Diminuído de 0.15x0.12 para 0.08x0.06
 
-                                                                                // Direção baseada no movimento atual
-                float cycleTime = ((u_fishTime + u_fishTimeOffset) * 0.3) * 0.5;
-                float velocity = cos(cycleTime) * 0.48; // Derivada do sin(cycleTime)
-                bool facingRight = velocity > 0.0;
+                                                                                                                                                                                                                                                // ROTAÇÃO BASEADA NA VELOCIDADE DO STEERING SYSTEM
+
+                // Usar velocidade calculada pelo sistema de steering behaviors
+                float velocityX = u_fishVelocity.x;
+                float velocityY = u_fishVelocity.y;
+
+                                // Determinar orientação baseada na velocidade horizontal
+                // Limiar baixo para evitar oscilações quando parado
+                bool facingRight = velocityX > 0.0001;
 
                 // Calcula UV do peixe garantindo orientação sempre correta
                 vec2 localUV = (coords - fishPos + fishSize * 0.5) / fishSize;
                 vec2 fishUV;
 
-                // GARANTIA ABSOLUTA: peixe nunca fica de cabeça para baixo
-                // Apenas flip horizontal baseado na direção, Y sempre correto
+                // CORREÇÃO: Inverter lógica para orientação correta
+                // Peixe deve olhar na direção que está nadando
                 if (facingRight) {
-                    // Flip horizontal quando nada para direita
-                    fishUV = vec2(1.0 - localUV.x, localUV.y);
-                } else {
-                    // Orientação normal quando nada para esquerda
+                    // Orientação normal quando nada para direita
                     fishUV = vec2(localUV.x, localUV.y);
+                } else {
+                    // Flip horizontal quando nada para esquerda
+                    fishUV = vec2(1.0 - localUV.x, localUV.y);
                 }
 
                 // Clamp UV para evitar problemas de renderização
@@ -241,44 +260,24 @@ class WaterEffect {
                                 // Calcular posição do peixe baseada no estado do jogo
                 float fishX, fishY;
 
-                                                                                                                // MOVIMENTO COMPLETAMENTE NOVO - USA TODA A ÁREA DA ÁGUA
-                float time = (u_fishTime + u_fishTimeOffset) * 0.3;
+                                                                                                                                                                                                                                                                                                                                                // SISTEMA DE STEERING BEHAVIORS - MOVIMENTO ORGÂNICO
+                // Este movimento será calculado no JavaScript e passado para o shader
+                // O shader apenas interpola entre as posições calculadas pelo sistema de steering
 
-                // Padrão de movimento em 8 (figura de oito) que cobre toda a área
-                float cycleTime = time * 0.5; // Ciclo mais lento para movimento suave
+                // Posição natural será sobrescrita pelo sistema JavaScript
+                float naturalFishX = 0.5;
+                float naturalFishY = 0.7;
 
-                // Movimento em X: vai de uma borda à outra (0.02 a 0.98)
-                float baseX = 0.5 + sin(cycleTime) * 0.48; // Amplitude de 0.48 = vai de 0.02 a 0.98
+                // O movimento real é calculado no sistema de steering behaviors em JavaScript
 
-                // Movimento em Y: explora toda altura da água (0.42 a 0.98)
-                float baseY = 0.7 + sin(cycleTime * 2.0) * 0.28; // Amplitude de 0.28 = vai de 0.42 a 0.98
-
-                // Adiciona variação secundária para movimento mais natural
-                float variation = sin(time * 1.3) * 0.1 + cos(time * 0.7) * 0.05;
-
-                // Posição final do peixe
-                float naturalFishX = baseX + variation;
-                float naturalFishY = baseY + variation * 0.5;
-
-                // Garantir que sempre fica dentro da área da água
-                naturalFishX = clamp(naturalFishX, 0.02, 0.98); // Margem mínima de 2%
-                naturalFishY = clamp(naturalFishY, 0.42, 0.98); // De 42% a 98% da altura
-
-                if (u_gameState >= 2.0) { // fish_reacting, fish_moving, fish_hooked
+                                if (u_gameState >= 2.0) { // fish_reacting, fish_moving, fish_hooked
                     // Usar posição alvo quando o peixe está reagindo/se movendo
                     fishX = u_fishTargetPosition.x;
                     fishY = u_fishTargetPosition.y;
-                } else if (u_transitionSmoothing > 0.0) {
-                    // Em transição: interpolar da posição de início para o movimento natural
-                    float progress = 1.0 - u_transitionSmoothing;
-                    float easeProgress = 1.0 - pow(1.0 - progress, 3.0); // Função cubic ease-out
-
-                    fishX = mix(u_transitionStartPosition.x, naturalFishX, easeProgress);
-                    fishY = mix(u_transitionStartPosition.y, naturalFishY, easeProgress);
                 } else {
-                    // Movimento natural normal
-                    fishX = naturalFishX;
-                    fishY = naturalFishY;
+                    // Usar posição do sistema de steering behaviors
+                    fishX = u_fishPosition.x;
+                    fishY = u_fishPosition.y;
                 }
 
                 // Cria máscara de água (60% da tela de baixo para cima)
@@ -439,6 +438,14 @@ class WaterEffect {
     this.uniforms.transitionStartPosition = this.gl.getUniformLocation(
       this.program,
       "u_transitionStartPosition",
+    );
+    this.uniforms.fishPosition = this.gl.getUniformLocation(
+      this.program,
+      "u_fishPosition",
+    );
+    this.uniforms.fishVelocity = this.gl.getUniformLocation(
+      this.program,
+      "u_fishVelocity",
     );
   }
 
@@ -710,6 +717,203 @@ class WaterEffect {
     );
   }
 
+  // Sistema de Steering Behaviors
+  updateSteeringBehaviors(deltaTime) {
+    if (this.gameState === "idle" || this.gameState === "hook_cast") {
+      // Comportamento de wandering natural
+      this.wander(deltaTime);
+    } else if (this.gameState === "fish_moving") {
+      // Comportamento de seek/arrive em direção ao anzol
+      this.seek(this.hookPosition, deltaTime);
+    }
+
+    // Aplicar física: velocidade += aceleração
+    this.fishVelocity.x += this.fishAcceleration.x * deltaTime;
+    this.fishVelocity.y += this.fishAcceleration.y * deltaTime;
+
+    // Amortecimento para movimento mais suave (reduz velocidade gradualmente)
+    const damping = 0.98; // Fator de amortecimento
+    this.fishVelocity.x *= damping;
+    this.fishVelocity.y *= damping;
+
+    // Limitar velocidade máxima
+    const speed = Math.sqrt(
+      this.fishVelocity.x * this.fishVelocity.x +
+        this.fishVelocity.y * this.fishVelocity.y,
+    );
+    if (speed > this.maxSpeed) {
+      this.fishVelocity.x = (this.fishVelocity.x / speed) * this.maxSpeed;
+      this.fishVelocity.y = (this.fishVelocity.y / speed) * this.maxSpeed;
+    }
+
+    // Aplicar velocidade: posição += velocidade
+    this.fishPosition.x += this.fishVelocity.x * deltaTime;
+    this.fishPosition.y += this.fishVelocity.y * deltaTime;
+
+    // Manter dentro dos limites da água
+    this.fishPosition.x = Math.max(0.05, Math.min(0.95, this.fishPosition.x));
+    this.fishPosition.y = Math.max(0.45, Math.min(0.95, this.fishPosition.y));
+
+    // Resetar aceleração para próximo frame
+    this.fishAcceleration.x = 0;
+    this.fishAcceleration.y = 0;
+  }
+
+  // Comportamento Wander - vagar aleatoriamente com movimento curvilíneo
+  wander(deltaTime) {
+    // Normalizar velocidade para direção
+    const speed = Math.sqrt(
+      this.fishVelocity.x * this.fishVelocity.x +
+        this.fishVelocity.y * this.fishVelocity.y,
+    );
+    let directionX = speed > 0.0001 ? this.fishVelocity.x / speed : 1;
+    let directionY = speed > 0.0001 ? this.fishVelocity.y / speed : 0;
+
+    // Criar círculo de wandering à frente do peixe
+    const circleCenter = {
+      x: this.fishPosition.x + directionX * this.wanderDistance,
+      y: this.fishPosition.y + directionY * this.wanderDistance,
+    };
+
+    // Atualizar ângulo de wandering com variação mais suave
+    this.wanderAngle +=
+      (Math.random() - 0.5) * this.wanderJitter * deltaTime * 0.001; // Muito mais suave
+
+    // Calcular ponto alvo no círculo de wandering
+    this.wanderTarget.x =
+      circleCenter.x + Math.cos(this.wanderAngle) * this.wanderRadius;
+    this.wanderTarget.y =
+      circleCenter.y + Math.sin(this.wanderAngle) * this.wanderRadius;
+
+    // Aplicar força de steering em direção ao alvo com intensidade reduzida
+    const seekForce = 0.3; // Reduzir intensidade do seek
+    this.seekWithForce(this.wanderTarget, deltaTime, seekForce);
+
+    // Adicionar força de separação das bordas
+    this.separate(deltaTime);
+
+    // Adicionar pequena força de flutuação para movimento orgânico
+    const floatForce = {
+      x: Math.sin(this.fishTime * 0.001) * 0.00001,
+      y: Math.cos(this.fishTime * 0.0008) * 0.00001,
+    };
+    this.fishAcceleration.x += floatForce.x;
+    this.fishAcceleration.y += floatForce.y;
+  }
+
+  // Comportamento Seek com intensidade customizável
+  seekWithForce(target, deltaTime, forceMultiplier = 1.0) {
+    // Calcular direção desejada
+    const desired = {
+      x: target.x - this.fishPosition.x,
+      y: target.y - this.fishPosition.y,
+    };
+
+    // Normalizar e multiplicar pela velocidade máxima
+    const distance = Math.sqrt(desired.x * desired.x + desired.y * desired.y);
+    if (distance > 0) {
+      desired.x = (desired.x / distance) * this.maxSpeed;
+      desired.y = (desired.y / distance) * this.maxSpeed;
+
+      // Comportamento Arrive - desacelerar quando próximo do alvo
+      if (distance < 0.1) {
+        const arrivalForce = distance / 0.1; // Gradualmente reduz força
+        desired.x *= arrivalForce;
+        desired.y *= arrivalForce;
+      }
+    }
+
+    // Calcular força de steering
+    const steer = {
+      x: desired.x - this.fishVelocity.x,
+      y: desired.y - this.fishVelocity.y,
+    };
+
+    // Limitar força máxima e aplicar multiplicador
+    const steerMagnitude = Math.sqrt(steer.x * steer.x + steer.y * steer.y);
+    if (steerMagnitude > this.maxForce) {
+      steer.x = (steer.x / steerMagnitude) * this.maxForce;
+      steer.y = (steer.y / steerMagnitude) * this.maxForce;
+    }
+
+    // Aplicar força de steering com multiplicador
+    this.fishAcceleration.x += steer.x * forceMultiplier;
+    this.fishAcceleration.y += steer.y * forceMultiplier;
+  }
+
+  // Comportamento Seek - ir em direção ao alvo
+  seek(target, deltaTime) {
+    // Calcular direção desejada
+    const desired = {
+      x: target.x - this.fishPosition.x,
+      y: target.y - this.fishPosition.y,
+    };
+
+    // Normalizar e multiplicar pela velocidade máxima
+    const distance = Math.sqrt(desired.x * desired.x + desired.y * desired.y);
+    if (distance > 0) {
+      desired.x = (desired.x / distance) * this.maxSpeed;
+      desired.y = (desired.y / distance) * this.maxSpeed;
+
+      // Comportamento Arrive - desacelerar quando próximo do alvo
+      if (distance < 0.1) {
+        const arrivalForce = distance / 0.1; // Gradualmente reduz força
+        desired.x *= arrivalForce;
+        desired.y *= arrivalForce;
+      }
+    }
+
+    // Calcular força de steering
+    const steer = {
+      x: desired.x - this.fishVelocity.x,
+      y: desired.y - this.fishVelocity.y,
+    };
+
+    // Limitar força máxima
+    const steerMagnitude = Math.sqrt(steer.x * steer.x + steer.y * steer.y);
+    if (steerMagnitude > this.maxForce) {
+      steer.x = (steer.x / steerMagnitude) * this.maxForce;
+      steer.y = (steer.y / steerMagnitude) * this.maxForce;
+    }
+
+    // Aplicar força de steering
+    this.fishAcceleration.x += steer.x;
+    this.fishAcceleration.y += steer.y;
+  }
+
+  // Comportamento Separate - evitar bordas
+  separate(deltaTime) {
+    const separationForce = { x: 0, y: 0 };
+    const desiredSeparation = 0.15; // Distância desejada das bordas
+
+    // Força para evitar borda esquerda
+    if (this.fishPosition.x < desiredSeparation) {
+      separationForce.x += (desiredSeparation - this.fishPosition.x) * 0.001;
+    }
+
+    // Força para evitar borda direita
+    if (this.fishPosition.x > 1 - desiredSeparation) {
+      separationForce.x -=
+        (this.fishPosition.x - (1 - desiredSeparation)) * 0.001;
+    }
+
+    // Força para evitar borda superior
+    if (this.fishPosition.y < 0.45 + desiredSeparation) {
+      separationForce.y +=
+        (0.45 + desiredSeparation - this.fishPosition.y) * 0.001;
+    }
+
+    // Força para evitar borda inferior
+    if (this.fishPosition.y > 1 - desiredSeparation) {
+      separationForce.y -=
+        (this.fishPosition.y - (1 - desiredSeparation)) * 0.001;
+    }
+
+    // Aplicar força de separação
+    this.fishAcceleration.x += separationForce.x;
+    this.fishAcceleration.y += separationForce.y;
+  }
+
   updateFishingGame() {
     if (this.gameState === "hook_cast") {
       const elapsedTime = Date.now() - this.fishReactionStartTime;
@@ -724,19 +928,9 @@ class WaterEffect {
       }
 
       if (elapsedTime >= this.fishReactionDelay) {
-        // Agora o peixe vai reagir - capturar posição EXATA que o shader está usando
-        // Usar exatamente a mesma fórmula do shader
-        const adjustedTime = (this.fishTime + this.fishTimeOffset) * 0.2;
-        const moveX =
-          Math.sin(adjustedTime * 0.7) * 0.3 +
-          Math.sin(adjustedTime * 1.3) * 0.15 +
-          Math.cos(adjustedTime * 0.4) * 0.1;
-        const moveY =
-          Math.cos(adjustedTime * 0.5) * 0.08 +
-          Math.sin(adjustedTime * 1.1) * 0.06 +
-          Math.sin(adjustedTime * 0.8) * 0.04;
-        const currentFishX = 0.5 + moveX * 0.35;
-        const currentFishY = 0.65 + moveY * 0.15;
+        // Usar posição atual do sistema de steering behaviors
+        const currentFishX = this.fishPosition.x;
+        const currentFishY = this.fishPosition.y;
 
         // Definir a posição atual como ponto de partida
         this.fishTargetPosition = { x: currentFishX, y: currentFishY };
@@ -951,34 +1145,74 @@ class WaterEffect {
       targetY,
       bestOffset,
     );
-    const testTime = (this.fishTime + bestOffset) * 0.2;
-    const moveX =
-      Math.sin(testTime * 0.7) * 0.3 +
-      Math.sin(testTime * 1.3) * 0.15 +
-      Math.cos(testTime * 0.4) * 0.1;
-    const moveY =
-      Math.cos(testTime * 0.5) * 0.08 +
-      Math.sin(testTime * 1.1) * 0.06 +
-      Math.sin(testTime * 0.8) * 0.04;
-    const resultX = 0.5 + moveX * 0.35;
-    const resultY = 0.65 + moveY * 0.15;
+    // Usar a nova fórmula melhorada
+    const time = (this.fishTime + bestOffset) * 0.15;
+    const mainCycle = time * 0.25;
+
+    const xWave1 = Math.sin(mainCycle) * 0.35;
+    const xWave2 = Math.sin(mainCycle * 0.7 + 1.2) * 0.15;
+    const xWave3 = Math.cos(mainCycle * 1.3 + 2.5) * 0.08;
+    const baseX = 0.5 + (xWave1 + xWave2 + xWave3);
+
+    const yWave1 = Math.cos(mainCycle * 0.8) * 0.18;
+    const yWave2 = Math.sin(mainCycle * 1.1 + 0.8) * 0.08;
+    const yWave3 = Math.cos(mainCycle * 0.6 + 1.5) * 0.05;
+    const baseY = 0.7 + (yWave1 + yWave2 + yWave3);
+
+    const organicX =
+      Math.sin(time * 0.4 + Math.PI) * 0.06 +
+      Math.cos(time * 0.6 + 1.57) * 0.04;
+    const organicY =
+      Math.cos(time * 0.35 + 2.1) * 0.03 + Math.sin(time * 0.55 + 0.5) * 0.025;
+
+    const driftX = Math.sin(time * 0.08) * 0.12;
+    const driftY = Math.cos(time * 0.06) * 0.06;
+
+    const naturalFishX = baseX + organicX + driftX;
+    const naturalFishY = baseY + organicY + driftY;
+
+    const resultX = Math.max(0.05, Math.min(0.95, naturalFishX));
+    const resultY = Math.max(0.45, Math.min(0.95, naturalFishY));
     console.log(
       `🎯 OFFSET DEBUG - Target: (${targetX.toFixed(3)}, ${targetY.toFixed(3)}) -> Result: (${resultX.toFixed(3)}, ${resultY.toFixed(3)})`,
     );
   }
 
   calculateDistanceForOffset(targetX, targetY, offset) {
-    const testTime = (this.fishTime + offset) * 0.2;
-    const moveX =
-      Math.sin(testTime * 0.7) * 0.3 +
-      Math.sin(testTime * 1.3) * 0.15 +
-      Math.cos(testTime * 0.4) * 0.1;
-    const moveY =
-      Math.cos(testTime * 0.5) * 0.08 +
-      Math.sin(testTime * 1.1) * 0.06 +
-      Math.sin(testTime * 0.8) * 0.04;
-    const testX = 0.5 + moveX * 0.35;
-    const testY = 0.65 + moveY * 0.15;
+    // Usar a mesma fórmula melhorada do shader
+    const time = (this.fishTime + offset) * 0.15;
+    const mainCycle = time * 0.25;
+
+    // Movimento em X com múltiplas ondas sobrepostas
+    const xWave1 = Math.sin(mainCycle) * 0.35;
+    const xWave2 = Math.sin(mainCycle * 0.7 + 1.2) * 0.15;
+    const xWave3 = Math.cos(mainCycle * 1.3 + 2.5) * 0.08;
+    const baseX = 0.5 + (xWave1 + xWave2 + xWave3);
+
+    // Movimento em Y com flutuação suave
+    const yWave1 = Math.cos(mainCycle * 0.8) * 0.18;
+    const yWave2 = Math.sin(mainCycle * 1.1 + 0.8) * 0.08;
+    const yWave3 = Math.cos(mainCycle * 0.6 + 1.5) * 0.05;
+    const baseY = 0.7 + (yWave1 + yWave2 + yWave3);
+
+    // Variações orgânicas
+    const organicX =
+      Math.sin(time * 0.4 + Math.PI) * 0.06 +
+      Math.cos(time * 0.6 + 1.57) * 0.04;
+    const organicY =
+      Math.cos(time * 0.35 + 2.1) * 0.03 + Math.sin(time * 0.55 + 0.5) * 0.025;
+
+    // Deriva lenta
+    const driftX = Math.sin(time * 0.08) * 0.12;
+    const driftY = Math.cos(time * 0.06) * 0.06;
+
+    // Posição final
+    const naturalFishX = baseX + organicX + driftX;
+    const naturalFishY = baseY + organicY + driftY;
+
+    // Clamp igual ao shader
+    const testX = Math.max(0.05, Math.min(0.95, naturalFishX));
+    const testY = Math.max(0.45, Math.min(0.95, naturalFishY));
 
     return Math.sqrt((testX - targetX) ** 2 + (testY - targetY) ** 2);
   }
@@ -1025,6 +1259,9 @@ class WaterEffect {
 
     this.time += 0.016 * this.animationSpeed;
     this.fishTime += 0.016; // Tempo independente para o peixe (sempre constante)
+
+    // Atualizar sistema de steering behaviors
+    this.updateSteeringBehaviors(16); // 16ms delta time
 
     // Atualizar lógica do jogo de pesca
     this.updateFishingGame();
@@ -1116,6 +1353,18 @@ class WaterEffect {
       this.uniforms.transitionStartPosition,
       this.transitionStartPosition.x,
       this.transitionStartPosition.y,
+    );
+
+    // Uniforms do sistema de steering behaviors
+    this.gl.uniform2f(
+      this.uniforms.fishPosition,
+      this.fishPosition.x,
+      this.fishPosition.y,
+    );
+    this.gl.uniform2f(
+      this.uniforms.fishVelocity,
+      this.fishVelocity.x,
+      this.fishVelocity.y,
     );
 
     // Log de debug apenas quando há transição ativa
