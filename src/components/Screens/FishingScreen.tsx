@@ -626,6 +626,8 @@ class WaterEffect {
   }
 
   render() {
+    if (!this.gl || !this.canvas) return;
+
     this.time += 0.016 * this.animationSpeed;
     this.fishTime += 0.016; // Tempo independente para o peixe (sempre constante)
 
