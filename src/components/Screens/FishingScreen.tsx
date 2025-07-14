@@ -778,16 +778,18 @@ class WaterEffect {
   }
 
   resetFishingGame() {
-    // Se o peixe estava em movimento direcionado, simplesmente parar onde está
+    // Se o peixe estava em movimento direcionado, preservar posição atual
     if (
       this.gameState === "fish_moving" ||
       this.gameState === "fish_reacting"
     ) {
-      // Para fish_moving/fish_reacting: o peixe simplesmente para onde está e volta para movimento natural
+      // Para fish_moving/fish_reacting: preservar posição atual e fazer transição suave
       console.log(
-        `Fish was in ${this.gameState}, stopping at current position (${this.fishTargetPosition.x.toFixed(2)}, ${this.fishTargetPosition.y.toFixed(2)})`,
+        `Fish was in ${this.gameState}, preserving current position (${this.fishTargetPosition.x.toFixed(2)}, ${this.fishTargetPosition.y.toFixed(2)})`,
       );
-      this.gameState = "idle"; // Voltar diretamente para movimento natural
+      this.transitionStartPosition = { ...this.fishTargetPosition };
+      this.transitionStartTime = Date.now();
+      this.gameState = "transitioning";
     } else if (this.gameState === "fish_hooked") {
       // Para fish_hooked: usar transição suave pois o peixe estava parado
       this.transitionStartPosition = { ...this.fishTargetPosition };
