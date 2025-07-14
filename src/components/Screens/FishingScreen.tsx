@@ -221,7 +221,7 @@ class WaterEffect {
                 float velocityX = u_fishVelocity.x;
                 float velocityY = u_fishVelocity.y;
 
-                // Determinar orientação baseada na velocidade horizontal
+                                // Determinar orientação baseada na velocidade horizontal
                 // Limiar baixo para evitar oscilações quando parado
                 bool facingRight = velocityX > 0.0001;
 
@@ -229,14 +229,14 @@ class WaterEffect {
                 vec2 localUV = (coords - fishPos + fishSize * 0.5) / fishSize;
                 vec2 fishUV;
 
-                // GARANTIA ABSOLUTA: peixe nunca fica de cabeça para baixo
-                // Rotação suave apenas horizontal, Y sempre correto (nunca inverte verticalmente)
+                // CORREÇÃO: Inverter lógica para orientação correta
+                // Peixe deve olhar na direção que está nadando
                 if (facingRight) {
-                    // Flip horizontal quando nada para direita (peixe olha para direita)
-                    fishUV = vec2(1.0 - localUV.x, localUV.y);
-                } else {
-                    // Orientação normal quando nada para esquerda (peixe olha para esquerda)
+                    // Orientação normal quando nada para direita
                     fishUV = vec2(localUV.x, localUV.y);
+                } else {
+                    // Flip horizontal quando nada para esquerda
+                    fishUV = vec2(1.0 - localUV.x, localUV.y);
                 }
 
                 // Clamp UV para evitar problemas de renderização
@@ -775,7 +775,7 @@ class WaterEffect {
       y: this.fishPosition.y + directionY * this.wanderDistance,
     };
 
-    // Atualizar ângulo de wandering com varia��ão mais suave
+    // Atualizar ângulo de wandering com variação mais suave
     this.wanderAngle +=
       (Math.random() - 0.5) * this.wanderJitter * deltaTime * 0.001; // Muito mais suave
 
