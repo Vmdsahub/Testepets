@@ -99,7 +99,7 @@ class WaterEffect {
             uniform float u_waveIntensity;
             uniform float u_distortionAmount;
             uniform vec2 u_resolution;
-            uniform float u_gameState; // 0=idle, 1=hook_cast, 2=fish_reacting, 3=fish_moving, 4=fish_hooked
+                        uniform float u_gameState; // 0=idle, 1=hook_cast, 2=fish_reacting, 3=fish_moving, 4=fish_hooked, 5=transitioning
             uniform vec2 u_hookPosition;
             uniform vec2 u_fishTargetPosition;
             uniform float u_showExclamation;
@@ -759,7 +759,7 @@ class WaterEffect {
         const naturalX = 0.5 + moveX * 0.35;
         const naturalY = 0.65 + moveY * 0.15;
 
-        // Interpolar entre posição de início da transiç��o e posição natural
+        // Interpolar entre posição de início da transição e posição natural
         this.fishTargetPosition.x =
           this.transitionStartPosition.x +
           (naturalX - this.transitionStartPosition.x) * easeProgress;
