@@ -310,42 +310,29 @@ class ModularWaterEffect {
         float naturalFishX = baseX;
         float naturalFishY = baseY;
 
-        if (fishBehavior < 0.5) { // NADANDO LIVRE
-            // Movimento dinâmico com variações
-            float explorePhase = time * 0.05;
-            naturalFishX += sin(explorePhase * 2.3) * areaW * 0.08;
-            naturalFishY += cos(explorePhase * 1.7) * areaH * 0.06;
+                // === MOVIMENTO SIMPLIFICADO - SEM OSCILAÇÕES EXCESSIVAS ===
 
-            // Variações secundárias
-            naturalFishX += sin(explorePhase * 5.1) * areaW * 0.03;
-            naturalFishY += cos(explorePhase * 4.3) * areaH * 0.025;
+        // Apenas um movimento suave adicional baseado no estado
+        if (fishBehavior < 0.5) { // NADANDO LIVRE
+            // Movimento suave e controlado
+            float explorePhase = time * 0.015; // Muito mais lento
+            naturalFishX += sin(explorePhase) * areaW * 0.03; // Amplitude reduzida
+            naturalFishY += cos(explorePhase * 0.7) * areaH * 0.02;
 
         } else if (fishBehavior < 1.5) { // EXPLORANDO
-            // Movimento médio com curiosidade
-            float searchPhase = time * 0.02;
-            naturalFishX += sin(searchPhase * 1.1) * areaW * 0.05;
-            naturalFishY += cos(searchPhase * 0.9) * areaH * 0.04;
+            // Movimento muito sutil
+            float searchPhase = time * 0.008;
+            naturalFishX += sin(searchPhase) * areaW * 0.015;
+            naturalFishY += cos(searchPhase * 0.8) * areaH * 0.01;
 
         } else { // DESCANSANDO
-            // Movimento mínimo, apenas flutuação
-            float restPhase = time * 0.01;
-            naturalFishX += sin(restPhase * 0.7) * areaW * 0.015;
-            naturalFishY += cos(restPhase * 0.5) * areaH * 0.01;
+            // Praticamente estático
+            float restPhase = time * 0.003;
+            naturalFishX += sin(restPhase) * areaW * 0.005;
+            naturalFishY += cos(restPhase) * areaH * 0.003;
         }
 
-        // === MOVIMENTO CORPORAL REALISTA ===
-
-        // Simulação de nadadeiras
-        float finMovement = sin(time * 0.8) * 0.005;
-        naturalFishX += finMovement;
-
-        // Respiração/movimento gill
-        float gillCycle = sin(time * 1.5) * 0.003;
-        naturalFishY += gillCycle;
-
-        // Flutuação natural (controle de boia natatória)
-        float buoyancy = sin(time * 0.06) * areaH * 0.02;
-        naturalFishY += buoyancy;
+        // NENHUM movimento corporal adicional - eliminar tudo que causa wiggle
 
         // === DELIMITAÇÃO DA ÁREA ===
 
