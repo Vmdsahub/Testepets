@@ -667,6 +667,15 @@ class WaterEffect {
     if (this.gameState === "hook_cast") {
       const elapsedTime = Date.now() - this.fishReactionStartTime;
 
+      // Debug: log do tempo a cada segundo
+      if (
+        Math.floor(elapsedTime / 1000) !== Math.floor((elapsedTime - 16) / 1000)
+      ) {
+        console.log(
+          `Fish reaction timer: ${(elapsedTime / 1000).toFixed(1)}s / ${(this.fishReactionDelay / 1000).toFixed(1)}s`,
+        );
+      }
+
       if (elapsedTime >= this.fishReactionDelay) {
         // Agora o peixe vai reagir - capturar posição atual do movimento natural
         const slowTime = this.fishTime * 0.2;
