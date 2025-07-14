@@ -140,8 +140,8 @@ const WaterEffectWebGL: React.FC = () => {
       float causticsValue = caustics(distortedUV, time);
       vec3 causticsColor = vec3(0.4, 0.7, 1.0);
       
-      // Blend caustics with water
-      float causticsStrength = 0.6 * depth;
+            // Blend caustics with water - much gentler
+      float causticsStrength = 0.2 * depth;
       waterColor = mix(waterColor, causticsColor, causticsValue * causticsStrength);
       
       // Add surface foam/bubbles
