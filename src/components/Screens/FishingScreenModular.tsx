@@ -1584,9 +1584,8 @@ export const FishingScreenModular: React.FC = () => {
           </div>
 
           <div style={{ fontSize: "12px", color: "#666", marginTop: "10px" }}>
-            {editMode
-              ? "🎯 Clique e arraste a área tracejada para reposicionar"
-              : "💡 Ative o modo edição para arrastar a área"}
+            🎯 Use <strong>Shift + arrastar</strong> na área tracejada para
+            reposicionar
           </div>
         </div>
       )}
