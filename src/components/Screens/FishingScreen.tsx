@@ -395,6 +395,10 @@ class WaterEffect {
       this.program,
       "u_showExclamation",
     );
+    this.uniforms.fishTimeOffset = this.gl.getUniformLocation(
+      this.program,
+      "u_fishTimeOffset",
+    );
   }
 
   createShader(type, source) {
