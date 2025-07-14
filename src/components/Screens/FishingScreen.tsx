@@ -681,8 +681,26 @@ class WaterEffect {
       this.fishReactionTime += 16; // assumindo 60fps
 
       if (this.fishReactionTime >= this.fishReactionDelay) {
+        // Agora o peixe vai reagir - capturar posição atual do movimento natural
+        const slowTime = this.fishTime * 0.2;
+        const moveX =
+          Math.sin(slowTime * 0.7) * 0.3 +
+          Math.sin(slowTime * 1.3) * 0.15 +
+          Math.cos(slowTime * 0.4) * 0.1;
+        const moveY =
+          Math.cos(slowTime * 0.5) * 0.08 +
+          Math.sin(slowTime * 1.1) * 0.06 +
+          Math.sin(slowTime * 0.8) * 0.04;
+        const currentFishX = 0.5 + moveX * 0.35;
+        const currentFishY = 0.65 + moveY * 0.15;
+
+        // Definir a posição atual como ponto de partida
+        this.fishTargetPosition = { x: currentFishX, y: currentFishY };
         this.gameState = "fish_reacting";
-        console.log("Fish is now reacting to hook!");
+        console.log(
+          "Fish is now reacting to hook from position:",
+          this.fishTargetPosition,
+        );
       }
     } else if (
       this.gameState === "fish_reacting" ||
