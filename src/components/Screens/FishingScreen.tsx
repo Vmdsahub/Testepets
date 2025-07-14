@@ -42,6 +42,18 @@ class WaterEffect {
     this.time = 0;
     this.fishTime = 0;
 
+    // Sistema de Steering Behaviors para movimento orgânico
+    this.fishPosition = { x: 0.5, y: 0.7 }; // Posição atual
+    this.fishVelocity = { x: 0, y: 0 }; // Velocidade atual
+    this.fishAcceleration = { x: 0, y: 0 }; // Aceleração
+    this.wanderTarget = { x: 0.6, y: 0.8 }; // Alvo de wandering
+    this.wanderAngle = 0; // Ângulo para wandering
+    this.maxSpeed = 0.0008; // Velocidade máxima
+    this.maxForce = 0.0001; // Força máxima de steering
+    this.wanderRadius = 0.15; // Raio do círculo de wandering
+    this.wanderDistance = 0.1; // Distância do círculo de wandering
+    this.wanderJitter = 0.8; // Variação no wandering
+
     // Estados do jogo de pesca
     this.gameState = "idle"; // 'idle', 'hook_cast', 'fish_reacting', 'fish_moving', 'fish_hooked'
     this.hookPosition = { x: 0.5, y: 0.5 };
