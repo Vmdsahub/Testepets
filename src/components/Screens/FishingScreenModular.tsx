@@ -894,6 +894,8 @@ export const FishingScreenModular: React.FC = () => {
   const [showFishingModal, setShowFishingModal] = useState(false);
   const [fishingSettings, setFishingSettings] =
     useState<FishingSettings | null>(null);
+  const [isUpdatingSettings, setIsUpdatingSettings] = useState(false);
+  const [editMode, setEditMode] = useState(false); // Modo de edição da área da água
 
   const isAdmin = user?.isAdmin || false;
 
