@@ -740,16 +740,7 @@ export const FishingScreen: React.FC = () => {
     setting: keyof FishingSettings,
     value: number,
   ) => {
-    console.log("DEBUG - handleSettingUpdate called:", {
-      setting,
-      value,
-      isAdmin,
-    });
-
-    if (!isAdmin) {
-      console.log("DEBUG - User is not admin, returning");
-      return;
-    }
+    if (!isAdmin) return;
 
     // Update local state immediately for responsiveness
     if (fishingSettings) {
