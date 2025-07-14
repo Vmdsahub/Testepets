@@ -894,9 +894,7 @@ class WaterEffect {
               ? 3
               : this.gameState === "fish_hooked"
                 ? 4
-                : this.gameState === "transitioning"
-                  ? 5
-                  : 0;
+                : 0;
     this.gl.uniform1f(this.uniforms.gameState, gameStateValue);
     this.gl.uniform2f(
       this.uniforms.hookPosition,
