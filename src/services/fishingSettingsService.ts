@@ -167,26 +167,32 @@ class FishingSettingsService {
     try {
       // Check if storage is available
       if (!supabase.storage || isMockMode) {
-        console.warn("Storage not available in mock mode - using mock upload");
+        console.warn(
+          "Storage not available in mock mode - converting to data URL",
+        );
 
-        // For development/testing, create a mock URL and update settings
-        const mockImageUrl = `https://via.placeholder.com/800x600/4A90E2/FFFFFF?text=Mock+Background`;
+        // Convert file to data URL for persistence in mock mode
+        const dataURL = await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (e) => resolve(e.target?.result as string);
+          reader.readAsDataURL(file);
+        });
 
-        // Update fishing settings with mock background URL
+        // Update fishing settings with data URL
         const updateResult = await this.updateFishingSettings({
-          backgroundImageUrl: mockImageUrl,
+          backgroundImageUrl: dataURL,
         });
 
         if (!updateResult.success) {
           return {
             success: false,
-            message: "Failed to update settings with mock image",
+            message: "Failed to update settings with uploaded image",
           };
         }
 
         return {
           success: true,
-          imageUrl: mockImageUrl,
+          imageUrl: dataURL,
         };
       }
 
