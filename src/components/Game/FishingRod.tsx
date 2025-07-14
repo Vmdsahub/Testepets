@@ -409,8 +409,11 @@ class FishingSystem {
             // Verificar se deve assentar (quando na água e com velocidade baixa)
             if (isInWater) {
               const speed = Math.sqrt(velX * velX + velY * velY);
-              if (speed < 0.5) {
-                // Velocidade baixa, assentar
+              if (
+                speed < 1.0 &&
+                point.y > window.innerHeight * (this.waterLevel + 0.05)
+              ) {
+                // Velocidade baixa e bem dentro da água, assentar
                 point.settled = true;
                 point.settledX = point.x;
                 point.settledY = point.y;
