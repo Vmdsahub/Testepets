@@ -770,6 +770,9 @@ class WaterEffect {
     this.time += 0.016 * this.animationSpeed;
     this.fishTime += 0.016; // Tempo independente para o peixe (sempre constante)
 
+    // Atualizar lógica do jogo de pesca
+    this.updateFishingGame();
+
     this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 
     // Define atributos
