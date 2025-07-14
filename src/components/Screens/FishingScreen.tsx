@@ -241,28 +241,39 @@ class WaterEffect {
                                 // Calcular posição do peixe baseada no estado do jogo
                 float fishX, fishY;
 
-                                                                                                                // MOVIMENTO COMPLETAMENTE NOVO - USA TODA A ÁREA DA ÁGUA
-                float time = (u_fishTime + u_fishTimeOffset) * 0.3;
+                                                                                                                                                                                                                                // MOVIMENTO NATURAL MELHORADO - MAIS FLUIDO, LENTO E SUAVE
+                float time = (u_fishTime + u_fishTimeOffset) * 0.15; // Reduzido de 0.3 para 0.15 (movimento mais lento)
 
-                // Padrão de movimento em 8 (figura de oito) que cobre toda a área
-                float cycleTime = time * 0.5; // Ciclo mais lento para movimento suave
+                // Movimento principal suave e orgânico
+                float mainCycle = time * 0.25; // Ciclo ainda mais lento para movimento ultra-suave
 
-                // Movimento em X: vai de uma borda à outra (0.02 a 0.98)
-                float baseX = 0.5 + sin(cycleTime) * 0.48; // Amplitude de 0.48 = vai de 0.02 a 0.98
+                // Movimento em X: padrão suave com múltiplas ondas sobrepostas
+                float xWave1 = sin(mainCycle) * 0.35;
+                float xWave2 = sin(mainCycle * 0.7 + 1.2) * 0.15; // Onda secundária para naturalidade
+                float xWave3 = cos(mainCycle * 1.3 + 2.5) * 0.08; // Onda terciária para micro-movimentos
+                float baseX = 0.5 + (xWave1 + xWave2 + xWave3);
 
-                // Movimento em Y: explora toda altura da água (0.42 a 0.98)
-                float baseY = 0.7 + sin(cycleTime * 2.0) * 0.28; // Amplitude de 0.28 = vai de 0.42 a 0.98
+                // Movimento em Y: flutuação vertical suave
+                float yWave1 = cos(mainCycle * 0.8) * 0.18;
+                float yWave2 = sin(mainCycle * 1.1 + 0.8) * 0.08; // Ondulação secundária
+                float yWave3 = cos(mainCycle * 0.6 + 1.5) * 0.05; // Micro-oscilações
+                float baseY = 0.7 + (yWave1 + yWave2 + yWave3);
 
-                // Adiciona variação secundária para movimento mais natural
-                float variation = sin(time * 1.3) * 0.1 + cos(time * 0.7) * 0.05;
+                // Variações orgânicas adicionais para movimento mais natural
+                float organicX = sin(time * 0.4 + 3.14159) * 0.06 + cos(time * 0.6 + 1.57) * 0.04;
+                float organicY = cos(time * 0.35 + 2.1) * 0.03 + sin(time * 0.55 + 0.5) * 0.025;
 
-                // Posição final do peixe
-                float naturalFishX = baseX + variation;
-                float naturalFishY = baseY + variation * 0.5;
+                // Movimento de deriva lenta (como peixe real na corrente)
+                float driftX = sin(time * 0.08) * 0.12; // Deriva muito lenta
+                float driftY = cos(time * 0.06) * 0.06;
 
-                // Garantir que sempre fica dentro da área da água
-                naturalFishX = clamp(naturalFishX, 0.02, 0.98); // Margem mínima de 2%
-                naturalFishY = clamp(naturalFishY, 0.42, 0.98); // De 42% a 98% da altura
+                // Posição final do peixe com movimento composto
+                float naturalFishX = baseX + organicX + driftX;
+                float naturalFishY = baseY + organicY + driftY;
+
+                // Garantir que sempre fica dentro da área da água com margem suave
+                naturalFishX = clamp(naturalFishX, 0.05, 0.95); // Margem um pouco maior para movimento mais natural
+                naturalFishY = clamp(naturalFishY, 0.45, 0.95); // Área da água mais confortável
 
                 if (u_gameState >= 2.0) { // fish_reacting, fish_moving, fish_hooked
                     // Usar posição alvo quando o peixe está reagindo/se movendo
