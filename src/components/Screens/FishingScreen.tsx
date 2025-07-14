@@ -1098,6 +1098,12 @@ export const FishingScreen: React.FC = () => {
             waterEffectRef.current.startFishingGame(uvX, uvY);
           }
         }}
+        onLineReeled={() => {
+          console.log("Line reeled in - resetting fishing game");
+          if (waterEffectRef.current) {
+            waterEffectRef.current.resetFishingGame();
+          }
+        }}
       />
 
       {/* Back Button */}
