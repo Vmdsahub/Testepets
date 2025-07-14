@@ -53,7 +53,7 @@ const WaterEffectWebGL: React.FC = () => {
       float amplitude = 0.5;
       float frequency = 1.0;
       
-      for (int i = 0; i < 6; i++) {
+            for (int i = 0; i < 4; i++) {
         value += amplitude * noise(p * frequency);
         frequency *= 2.0;
         amplitude *= 0.5;
