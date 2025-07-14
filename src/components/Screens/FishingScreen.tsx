@@ -731,6 +731,11 @@ class WaterEffect {
     this.fishVelocity.x += this.fishAcceleration.x * deltaTime;
     this.fishVelocity.y += this.fishAcceleration.y * deltaTime;
 
+    // Amortecimento para movimento mais suave (reduz velocidade gradualmente)
+    const damping = 0.98; // Fator de amortecimento
+    this.fishVelocity.x *= damping;
+    this.fishVelocity.y *= damping;
+
     // Limitar velocidade máxima
     const speed = Math.sqrt(
       this.fishVelocity.x * this.fishVelocity.x +
