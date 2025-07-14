@@ -52,6 +52,8 @@ class WaterEffect {
     this.exclamationTime = 0;
     this.onGameStart = null; // Callback para abrir modal
     this.fishTimeOffset = 0; // Offset para sincronizar movimento natural com posição atual
+    this.transitionBackToNaturalTime = 0; // Tempo desde que voltou para movimento natural
+    this.transitionBackToNaturalDuration = 500; // 0.5 segundos para suavizar retorno
 
     this.init();
     this.render();
@@ -261,7 +263,7 @@ class WaterEffect {
                                   sin(uv.x * 15.0 + u_time * 0.8) * 0.015;
                 float maskEdge = waterLine + waveOffset;
                 
-                // Cria máscara suave
+                // Cria m��scara suave
                                                 float waterMask = smoothstep(maskEdge - transitionWidth, maskEdge + transitionWidth, verticalPos);
                 
                                                                 // Imagem original com peixe
