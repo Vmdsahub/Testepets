@@ -13,6 +13,7 @@ class FishingSystem {
   private isLineOut = false;
   private isReelingIn = false;
   private reelStartTime = 0;
+  private fishingRodImage: HTMLImageElement | null = null;
   private linePoints: Array<{
     x: number;
     y: number;
@@ -238,7 +239,7 @@ class FishingSystem {
       if (adjustedProgress > 0) {
         point.reelProgress = this.easeOutQuart(adjustedProgress);
 
-        // Mover o ponto em direção à vara
+        // Mover o ponto em direç��o à vara
         const targetX = this.fishingRodTip.x;
         const targetY = this.fishingRodTip.y;
 
