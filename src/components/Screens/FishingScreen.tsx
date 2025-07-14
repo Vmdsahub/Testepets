@@ -292,6 +292,10 @@ class WaterEffect {
     );
 
     this.uniforms.time = this.gl.getUniformLocation(this.program, "u_time");
+    this.uniforms.fishTime = this.gl.getUniformLocation(
+      this.program,
+      "u_fishTime",
+    );
     this.uniforms.waveIntensity = this.gl.getUniformLocation(
       this.program,
       "u_waveIntensity",
