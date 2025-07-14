@@ -350,75 +350,24 @@ class FishingSystem {
           const isInWater = point.y > window.innerHeight * this.waterLevel;
           point.inWater = isInWater;
 
-          // Se o ponto já está assentado, aplicar movimento suave e responsivo
-          if (point.settled) {
-            // Calcular movimento da vara
-            const rodMovementX = this.fishingRodTip.x - this.previousRodTip.x;
-            const rodMovementY = this.fishingRodTip.y - this.previousRodTip.y;
+          // Aplicar física natural com parâmetros diferentes para água
+          const currentDamping = isInWater ? 0.75 : this.damping; // Mais damping na água mas não demais
+          const currentGravity = isInWater ? this.gravity * 0.1 : this.gravity; // Pouca gravidade na água
 
-            // Calcular influência baseada na distância da vara (pontos mais próximos são mais influenciados)
-            const distanceFromRod = Math.sqrt(
-              Math.pow(point.x - this.fishingRodTip.x, 2) +
-                Math.pow(point.y - this.fishingRodTip.y, 2),
-            );
-            const maxInfluenceDistance = this.segmentLength * this.numSegments;
-            const influence = Math.max(
-              0,
-              1 - distanceFromRod / maxInfluenceDistance,
-            );
+          const velX = (point.x - point.oldX) * currentDamping;
+          const velY = (point.y - point.oldY) * currentDamping;
 
-            // Aplicar movimento da vara com influência reduzida
-            const rodInfluenceX = rodMovementX * influence * 0.3;
-            const rodInfluenceY = rodMovementY * influence * 0.2;
+          point.oldX = point.x;
+          point.oldY = point.y;
 
-            // Adicionar oscilação suave na água
+          point.x += velX;
+          point.y += velY + currentGravity;
+
+          // Adicionar oscilação suave na água
+          if (isInWater) {
             const time = Date.now() * 0.001;
-            const waterWaveX = Math.sin(time * 1.5 + point.x * 0.02) * 0.8;
-            const waterWaveY = Math.sin(time * 2 + point.y * 0.015) * 0.6;
-
-            // Aplicar pequeno amortecimento para suavizar movimentos
-            const dampingFactor = 0.95;
-            point.settledX += (rodInfluenceX + waterWaveX) * dampingFactor;
-            point.settledY += (rodInfluenceY + waterWaveY) * dampingFactor;
-
-            // Atualizar posição atual
-            point.x = point.settledX;
-            point.y = point.settledY;
-            point.oldX = point.settledX;
-            point.oldY = point.settledY;
-          } else {
-            // Aplicar damping diferente se estiver na água
-            const currentDamping = isInWater ? this.waterDamping : this.damping;
-            const currentGravity = isInWater
-              ? this.gravity * 0.3
-              : this.gravity;
-
-            const velX = (point.x - point.oldX) * currentDamping;
-            const velY = (point.y - point.oldY) * currentDamping;
-
-            // Armazenar velocidades para detectar quando parar
-            point.velocityX = velX;
-            point.velocityY = velY;
-
-            point.oldX = point.x;
-            point.oldY = point.y;
-
-            point.x += velX;
-            point.y += velY + currentGravity;
-
-            // Verificar se deve assentar (quando na água e com velocidade baixa)
-            if (isInWater) {
-              const speed = Math.sqrt(velX * velX + velY * velY);
-              if (
-                speed < 1.0 &&
-                point.y > window.innerHeight * (this.waterLevel + 0.05)
-              ) {
-                // Velocidade baixa e bem dentro da água, assentar
-                point.settled = true;
-                point.settledX = point.x;
-                point.settledY = point.y;
-              }
-            }
+            const waterWave = Math.sin(time * 1.5 + point.x * 0.01) * 0.5;
+            point.y += waterWave;
           }
         }
       }
