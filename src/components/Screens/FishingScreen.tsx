@@ -731,9 +731,45 @@ class WaterEffect {
         console.log(
           `🐟 REACTION DEBUG - fishTime: ${this.fishTime.toFixed(2)}, fishTimeOffset: ${this.fishTimeOffset.toFixed(4)}`,
         );
+        // Verificar se há transição ativa que pode afetar a posição
+        let transitionSmoothing = 0.0;
+        if (this.transitionBackToNaturalTime > 0) {
+          const elapsedTime = Date.now() - this.transitionBackToNaturalTime;
+          const progress = Math.min(
+            elapsedTime / this.transitionBackToNaturalDuration,
+            1,
+          );
+          transitionSmoothing = 1.0 - progress;
+        }
+
         console.log(
           `🐟 REACTION DEBUG - adjustedTime used: ${adjustedTime.toFixed(4)}, moveX: ${moveX.toFixed(4)}, moveY: ${moveY.toFixed(4)}`,
         );
+        console.log(
+          `🐟 REACTION DEBUG - transitionSmoothing: ${transitionSmoothing.toFixed(4)}`,
+        );
+
+        // Se há transição ativa, a posição real é interpolada
+        if (transitionSmoothing > 0.0) {
+          const progress = 1.0 - transitionSmoothing;
+          const easeProgress = 1.0 - Math.pow(1.0 - progress, 3.0); // Cubic ease-out
+          const interpolatedX =
+            this.transitionStartPosition.x +
+            (currentFishX - this.transitionStartPosition.x) * easeProgress;
+          const interpolatedY =
+            this.transitionStartPosition.y +
+            (currentFishY - this.transitionStartPosition.y) * easeProgress;
+
+          console.log(
+            `🐟 REACTION DEBUG - Using interpolated position: (${interpolatedX.toFixed(3)}, ${interpolatedY.toFixed(3)}) instead of natural (${currentFishX.toFixed(3)}, ${currentFishY.toFixed(3)})`,
+          );
+
+          // Usar posição interpolada como ponto de partida
+          this.fishTargetPosition = { x: interpolatedX, y: interpolatedY };
+        } else {
+          this.fishTargetPosition = { x: currentFishX, y: currentFishY };
+        }
+
         console.log(
           "Fish is now reacting to hook from position:",
           this.fishTargetPosition,
