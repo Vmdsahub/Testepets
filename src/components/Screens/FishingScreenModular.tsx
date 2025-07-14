@@ -127,7 +127,7 @@ class ModularWaterEffect {
       varying vec2 v_texCoord;
       varying vec2 v_position;
 
-      // Função de ruído simplex 2D (mantida original)
+      // Função de ru��do simplex 2D (mantida original)
       vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
       vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
       vec3 permute(vec3 x) { return mod289(((x*34.0)+1.0)*x); }
@@ -207,9 +207,9 @@ class ModularWaterEffect {
           float radius = min(w, h) * 0.5;
           return distance(uv, center) <= radius;
         } else if (u_waterShape < 2.5) { // triangle
-          vec2 p1 = vec2(center.x, u_waterArea.y);
-          vec2 p2 = vec2(u_waterArea.x, u_waterArea.y + u_waterArea.w);
-          vec2 p3 = vec2(u_waterArea.x + u_waterArea.z, u_waterArea.y + u_waterArea.w);
+                    vec2 p1 = vec2(x + w * 0.5, y); // Topo centro
+          vec2 p2 = vec2(x, y + h); // Base esquerda
+          vec2 p3 = vec2(x + w, y + h); // Base direita
           
           // Verificação simples de triângulo
           float d1 = sign((uv.x - p2.x) * (p1.y - p2.y) - (p1.x - p2.x) * (uv.y - p2.y));
