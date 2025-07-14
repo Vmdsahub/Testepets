@@ -948,6 +948,18 @@ class WaterEffect {
     );
     this.gl.uniform1f(this.uniforms.fishTimeOffset, this.fishTimeOffset);
 
+    // Calcular suavização de transição
+    let transitionSmoothing = 0.0;
+    if (this.transitionBackToNaturalTime > 0) {
+      const elapsedTime = Date.now() - this.transitionBackToNaturalTime;
+      const progress = Math.min(
+        elapsedTime / this.transitionBackToNaturalDuration,
+        1,
+      );
+      transitionSmoothing = 1.0 - progress; // 1.0 inicialmente, vai para 0.0
+    }
+    this.gl.uniform1f(this.uniforms.transitionSmoothing, transitionSmoothing);
+
     // Ativa texturas
     this.gl.activeTexture(this.gl.TEXTURE0);
     this.gl.bindTexture(this.gl.TEXTURE_2D, this.backgroundTexture);
