@@ -201,22 +201,27 @@ class WaterEffect {
                                 vec2 fishPos = vec2(fishX, fishY);
                 vec2 fishSize = vec2(0.08, 0.06); // Diminuído de 0.15x0.12 para 0.08x0.06
 
-                                // Calcula direção baseada na derivada do movimento (mais responsivo)
-                float fishSlowTime = u_fishTime * 0.2;
-                float derivative = cos(fishSlowTime * 0.7) * 0.7 * 0.7 + cos(fishSlowTime * 1.3) * 1.3 * 1.3 - sin(fishSlowTime * 0.4) * 0.4 * 0.4;
-                bool facingRight = derivative > 0.0;
+                                                                                // Direção baseada no movimento atual
+                float cycleTime = ((u_fishTime + u_fishTimeOffset) * 0.3) * 0.5;
+                float velocity = cos(cycleTime) * 0.48; // Derivada do sin(cycleTime)
+                bool facingRight = velocity > 0.0;
 
-                // Calcula UV do peixe com flip horizontal baseado na direção
+                // Calcula UV do peixe garantindo orientação sempre correta
                 vec2 localUV = (coords - fishPos + fishSize * 0.5) / fishSize;
                 vec2 fishUV;
 
+                // GARANTIA ABSOLUTA: peixe nunca fica de cabeça para baixo
+                // Apenas flip horizontal baseado na direção, Y sempre correto
                 if (facingRight) {
-                    // Flip horizontal quando vai para direita
+                    // Flip horizontal quando nada para direita
                     fishUV = vec2(1.0 - localUV.x, localUV.y);
                 } else {
-                    // Normal quando vai para esquerda
-                    fishUV = localUV;
+                    // Orientação normal quando nada para esquerda
+                    fishUV = vec2(localUV.x, localUV.y);
                 }
+
+                // Clamp UV para evitar problemas de renderização
+                fishUV = clamp(fishUV, 0.0, 1.0);
 
                 // Verifica se est�� na área do peixe e na área da água
                 if (fishUV.x >= 0.0 && fishUV.x <= 1.0 && fishUV.y >= 0.0 && fishUV.y <= 1.0 && coords.y > 0.4) {
@@ -236,12 +241,28 @@ class WaterEffect {
                                 // Calcular posição do peixe baseada no estado do jogo
                 float fishX, fishY;
 
-                                                                                                // Sempre calcular a posição natural primeiro
-                float adjustedTime = (u_fishTime + u_fishTimeOffset) * 0.2;
-                float moveX = sin(adjustedTime * 0.7) * 0.3 + sin(adjustedTime * 1.3) * 0.15 + cos(adjustedTime * 0.4) * 0.1;
-                float moveY = cos(adjustedTime * 0.5) * 0.08 + sin(adjustedTime * 1.1) * 0.06 + sin(adjustedTime * 0.8) * 0.04;
-                float naturalFishX = 0.5 + moveX * 0.35; // Entre 0.15 e 0.85
-                float naturalFishY = 0.65 + moveY * 0.15; // Entre 0.5 e 0.8 (área da água)
+                                                                                                                // MOVIMENTO COMPLETAMENTE NOVO - USA TODA A ÁREA DA ÁGUA
+                float time = (u_fishTime + u_fishTimeOffset) * 0.3;
+
+                // Padrão de movimento em 8 (figura de oito) que cobre toda a área
+                float cycleTime = time * 0.5; // Ciclo mais lento para movimento suave
+
+                // Movimento em X: vai de uma borda à outra (0.02 a 0.98)
+                float baseX = 0.5 + sin(cycleTime) * 0.48; // Amplitude de 0.48 = vai de 0.02 a 0.98
+
+                // Movimento em Y: explora toda altura da água (0.42 a 0.98)
+                float baseY = 0.7 + sin(cycleTime * 2.0) * 0.28; // Amplitude de 0.28 = vai de 0.42 a 0.98
+
+                // Adiciona variação secundária para movimento mais natural
+                float variation = sin(time * 1.3) * 0.1 + cos(time * 0.7) * 0.05;
+
+                // Posição final do peixe
+                float naturalFishX = baseX + variation;
+                float naturalFishY = baseY + variation * 0.5;
+
+                // Garantir que sempre fica dentro da área da água
+                naturalFishX = clamp(naturalFishX, 0.02, 0.98); // Margem mínima de 2%
+                naturalFishY = clamp(naturalFishY, 0.42, 0.98); // De 42% a 98% da altura
 
                 if (u_gameState >= 2.0) { // fish_reacting, fish_moving, fish_hooked
                     // Usar posição alvo quando o peixe está reagindo/se movendo

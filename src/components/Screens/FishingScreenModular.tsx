@@ -258,72 +258,93 @@ class ModularWaterEffect {
       void main() {
         vec2 uv = v_texCoord;
         
-                                // === SISTEMA DE MOVIMENTO ALEATÓRIO DO PEIXE ===
-        // Movimento completamente livre com rotação de 360 graus
+                                        // === MOVIMENTO PONTO-A-PONTO (BASEADO NO CÓDIGO JS) ===
+        // Peixe vai diretamente de um ponto aleatório para outro
 
-        float time = u_fishTime * 0.4; // Velocidade base
+        float time = u_fishTime;
 
-        // Parâmetros da área da água
+        // Parâmetros da área da água (100% uso)
         float areaX = u_waterArea.x;
         float areaY = u_waterArea.y;
         float areaW = u_waterArea.z;
         float areaH = u_waterArea.w;
 
-        // Área interior com margens
-        float margin = 0.05; // 5% de margem
-        float innerX = areaX + (areaW * margin);
-        float innerY = areaY + (areaH * margin);
-        float innerW = areaW * (1.0 - margin * 2.0);
-        float innerH = areaH * (1.0 - margin * 2.0);
+                // Intervalo MAIS LONGO para mudar de alvo (movimento mais lento)
+        float targetChangeInterval = 8.0; // 8 segundos por alvo
+        float currentCycle = floor(time / targetChangeInterval);
 
-        // === MOVIMENTO BASEADO EM RUÍDO PERLIN SIMULADO ===
-        // Usar múltiplas frequências para criar movimento orgânico
+        // Gerar alvos pseudo-aleatórios determinísticos
+        float seedX = sin(currentCycle * 12.9898 + 78.233) * 43758.5453;
+        float seedY = sin(currentCycle * 93.9898 + 67.345) * 23421.3141;
+        seedX = fract(seedX); // 0-1
+        seedY = fract(seedY); // 0-1
 
-        // Ruído base para direção geral
-        float noiseX1 = sin(time * 0.7 + 123.45) * cos(time * 0.5 + 67.89);
-        float noiseY1 = cos(time * 0.6 + 234.56) * sin(time * 0.8 + 78.90);
+        // Alvo atual
+        float targetX = areaX + (seedX * areaW);
+        float targetY = areaY + (seedY * areaH);
 
-        // Ruído de alta frequência para variação
-        float noiseX2 = sin(time * 2.3 + 345.67) * 0.3;
-        float noiseY2 = cos(time * 1.9 + 456.78) * 0.3;
+        // Posição inicial (alvo anterior)
+        float prevSeedX = sin((currentCycle - 1.0) * 12.9898 + 78.233) * 43758.5453;
+        float prevSeedY = sin((currentCycle - 1.0) * 93.9898 + 67.345) * 23421.3141;
+        prevSeedX = fract(prevSeedX);
+        prevSeedY = fract(prevSeedY);
+        float startX = areaX + (prevSeedX * areaW);
+        float startY = areaY + (prevSeedY * areaH);
 
-        // Ruído de baixa frequência para movimentos amplos
-        float noiseX3 = sin(time * 0.2 + 567.89) * 0.8;
-        float noiseY3 = cos(time * 0.15 + 678.90) * 0.8;
+                // Progresso no ciclo atual (0-1)
+        float cycleProgress = fract(time / targetChangeInterval);
 
-        // Combinar ruídos para movimento natural
-        float moveX = (noiseX1 + noiseX2 + noiseX3) / 3.0;
-        float moveY = (noiseY1 + noiseY2 + noiseY3) / 3.0;
+        // Easing MUITO mais suave - movimento ultra fluido
+        // Usar cubic ease-in-out para movimento mais orgânico
+        float t = cycleProgress;
+        float easeProgress;
+        if (t < 0.5) {
+            easeProgress = 4.0 * t * t * t; // Ease-in cúbico
+        } else {
+            float f = ((2.0 * t) - 2.0);
+            easeProgress = 1.0 + f * f * f / 2.0; // Ease-out cúbico
+        }
 
-        // Calcular posição dentro da área interior
-        float naturalFishX = innerX + (innerW * 0.5) + (moveX * innerW * 0.4);
-        float naturalFishY = innerY + (innerH * 0.5) + (moveY * innerH * 0.4);
+        // Posição atual do peixe
+        float naturalFishX = mix(startX, targetX, easeProgress);
+        float naturalFishY = mix(startY, targetY, easeProgress);
 
-        // === SISTEMA DE ROTAÇÃO LIVRE ===
-        // Calcular ângulo de movimento baseado na velocidade instantânea
-        float deltaT = 0.05;
+                        // === ROTAÇÃO SUAVE E PRECISA ===
+        // Calcular direção do movimento instantâneo para rotação correta
 
-        // Posição futura para calcular velocidade
-        float futureTime = time + deltaT;
-        float futureNoiseX1 = sin(futureTime * 0.7 + 123.45) * cos(futureTime * 0.5 + 67.89);
-        float futureNoiseY1 = cos(futureTime * 0.6 + 234.56) * sin(futureTime * 0.8 + 78.90);
-        float futureNoiseX2 = sin(futureTime * 2.3 + 345.67) * 0.3;
-        float futureNoiseY2 = cos(futureTime * 1.9 + 456.78) * 0.3;
-        float futureNoiseX3 = sin(futureTime * 0.2 + 567.89) * 0.8;
-        float futureNoiseY3 = cos(futureTime * 0.15 + 678.90) * 0.8;
+        // Direção real do movimento (velocidade instantânea)
+        float deltaTime = 0.1;
+        float futureProgress = min(cycleProgress + deltaTime / targetChangeInterval, 1.0);
 
-        float futureMoveX = (futureNoiseX1 + futureNoiseX2 + futureNoiseX3) / 3.0;
-        float futureMoveY = (futureNoiseY1 + futureNoiseY2 + futureNoiseY3) / 3.0;
+        // Aplicar mesmo easing na posição futura
+        float futureTr = futureProgress;
+        float futureEase;
+        if (futureTr < 0.5) {
+            futureEase = 4.0 * futureTr * futureTr * futureTr;
+        } else {
+            float ff = ((2.0 * futureTr) - 2.0);
+            futureEase = 1.0 + ff * ff * ff / 2.0;
+        }
 
-        float futureX = innerX + (innerW * 0.5) + (futureMoveX * innerW * 0.4);
-        float futureY = innerY + (innerH * 0.5) + (futureMoveY * innerH * 0.4);
+        float futureX = mix(startX, targetX, futureEase);
+        float futureY = mix(startY, targetY, futureEase);
 
-        // Velocidade instantânea
+        // Calcular direção do movimento
         float velocityX = futureX - naturalFishX;
         float velocityY = futureY - naturalFishY;
 
-                // Ângulo de rotação baseado na direção do movimento (invertido para apontar corretamente)
-        float fishAngle = atan(velocityY, velocityX) + 3.14159;
+        // Ângulo baseado na velocidade (direção do movimento)
+        float fishAngle = atan(velocityY, velocityX);
+
+        // Normalizar ângulo e ajustar orientação
+        // O peixe deve apontar na direção que está se movendo
+        fishAngle = fishAngle; // Já correto para apontar na direção do movimento
+
+        // Quando velocidade é muito baixa, manter ângulo anterior
+        float speed = length(vec2(velocityX, velocityY));
+        if (speed < 0.001) {
+            fishAngle = 0.0; // Ângulo padrão quando parado
+        }
 
         float fishX, fishY;
         if (u_gameState >= 2.0) {
