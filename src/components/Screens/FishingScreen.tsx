@@ -54,6 +54,7 @@ class WaterEffect {
     this.fishTimeOffset = 0; // Offset para sincronizar movimento natural com posição atual
     this.transitionBackToNaturalTime = 0; // Tempo desde que voltou para movimento natural
     this.transitionBackToNaturalDuration = 500; // 0.5 segundos para suavizar retorno
+    this.transitionStartPosition = { x: 0.5, y: 0.65 }; // Posição onde o peixe estava quando iniciou a transição
 
     this.init();
     this.render();
