@@ -732,7 +732,7 @@ class WaterEffect {
           `🐟 REACTION DEBUG - fishTime: ${this.fishTime.toFixed(2)}, fishTimeOffset: ${this.fishTimeOffset.toFixed(4)}`,
         );
         console.log(
-          `🐟 REACTION DEBUG - slowTime used: ${slowTime.toFixed(4)}, moveX: ${moveX.toFixed(4)}, moveY: ${moveY.toFixed(4)}`,
+          `🐟 REACTION DEBUG - adjustedTime used: ${adjustedTime.toFixed(4)}, moveX: ${moveX.toFixed(4)}, moveY: ${moveY.toFixed(4)}`,
         );
         console.log(
           "Fish is now reacting to hook from position:",
