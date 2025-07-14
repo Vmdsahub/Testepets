@@ -117,8 +117,9 @@ class WaterEffect {
                 float wave5 = sin(dist * 20.0 - time * 3.0) * 0.04;
                 
                 // Adiciona ruído para movimento mais natural
-                float noise1 = snoise(uv * 10.0 + time * 0.5) * 0.03;
-                float noise2 = snoise(uv * 20.0 + time * 0.8) * 0.02;
+                                float noise1 = snoise(uv * 10.0 + time * 0.5) * 0.03;
+                float noise2 = snoise(uv * 15.0 - time * 0.3) * 0.02;
+                float noise3 = snoise(uv.yx * 12.0 + time * 0.7) * 0.025;
                 
                 return (wave1 + wave2 + wave3 + noise1 + noise2) * u_waveIntensity;
             }
