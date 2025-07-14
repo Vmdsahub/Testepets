@@ -159,7 +159,7 @@ class WaterEffect {
 
             // Função para criar ondas realistas
             float createWaves(vec2 uv, float time) {
-                // Ondas balanceadas em múltiplas direções
+                // Ondas balanceadas em múltiplas direç��es
                 float wave1 = sin(uv.x * 6.0 + time * 1.5) * 0.1;
                 float wave2 = sin(uv.y * 8.0 + time * 2.0) * 0.08;
                 float wave3 = sin((uv.x + uv.y) * 12.0 + time * 1.2) * 0.05;
@@ -215,44 +215,15 @@ class WaterEffect {
                                 vec2 fishPos = vec2(fishX, fishY);
                 vec2 fishSize = vec2(0.08, 0.06); // Diminuído de 0.15x0.12 para 0.08x0.06
 
-                                                                                                                                                                // SISTEMA DE ROTAÇÃO MELHORADO - CALCULA DIREÇÃO DO MOVIMENTO
+                                                                                                                                                                                                                                                // ROTAÇÃO BASEADA NA VELOCIDADE DO STEERING SYSTEM
 
-                // Calcular direção do movimento baseado na velocidade atual
-                float deltaTime = 0.001; // Pequeno delta para calcular velocidade
-                float futureTime = time + deltaTime;
+                // Usar velocidade calculada pelo sistema de steering behaviors
+                float velocityX = u_fishVelocity.x;
+                float velocityY = u_fishVelocity.y;
 
-                // Posição atual
-                float currentX = naturalFishX;
-                float currentY = naturalFishY;
-
-                // Posição futura (para calcular direção)
-                float futureCycle = futureTime * 0.25;
-                float futureXWave1 = sin(futureCycle) * 0.35;
-                float futureXWave2 = sin(futureCycle * 0.7 + 1.2) * 0.15;
-                float futureXWave3 = cos(futureCycle * 1.3 + 2.5) * 0.08;
-                float futureYWave1 = cos(futureCycle * 0.8) * 0.18;
-                float futureYWave2 = sin(futureCycle * 1.1 + 0.8) * 0.08;
-                float futureYWave3 = cos(futureCycle * 0.6 + 1.5) * 0.05;
-
-                float futureOrganicX = sin(futureTime * 0.4 + 3.14159) * 0.06 + cos(futureTime * 0.6 + 1.57) * 0.04;
-                float futureOrganicY = cos(futureTime * 0.35 + 2.1) * 0.03 + sin(futureTime * 0.55 + 0.5) * 0.025;
-                float futureDriftX = sin(futureTime * 0.08) * 0.12;
-                float futureDriftY = cos(futureTime * 0.06) * 0.06;
-
-                float futureX = 0.5 + (futureXWave1 + futureXWave2 + futureXWave3) + futureOrganicX + futureDriftX;
-                float futureY = 0.7 + (futureYWave1 + futureYWave2 + futureYWave3) + futureOrganicY + futureDriftY;
-
-                // Clamp para future position também
-                futureX = clamp(futureX, 0.05, 0.95);
-                futureY = clamp(futureY, 0.45, 0.95);
-
-                // Calcular velocidade (direção do movimento)
-                float velocityX = (futureX - currentX) / deltaTime;
-                float velocityY = (futureY - currentY) / deltaTime;
-
-                // Determinar orientação baseada na velocidade horizontal predominante
-                // Usar maior sensibilidade para mudanças suaves de direção
-                bool facingRight = velocityX > 0.001; // Limiar baixo para maior responsividade
+                // Determinar orientação baseada na velocidade horizontal
+                // Limiar baixo para evitar oscilações quando parado
+                bool facingRight = velocityX > 0.0001;
 
                 // Calcula UV do peixe garantindo orientação sempre correta
                 vec2 localUV = (coords - fishPos + fishSize * 0.5) / fishSize;
