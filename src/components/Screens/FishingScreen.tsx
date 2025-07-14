@@ -424,6 +424,62 @@ class WaterEffect {
     );
   }
 
+  createFishTexture() {
+    this.fishTexture = this.gl.createTexture();
+    this.gl.bindTexture(this.gl.TEXTURE_2D, this.fishTexture);
+
+    // Cria uma textura temporária enquanto carrega a imagem
+    const tempData = new Uint8Array([0, 0, 0, 0]);
+    this.gl.texImage2D(
+      this.gl.TEXTURE_2D,
+      0,
+      this.gl.RGBA,
+      1,
+      1,
+      0,
+      this.gl.RGBA,
+      this.gl.UNSIGNED_BYTE,
+      tempData,
+    );
+
+    // Carrega a imagem do peixe
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      this.gl.bindTexture(this.gl.TEXTURE_2D, this.fishTexture);
+      this.gl.texImage2D(
+        this.gl.TEXTURE_2D,
+        0,
+        this.gl.RGBA,
+        this.gl.RGBA,
+        this.gl.UNSIGNED_BYTE,
+        img,
+      );
+      this.gl.texParameteri(
+        this.gl.TEXTURE_2D,
+        this.gl.TEXTURE_WRAP_S,
+        this.gl.CLAMP_TO_EDGE,
+      );
+      this.gl.texParameteri(
+        this.gl.TEXTURE_2D,
+        this.gl.TEXTURE_WRAP_T,
+        this.gl.CLAMP_TO_EDGE,
+      );
+      this.gl.texParameteri(
+        this.gl.TEXTURE_2D,
+        this.gl.TEXTURE_MIN_FILTER,
+        this.gl.LINEAR,
+      );
+      this.gl.texParameteri(
+        this.gl.TEXTURE_2D,
+        this.gl.TEXTURE_MAG_FILTER,
+        this.gl.LINEAR,
+      );
+    };
+    img.src =
+      "https://cdn.builder.io/api/v1/image/assets%2Fae8512d3d0df4d1f8f1504a06406c6ba%2F62141810443b4226b05ad6c4f3dcd94e?format=webp&width=800";
+  }
+
   updateBackgroundFromImage(image) {
     this.gl.bindTexture(this.gl.TEXTURE_2D, this.backgroundTexture);
     this.gl.texImage2D(
