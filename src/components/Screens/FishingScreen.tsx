@@ -1029,6 +1029,13 @@ class WaterEffect {
         1,
       );
       transitionSmoothing = 1.0 - progress; // 1.0 inicialmente, vai para 0.0
+
+      // Log de debug apenas no início e no fim da transição
+      if (transitionSmoothing > 0.95 || transitionSmoothing < 0.05) {
+        console.log(
+          `🔄 TRANSITION DEBUG - smoothing: ${transitionSmoothing.toFixed(3)}, progress: ${progress.toFixed(3)}, startPos: (${this.transitionStartPosition.x.toFixed(3)}, ${this.transitionStartPosition.y.toFixed(3)})`,
+        );
+      }
     }
     this.gl.uniform1f(this.uniforms.transitionSmoothing, transitionSmoothing);
     this.gl.uniform2f(
