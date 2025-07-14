@@ -1313,7 +1313,156 @@ export const FishingScreenModular: React.FC = () => {
           }}
         >
           <div style={{ marginBottom: "10px", fontWeight: "bold" }}>
-            Controles de Admin - Área da Água
+            CONTROLES DE ADMINISTRADOR
+          </div>
+
+          {/* Botão para alternar modo de edição */}
+          <div style={{ marginBottom: "15px" }}>
+            <button
+              onClick={() => setEditMode(!editMode)}
+              style={{
+                width: "100%",
+                padding: "10px",
+                background: editMode ? "#ff6b6b" : "#4A90E2",
+                color: "white",
+                border: "none",
+                borderRadius: "5px",
+                cursor: "pointer",
+                fontWeight: "bold",
+              }}
+            >
+              {editMode ? "🔒 Sair do Modo Edição" : "✏️ Modo Edição da Água"}
+            </button>
+          </div>
+
+          {/* Controles de efeitos de água */}
+          <div style={{ marginBottom: "10px" }}>
+            <label
+              style={{
+                display: "block",
+                fontSize: "0.875rem",
+                color: "#000000",
+                marginBottom: "5px",
+              }}
+            >
+              Intensidade das Ondas:{" "}
+              {(fishingSettings?.waveIntensity || 0.5).toFixed(2)}
+            </label>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={(fishingSettings?.waveIntensity || 0.5) * 100}
+              onChange={(e) => {
+                handleSettingUpdate(
+                  "waveIntensity",
+                  parseInt(e.target.value) / 100,
+                );
+              }}
+              style={{ width: "100%" }}
+              disabled={isUpdatingSettings}
+            />
+          </div>
+
+          <div style={{ marginBottom: "10px" }}>
+            <label
+              style={{
+                display: "block",
+                fontSize: "0.875rem",
+                color: "#000000",
+                marginBottom: "5px",
+              }}
+            >
+              Distorção: {(fishingSettings?.distortionAmount || 0.3).toFixed(2)}
+            </label>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={(fishingSettings?.distortionAmount || 0.3) * 100}
+              onChange={(e) => {
+                handleSettingUpdate(
+                  "distortionAmount",
+                  parseInt(e.target.value) / 100,
+                );
+              }}
+              style={{ width: "100%" }}
+              disabled={isUpdatingSettings}
+            />
+          </div>
+
+          <div style={{ marginBottom: "10px" }}>
+            <label
+              style={{
+                display: "block",
+                fontSize: "0.875rem",
+                color: "#000000",
+                marginBottom: "5px",
+              }}
+            >
+              Velocidade: {(fishingSettings?.animationSpeed || 1.0).toFixed(2)}
+            </label>
+            <input
+              type="range"
+              min="0"
+              max="200"
+              value={(fishingSettings?.animationSpeed || 1.0) * 100}
+              onChange={(e) => {
+                handleSettingUpdate(
+                  "animationSpeed",
+                  parseInt(e.target.value) / 100,
+                );
+              }}
+              style={{ width: "100%" }}
+              disabled={isUpdatingSettings}
+            />
+          </div>
+
+          <div style={{ marginBottom: "15px" }}>
+            <label
+              style={{
+                display: "block",
+                fontSize: "0.875rem",
+                color: "#000000",
+                marginBottom: "5px",
+              }}
+            >
+              Background Personalizado
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleBackgroundUpload}
+              style={{ fontSize: "0.875rem", width: "100%" }}
+              disabled={isUpdatingSettings}
+            />
+            {fishingSettings?.backgroundImageUrl && (
+              <div
+                style={{ fontSize: "0.75rem", color: "#666", marginTop: "2px" }}
+              >
+                ✓ Imagem personalizada ativa
+              </div>
+            )}
+          </div>
+
+          {/* Separador */}
+          <hr
+            style={{
+              margin: "15px 0",
+              border: "none",
+              borderTop: "1px solid #e5e5e5",
+            }}
+          />
+
+          {/* Controles de área da água */}
+          <div
+            style={{
+              marginBottom: "10px",
+              fontWeight: "bold",
+              fontSize: "0.9rem",
+            }}
+          >
+            ÁREA DA ÁGUA
           </div>
 
           <div style={{ marginBottom: "10px" }}>
@@ -1375,8 +1524,48 @@ export const FishingScreenModular: React.FC = () => {
             />
           </div>
 
+          <div style={{ marginBottom: "10px" }}>
+            <label style={{ display: "block", marginBottom: "5px" }}>
+              Posição X: {(waterArea.x * 100).toFixed(0)}%
+            </label>
+            <input
+              type="range"
+              min="0"
+              max={Math.max(0, (1 - waterArea.width) * 100)}
+              value={waterArea.x * 100}
+              onChange={(e) =>
+                setWaterArea((prev) => ({
+                  ...prev,
+                  x: parseInt(e.target.value) / 100,
+                }))
+              }
+              style={{ width: "100%" }}
+            />
+          </div>
+
+          <div style={{ marginBottom: "10px" }}>
+            <label style={{ display: "block", marginBottom: "5px" }}>
+              Posição Y: {(waterArea.y * 100).toFixed(0)}%
+            </label>
+            <input
+              type="range"
+              min="0"
+              max={Math.max(0, (1 - waterArea.height) * 100)}
+              value={waterArea.y * 100}
+              onChange={(e) =>
+                setWaterArea((prev) => ({
+                  ...prev,
+                  y: parseInt(e.target.value) / 100,
+                }))
+              }
+              style={{ width: "100%" }}
+            />
+          </div>
+
           <div style={{ fontSize: "12px", color: "#666", marginTop: "10px" }}>
-            💡 Arraste a área tracejada para reposicionar
+            {editMode
+              ? "🎯 Clique e arraste a área tracejada para reposicionar"
+              : "💡 Ative o modo edição para arrastar a área"}
           </div>
         </div>
       )}
