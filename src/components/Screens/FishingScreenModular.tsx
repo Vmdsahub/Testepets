@@ -992,16 +992,19 @@ export const FishingScreenModular: React.FC = () => {
   // Detectar Shift key para modo de arraste
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Shift") {
-        setIsShiftPressed(true);
+      if (e.key === "Shift" && !e.repeat) {
+        // !e.repeat previne múltiplos eventos
+        setIsShiftPressed((prev) => {
+          if (prev) {
+            setIsDragging(false); // Para o arraste se estiver desativando
+          }
+          return !prev; // Toggle
+        });
       }
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
-      if (e.key === "Shift") {
-        setIsShiftPressed(false);
-        setIsDragging(false); // Para o arraste se Shift for solto
-      }
+      // Removido para permitir toggle - Shift agora funciona como toggle
     };
 
     window.addEventListener("keydown", handleKeyDown);
