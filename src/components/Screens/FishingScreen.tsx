@@ -163,7 +163,7 @@ class WaterEffect {
                 float transitionWidth = 0.15; // Largura da transição suave
                 
                 // Calcula posição vertical (0.0 = topo, 1.0 = fundo)
-                float verticalPos = 1.0 - uv.y;
+                                float verticalPos = uv.y;
                 
                 // Cria transição suave com ondulação natural na linha da água
                 float waveOffset = sin(uv.x * 10.0 + u_time * 0.5) * 0.03 + 
