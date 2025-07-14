@@ -406,6 +406,10 @@ class WaterEffect {
       this.program,
       "u_fishTimeOffset",
     );
+    this.uniforms.transitionSmoothing = this.gl.getUniformLocation(
+      this.program,
+      "u_transitionSmoothing",
+    );
   }
 
   createShader(type, source) {
