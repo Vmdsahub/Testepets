@@ -5,7 +5,7 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 // Check if we're in development mode with mock values
-const isMockMode =
+export const isMockMode =
   supabaseUrl?.includes("temp-mock") ||
   supabaseUrl?.includes("your_supabase_project_url") ||
   supabaseAnonKey?.includes("your_supabase_anon_key") ||
