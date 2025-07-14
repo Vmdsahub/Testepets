@@ -645,6 +645,7 @@ class WaterEffect {
 
   render() {
     this.time += 0.016 * this.animationSpeed;
+    this.fishTime += 0.016; // Tempo independente para o peixe (sempre constante)
 
     this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 
@@ -672,6 +673,7 @@ class WaterEffect {
 
     // Define uniforms
     this.gl.uniform1f(this.uniforms.time, this.time);
+    this.gl.uniform1f(this.uniforms.fishTime, this.fishTime);
     this.gl.uniform1f(this.uniforms.waveIntensity, this.waveIntensity);
     this.gl.uniform1f(this.uniforms.distortionAmount, this.distortionAmount);
     this.gl.uniform2f(
