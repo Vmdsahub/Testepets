@@ -201,7 +201,7 @@ class WaterEffect {
                                 vec2 fishPos = vec2(fishX, fishY);
                 vec2 fishSize = vec2(0.08, 0.06); // Diminuído de 0.15x0.12 para 0.08x0.06
 
-                                // Calcula direção baseada na derivada do movimento (mais responsivo)
+                                                // Calcula direção baseada na derivada do movimento (mais responsivo)
                 float fishSlowTime = u_fishTime * 0.2;
                 float derivative = cos(fishSlowTime * 0.7) * 0.7 * 0.7 + cos(fishSlowTime * 1.3) * 1.3 * 1.3 - sin(fishSlowTime * 0.4) * 0.4 * 0.4;
                 bool facingRight = derivative > 0.0;
@@ -210,8 +210,10 @@ class WaterEffect {
                 vec2 localUV = (coords - fishPos + fishSize * 0.5) / fishSize;
                 vec2 fishUV;
 
+                // Garante que o peixe nunca fique de cabeça para baixo
+                // Y sempre permanece normal (0 = topo, 1 = fundo)
                 if (facingRight) {
-                    // Flip horizontal quando vai para direita
+                    // Flip horizontal quando vai para direita, mas mantém orientação vertical
                     fishUV = vec2(1.0 - localUV.x, localUV.y);
                 } else {
                     // Normal quando vai para esquerda
@@ -238,10 +240,10 @@ class WaterEffect {
 
                                                                                                 // Sempre calcular a posição natural primeiro
                 float adjustedTime = (u_fishTime + u_fishTimeOffset) * 0.2;
-                float moveX = sin(adjustedTime * 0.7) * 0.3 + sin(adjustedTime * 1.3) * 0.15 + cos(adjustedTime * 0.4) * 0.1;
-                float moveY = cos(adjustedTime * 0.5) * 0.08 + sin(adjustedTime * 1.1) * 0.06 + sin(adjustedTime * 0.8) * 0.04;
-                float naturalFishX = 0.5 + moveX * 0.35; // Entre 0.15 e 0.85
-                float naturalFishY = 0.65 + moveY * 0.15; // Entre 0.5 e 0.8 (área da água)
+                                float moveX = sin(adjustedTime * 0.7) * 0.4 + sin(adjustedTime * 1.3) * 0.2 + cos(adjustedTime * 0.4) * 0.15;
+                float moveY = cos(adjustedTime * 0.5) * 0.15 + sin(adjustedTime * 1.1) * 0.1 + sin(adjustedTime * 0.8) * 0.08;
+                float naturalFishX = 0.5 + moveX * 0.45; // Entre 0.05 e 0.95 - área mais ampla
+                float naturalFishY = 0.7 + moveY * 0.25; // Entre 0.45 e 0.95 - toda a região da água
 
                 if (u_gameState >= 2.0) { // fish_reacting, fish_moving, fish_hooked
                     // Usar posição alvo quando o peixe está reagindo/se movendo
