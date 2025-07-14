@@ -647,6 +647,86 @@ class WaterEffect {
       "https://cdn.builder.io/api/v1/image/assets%2Fae8512d3d0df4d1f8f1504a06406c6ba%2F62141810443b4226b05ad6c4f3dcd94e?format=webp&width=800";
   }
 
+  // Métodos do jogo de pesca
+  startFishingGame(hookX, hookY) {
+    console.log("Starting fishing game at", hookX, hookY);
+    this.gameState = "hook_cast";
+    this.hookPosition = { x: hookX, y: hookY };
+
+    // Calcular posição atual do peixe baseada no movimento natural
+    const slowTime = this.fishTime * 0.2;
+    const moveX =
+      Math.sin(slowTime * 0.7) * 0.3 +
+      Math.sin(slowTime * 1.3) * 0.15 +
+      Math.cos(slowTime * 0.4) * 0.1;
+    const moveY =
+      Math.cos(slowTime * 0.5) * 0.08 +
+      Math.sin(slowTime * 1.1) * 0.06 +
+      Math.sin(slowTime * 0.8) * 0.04;
+    const currentFishX = 0.5 + moveX * 0.35;
+    const currentFishY = 0.65 + moveY * 0.15;
+
+    this.fishTargetPosition = { x: currentFishX, y: currentFishY };
+
+    // Gerar tempo de reação aleatório entre 4-12 segundos
+    this.fishReactionDelay = 4000 + Math.random() * 8000;
+    this.fishReactionTime = 0;
+
+    console.log(`Fish will react in ${this.fishReactionDelay}ms`);
+  }
+
+  updateFishingGame() {
+    if (this.gameState === "hook_cast") {
+      this.fishReactionTime += 16; // assumindo 60fps
+
+      if (this.fishReactionTime >= this.fishReactionDelay) {
+        this.gameState = "fish_reacting";
+        console.log("Fish is now reacting to hook!");
+      }
+    } else if (
+      this.gameState === "fish_reacting" ||
+      this.gameState === "fish_moving"
+    ) {
+      // Mover peixe em direção ao anzol
+      const speed = 0.001; // velocidade do movimento
+      const dx = this.hookPosition.x - this.fishTargetPosition.x;
+      const dy = this.hookPosition.y - this.fishTargetPosition.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      if (distance > 0.01) {
+        // ainda não chegou ao anzol
+        this.gameState = "fish_moving";
+        this.fishTargetPosition.x += (dx / distance) * speed;
+        this.fishTargetPosition.y += (dy / distance) * speed;
+      } else {
+        // Peixe chegou ao anzol
+        this.gameState = "fish_hooked";
+        this.exclamationTime = 1000; // mostrar exclamação por 1 segundo
+        console.log("Fish hooked! Starting exclamation timer.");
+
+        // Agendar abertura do modal após 1 segundo
+        setTimeout(() => {
+          if (this.onGameStart) {
+            this.onGameStart();
+          }
+        }, 1000);
+      }
+    } else if (this.gameState === "fish_hooked") {
+      if (this.exclamationTime > 0) {
+        this.exclamationTime -= 16;
+      }
+    }
+  }
+
+  resetFishingGame() {
+    this.gameState = "idle";
+    this.hookPosition = { x: 0.5, y: 0.5 };
+    this.fishTargetPosition = { x: 0.5, y: 0.65 };
+    this.fishReactionTime = 0;
+    this.fishReactionDelay = 0;
+    this.exclamationTime = 0;
+  }
+
   updateBackgroundFromImage(image) {
     if (!this.gl || !this.backgroundTexture) {
       console.warn("WebGL context or background texture not available");
