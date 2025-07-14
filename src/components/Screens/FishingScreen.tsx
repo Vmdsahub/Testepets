@@ -745,7 +745,11 @@ export const FishingScreen: React.FC = () => {
 
     const result = await fishingSettingsService.updateFishingSettings(updates);
 
-    if (!result.success) {
+    if (result.success) {
+      // Refetch settings after successful update
+      const updatedSettings = await fishingSettingsService.getFishingSettings();
+      setFishingSettings(updatedSettings);
+    } else {
       console.error("Failed to update setting:", result.message);
     }
 
