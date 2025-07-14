@@ -1235,8 +1235,8 @@ export const FishingScreenModular: React.FC = () => {
         }}
       />
 
-      {/* Overlay Canvas para controles admin */}
-      {isAdmin && (
+      {/* Overlay Canvas para controles admin (apenas em modo de edição) */}
+      {isAdmin && editMode && (
         <canvas
           ref={overlayCanvasRef}
           style={{
