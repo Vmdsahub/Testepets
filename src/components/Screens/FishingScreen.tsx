@@ -421,6 +421,10 @@ class WaterEffect {
       this.program,
       "u_transitionSmoothing",
     );
+    this.uniforms.transitionStartPosition = this.gl.getUniformLocation(
+      this.program,
+      "u_transitionStartPosition",
+    );
   }
 
   createShader(type, source) {
@@ -682,7 +686,7 @@ class WaterEffect {
     this.gameState = "hook_cast";
     this.hookPosition = { x: hookX, y: hookY };
 
-    // Gerar tempo de reação aleatório entre 4-12 segundos
+    // Gerar tempo de rea��ão aleatório entre 4-12 segundos
     this.fishReactionDelay = 4000 + Math.random() * 8000;
     this.fishReactionStartTime = Date.now();
 
