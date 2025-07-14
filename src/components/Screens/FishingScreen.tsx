@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { ArrowLeft } from "lucide-react";
 import { useGameStore } from "../../store/gameStore";
 
-// WebGL Water Effect Class - Exactly as in the document
+// WebGL Water Effect Class - With 60% coverage mask
 class WaterEffect {
   constructor() {
     this.canvas = document.getElementById("waterCanvas");
@@ -107,21 +107,22 @@ class WaterEffect {
 
             // Função para criar ondas realistas
             float createWaves(vec2 uv, float time) {
+                // Ondas balanceadas em múltiplas direções
                 float wave1 = sin(uv.x * 6.0 + time * 1.5) * 0.1;
-                                float wave2 = sin(uv.y * 8.0 + time * 2.0) * 0.08;
+                float wave2 = sin(uv.y * 8.0 + time * 2.0) * 0.08;
                 float wave3 = sin((uv.x + uv.y) * 12.0 + time * 1.2) * 0.05;
                 float wave4 = sin((uv.x - uv.y) * 10.0 + time * 1.8) * 0.06;
-
+                
                 // Ondas circulares para movimento mais natural
                 float dist = length(uv - 0.5);
                 float wave5 = sin(dist * 20.0 - time * 3.0) * 0.04;
                 
-                // Adiciona ruído para movimento mais natural
-                                float noise1 = snoise(uv * 10.0 + time * 0.5) * 0.03;
+                // Ruído em direções opostas para balanceamento
+                float noise1 = snoise(uv * 10.0 + time * 0.5) * 0.03;
                 float noise2 = snoise(uv * 15.0 - time * 0.3) * 0.02;
                 float noise3 = snoise(uv.yx * 12.0 + time * 0.7) * 0.025;
                 
-                                return (wave1 + wave2 + wave3 + wave4 + wave5 + noise1 + noise2 + noise3) * u_waveIntensity;
+                return (wave1 + wave2 + wave3 + wave4 + wave5 + noise1 + noise2 + noise3) * u_waveIntensity;
             }
 
             // Função para calcular a refração
@@ -157,8 +158,27 @@ class WaterEffect {
                 vec2 uv = v_texCoord;
                 vec2 screenUV = gl_FragCoord.xy / u_resolution;
                 
-                // Calcula refração
-                vec2 refraction = calculateRefraction(uv, u_time);
+                // Cria máscara de água (60% da tela de baixo para cima)
+                float waterLine = 0.6; // 60% da tela
+                float transitionWidth = 0.15; // Largura da transição suave
+                
+                // Calcula posição vertical (0.0 = topo, 1.0 = fundo)
+                float verticalPos = 1.0 - uv.y;
+                
+                // Cria transição suave com ondulação natural na linha da água
+                float waveOffset = sin(uv.x * 10.0 + u_time * 0.5) * 0.03 + 
+                                  sin(uv.x * 5.0 - u_time * 0.3) * 0.02 +
+                                  sin(uv.x * 15.0 + u_time * 0.8) * 0.015;
+                float maskEdge = waterLine + waveOffset;
+                
+                // Cria máscara suave
+                float waterMask = smoothstep(maskEdge - transitionWidth, maskEdge, verticalPos);
+                
+                // Imagem original sem efeitos
+                vec4 originalColor = texture2D(u_backgroundTexture, uv);
+                
+                // Calcula refração apenas onde há água
+                vec2 refraction = calculateRefraction(uv, u_time) * waterMask;
                 vec2 distortedUV = uv + refraction;
                 
                 // Obtém cor do background com distorção
@@ -168,24 +188,27 @@ class WaterEffect {
                 float depth = (sin(uv.x * 3.0) + sin(uv.y * 4.0)) * 0.1 + 0.9;
                 backgroundColor.rgb *= depth;
                 
-                // Calcula cáusticas
-                float caustics = calculateCaustics(uv, u_time);
+                // Calcula cáusticas apenas na área da água
+                float caustics = calculateCaustics(uv, u_time) * waterMask;
                 
                 // Adiciona reflexões da superfície
                 float fresnel = pow(1.0 - abs(dot(normalize(vec3(refraction, 1.0)), vec3(0.0, 0.0, 1.0))), 3.0);
-                vec3 surfaceColor = vec3(0.2, 0.4, 0.6) * fresnel * 0.3;
+                vec3 surfaceColor = vec3(0.2, 0.4, 0.6) * fresnel * 0.3 * waterMask;
                 
-                // Combina todos os efeitos
-                vec3 finalColor = backgroundColor.rgb;
-                finalColor += surfaceColor;
-                finalColor += vec3(1.0, 1.0, 0.8) * caustics;
+                // Combina todos os efeitos da água
+                vec3 waterColor = backgroundColor.rgb;
+                waterColor += surfaceColor;
+                waterColor += vec3(1.0, 1.0, 0.8) * caustics;
                 
                 // Adiciona um leve tint azulado para simular água
-                finalColor = mix(finalColor, finalColor * vec3(0.9, 0.95, 1.1), 0.3);
+                waterColor = mix(waterColor, waterColor * vec3(0.9, 0.95, 1.1), 0.3 * waterMask);
                 
                 // Adiciona ondulação da superfície
-                float surfaceWave = createWaves(uv, u_time) * 0.1 + 0.9;
-                finalColor *= surfaceWave;
+                float surfaceWave = createWaves(uv, u_time) * 0.1 * waterMask + 0.9;
+                waterColor *= surfaceWave;
+                
+                // Mistura entre imagem original e efeito de água
+                vec3 finalColor = mix(originalColor.rgb, waterColor, waterMask);
                 
                 gl_FragColor = vec4(finalColor, 1.0);
             }
