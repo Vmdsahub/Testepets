@@ -766,8 +766,8 @@ class ModularWaterEffect {
     if (this.gameState === "hook_cast") {
       const elapsedTime = Date.now() - this.fishReactionStartTime;
       if (elapsedTime >= this.fishReactionDelay) {
-        // Usar sistema de movimento aleatório
-        const time = this.fishTime * 0.4;
+        // Usar sistema de movimento aleatório (reduzir velocidade)
+        const time = this.fishTime * 0.1; // Reduzido de 0.4 para 0.1 (muito mais lento)
 
         // Parâmetros da área da água
         const areaX = this.waterArea.x;
