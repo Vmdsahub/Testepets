@@ -116,9 +116,9 @@ class ModularWaterEffect {
       uniform float u_transitionSmoothing;
       uniform vec2 u_transitionStartPosition;
       
-      // Uniforms para área da água modular
+            // Uniforms para área da água modular
       uniform vec4 u_waterArea; // x, y, width, height (0-1)
-      uniform float u_waterShape; // 0=rectangle, 1=circle, 2=triangle, 3=square
+      uniform float u_waterShape; // 0=rectangle, 1=circle, 2=triangle
       
       uniform sampler2D u_backgroundTexture;
       uniform sampler2D u_noiseTexture;
@@ -219,11 +219,7 @@ class ModularWaterEffect {
           bool has_neg = (d1 < 0.0) || (d2 < 0.0) || (d3 < 0.0);
           bool has_pos = (d1 > 0.0) || (d2 > 0.0) || (d3 > 0.0);
           
-          return !(has_neg && has_pos);
-                } else if (u_waterShape < 3.5) { // square
-          // Para quadrado, usar o menor valor entre largura e altura
-          float size = min(w, h);
-          return uv.x >= x && uv.x <= x + size && uv.y >= y && uv.y <= y + size;
+                    return !(has_neg && has_pos);
         }
         return false;
       }
