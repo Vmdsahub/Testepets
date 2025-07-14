@@ -162,8 +162,8 @@ class WaterEffect {
             vec4 getColorWithFish(vec2 coords) {
                 vec4 bgColor = texture2D(u_backgroundTexture, coords);
 
-                // Movimento natural do peixe
-                float slowTime = u_time * 0.2; // Movimento mais lento
+                                // Movimento natural do peixe com tempo independente
+                float slowTime = u_fishTime * 0.2; // Movimento mais lento e independente
 
                 // Padrão de movimento complexo usando múltiplas ondas
                 float moveX = sin(slowTime * 0.7) * 0.3 + sin(slowTime * 1.3) * 0.15 + cos(slowTime * 0.4) * 0.1;
