@@ -232,8 +232,8 @@ class WaterEffect {
                                 // Calcular posição do peixe baseada no estado do jogo
                 float fishX, fishY;
 
-                                if (u_gameState >= 2.0) { // fish_reacting, fish_moving, ou fish_hooked
-                    // Usar posição alvo quando o peixe está reagindo/se movendo
+                                                if (u_gameState >= 2.0) { // fish_reacting, fish_moving, fish_hooked, ou transitioning
+                    // Usar posição alvo quando o peixe está reagindo/se movendo/em transição
                     fishX = u_fishTargetPosition.x;
                     fishY = u_fishTargetPosition.y;
                 } else {
