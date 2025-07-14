@@ -791,8 +791,11 @@ class WaterEffect {
         `🐟 RESET DEBUG - transitionStartPosition definida como: (${this.transitionStartPosition.x.toFixed(3)}, ${this.transitionStartPosition.y.toFixed(3)})`,
       );
 
-      // Ajustar fishTimeOffset para que o movimento natural comece da posição atual
-      this.adjustFishTimeToPosition(currentX, currentY);
+      // NÃO ajustar fishTimeOffset - deixar o movimento natural continuar normalmente
+      // A transição será feita pela interpolação no shader
+      console.log(
+        `🐟 RESET DEBUG - Deixando fishTimeOffset como: ${this.fishTimeOffset.toFixed(4)} (não alterado)`,
+      );
 
       // Salvar a posição atual para garantir continuidade
       this.originalFishMovement = { moveX: currentX, moveY: currentY };
