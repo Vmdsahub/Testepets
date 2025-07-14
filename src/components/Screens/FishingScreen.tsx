@@ -766,9 +766,7 @@ export const FishingScreen: React.FC = () => {
     const updates: any = {};
     updates[setting] = value;
 
-    console.log("DEBUG - Updating settings in database:", updates);
     const result = await fishingSettingsService.updateFishingSettings(updates);
-    console.log("DEBUG - Update result:", result);
 
     if (!result.success) {
       console.error("Failed to update setting:", result.message);
