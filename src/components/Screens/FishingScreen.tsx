@@ -784,6 +784,13 @@ class WaterEffect {
       this.transitionStartPosition = { x: currentX, y: currentY };
       this.transitionBackToNaturalTime = Date.now(); // Iniciar timer de suavização
 
+      console.log(
+        `🐟 RESET DEBUG - Posição atual do peixe: (${currentX.toFixed(3)}, ${currentY.toFixed(3)})`,
+      );
+      console.log(
+        `🐟 RESET DEBUG - transitionStartPosition definida como: (${this.transitionStartPosition.x.toFixed(3)}, ${this.transitionStartPosition.y.toFixed(3)})`,
+      );
+
       // Ajustar fishTimeOffset para que o movimento natural comece da posição atual
       this.adjustFishTimeToPosition(currentX, currentY);
 
