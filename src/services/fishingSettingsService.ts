@@ -121,11 +121,13 @@ class FishingSettingsService {
   ): Promise<{ success: boolean; imageUrl?: string; message?: string }> {
     try {
       // Check if storage is available
-      if (!supabase.storage) {
+      if (!supabase.storage || isMockMode) {
         console.warn("Storage not available in mock mode");
         return {
           success: false,
-          message: "File upload not available in development mode",
+          message: isMockMode
+            ? "File upload not available in development mode. Please configure Supabase environment variables."
+            : "Storage service not available",
         };
       }
 
