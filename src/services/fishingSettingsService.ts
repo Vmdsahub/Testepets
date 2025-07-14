@@ -1,4 +1,4 @@
-import { supabase } from "../lib/supabase";
+import { supabase, isMockMode } from "../lib/supabase";
 
 export interface FishingSettings {
   id: string;
