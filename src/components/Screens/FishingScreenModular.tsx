@@ -14,7 +14,7 @@ interface WaterArea {
   y: number; // Posição Y relativa (0-1)
   width: number; // Largura relativa (0-1)
   height: number; // Altura relativa (0-1)
-  shape: "rectangle" | "circle" | "triangle" | "square";
+  shape: "rectangle" | "circle" | "triangle";
 }
 
 // WebGL Water Effect Class Modular
@@ -1553,49 +1553,75 @@ export const FishingScreenModular: React.FC = () => {
               style={{ width: "100%", padding: "5px" }}
             >
               <option value="rectangle">Retângulo</option>
-              <option value="square">Quadrado</option>
               <option value="circle">Círculo</option>
               <option value="triangle">Triângulo</option>
             </select>
           </div>
 
-          <div style={{ marginBottom: "10px" }}>
-            <label style={{ display: "block", marginBottom: "5px" }}>
-              Largura: {(waterArea.width * 100).toFixed(0)}%
-            </label>
-            <input
-              type="range"
-              min="10"
-              max="100"
-              value={waterArea.width * 100}
-              onChange={(e) =>
-                setWaterArea((prev) => ({
-                  ...prev,
-                  width: parseInt(e.target.value) / 100,
-                }))
-              }
-              style={{ width: "100%" }}
-            />
-          </div>
+          {waterArea.shape === "circle" ? (
+            <div style={{ marginBottom: "10px" }}>
+              <label style={{ display: "block", marginBottom: "5px" }}>
+                Tamanho:{" "}
+                {(Math.min(waterArea.width, waterArea.height) * 100).toFixed(0)}
+                %
+              </label>
+              <input
+                type="range"
+                min="10"
+                max="80"
+                value={Math.min(waterArea.width, waterArea.height) * 100}
+                onChange={(e) => {
+                  const size = parseInt(e.target.value) / 100;
+                  setWaterArea((prev) => ({
+                    ...prev,
+                    width: size,
+                    height: size,
+                  }));
+                }}
+                style={{ width: "100%" }}
+              />
+            </div>
+          ) : (
+            <>
+              <div style={{ marginBottom: "10px" }}>
+                <label style={{ display: "block", marginBottom: "5px" }}>
+                  Largura: {(waterArea.width * 100).toFixed(0)}%
+                </label>
+                <input
+                  type="range"
+                  min="10"
+                  max="100"
+                  value={waterArea.width * 100}
+                  onChange={(e) =>
+                    setWaterArea((prev) => ({
+                      ...prev,
+                      width: parseInt(e.target.value) / 100,
+                    }))
+                  }
+                  style={{ width: "100%" }}
+                />
+              </div>
 
-          <div style={{ marginBottom: "10px" }}>
-            <label style={{ display: "block", marginBottom: "5px" }}>
-              Altura: {(waterArea.height * 100).toFixed(0)}%
-            </label>
-            <input
-              type="range"
-              min="10"
-              max="80"
-              value={waterArea.height * 100}
-              onChange={(e) =>
-                setWaterArea((prev) => ({
-                  ...prev,
-                  height: parseInt(e.target.value) / 100,
-                }))
-              }
-              style={{ width: "100%" }}
-            />
-          </div>
+              <div style={{ marginBottom: "10px" }}>
+                <label style={{ display: "block", marginBottom: "5px" }}>
+                  Altura: {(waterArea.height * 100).toFixed(0)}%
+                </label>
+                <input
+                  type="range"
+                  min="10"
+                  max="80"
+                  value={waterArea.height * 100}
+                  onChange={(e) =>
+                    setWaterArea((prev) => ({
+                      ...prev,
+                      height: parseInt(e.target.value) / 100,
+                    }))
+                  }
+                  style={{ width: "100%" }}
+                />
+              </div>
+            </>
+          )}
 
           <div style={{ fontSize: "12px", color: "#666", marginTop: "10px" }}>
             {isShiftPressed
