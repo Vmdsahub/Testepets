@@ -1138,8 +1138,11 @@ export const FishingScreenModular: React.FC = () => {
     ctx.beginPath();
     switch (waterArea.shape) {
       case "rectangle":
-      case "square":
         ctx.rect(pixelX, pixelY, pixelWidth, pixelHeight);
+        break;
+      case "square":
+        const size = Math.min(pixelWidth, pixelHeight);
+        ctx.rect(pixelX, pixelY, size, size);
         break;
       case "circle":
         const centerX = pixelX + pixelWidth / 2;
