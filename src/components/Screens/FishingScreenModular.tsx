@@ -1170,12 +1170,19 @@ export const FishingScreenModular: React.FC = () => {
 
     switch (waterArea.shape) {
       case "rectangle":
-      case "square":
         return (
           relX >= waterArea.x &&
           relX <= waterArea.x + waterArea.width &&
           relY >= waterArea.y &&
           relY <= waterArea.y + waterArea.height
+        );
+      case "square":
+        const size = Math.min(waterArea.width, waterArea.height);
+        return (
+          relX >= waterArea.x &&
+          relX <= waterArea.x + size &&
+          relY >= waterArea.y &&
+          relY <= waterArea.y + size
         );
       case "circle":
         const centerX = waterArea.x + waterArea.width / 2;
@@ -1590,7 +1597,7 @@ export const FishingScreenModular: React.FC = () => {
           <div style={{ fontSize: "12px", color: "#666", marginTop: "10px" }}>
             {isShiftPressed
               ? "🎯 Shift ativo - arraste a área para reposicionar"
-              : "⌨️ Segure Shift e arraste a área tracejada para reposicionar"}
+              : "��️ Segure Shift e arraste a área tracejada para reposicionar"}
           </div>
         </div>
       )}
