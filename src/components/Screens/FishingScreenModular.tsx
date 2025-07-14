@@ -14,10 +14,10 @@ interface WaterArea {
   y: number; // Posição Y relativa (0-1)
   width: number; // Largura relativa (0-1)
   height: number; // Altura relativa (0-1)
-  shape: "rectangle" | "circle" | "triangle" | "square";
+  shape: "rectangle" | "circle" | "triangle";
 }
 
-// WebGL Water Effect Class Modular
+// WebGL Water Effect Class Modular - NOVO: Movimento aleatório livre com rotação 360° baseado na área definida
 class ModularWaterEffect {
   constructor(waterArea) {
     this.canvas = document.getElementById("waterCanvas");
@@ -116,9 +116,9 @@ class ModularWaterEffect {
       uniform float u_transitionSmoothing;
       uniform vec2 u_transitionStartPosition;
       
-      // Uniforms para área da água modular
+            // Uniforms para área da água modular
       uniform vec4 u_waterArea; // x, y, width, height (0-1)
-      uniform float u_waterShape; // 0=rectangle, 1=circle, 2=triangle, 3=square
+      uniform float u_waterShape; // 0=rectangle, 1=circle, 2=triangle
       
       uniform sampler2D u_backgroundTexture;
       uniform sampler2D u_noiseTexture;
@@ -219,36 +219,33 @@ class ModularWaterEffect {
           bool has_neg = (d1 < 0.0) || (d2 < 0.0) || (d3 < 0.0);
           bool has_pos = (d1 > 0.0) || (d2 > 0.0) || (d3 > 0.0);
           
-          return !(has_neg && has_pos);
-                } else if (u_waterShape < 3.5) { // square
-          // Para quadrado, usar o menor valor entre largura e altura
-          float size = min(w, h);
-          return uv.x >= x && uv.x <= x + size && uv.y >= y && uv.y <= y + size;
+                    return !(has_neg && has_pos);
         }
         return false;
       }
 
       // Função para obter cor com peixe (mantida original)
-      vec4 getColorWithFish(vec2 coords, float fishX, float fishY) {
+            vec4 getColorWithFish(vec2 coords, float fishX, float fishY, float fishAngle) {
         vec4 bgColor = texture2D(u_backgroundTexture, coords);
         
         vec2 fishPos = vec2(fishX, fishY);
         vec2 fishSize = vec2(0.08, 0.06);
 
-        float fishSlowTime = u_fishTime * 0.2;
-        float derivative = cos(fishSlowTime * 0.7) * 0.7 * 0.7 + cos(fishSlowTime * 1.3) * 1.3 * 1.3 - sin(fishSlowTime * 0.4) * 0.4 * 0.4;
-        bool facingRight = derivative > 0.0;
+                                // Aplicar rotação livre baseada no ângulo
+        vec2 localPos = coords - fishPos;
 
-        vec2 localUV = (coords - fishPos + fishSize * 0.5) / fishSize;
-        vec2 fishUV;
+        // Rotacionar coordenadas baseado no ângulo do peixe
+        float cosAngle = cos(-fishAngle);
+        float sinAngle = sin(-fishAngle);
 
-        if (facingRight) {
-          fishUV = vec2(1.0 - localUV.x, localUV.y);
-        } else {
-          fishUV = localUV;
-        }
+        vec2 rotatedPos = vec2(
+          localPos.x * cosAngle - localPos.y * sinAngle,
+          localPos.x * sinAngle + localPos.y * cosAngle
+        );
 
-                if (fishUV.x >= 0.0 && fishUV.x <= 1.0 && fishUV.y >= 0.0 && fishUV.y <= 1.0) {
+        vec2 fishUV = (rotatedPos + fishSize * 0.5) / fishSize;
+
+                                if (fishUV.x >= 0.0 && fishUV.x <= 1.0 && fishUV.y >= 0.0 && fishUV.y <= 1.0 && isInWaterArea(coords)) {
           vec4 fishColor = texture2D(u_fishTexture, fishUV);
           if (fishColor.a > 0.1) {
             bgColor = mix(bgColor, vec4(fishColor.rgb, 1.0), fishColor.a);
@@ -261,12 +258,72 @@ class ModularWaterEffect {
       void main() {
         vec2 uv = v_texCoord;
         
-        // Calcular posição do peixe (lógica original)
-        float adjustedTime = (u_fishTime + u_fishTimeOffset) * 0.2;
-        float moveX = sin(adjustedTime * 0.7) * 0.3 + sin(adjustedTime * 1.3) * 0.15 + cos(adjustedTime * 0.4) * 0.1;
-        float moveY = cos(adjustedTime * 0.5) * 0.08 + sin(adjustedTime * 1.1) * 0.06 + sin(adjustedTime * 0.8) * 0.04;
-        float naturalFishX = 0.5 + moveX * 0.35;
-        float naturalFishY = 0.65 + moveY * 0.15;
+                                // === SISTEMA DE MOVIMENTO ALEATÓRIO DO PEIXE ===
+        // Movimento completamente livre com rotação de 360 graus
+
+        float time = u_fishTime * 0.4; // Velocidade base
+
+        // Parâmetros da área da água
+        float areaX = u_waterArea.x;
+        float areaY = u_waterArea.y;
+        float areaW = u_waterArea.z;
+        float areaH = u_waterArea.w;
+
+        // Área interior com margens
+        float margin = 0.05; // 5% de margem
+        float innerX = areaX + (areaW * margin);
+        float innerY = areaY + (areaH * margin);
+        float innerW = areaW * (1.0 - margin * 2.0);
+        float innerH = areaH * (1.0 - margin * 2.0);
+
+        // === MOVIMENTO BASEADO EM RUÍDO PERLIN SIMULADO ===
+        // Usar múltiplas frequências para criar movimento orgânico
+
+        // Ruído base para direção geral
+        float noiseX1 = sin(time * 0.7 + 123.45) * cos(time * 0.5 + 67.89);
+        float noiseY1 = cos(time * 0.6 + 234.56) * sin(time * 0.8 + 78.90);
+
+        // Ruído de alta frequência para variação
+        float noiseX2 = sin(time * 2.3 + 345.67) * 0.3;
+        float noiseY2 = cos(time * 1.9 + 456.78) * 0.3;
+
+        // Ruído de baixa frequência para movimentos amplos
+        float noiseX3 = sin(time * 0.2 + 567.89) * 0.8;
+        float noiseY3 = cos(time * 0.15 + 678.90) * 0.8;
+
+        // Combinar ruídos para movimento natural
+        float moveX = (noiseX1 + noiseX2 + noiseX3) / 3.0;
+        float moveY = (noiseY1 + noiseY2 + noiseY3) / 3.0;
+
+        // Calcular posição dentro da área interior
+        float naturalFishX = innerX + (innerW * 0.5) + (moveX * innerW * 0.4);
+        float naturalFishY = innerY + (innerH * 0.5) + (moveY * innerH * 0.4);
+
+        // === SISTEMA DE ROTAÇÃO LIVRE ===
+        // Calcular ângulo de movimento baseado na velocidade instantânea
+        float deltaT = 0.05;
+
+        // Posição futura para calcular velocidade
+        float futureTime = time + deltaT;
+        float futureNoiseX1 = sin(futureTime * 0.7 + 123.45) * cos(futureTime * 0.5 + 67.89);
+        float futureNoiseY1 = cos(futureTime * 0.6 + 234.56) * sin(futureTime * 0.8 + 78.90);
+        float futureNoiseX2 = sin(futureTime * 2.3 + 345.67) * 0.3;
+        float futureNoiseY2 = cos(futureTime * 1.9 + 456.78) * 0.3;
+        float futureNoiseX3 = sin(futureTime * 0.2 + 567.89) * 0.8;
+        float futureNoiseY3 = cos(futureTime * 0.15 + 678.90) * 0.8;
+
+        float futureMoveX = (futureNoiseX1 + futureNoiseX2 + futureNoiseX3) / 3.0;
+        float futureMoveY = (futureNoiseY1 + futureNoiseY2 + futureNoiseY3) / 3.0;
+
+        float futureX = innerX + (innerW * 0.5) + (futureMoveX * innerW * 0.4);
+        float futureY = innerY + (innerH * 0.5) + (futureMoveY * innerH * 0.4);
+
+        // Velocidade instantânea
+        float velocityX = futureX - naturalFishX;
+        float velocityY = futureY - naturalFishY;
+
+                // Ângulo de rotação baseado na direção do movimento (invertido para apontar corretamente)
+        float fishAngle = atan(velocityY, velocityX) + 3.14159;
 
         float fishX, fishY;
         if (u_gameState >= 2.0) {
@@ -282,19 +339,19 @@ class ModularWaterEffect {
           fishY = naturalFishY;
         }
         
-        // Imagem original com peixe
-        vec4 originalColor = getColorWithFish(uv, fishX, fishY);
+                                // Imagem original com peixe
+        vec4 originalColor = getColorWithFish(uv, fishX, fishY, fishAngle);
         
         // Verificar se está na área da água
         bool inWater = isInWaterArea(uv);
         float waterMask = inWater ? 1.0 : 0.0;
         
         if (inWater) {
-          // Aplicar efeitos de água apenas dentro da área
+          // Aplicar efeitos de água apenas dentro da ��rea
           vec2 refraction = calculateRefraction(uv, u_time) * waterMask;
           vec2 distortedUV = uv + refraction;
           
-          vec4 backgroundColor = getColorWithFish(distortedUV, fishX, fishY);
+                                        vec4 backgroundColor = getColorWithFish(distortedUV, fishX, fishY, fishAngle);
           
           float depth = (sin(uv.x * 3.0) + sin(uv.y * 4.0)) * 0.1 + 0.9;
           backgroundColor.rgb *= depth;
@@ -688,17 +745,43 @@ class ModularWaterEffect {
     if (this.gameState === "hook_cast") {
       const elapsedTime = Date.now() - this.fishReactionStartTime;
       if (elapsedTime >= this.fishReactionDelay) {
-        const adjustedTime = (this.fishTime + this.fishTimeOffset) * 0.2;
-        const moveX =
-          Math.sin(adjustedTime * 0.7) * 0.3 +
-          Math.sin(adjustedTime * 1.3) * 0.15 +
-          Math.cos(adjustedTime * 0.4) * 0.1;
-        const moveY =
-          Math.cos(adjustedTime * 0.5) * 0.08 +
-          Math.sin(adjustedTime * 1.1) * 0.06 +
-          Math.sin(adjustedTime * 0.8) * 0.04;
-        const currentFishX = 0.5 + moveX * 0.35;
-        const currentFishY = 0.65 + moveY * 0.15;
+        // Usar sistema de movimento aleatório
+        const time = this.fishTime * 0.4;
+
+        // Parâmetros da área da água
+        const areaX = this.waterArea.x;
+        const areaY = this.waterArea.y;
+        const areaW = this.waterArea.width;
+        const areaH = this.waterArea.height;
+
+        // Área interior com margens
+        const margin = 0.05;
+        const innerX = areaX + areaW * margin;
+        const innerY = areaY + areaH * margin;
+        const innerW = areaW * (1.0 - margin * 2.0);
+        const innerH = areaH * (1.0 - margin * 2.0);
+
+        // Ruído base para direção geral
+        const noiseX1 =
+          Math.sin(time * 0.7 + 123.45) * Math.cos(time * 0.5 + 67.89);
+        const noiseY1 =
+          Math.cos(time * 0.6 + 234.56) * Math.sin(time * 0.8 + 78.9);
+
+        // Ruído de alta frequência
+        const noiseX2 = Math.sin(time * 2.3 + 345.67) * 0.3;
+        const noiseY2 = Math.cos(time * 1.9 + 456.78) * 0.3;
+
+        // Ruído de baixa frequência
+        const noiseX3 = Math.sin(time * 0.2 + 567.89) * 0.8;
+        const noiseY3 = Math.cos(time * 0.15 + 678.9) * 0.8;
+
+        // Combinar ruídos
+        const moveX = (noiseX1 + noiseX2 + noiseX3) / 3.0;
+        const moveY = (noiseY1 + noiseY2 + noiseY3) / 3.0;
+
+        // Posição dentro da área interior
+        const currentFishX = innerX + innerW * 0.5 + moveX * innerW * 0.4;
+        const currentFishY = innerY + innerH * 0.5 + moveY * innerH * 0.4;
 
         this.fishTargetPosition = { x: currentFishX, y: currentFishY };
         this.gameState = "fish_reacting";
@@ -893,7 +976,7 @@ class ModularWaterEffect {
           ? 1
           : this.waterArea.shape === "triangle"
             ? 2
-            : 3;
+            : 0;
     this.gl.uniform1f(this.uniforms.waterShape, shapeValue);
 
     // Ativa texturas
@@ -1140,10 +1223,6 @@ export const FishingScreenModular: React.FC = () => {
       case "rectangle":
         ctx.rect(pixelX, pixelY, pixelWidth, pixelHeight);
         break;
-      case "square":
-        const size = Math.min(pixelWidth, pixelHeight);
-        ctx.rect(pixelX, pixelY, size, size);
-        break;
       case "circle":
         const centerX = pixelX + pixelWidth / 2;
         const centerY = pixelY + pixelHeight / 2;
@@ -1178,14 +1257,6 @@ export const FishingScreenModular: React.FC = () => {
           relX <= waterArea.x + waterArea.width &&
           relY >= waterArea.y &&
           relY <= waterArea.y + waterArea.height
-        );
-      case "square":
-        const size = Math.min(waterArea.width, waterArea.height);
-        return (
-          relX >= waterArea.x &&
-          relX <= waterArea.x + size &&
-          relY >= waterArea.y &&
-          relY <= waterArea.y + size
         );
       case "circle":
         const centerX = waterArea.x + waterArea.width / 2;
@@ -1544,58 +1615,97 @@ export const FishingScreenModular: React.FC = () => {
             </label>
             <select
               value={waterArea.shape}
-              onChange={(e) =>
-                setWaterArea((prev) => ({
-                  ...prev,
-                  shape: e.target.value as WaterArea["shape"],
-                }))
-              }
+              onChange={(e) => {
+                const newShape = e.target.value as WaterArea["shape"];
+                setWaterArea((prev) => {
+                  // Se for círculo, igualar largura e altura
+                  if (newShape === "circle") {
+                    const size = Math.min(prev.width, prev.height);
+                    return {
+                      ...prev,
+                      shape: newShape,
+                      width: size,
+                      height: size,
+                    };
+                  }
+                  return {
+                    ...prev,
+                    shape: newShape,
+                  };
+                });
+              }}
               style={{ width: "100%", padding: "5px" }}
             >
               <option value="rectangle">Retângulo</option>
-              <option value="square">Quadrado</option>
               <option value="circle">Círculo</option>
               <option value="triangle">Triângulo</option>
             </select>
           </div>
 
-          <div style={{ marginBottom: "10px" }}>
-            <label style={{ display: "block", marginBottom: "5px" }}>
-              Largura: {(waterArea.width * 100).toFixed(0)}%
-            </label>
-            <input
-              type="range"
-              min="10"
-              max="100"
-              value={waterArea.width * 100}
-              onChange={(e) =>
-                setWaterArea((prev) => ({
-                  ...prev,
-                  width: parseInt(e.target.value) / 100,
-                }))
-              }
-              style={{ width: "100%" }}
-            />
-          </div>
+          {waterArea.shape === "circle" ? (
+            <div style={{ marginBottom: "10px" }}>
+              <label style={{ display: "block", marginBottom: "5px" }}>
+                Tamanho:{" "}
+                {(Math.min(waterArea.width, waterArea.height) * 100).toFixed(0)}
+                %
+              </label>
+              <input
+                type="range"
+                min="10"
+                max="80"
+                value={Math.min(waterArea.width, waterArea.height) * 100}
+                onChange={(e) => {
+                  const size = parseInt(e.target.value) / 100;
+                  setWaterArea((prev) => ({
+                    ...prev,
+                    width: size,
+                    height: size,
+                  }));
+                }}
+                style={{ width: "100%" }}
+              />
+            </div>
+          ) : (
+            <>
+              <div style={{ marginBottom: "10px" }}>
+                <label style={{ display: "block", marginBottom: "5px" }}>
+                  Largura: {(waterArea.width * 100).toFixed(0)}%
+                </label>
+                <input
+                  type="range"
+                  min="10"
+                  max="100"
+                  value={waterArea.width * 100}
+                  onChange={(e) =>
+                    setWaterArea((prev) => ({
+                      ...prev,
+                      width: parseInt(e.target.value) / 100,
+                    }))
+                  }
+                  style={{ width: "100%" }}
+                />
+              </div>
 
-          <div style={{ marginBottom: "10px" }}>
-            <label style={{ display: "block", marginBottom: "5px" }}>
-              Altura: {(waterArea.height * 100).toFixed(0)}%
-            </label>
-            <input
-              type="range"
-              min="10"
-              max="80"
-              value={waterArea.height * 100}
-              onChange={(e) =>
-                setWaterArea((prev) => ({
-                  ...prev,
-                  height: parseInt(e.target.value) / 100,
-                }))
-              }
-              style={{ width: "100%" }}
-            />
-          </div>
+              <div style={{ marginBottom: "10px" }}>
+                <label style={{ display: "block", marginBottom: "5px" }}>
+                  Altura: {(waterArea.height * 100).toFixed(0)}%
+                </label>
+                <input
+                  type="range"
+                  min="10"
+                  max="80"
+                  value={waterArea.height * 100}
+                  onChange={(e) =>
+                    setWaterArea((prev) => ({
+                      ...prev,
+                      height: parseInt(e.target.value) / 100,
+                    }))
+                  }
+                  style={{ width: "100%" }}
+                />
+              </div>
+            </>
+          )}
 
           <div style={{ fontSize: "12px", color: "#666", marginTop: "10px" }}>
             {isShiftPressed
