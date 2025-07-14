@@ -225,25 +225,13 @@ class ModularWaterEffect {
       }
 
       // Função para obter cor com peixe (mantida original)
-      vec4 getColorWithFish(vec2 coords, float fishX, float fishY) {
+            vec4 getColorWithFish(vec2 coords, float fishX, float fishY, bool facingRight) {
         vec4 bgColor = texture2D(u_backgroundTexture, coords);
         
         vec2 fishPos = vec2(fishX, fishY);
         vec2 fishSize = vec2(0.08, 0.06);
 
-                // Calcular direção do movimento para rotação inteligente
-        float deltaTime = 0.1;
-
-        // Calcular posição futura para determinar direção
-        float futureTime = time + deltaTime;
-        float futureWave1 = sin(futureTime * 0.8 + 1.5) * 0.4;
-        float futureWave3 = sin(futureTime * 0.6 + 4.1) * 0.2;
-        float futureMoveFactorX = (futureWave1 + futureWave3) * 0.5;
-        float futureFishX = effectiveAreaX + (effectiveAreaW * 0.5) + (futureMoveFactorX * effectiveAreaW * 0.4);
-
-        // Determinar direção baseada no movimento
-        float velocityX = futureFishX - naturalFishX;
-        bool facingRight = velocityX > 0.0;
+                        // Direção é passada como parâmetro
 
         vec2 localUV = (coords - fishPos + fishSize * 0.5) / fishSize;
         vec2 fishUV;
