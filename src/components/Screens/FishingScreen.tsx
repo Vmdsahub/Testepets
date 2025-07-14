@@ -174,7 +174,7 @@ class WaterEffect {
                 
                 vec2 gradient = vec2(heightRight - waveHeight, heightUp - waveHeight) / epsilon.x;
                 
-                // Aplica distorção baseada no gradiente
+                // Aplica distorç��o baseada no gradiente
                 return gradient * u_distortionAmount;
             }
 
@@ -737,8 +737,17 @@ class WaterEffect {
       if (distance > 0.01) {
         // ainda não chegou ao anzol
         this.gameState = "fish_moving";
+        const oldX = this.fishTargetPosition.x;
+        const oldY = this.fishTargetPosition.y;
         this.fishTargetPosition.x += (dx / distance) * speed;
         this.fishTargetPosition.y += (dy / distance) * speed;
+
+        // Log de debug a cada 100 frames (~1.6s)
+        if (Math.random() < 0.01) {
+          console.log(
+            `🐟 MOVING - From (${oldX.toFixed(3)}, ${oldY.toFixed(3)}) to (${this.fishTargetPosition.x.toFixed(3)}, ${this.fishTargetPosition.y.toFixed(3)}), distance: ${distance.toFixed(3)}`,
+          );
+        }
       } else {
         // Peixe chegou ao anzol
         this.gameState = "fish_hooked";
