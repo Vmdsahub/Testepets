@@ -294,9 +294,14 @@ class ModularWaterEffect {
                 // Progresso no ciclo atual (0-1)
         float cycleProgress = fract(time / targetChangeInterval);
 
-        // Easing MUITO mais suave - movimento ultra fluido
-        // Usar cubic ease-in-out para movimento mais orgânico
+                // MOVIMENTO ORGÂNICO com variações naturais
         float t = cycleProgress;
+
+        // Adicionar períodos de repouso (peixe para)
+        float restCycle = sin(time * 0.1) * 0.5 + 0.5; // Ciclo de repouso
+        float restFactor = smoothstep(0.8, 1.0, restCycle); // Repouso quando > 0.8
+
+        // Easing cúbico mais orgânico
         float easeProgress;
         if (t < 0.5) {
             easeProgress = 4.0 * t * t * t; // Ease-in cúbico
@@ -305,9 +310,23 @@ class ModularWaterEffect {
             easeProgress = 1.0 + f * f * f / 2.0; // Ease-out cúbico
         }
 
-        // Posição atual do peixe
-        float naturalFishX = mix(startX, targetX, easeProgress);
-        float naturalFishY = mix(startY, targetY, easeProgress);
+        // Aplicar período de repouso (reduz movimento)
+        easeProgress = mix(easeProgress, 0.5, restFactor * 0.7);
+
+        // Posição base
+        float baseX = mix(startX, targetX, easeProgress);
+        float baseY = mix(startY, targetY, easeProgress);
+
+        // Adicionar variações orgânicas (simula nadação real)
+        float organicX = sin(time * 0.8) * 0.02 + cos(time * 1.3) * 0.015;
+        float organicY = cos(time * 0.6) * 0.015 + sin(time * 1.1) * 0.01;
+
+        // Movimento de flutuação (peixe sobe e desce sutilmente)
+        float floatY = sin(time * 0.4) * 0.008;
+
+        // Posição final com movimento orgânico
+        float naturalFishX = baseX + organicX;
+        float naturalFishY = baseY + organicY + floatY;
 
                         // === ROTAÇÃO SUAVE E PRECISA ===
         // Calcular direção do movimento instantâneo para rotação correta
@@ -758,7 +777,7 @@ class ModularWaterEffect {
     this.waterArea = waterArea;
   }
 
-  // Métodos do jogo de pesca (mantidos originais mas simplificados)
+  // M��todos do jogo de pesca (mantidos originais mas simplificados)
   startFishingGame(hookX, hookY) {
     console.log("Starting fishing game at", hookX, hookY);
     this.gameState = "hook_cast";
