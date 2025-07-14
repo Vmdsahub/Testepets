@@ -1207,7 +1207,7 @@ export const FishingScreenModular: React.FC = () => {
     if (!isAdmin) return;
 
     // Verificar se Shift está pressionado para arrastar
-    if (!e.shiftKey) return;
+    if (!isShiftPressed) return;
 
     const rect = overlayCanvasRef.current?.getBoundingClientRect();
     if (!rect) return;
@@ -1513,7 +1513,7 @@ export const FishingScreenModular: React.FC = () => {
 
           <div style={{ marginBottom: "10px" }}>
             <label style={{ display: "block", marginBottom: "5px" }}>
-              Forma da ��gua:
+              Forma da Água:
             </label>
             <select
               value={waterArea.shape}
