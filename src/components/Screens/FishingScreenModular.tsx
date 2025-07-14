@@ -269,8 +269,8 @@ class ModularWaterEffect {
         float areaW = u_waterArea.z;
         float areaH = u_waterArea.w;
 
-                // Intervalo MAIS LONGO para mudar de alvo (movimento mais lento)
-        float targetChangeInterval = 8.0; // 8 segundos por alvo
+                                // Intervalo MUITO MAIS LONGO para mudar de alvo (movimento ultra lento)
+        float targetChangeInterval = 20.0; // 20 segundos por alvo (muito mais lento)
         float currentCycle = floor(time / targetChangeInterval);
 
         // Gerar alvos pseudo-aleatórios determinísticos
