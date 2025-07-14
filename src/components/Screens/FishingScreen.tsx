@@ -236,35 +236,28 @@ class WaterEffect {
                                 // Calcular posição do peixe baseada no estado do jogo
                 float fishX, fishY;
 
-                                                                                if (u_gameState >= 2.0) { // fish_reacting, fish_moving, fish_hooked
+                                                                                                // Sempre calcular a posição natural primeiro
+                float adjustedTime = (u_fishTime + u_fishTimeOffset) * 0.2;
+                float moveX = sin(adjustedTime * 0.7) * 0.3 + sin(adjustedTime * 1.3) * 0.15 + cos(adjustedTime * 0.4) * 0.1;
+                float moveY = cos(adjustedTime * 0.5) * 0.08 + sin(adjustedTime * 1.1) * 0.06 + sin(adjustedTime * 0.8) * 0.04;
+                float naturalFishX = 0.5 + moveX * 0.35; // Entre 0.15 e 0.85
+                float naturalFishY = 0.65 + moveY * 0.15; // Entre 0.5 e 0.8 (área da água)
+
+                if (u_gameState >= 2.0) { // fish_reacting, fish_moving, fish_hooked
                     // Usar posição alvo quando o peixe está reagindo/se movendo
                     fishX = u_fishTargetPosition.x;
                     fishY = u_fishTargetPosition.y;
-                                                                } else {
-                    // idle (0.0) e hook_cast (1.0) - movimento natural com offset e suavização
-                    float adjustedTime = (u_fishTime + u_fishTimeOffset) * 0.2;
+                } else if (u_transitionSmoothing > 0.0) {
+                    // Em transição: interpolar da posição de início para o movimento natural
+                    float progress = 1.0 - u_transitionSmoothing;
+                    float easeProgress = 1.0 - pow(1.0 - progress, 3.0); // Função cubic ease-out
 
-                    // Padrão de movimento complexo usando múltiplas ondas
-                    float moveX = sin(adjustedTime * 0.7) * 0.3 + sin(adjustedTime * 1.3) * 0.15 + cos(adjustedTime * 0.4) * 0.1;
-                    float moveY = cos(adjustedTime * 0.5) * 0.08 + sin(adjustedTime * 1.1) * 0.06 + sin(adjustedTime * 0.8) * 0.04;
-
-                    // Calcular posição do movimento natural
-                    float naturalFishX = 0.5 + moveX * 0.35; // Entre 0.15 e 0.85
-                    float naturalFishY = 0.65 + moveY * 0.15; // Entre 0.5 e 0.8 (área da água)
-
-                    // Se estamos em transição, interpolar entre posição de início e movimento natural
-                    if (u_transitionSmoothing > 0.0) {
-                        // Interpolação suave usando função ease-out
-                        float progress = 1.0 - u_transitionSmoothing;
-                        float easeProgress = 1.0 - pow(1.0 - progress, 3.0); // Função cubic ease-out
-
-                        fishX = mix(u_transitionStartPosition.x, naturalFishX, easeProgress);
-                        fishY = mix(u_transitionStartPosition.y, naturalFishY, easeProgress);
-                    } else {
-                        // Movimento natural normal
-                        fishX = naturalFishX;
-                        fishY = naturalFishY;
-                    }
+                    fishX = mix(u_transitionStartPosition.x, naturalFishX, easeProgress);
+                    fishY = mix(u_transitionStartPosition.y, naturalFishY, easeProgress);
+                } else {
+                    // Movimento natural normal
+                    fishX = naturalFishX;
+                    fishY = naturalFishY;
                 }
 
                 // Cria máscara de água (60% da tela de baixo para cima)
