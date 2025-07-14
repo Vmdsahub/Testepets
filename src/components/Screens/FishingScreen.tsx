@@ -665,9 +665,9 @@ class WaterEffect {
 
   updateFishingGame() {
     if (this.gameState === "hook_cast") {
-      this.fishReactionTime += 16; // assumindo 60fps
+      const elapsedTime = Date.now() - this.fishReactionStartTime;
 
-      if (this.fishReactionTime >= this.fishReactionDelay) {
+      if (elapsedTime >= this.fishReactionDelay) {
         // Agora o peixe vai reagir - capturar posição atual do movimento natural
         const slowTime = this.fishTime * 0.2;
         const moveX =
