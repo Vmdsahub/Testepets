@@ -220,6 +220,25 @@ const createMockClient = () => ({
     on: () => ({ subscribe: () => Promise.resolve() }),
     unsubscribe: () => Promise.resolve(),
   }),
+  storage: {
+    from: (bucket: string) => ({
+      upload: (path: string, file: File, options?: any) => {
+        console.log(
+          `Mock storage upload to bucket ${bucket} at path ${path}:`,
+          file.name,
+        );
+        return Promise.resolve({
+          data: { path: `mock/${path}` },
+          error: null,
+        });
+      },
+      getPublicUrl: (path: string) => ({
+        data: {
+          publicUrl: `https://mock-storage.supabase.co/storage/v1/object/public/${bucket}/${path}`,
+        },
+      }),
+    }),
+  },
 });
 
 export const supabase = isMockMode
