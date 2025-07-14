@@ -205,7 +205,7 @@ export const FishingGameModal: React.FC<FishingGameModalProps> = ({
     setIsRetracting(true);
     setTimeout(() => {
       setHookPosition({ x: 50, y: 100 });
-      setTargetPosition({ x: 50, y: 50 });
+
       setIsRetracting(false);
     }, 600);
   };
