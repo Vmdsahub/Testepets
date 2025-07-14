@@ -17,7 +17,7 @@ interface WaterArea {
   shape: "rectangle" | "circle" | "triangle";
 }
 
-// WebGL Water Effect Class Modular
+// WebGL Water Effect Class Modular - Com movimento inteligente do peixe baseado na área definida
 class ModularWaterEffect {
   constructor(waterArea) {
     this.canvas = document.getElementById("waterCanvas");
