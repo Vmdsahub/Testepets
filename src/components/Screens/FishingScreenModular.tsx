@@ -231,9 +231,19 @@ class ModularWaterEffect {
         vec2 fishPos = vec2(fishX, fishY);
         vec2 fishSize = vec2(0.08, 0.06);
 
-        float fishSlowTime = u_fishTime * 0.2;
-        float derivative = cos(fishSlowTime * 0.7) * 0.7 * 0.7 + cos(fishSlowTime * 1.3) * 1.3 * 1.3 - sin(fishSlowTime * 0.4) * 0.4 * 0.4;
-        bool facingRight = derivative > 0.0;
+                // Calcular direção do movimento para rotação inteligente
+        float deltaTime = 0.1;
+
+        // Calcular posição futura para determinar direção
+        float futureTime = time + deltaTime;
+        float futureWave1 = sin(futureTime * 0.8 + 1.5) * 0.4;
+        float futureWave3 = sin(futureTime * 0.6 + 4.1) * 0.2;
+        float futureMoveFactorX = (futureWave1 + futureWave3) * 0.5;
+        float futureFishX = effectiveAreaX + (effectiveAreaW * 0.5) + (futureMoveFactorX * effectiveAreaW * 0.4);
+
+        // Determinar direção baseada no movimento
+        float velocityX = futureFishX - naturalFishX;
+        bool facingRight = velocityX > 0.0;
 
         vec2 localUV = (coords - fishPos + fishSize * 0.5) / fishSize;
         vec2 fishUV;
@@ -257,12 +267,37 @@ class ModularWaterEffect {
       void main() {
         vec2 uv = v_texCoord;
         
-        // Calcular posição do peixe (lógica original)
-        float adjustedTime = (u_fishTime + u_fishTimeOffset) * 0.2;
-        float moveX = sin(adjustedTime * 0.7) * 0.3 + sin(adjustedTime * 1.3) * 0.15 + cos(adjustedTime * 0.4) * 0.1;
-        float moveY = cos(adjustedTime * 0.5) * 0.08 + sin(adjustedTime * 1.1) * 0.06 + sin(adjustedTime * 0.8) * 0.04;
-        float naturalFishX = 0.5 + moveX * 0.35;
-        float naturalFishY = 0.65 + moveY * 0.15;
+                // Novo sistema de movimento inteligente do peixe
+        float time = u_fishTime * 0.3; // Velocidade base
+
+        // Parâmetros da área da água
+        float areaX = u_waterArea.x;
+        float areaY = u_waterArea.y;
+        float areaW = u_waterArea.z;
+        float areaH = u_waterArea.w;
+
+        // Movimento baseado em múltiplas ondas para parecer natural
+        float wave1 = sin(time * 0.8 + 1.5) * 0.4;
+        float wave2 = cos(time * 1.2 + 2.3) * 0.3;
+        float wave3 = sin(time * 0.6 + 4.1) * 0.2;
+        float wave4 = cos(time * 1.5 + 0.7) * 0.25;
+
+        // Movimento em X e Y dentro da área definida
+        float moveFactorX = (wave1 + wave3) * 0.5;
+        float moveFactorY = (wave2 + wave4) * 0.5;
+
+        // Calcular posição dentro da área da água com margens
+        float marginX = areaW * 0.1; // 10% de margem
+        float marginY = areaH * 0.1; // 10% de margem
+
+        float effectiveAreaX = areaX + marginX;
+        float effectiveAreaY = areaY + marginY;
+        float effectiveAreaW = areaW - (marginX * 2.0);
+        float effectiveAreaH = areaH - (marginY * 2.0);
+
+        // Posição natural do peixe dentro da área efetiva
+        float naturalFishX = effectiveAreaX + (effectiveAreaW * 0.5) + (moveFactorX * effectiveAreaW * 0.4);
+        float naturalFishY = effectiveAreaY + (effectiveAreaH * 0.5) + (moveFactorY * effectiveAreaH * 0.4);
 
         float fishX, fishY;
         if (u_gameState >= 2.0) {
