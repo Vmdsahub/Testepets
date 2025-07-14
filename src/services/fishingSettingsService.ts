@@ -25,6 +25,21 @@ class FishingSettingsService {
    */
   async getFishingSettings(): Promise<FishingSettings | null> {
     try {
+      // Use local storage in mock mode for persistence
+      if (isMockMode) {
+        const stored = fishingSettingsStorage.initialize();
+        return {
+          id: stored.id,
+          waveIntensity: stored.waveIntensity,
+          distortionAmount: stored.distortionAmount,
+          animationSpeed: stored.animationSpeed,
+          backgroundImageUrl: stored.backgroundImageUrl,
+          createdAt: new Date(),
+          updatedAt: new Date(stored.updatedAt),
+          updatedBy: null,
+        };
+      }
+
       const { data, error } = await supabase
         .from("fishing_settings")
         .select("*")
