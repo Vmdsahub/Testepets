@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Fish, Waves, Star, MapPin } from "lucide-react";
+import { ArrowLeft, Fish } from "lucide-react";
 import { useGameStore } from "../../store/gameStore";
 
 export const FishingScreen: React.FC = () => {
