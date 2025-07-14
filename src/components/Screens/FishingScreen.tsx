@@ -177,8 +177,12 @@ class WaterEffect {
                 float velocity = sin(slowTime * 0.7) * 0.7 + sin(slowTime * 1.3) * 1.3 + cos(slowTime * 0.4) * 0.4;
                 bool facingRight = velocity > 0.0; // Se velocidade positiva, está indo para direita
 
-                vec2 fishPos = vec2(fishX, fishY);
-                vec2 fishSize = vec2(0.15, 0.12);
+                                vec2 fishPos = vec2(fishX, fishY);
+                vec2 fishSize = vec2(0.08, 0.06); // Diminuído de 0.15x0.12 para 0.08x0.06
+
+                // Calcula direção baseada na derivada do movimento (mais responsivo)
+                float derivative = cos(slowTime * 0.7) * 0.7 * 0.7 + cos(slowTime * 1.3) * 1.3 * 1.3 - sin(slowTime * 0.4) * 0.4 * 0.4;
+                bool facingRight = derivative > 0.0;
 
                 // Calcula UV do peixe com flip horizontal baseado na direção
                 vec2 localUV = (coords - fishPos + fishSize * 0.5) / fishSize;
