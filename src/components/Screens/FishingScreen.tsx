@@ -654,21 +654,6 @@ class WaterEffect {
     this.gameState = "hook_cast";
     this.hookPosition = { x: hookX, y: hookY };
 
-    // Calcular posição atual do peixe baseada no movimento natural
-    const slowTime = this.fishTime * 0.2;
-    const moveX =
-      Math.sin(slowTime * 0.7) * 0.3 +
-      Math.sin(slowTime * 1.3) * 0.15 +
-      Math.cos(slowTime * 0.4) * 0.1;
-    const moveY =
-      Math.cos(slowTime * 0.5) * 0.08 +
-      Math.sin(slowTime * 1.1) * 0.06 +
-      Math.sin(slowTime * 0.8) * 0.04;
-    const currentFishX = 0.5 + moveX * 0.35;
-    const currentFishY = 0.65 + moveY * 0.15;
-
-    this.fishTargetPosition = { x: currentFishX, y: currentFishY };
-
     // Gerar tempo de reação aleatório entre 4-12 segundos
     this.fishReactionDelay = 4000 + Math.random() * 8000;
     this.fishReactionTime = 0;
