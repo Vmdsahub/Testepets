@@ -1120,8 +1120,12 @@ export const FishingScreenModular: React.FC = () => {
     const pixelWidth = waterArea.width * canvas.width;
     const pixelHeight = waterArea.height * canvas.height;
 
-    ctx.strokeStyle = isDragging ? "#ff6b6b" : "#333";
-    ctx.lineWidth = 3;
+    ctx.strokeStyle = isDragging
+      ? "#ff6b6b"
+      : isShiftPressed
+        ? "#4A90E2"
+        : "#333";
+    ctx.lineWidth = isShiftPressed ? 4 : 3;
     ctx.setLineDash([10, 5]);
 
     ctx.beginPath();
