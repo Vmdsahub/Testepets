@@ -177,7 +177,18 @@ const createMockClient = () => ({
                     cash: 0,
                     username: "Demo User",
                   }
-                : null,
+                : table === "fishing_settings"
+                  ? {
+                      id: "mock-fishing-settings-123",
+                      wave_intensity: 0.5,
+                      distortion_amount: 0.3,
+                      animation_speed: 1.0,
+                      background_image_url: null,
+                      created_at: new Date().toISOString(),
+                      updated_at: new Date().toISOString(),
+                      updated_by: "mock-user-123",
+                    }
+                  : null,
             error: null,
           }),
         limit: (count: number) => Promise.resolve({ data: [], error: null }),
