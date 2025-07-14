@@ -767,7 +767,11 @@ export const FishingScreen: React.FC = () => {
 
     const result = await fishingSettingsService.uploadBackgroundImage(file);
 
-    if (!result.success) {
+    if (result.success) {
+      // Refetch settings after successful upload
+      const updatedSettings = await fishingSettingsService.getFishingSettings();
+      setFishingSettings(updatedSettings);
+    } else {
       console.error("Failed to upload background:", result.message);
     }
 
