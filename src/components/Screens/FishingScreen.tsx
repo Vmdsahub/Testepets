@@ -71,8 +71,9 @@ class WaterEffect {
             uniform float u_waveIntensity;
             uniform float u_distortionAmount;
             uniform vec2 u_resolution;
-            uniform sampler2D u_backgroundTexture;
+                        uniform sampler2D u_backgroundTexture;
             uniform sampler2D u_noiseTexture;
+            uniform sampler2D u_fishTexture;
             
             varying vec2 v_texCoord;
             varying vec2 v_position;
