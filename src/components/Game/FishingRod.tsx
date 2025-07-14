@@ -186,6 +186,11 @@ class FishingSystem {
     const arcHeight = actualDistance * (0.3 + this.chargePower * 0.2);
     const controlY = Math.min(startY, this.targetY) - arcHeight;
 
+    // Chamar callback se fornecido
+    if (this.onHookCast) {
+      this.onHookCast(this.targetX, this.targetY);
+    }
+
     // Inicializar segmentos da linha gradualmente
     this.linePoints = [];
 
