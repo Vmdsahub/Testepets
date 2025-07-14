@@ -263,7 +263,7 @@ class WaterEffect {
                                   sin(uv.x * 15.0 + u_time * 0.8) * 0.015;
                 float maskEdge = waterLine + waveOffset;
                 
-                // Cria m��scara suave
+                // Cria máscara suave
                                                 float waterMask = smoothstep(maskEdge - transitionWidth, maskEdge + transitionWidth, verticalPos);
                 
                                                                 // Imagem original com peixe
@@ -757,6 +757,7 @@ class WaterEffect {
 
       // Ajustar fishTimeOffset para que o movimento natural comece da posição atual
       this.adjustFishTimeToPosition(currentX, currentY);
+      this.transitionBackToNaturalTime = Date.now(); // Iniciar timer de suavização
     }
 
     this.gameState = "idle";
