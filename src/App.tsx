@@ -15,7 +15,7 @@ import { OtherUserCollectiblesScreen } from "./components/Screens/OtherUserColle
 import { SpaceMap } from "./components/Game/SpaceMap";
 import { PlanetScreen } from "./components/Screens/PlanetScreen";
 import { ExplorationScreen } from "./components/Screens/ExplorationScreen";
-import { FishingScreenNew as FishingScreen } from "./components/Screens/FishingScreenNew";
+import { FishingScreenModular as FishingScreen } from "./components/Screens/FishingScreenModular";
 import { useAuthStore } from "./store/authStore";
 import { useGameStore } from "./store/gameStore";
 import { preloadAllSounds } from "./utils/soundManager";
