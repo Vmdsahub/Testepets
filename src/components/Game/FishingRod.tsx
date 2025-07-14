@@ -658,6 +658,7 @@ class FishingSystem {
 export const FishingRod: React.FC<FishingRodProps> = ({
   className,
   onHookCast,
+  onLineReeled,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fishingSystemRef = useRef<FishingSystem | null>(null);
@@ -668,6 +669,7 @@ export const FishingRod: React.FC<FishingRodProps> = ({
         fishingSystemRef.current = new FishingSystem(
           canvasRef.current,
           onHookCast,
+          onLineReeled,
         );
       } catch (error) {
         console.error("Erro ao inicializar sistema de pesca:", error);
