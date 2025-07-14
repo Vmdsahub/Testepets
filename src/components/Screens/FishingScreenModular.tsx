@@ -220,6 +220,10 @@ class ModularWaterEffect {
           bool has_pos = (d1 > 0.0) || (d2 > 0.0) || (d3 > 0.0);
           
           return !(has_neg && has_pos);
+                } else if (u_waterShape < 3.5) { // square
+          // Para quadrado, usar o menor valor entre largura e altura
+          float size = min(w, h);
+          return uv.x >= x && uv.x <= x + size && uv.y >= y && uv.y <= y + size;
         }
         return false;
       }
