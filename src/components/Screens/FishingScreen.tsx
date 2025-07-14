@@ -121,7 +121,7 @@ class WaterEffect {
                 float noise2 = snoise(uv * 15.0 - time * 0.3) * 0.02;
                 float noise3 = snoise(uv.yx * 12.0 + time * 0.7) * 0.025;
                 
-                return (wave1 + wave2 + wave3 + noise1 + noise2) * u_waveIntensity;
+                                return (wave1 + wave2 + wave3 + wave4 + wave5 + noise1 + noise2 + noise3) * u_waveIntensity;
             }
 
             // Função para calcular a refração
