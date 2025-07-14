@@ -349,24 +349,63 @@ class FishingSystem {
           const isInWater = point.y > window.innerHeight * this.waterLevel;
           point.inWater = isInWater;
 
-          // Aplicar física natural com parâmetros diferentes para água
-          const currentDamping = isInWater ? 0.75 : this.damping; // Mais damping na água mas não demais
-          const currentGravity = isInWater ? this.gravity * 0.1 : this.gravity; // Pouca gravidade na água
+          // Se o ponto está assentado, aplicar movimento muito reduzido
+          if (point.settled) {
+            // Movimento muito sutil quando assentado
+            const settledDamping = 0.92;
+            const velX = (point.x - point.oldX) * settledDamping;
+            const velY = (point.y - point.oldY) * settledDamping;
 
-          const velX = (point.x - point.oldX) * currentDamping;
-          const velY = (point.y - point.oldY) * currentDamping;
+            point.oldX = point.x;
+            point.oldY = point.y;
 
-          point.oldX = point.x;
-          point.oldY = point.y;
+            // Permitir movimento mínimo
+            point.x += velX * 0.1;
+            point.y += velY * 0.1;
 
-          point.x += velX;
-          point.y += velY + currentGravity;
+            // Manter próximo à posição assentada
+            const pullX = (point.settledX - point.x) * 0.05;
+            const pullY = (point.settledY - point.y) * 0.05;
+            point.x += pullX;
+            point.y += pullY;
 
-          // Adicionar oscilação suave na água
-          if (isInWater) {
+            // Pequena oscilação na água
             const time = Date.now() * 0.001;
-            const waterWave = Math.sin(time * 1.5 + point.x * 0.01) * 0.5;
+            const waterWave = Math.sin(time * 1.5 + point.x * 0.01) * 0.3;
             point.y += waterWave;
+          } else {
+            // Aplicar física normal
+            const currentDamping = isInWater ? 0.75 : this.damping;
+            const currentGravity = isInWater
+              ? this.gravity * 0.1
+              : this.gravity;
+
+            const velX = (point.x - point.oldX) * currentDamping;
+            const velY = (point.y - point.oldY) * currentDamping;
+
+            point.oldX = point.x;
+            point.oldY = point.y;
+
+            point.x += velX;
+            point.y += velY + currentGravity;
+
+            // Verificar se deve assentar
+            if (isInWater) {
+              const speed = Math.sqrt(velX * velX + velY * velY);
+              if (
+                speed < 0.8 &&
+                point.y > window.innerHeight * (this.waterLevel + 0.03)
+              ) {
+                point.settled = true;
+                point.settledX = point.x;
+                point.settledY = point.y;
+              }
+
+              // Adicionar oscilação suave na água
+              const time = Date.now() * 0.001;
+              const waterWave = Math.sin(time * 1.5 + point.x * 0.01) * 0.5;
+              point.y += waterWave;
+            }
           }
         }
       }
