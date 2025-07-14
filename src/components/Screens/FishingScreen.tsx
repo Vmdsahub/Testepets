@@ -766,29 +766,37 @@ class WaterEffect {
 
   adjustFishTimeToPosition(targetX, targetY) {
     // Calcular qual fishTime resultaria na posição desejada
-    // Usar busca iterativa simples para encontrar o melhor offset
+    // Usar busca iterativa refinada em duas fases
 
     let bestOffset = 0;
     let bestDistance = Infinity;
 
-    // Testar diferentes offsets para encontrar o que resulta na posição mais próxima
-    for (let offset = 0; offset < Math.PI * 4; offset += 0.1) {
-      const testTime = (this.fishTime + offset) * 0.2;
-      const moveX =
-        Math.sin(testTime * 0.7) * 0.3 +
-        Math.sin(testTime * 1.3) * 0.15 +
-        Math.cos(testTime * 0.4) * 0.1;
-      const moveY =
-        Math.cos(testTime * 0.5) * 0.08 +
-        Math.sin(testTime * 1.1) * 0.06 +
-        Math.sin(testTime * 0.8) * 0.04;
-      const testX = 0.5 + moveX * 0.35;
-      const testY = 0.65 + moveY * 0.15;
-
-      const distance = Math.sqrt(
-        (testX - targetX) ** 2 + (testY - targetY) ** 2,
+    // Primeira fase: busca grosseira
+    for (let offset = 0; offset < Math.PI * 4; offset += 0.15) {
+      const distance = this.calculateDistanceForOffset(
+        targetX,
+        targetY,
+        offset,
       );
+      if (distance < bestDistance) {
+        bestDistance = distance;
+        bestOffset = offset;
+      }
+    }
 
+    // Segunda fase: busca fina ao redor do melhor resultado
+    const searchRange = 0.3;
+    const searchStep = 0.01;
+    for (
+      let offset = bestOffset - searchRange;
+      offset <= bestOffset + searchRange;
+      offset += searchStep
+    ) {
+      const distance = this.calculateDistanceForOffset(
+        targetX,
+        targetY,
+        offset,
+      );
       if (distance < bestDistance) {
         bestDistance = distance;
         bestOffset = offset;
@@ -797,7 +805,7 @@ class WaterEffect {
 
     this.fishTimeOffset = bestOffset;
     console.log(
-      `Set fishTimeOffset to ${bestOffset.toFixed(2)} (distance: ${bestDistance.toFixed(3)})`,
+      `Set fishTimeOffset to ${bestOffset.toFixed(3)} (distance: ${bestDistance.toFixed(4)})`,
     );
   }
 
