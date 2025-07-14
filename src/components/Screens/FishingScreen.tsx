@@ -195,8 +195,8 @@ class WaterEffect {
                 // Cria máscara suave
                                                 float waterMask = smoothstep(maskEdge - transitionWidth, maskEdge + transitionWidth, verticalPos);
                 
-                                // Imagem original sem efeitos
-                vec4 originalColor = texture2D(u_backgroundTexture, uv);
+                                                                // Imagem original com peixe
+                vec4 originalColor = getColorWithFish(uv);
 
                                 
                 
