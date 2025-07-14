@@ -745,18 +745,30 @@ export const FishingScreen: React.FC = () => {
     setting: keyof FishingSettings,
     value: number,
   ) => {
-    if (!isAdmin) return;
+    console.log("DEBUG - handleSettingUpdate called:", {
+      setting,
+      value,
+      isAdmin,
+    });
+
+    if (!isAdmin) {
+      console.log("DEBUG - User is not admin, returning");
+      return;
+    }
 
     setIsUpdatingSettings(true);
 
     const updates: any = {};
     updates[setting] = value;
 
+    console.log("DEBUG - Updating settings:", updates);
     const result = await fishingSettingsService.updateFishingSettings(updates);
+    console.log("DEBUG - Update result:", result);
 
     if (result.success) {
       // Refetch settings after successful update
       const updatedSettings = await fishingSettingsService.getFishingSettings();
+      console.log("DEBUG - Refetched settings:", updatedSettings);
       setFishingSettings(updatedSettings);
     } else {
       console.error("Failed to update setting:", result.message);
