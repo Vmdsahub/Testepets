@@ -354,42 +354,21 @@ class ModularWaterEffect {
 
         // === SISTEMA DE ROTAÇÃO NATURAL ===
 
-        // Calcular direção do movimento
-        float lookAhead = 2.0; // Olhar 2 segundos à frente
-        float futurePhase = (time + lookAhead) * moveSpeed;
+                // === ROTAÇÃO ULTRA ESTÁVEL - SEM BALANÇAR ===
 
-        float futureCos = cos(futurePhase);
-        float futureSin = sin(futurePhase);
-        float futureDenom = 1.0 + futureSin * futureSin;
+        // Ciclo muito lento para mudar de lado apenas ocasionalmente
+        float orientationCycle = sin(time * 0.003) * 0.5 + 0.5; // Ciclo de 5+ minutos
 
-        float futureX = centerX + a * futureCos / futureDenom;
-        float currentDirection = futureX - naturalFishX;
-
-                        // LÓGICA CORRETA: Peixe aponta na direção do movimento
         float fishAngle = 0.0;
 
-                // Aumentar limiar para reduzir oscilações (de 0.008 para 0.025)
-        if (currentDirection > 0.025) {
-            fishAngle = 0.0; // Direita - orientação normal (peixe olha para direita)
-        } else if (currentDirection < -0.025) {
-            fishAngle = 3.14159; // Esquerda - flip horizontal (peixe olha para esquerda)
-        }
-        // Se está entre -0.025 e 0.025, mantém orientação anterior (sem mudança)
-
-        // === REFINAMENTOS COMPORTAMENTAIS ===
-
-                // Durante descanso: orientação mais estável (reduzido wiggle)
-        if (fishBehavior > 1.5) {
-            float restWiggle = sin(time * 0.05) * 0.05; // Mais suave
-            fishAngle += restWiggle;
+        // Mudar de lado apenas em momentos muito raros
+        if (orientationCycle > 0.9) {
+            fishAngle = 3.14159; // Esquerda apenas 10% do tempo
+        } else {
+            fishAngle = 0.0; // Direita 90% do tempo
         }
 
-        // Movimento de cauda baseado na atividade (reduzido)
-        float tailIntensity = 0.7; // Reduzido de 1.0 para 0.7
-        if (fishBehavior > 1.5) tailIntensity = 0.15; // Cauda muito mais quieta durante descanso
-
-        float tailWag = sin(time * 1.8) * 0.04 * tailIntensity; // Frequência e amplitude reduzidas
-        fishAngle += tailWag;
+        // ZERO movimentos adicionais - orientação completamente fixa
 
         float fishX, fishY;
         if (u_gameState >= 2.0) {
