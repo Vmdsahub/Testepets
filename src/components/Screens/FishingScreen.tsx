@@ -1,489 +1,194 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Award, Trophy } from "lucide-react";
+import React from "react";
+import { motion } from "framer-motion";
+import { ArrowLeft, Fish, Waves, Star, MapPin } from "lucide-react";
 import { useGameStore } from "../../store/gameStore";
 
-interface Fish {
-  id: string;
-  x: number;
-  y: number;
-  speed: number;
-  direction: number;
-  name: string;
-  points: number;
-  size: number;
-}
-
-interface CaughtFish {
-  id: string;
-  name: string;
-  points: number;
-}
-
 export const FishingScreen: React.FC = () => {
-  const { setCurrentScreen, addXenocoins } = useGameStore();
-
-  // Game state
-  const [fish, setFish] = useState<Fish | null>(null);
-  const [hookPosition, setHookPosition] = useState({ x: 50, y: 100 });
-  const [targetPosition, setTargetPosition] = useState({ x: 50, y: 50 });
-  const [isLaunching, setIsLaunching] = useState(false);
-  const [isRetracting, setIsRetracting] = useState(false);
-  const [isFishing, setIsFishing] = useState(false);
-  const [caughtFishes, setCaughtFishes] = useState<CaughtFish[]>([]);
-  const [totalScore, setTotalScore] = useState(0);
-  const [gameTime, setGameTime] = useState(0);
-  const [showCatch, setShowCatch] = useState<CaughtFish | null>(null);
-  const [lineLength, setLineLength] = useState(0);
-  const [hookAngle, setHookAngle] = useState(0);
-
-  // Refs
-  const gameLoopRef = useRef<number>();
-  const fishSpawnRef = useRef<NodeJS.Timeout>();
-  const gameContainer = useRef<HTMLDivElement>(null);
-
-  // Generate the single fish
-  const generateFish = useCallback((): Fish => {
-    return {
-      id: "mystical-fish",
-      x: Math.random() * 80 + 10, // Keep fish in visible area
-      y: 45 + Math.random() * 35, // Fish swim in water area
-      speed: 0.05 + Math.random() * 0.1,
-      direction: Math.random() > 0.5 ? 1 : -1,
-      name: "Peixe Místico dos Anciões",
-      points: 100,
-      size: 2.5,
-    };
-  }, []);
-
-  // Initialize fish
-  useEffect(() => {
-    setFish(generateFish());
-  }, [generateFish]);
-
-  // Game loop for fish movement (slower, time-based)
-  useEffect(() => {
-    const gameLoop = () => {
-      setFish((prevFish) => {
-        if (!prevFish) return null;
-
-        // Movimento mais lento baseado em tempo
-        let newX = prevFish.x + prevFish.speed * prevFish.direction * 0.5; // Reduzir ainda mais
-        let newDirection = prevFish.direction;
-
-        // Reverse direction if fish reaches boundaries
-        if (newX > 85 || newX < 15) {
-          newDirection = -prevFish.direction;
-          newX = Math.max(15, Math.min(85, newX));
-        }
-
-        return {
-          ...prevFish,
-          x: newX,
-          direction: newDirection,
-        };
-      });
-    };
-
-    // Usar intervalo em vez de requestAnimationFrame para controle mais preciso
-    const interval = setInterval(gameLoop, 50); // 20fps em vez de 60fps
-
-    return () => {
-      clearInterval(interval);
-    };
-  }, []);
-
-  // Respawn fish after it's caught
-  useEffect(() => {
-    if (!fish) {
-      const timeout = setTimeout(() => {
-        setFish(generateFish());
-      }, 3000);
-      return () => clearTimeout(timeout);
-    }
-  }, [fish, generateFish]);
-
-  // Game timer
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setGameTime((prev) => prev + 1);
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, []);
-
-  // Calculate line length and angle
-  useEffect(() => {
-    const deltaX = targetPosition.x - 50;
-    const deltaY = targetPosition.y - 100;
-    const length = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-    const angle = Math.atan2(deltaX, deltaY) * (180 / Math.PI);
-
-    setLineLength(length);
-    setHookAngle(angle);
-  }, [targetPosition]);
-
-  // Handle fishing launch
-  const handleScreenClick = useCallback(
-    (event: React.MouseEvent) => {
-      if (isLaunching || isRetracting || isFishing) return;
-
-      const rect = gameContainer.current?.getBoundingClientRect();
-      if (!rect) return;
-
-      const x = ((event.clientX - rect.left) / rect.width) * 100;
-      const y = ((event.clientY - rect.top) / rect.height) * 100;
-
-      // Only allow fishing in water area
-      if (y < 35) return;
-
-      setTargetPosition({ x, y });
-      setIsLaunching(true);
-
-      // Start launch animation - immediate hook position update
-      setHookPosition({ x, y });
-
-      // After launch animation completes
-      setTimeout(() => {
-        setIsLaunching(false);
-        setIsFishing(true);
-
-        // Check for fish catch after hook settles
-        setTimeout(() => {
-          if (!fish) {
-            // No fish to catch, start retracting
-            setIsFishing(false);
-            startRetraction();
-            return;
-          }
-
-          const hookX = x;
-          const hookY = y;
-
-          // Check if hook is near the fish
-          const distance = Math.sqrt(
-            Math.pow(fish.x - hookX, 2) + Math.pow(fish.y - hookY, 2),
-          );
-
-          if (distance < 12) {
-            // Catch radius
-            // Fish caught!
-            const newCatch: CaughtFish = {
-              id: fish.id,
-              name: fish.name,
-              points: fish.points,
-            };
-
-            setCaughtFishes((prev) => [...prev, newCatch]);
-            setTotalScore((prev) => prev + fish.points);
-            setShowCatch(newCatch);
-            addXenocoins(Math.floor(fish.points / 5));
-
-            // Remove the fish
-            setFish(null);
-
-            // Hide catch notification after 2 seconds
-            setTimeout(() => setShowCatch(null), 2000);
-          }
-
-          // Always retract after fishing attempt
-          setIsFishing(false);
-          setTimeout(() => {
-            startRetraction();
-          }, 1000);
-        }, 2000);
-      }, 1200); // Extended hook travel time for smooth animation
-    },
-    [isLaunching, isRetracting, isFishing, fish, addXenocoins],
-  );
-
-  const startRetraction = () => {
-    setIsRetracting(true);
-    setTimeout(() => {
-      setHookPosition({ x: 50, y: 100 });
-      setTargetPosition({ x: 50, y: 50 });
-      setIsRetracting(false);
-    }, 600);
-  };
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, "0")}`;
-  };
+  const { setCurrentScreen } = useGameStore();
 
   return (
-    <div
-      ref={gameContainer}
-      className="w-full h-screen relative overflow-hidden cursor-crosshair select-none"
-      onClick={handleScreenClick}
-      style={{
-        background: `
-          linear-gradient(180deg, 
-            #1e40af 0%,
-            #3b82f6 20%,
-            #0ea5e9 35%,
-            #0284c7 50%,
-            #0369a1 75%,
-            #1e3a8a 100%
-          )
-        `,
-      }}
-    >
-      {/* Sky and Clouds */}
-      <div className="absolute top-0 left-0 w-full h-1/3 overflow-hidden">
-        <motion.div
-          className="absolute top-4 left-10 text-white text-6xl opacity-60"
-          animate={{ x: [0, 20, 0] }}
-          transition={{ duration: 10, repeat: Infinity }}
-        >
-          ☁️
-        </motion.div>
-        <motion.div
-          className="absolute top-8 right-20 text-white text-4xl opacity-50"
-          animate={{ x: [0, -15, 0] }}
-          transition={{ duration: 12, repeat: Infinity }}
-        >
-          ☁️
-        </motion.div>
-      </div>
-
-      {/* Water Surface */}
-      <div className="absolute top-1/3 left-0 w-full h-px">
-        <motion.div
-          className="w-full h-px bg-gradient-to-r from-blue-200 via-white to-blue-200 opacity-70"
-          animate={{ scaleX: [1, 1.1, 1] }}
-          transition={{ duration: 3, repeat: Infinity }}
-        />
-      </div>
-
-      {/* Water Area with animated waves */}
-      <div className="absolute top-1/3 left-0 w-full h-2/3 overflow-hidden">
-        {/* Animated water background */}
-        <motion.div
-          className="absolute inset-0 opacity-30"
-          style={{
-            background: `
-              radial-gradient(ellipse at 20% 50%, rgba(59, 130, 246, 0.3) 0%, transparent 50%),
-              radial-gradient(ellipse at 80% 30%, rgba(34, 197, 94, 0.2) 0%, transparent 50%),
-              radial-gradient(ellipse at 40% 80%, rgba(168, 85, 247, 0.2) 0%, transparent 50%)
-            `,
-          }}
-          animate={{
-            background: [
-              `radial-gradient(ellipse at 20% 50%, rgba(59, 130, 246, 0.3) 0%, transparent 50%),
-               radial-gradient(ellipse at 80% 30%, rgba(34, 197, 94, 0.2) 0%, transparent 50%),
-               radial-gradient(ellipse at 40% 80%, rgba(168, 85, 247, 0.2) 0%, transparent 50%)`,
-              `radial-gradient(ellipse at 30% 40%, rgba(59, 130, 246, 0.4) 0%, transparent 50%),
-               radial-gradient(ellipse at 70% 60%, rgba(34, 197, 94, 0.3) 0%, transparent 50%),
-               radial-gradient(ellipse at 50% 70%, rgba(168, 85, 247, 0.3) 0%, transparent 50%)`,
-            ],
-          }}
-          transition={{ duration: 8, repeat: Infinity, repeatType: "reverse" }}
-        />
-
-        {/* Single Mystical Fish */}
-        {fish && (
-          <motion.div
-            className="absolute pointer-events-none"
-            style={{
-              left: `${fish.x}%`,
-              top: `${fish.y}%`,
-              transform: fish.direction > 0 ? "scaleX(1)" : "scaleX(-1)",
-            }}
-            animate={{
-              y: [0, -4, 0],
-              rotate: [0, fish.direction * 1, 0],
-            }}
-            transition={{
-              duration: 4 + Math.random() * 2,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-          >
-            <img
-              src="https://cdn.builder.io/api/v1/image/assets%2Fce46587856fe4a08b8f584f94123bade%2Fb2f6ea722aff420ab4d228a5ff95d846?format=webp&width=800"
-              alt="Peixe Místico"
-              className="w-20 h-20 object-contain drop-shadow-lg"
-              style={{
-                filter: "drop-shadow(0 0 10px rgba(59, 130, 246, 0.5))",
-              }}
-            />
-          </motion.div>
-        )}
-      </div>
-
-      {/* Fishing Rod (bottom of screen) */}
-      <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-2 h-32 bg-gradient-to-t from-amber-800 to-amber-600 rounded-t-full z-10" />
-
-      {/* Fishing Line - Simple and Visible */}
-      {(isLaunching || isRetracting || isFishing) && (
-        <svg
-          className="absolute inset-0 w-full h-full z-10 pointer-events-none"
-          viewBox="0 0 100 100"
-          preserveAspectRatio="none"
-        >
-          <motion.line
-            x1="50"
-            y1="87"
-            x2={hookPosition.x}
-            y2={hookPosition.y}
-            stroke="#374151"
-            strokeWidth="0.5"
-            initial={{ pathLength: 0 }}
-            animate={{
-              pathLength: isLaunching ? [0, 1] : isRetracting ? [1, 0] : 1,
-            }}
-            transition={{
-              duration: isLaunching ? 1.2 : isRetracting ? 0.8 : 0,
-              ease: isLaunching ? "easeOut" : "easeIn",
-            }}
-          />
-        </svg>
-      )}
-
-      {/* Dynamic Fishing Hook */}
-      <motion.div
-        className="absolute z-20 text-3xl pointer-events-none"
-        initial={{
-          left: "50%",
-          top: "calc(100% - 128px)",
-        }}
-        animate={{
-          left:
-            isLaunching || isRetracting || isFishing
-              ? `${hookPosition.x}%`
-              : "50%",
-          top:
-            isLaunching || isRetracting || isFishing
-              ? `${hookPosition.y}%`
-              : "calc(100% - 128px)",
-          rotate: isFishing ? [0, 8, -8, 0] : 0,
-          y: isFishing ? [0, -3, 3, 0] : 0,
-        }}
-        transition={{
-          left: {
-            duration: isLaunching ? 1.2 : isRetracting ? 0.8 : 0,
-            ease: isLaunching ? "easeOut" : "easeIn",
-          },
-          top: {
-            duration: isLaunching ? 1.2 : isRetracting ? 0.8 : 0,
-            ease: isLaunching ? "easeOut" : "easeIn",
-          },
-          rotate: {
-            duration: 2.5,
-            ease: "easeInOut",
-            repeat: isFishing ? Infinity : 0,
-          },
-          y: {
-            duration: 2.5,
-            ease: "easeInOut",
-            repeat: isFishing ? Infinity : 0,
-          },
-        }}
-        style={{
-          transform: "translate(-50%, -50%)",
-        }}
-      >
-        🪝
-      </motion.div>
-
-      {/* UI Overlay */}
-      <div className="absolute top-4 left-4 right-4 flex justify-between items-start z-30">
-        {/* Back button */}
+    <div className="min-h-screen bg-gradient-to-b from-blue-400 via-blue-500 to-blue-700 pt-20 pb-20 px-4">
+      <div className="max-w-2xl mx-auto">
+        {/* Back Button */}
         <motion.button
-          onClick={(e) => {
-            e.stopPropagation();
-            setCurrentScreen("exploration");
-          }}
-          className="bg-white/20 backdrop-blur text-white p-3 rounded-lg hover:bg-white/30 transition-colors"
+          onClick={() => setCurrentScreen("exploration")}
+          className="mb-6 bg-white/20 backdrop-blur text-white p-3 rounded-full hover:bg-white/30 transition-colors flex items-center gap-2"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
-          <ArrowLeft className="w-6 h-6" />
+          <ArrowLeft className="w-5 h-5" />
+          <span className="hidden sm:inline">Voltar</span>
         </motion.button>
 
-        {/* Game Stats */}
-        <div className="bg-black/30 backdrop-blur text-white p-4 rounded-lg text-center">
-          <h2 className="text-xl font-bold mb-2">Templo dos Anciões</h2>
-          <div className="text-sm space-y-1">
-            <div>⏱️ {formatTime(gameTime)}</div>
-            <div>🏆 {totalScore} pontos</div>
-            <div>🎣 {caughtFishes.length} peixes</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Instructions */}
-      <div className="absolute bottom-4 left-4 right-4 text-center z-30">
-        <div className="bg-black/30 backdrop-blur text-white p-3 rounded-lg text-sm">
-          {isLaunching ? (
-            <div className="animate-pulse">🎣 Lançando anzol...</div>
-          ) : isFishing ? (
-            <div className="animate-pulse">🎣 Pescando... Aguarde!</div>
-          ) : isRetracting ? (
-            <div className="animate-pulse">↩️ Recolhendo linha...</div>
-          ) : (
-            <div>Clique na água para lançar o anzol! 🌊</div>
-          )}
-        </div>
-      </div>
-
-      {/* Catch Notification */}
-      <AnimatePresence>
-        {showCatch && (
-          <motion.div
-            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-40"
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 300, damping: 25 }}
-          >
-            <div className="bg-white rounded-xl shadow-xl p-6 text-center border-4 border-yellow-400">
-              <div className="text-6xl mb-2">��</div>
-              <div className="text-2xl font-bold text-gray-800 mb-1">
-                {showCatch.name}
+        {/* Main Content Window */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-3xl shadow-xl overflow-hidden"
+          style={{ height: "calc(100vh - 280px)", minHeight: "500px" }}
+        >
+          {/* Header */}
+          <div className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white p-6">
+            <div className="flex items-center gap-4">
+              <div className="bg-white/20 p-3 rounded-full">
+                <Fish className="w-8 h-8" />
               </div>
-              <div className="text-lg text-yellow-600 font-semibold flex items-center justify-center gap-2">
-                <Trophy className="w-5 h-5" />+{showCatch.points} pontos
-              </div>
-              <div className="text-sm text-green-600 mt-2">
-                +{Math.floor(showCatch.points / 5)} Xenocoins
+              <div>
+                <h1 className="text-2xl font-bold">Templo dos Anciões</h1>
+                <p className="text-blue-100">Local sagrado de pesca mística</p>
               </div>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </div>
 
-      {/* Caught Fish Collection */}
-      {caughtFishes.length > 0 && (
-        <div className="absolute right-4 top-24 bottom-20 w-48 bg-black/30 backdrop-blur rounded-lg p-3 overflow-y-auto z-30">
-          <h3 className="text-white font-bold text-center mb-3 flex items-center justify-center gap-2">
-            <Award className="w-4 h-4" />
-            Capturas
-          </h3>
-          <div className="space-y-2">
-            {caughtFishes.map((fish, index) => (
-              <div
-                key={`${fish.id}-${index}`}
-                className="p-2 rounded text-white text-xs bg-blue-600/50"
+          {/* Content Area */}
+          <div className="p-6 h-full flex flex-col">
+            {/* Location Description */}
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold text-gray-800 mb-3">
+                Águas Místicas dos Anciões
+              </h2>
+              <p className="text-gray-600 leading-relaxed">
+                Um local sagrado onde as águas cristalinas refletem os segredos
+                do cosmos. Este templo ancestral guarda mistérios profundos nas
+                suas correntes tranquilas.
+              </p>
+            </div>
+
+            {/* Location Features */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <motion.div
+                className="bg-blue-50 rounded-2xl p-6 border border-blue-100"
+                whileHover={{ scale: 1.02 }}
               >
-                <div className="flex items-center gap-2">
-                  <img
-                    src="https://cdn.builder.io/api/v1/image/assets%2Fce46587856fe4a08b8f584f94123bade%2Fb2f6ea722aff420ab4d228a5ff95d846?format=webp&width=800"
-                    alt="Peixe Capturado"
-                    className="w-8 h-8 object-contain"
-                  />
-                  <div>
-                    <div className="font-semibold">{fish.name}</div>
-                    <div className="text-yellow-300">+{fish.points}pts</div>
+                <div className="flex items-center gap-3 mb-4">
+                  <Waves className="w-6 h-6 text-blue-500" />
+                  <h3 className="font-semibold text-gray-800">
+                    Águas Sagradas
+                  </h3>
+                </div>
+                <p className="text-gray-600 text-sm">
+                  Correntes de energia mística fluem através destas águas
+                  ancestrais, carregando a sabedoria dos antigos.
+                </p>
+              </motion.div>
+
+              <motion.div
+                className="bg-cyan-50 rounded-2xl p-6 border border-cyan-100"
+                whileHover={{ scale: 1.02 }}
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <Star className="w-6 h-6 text-cyan-500" />
+                  <h3 className="font-semibold text-gray-800">
+                    Portal Celestial
+                  </h3>
+                </div>
+                <p className="text-gray-600 text-sm">
+                  Durante certas fases lunares, um portal para outras dimensões
+                  se manifesta nas profundezas.
+                </p>
+              </motion.div>
+            </div>
+
+            {/* Main Visual Area */}
+            <div className="flex-1 bg-gradient-to-b from-sky-100 to-blue-200 rounded-2xl p-6 flex flex-col items-center justify-center relative overflow-hidden">
+              {/* Animated Background */}
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent to-blue-300/30">
+                <motion.div
+                  className="absolute inset-0"
+                  animate={{
+                    background: [
+                      "radial-gradient(ellipse at 20% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 60%)",
+                      "radial-gradient(ellipse at 80% 50%, rgba(34, 197, 94, 0.1) 0%, transparent 60%)",
+                      "radial-gradient(ellipse at 50% 30%, rgba(168, 85, 247, 0.1) 0%, transparent 60%)",
+                      "radial-gradient(ellipse at 20% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 60%)",
+                    ],
+                  }}
+                  transition={{ duration: 12, repeat: Infinity }}
+                />
+              </div>
+
+              {/* Floating Elements */}
+              <motion.div
+                className="absolute top-8 left-8 text-4xl opacity-40"
+                animate={{
+                  y: [0, -10, 0],
+                  rotate: [0, 5, 0],
+                }}
+                transition={{ duration: 6, repeat: Infinity }}
+              >
+                ☁️
+              </motion.div>
+
+              <motion.div
+                className="absolute top-12 right-12 text-3xl opacity-30"
+                animate={{
+                  y: [0, 8, 0],
+                  rotate: [0, -3, 0],
+                }}
+                transition={{ duration: 8, repeat: Infinity, delay: 2 }}
+              >
+                ✨
+              </motion.div>
+
+              <motion.div
+                className="absolute bottom-12 left-16 text-2xl opacity-35"
+                animate={{
+                  x: [0, 10, 0],
+                  y: [0, -5, 0],
+                }}
+                transition={{ duration: 10, repeat: Infinity, delay: 4 }}
+              >
+                🌊
+              </motion.div>
+
+              {/* Center Content */}
+              <div className="relative z-10 text-center">
+                <motion.div
+                  className="bg-white/80 backdrop-blur rounded-2xl p-8 shadow-lg max-w-md"
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  <div className="text-6xl mb-4">🏛️</div>
+                  <h3 className="text-2xl font-bold text-gray-800 mb-3">
+                    Templo em Meditação
+                  </h3>
+                  <p className="text-gray-600 mb-6 leading-relaxed">
+                    As energias ancestrais deste local sagrado estão em estado
+                    de contemplação profunda. Retorne quando as estrelas se
+                    alinharem.
+                  </p>
+
+                  {/* Status Indicators */}
+                  <div className="flex justify-center gap-4 text-sm">
+                    <div className="flex items-center gap-2 text-gray-500">
+                      <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
+                      <span>Em Preparação</span>
+                    </div>
                   </div>
+                </motion.div>
+              </div>
+            </div>
+
+            {/* Location Info */}
+            <div className="mt-6 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-4 border border-blue-100">
+              <div className="flex items-start gap-3">
+                <MapPin className="w-5 h-5 text-blue-500 mt-0.5" />
+                <div>
+                  <h4 className="font-semibold text-blue-800 mb-1">
+                    Localização Mística
+                  </h4>
+                  <p className="text-sm text-blue-700">
+                    Este templo ancestral permanece em estado de meditação
+                    cósmica, aguardando o momento propício para revelar seus
+                    segredos aos visitantes dignos.
+                  </p>
                 </div>
               </div>
-            ))}
+            </div>
           </div>
-        </div>
-      )}
+        </motion.div>
+      </div>
     </div>
   );
 };
