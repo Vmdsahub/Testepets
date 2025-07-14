@@ -364,13 +364,13 @@ class ModularWaterEffect {
         float futureX = centerX + a * futureCos / futureDenom;
         float currentDirection = futureX - naturalFishX;
 
-                // CORREÇÃO: Inverter lógica para orientação correta
+                        // LÓGICA CORRETA: Peixe aponta na direção do movimento
         float fishAngle = 0.0;
 
         if (currentDirection > 0.008) {
-            fishAngle = 3.14159; // Direita - flip horizontal para corrigir
+            fishAngle = 0.0; // Direita - orientação normal (peixe olha para direita)
         } else if (currentDirection < -0.008) {
-            fishAngle = 0.0; // Esquerda - orientação normal
+            fishAngle = 3.14159; // Esquerda - flip horizontal (peixe olha para esquerda)
         }
 
         // === REFINAMENTOS COMPORTAMENTAIS ===
