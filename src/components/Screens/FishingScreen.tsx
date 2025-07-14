@@ -6,6 +6,7 @@ import {
   fishingSettingsService,
   FishingSettings,
 } from "../../services/fishingSettingsService";
+import { FishingRod } from "../Game/FishingRod";
 
 // WebGL Water Effect Class - With 60% coverage mask
 class WaterEffect {
@@ -878,6 +879,9 @@ export const FishingScreen: React.FC = () => {
           zIndex: 10,
         }}
       ></canvas>
+
+      {/* Fishing Rod Component */}
+      <FishingRod />
 
       {/* Back Button */}
       <button
