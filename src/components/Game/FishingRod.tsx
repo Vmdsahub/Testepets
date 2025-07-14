@@ -189,6 +189,8 @@ class FishingSystem {
         castPhase: "arc",
         castSpeed: 0.012 + i * 0.001,
         castDelay: i * 30,
+        inWater: false,
+        reelProgress: 0,
       });
     }
   }
