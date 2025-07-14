@@ -66,9 +66,16 @@ class FishingSystem {
     }
     this.ctx = context;
 
+    this.loadFishingRodImage();
     this.setupCanvas();
     this.bindEvents();
     this.startRenderLoop();
+  }
+
+  private loadFishingRodImage() {
+    this.fishingRodImage = new Image();
+    this.fishingRodImage.src =
+      "https://cdn.builder.io/api/v1/image/assets%2F93c9d9ee317e46338402a7682b8e50f7%2F046a923883bd4f9a9603e2c3d3dab8f3?format=webp&width=800";
   }
 
   private setupCanvas() {
@@ -239,7 +246,7 @@ class FishingSystem {
       if (adjustedProgress > 0) {
         point.reelProgress = this.easeOutQuart(adjustedProgress);
 
-        // Mover o ponto em direç��o à vara
+        // Mover o ponto em direção à vara
         const targetX = this.fishingRodTip.x;
         const targetY = this.fishingRodTip.y;
 
