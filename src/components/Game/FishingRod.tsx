@@ -228,7 +228,7 @@ class FishingSystem {
       const point = this.linePoints[i];
       if (point.pinned) continue;
 
-      // Calcular progresso de recolhimento com delay baseado na dist��ncia da vara
+      // Calcular progresso de recolhimento com delay baseado na distância da vara
       const delayFactor =
         (this.linePoints.length - 1 - i) / this.linePoints.length;
       const adjustedProgress = Math.max(0, reelProgress - delayFactor * 0.3);
@@ -348,24 +348,42 @@ class FishingSystem {
           const isInWater = point.y > window.innerHeight * this.waterLevel;
           point.inWater = isInWater;
 
-          // Aplicar damping diferente se estiver na água
-          const currentDamping = isInWater ? this.waterDamping : this.damping;
-          const currentGravity = isInWater ? this.gravity * 0.3 : this.gravity; // Menos gravidade na água
+          // Se o ponto já está assentado, manter posição fixa
+          if (point.settled) {
+            point.x = point.settledX;
+            point.y = point.settledY;
+            point.oldX = point.settledX;
+            point.oldY = point.settledY;
+          } else {
+            // Aplicar damping diferente se estiver na água
+            const currentDamping = isInWater ? this.waterDamping : this.damping;
+            const currentGravity = isInWater
+              ? this.gravity * 0.3
+              : this.gravity;
 
-          const velX = (point.x - point.oldX) * currentDamping;
-          const velY = (point.y - point.oldY) * currentDamping;
+            const velX = (point.x - point.oldX) * currentDamping;
+            const velY = (point.y - point.oldY) * currentDamping;
 
-          point.oldX = point.x;
-          point.oldY = point.y;
+            // Armazenar velocidades para detectar quando parar
+            point.velocityX = velX;
+            point.velocityY = velY;
 
-          point.x += velX;
-          point.y += velY + currentGravity;
+            point.oldX = point.x;
+            point.oldY = point.y;
 
-          // Adicionar pequena oscilação na água
-          if (isInWater) {
-            const time = Date.now() * 0.001;
-            const waterWave = Math.sin(time * 2 + point.x * 0.01) * 0.5;
-            point.y += waterWave;
+            point.x += velX;
+            point.y += velY + currentGravity;
+
+            // Verificar se deve assentar (quando na água e com velocidade baixa)
+            if (isInWater) {
+              const speed = Math.sqrt(velX * velX + velY * velY);
+              if (speed < 0.5) {
+                // Velocidade baixa, assentar
+                point.settled = true;
+                point.settledX = point.x;
+                point.settledY = point.y;
+              }
+            }
           }
         }
       }
