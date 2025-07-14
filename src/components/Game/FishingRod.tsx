@@ -39,6 +39,7 @@ class FishingSystem {
   private targetX = 0;
   private targetY = 0;
   private fishingRodTip = { x: 0, y: 0 };
+  private previousRodTip = { x: 0, y: 0 };
   private castStartTime = 0;
 
   // Sistema de força de lançamento
