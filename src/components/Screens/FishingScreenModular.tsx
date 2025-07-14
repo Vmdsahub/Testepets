@@ -1286,9 +1286,13 @@ export const FishingScreenModular: React.FC = () => {
             width: "100%",
             height: "100%",
             display: "block",
-            zIndex: 15,
-            pointerEvents: "all",
-            cursor: isDragging ? "grabbing" : "grab",
+            zIndex: isShiftPressed ? 25 : 15, // Fica acima quando Shift pressionado
+            pointerEvents: isShiftPressed ? "all" : "none", // Só captura eventos quando Shift pressionado
+            cursor: isDragging
+              ? "grabbing"
+              : isShiftPressed
+                ? "grab"
+                : "default",
           }}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
