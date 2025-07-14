@@ -267,8 +267,9 @@ class ModularWaterEffect {
       void main() {
         vec2 uv = v_texCoord;
         
-                // Novo sistema de movimento inteligente do peixe
-        float time = u_fishTime * 0.3; // Velocidade base
+                        // NOVO SISTEMA DE MOVIMENTO INTELIGENTE DO PEIXE
+        // O peixe se move livremente dentro da área definida pelos controles admin
+        float time = u_fishTime * 0.3; // Velocidade base do movimento
 
         // Parâmetros da área da água
         float areaX = u_waterArea.x;
