@@ -90,11 +90,15 @@ class WaterEffect {
     const fragmentShaderSource = `
             precision mediump float;
             
-                        uniform float u_time;
+                                    uniform float u_time;
             uniform float u_fishTime;
             uniform float u_waveIntensity;
             uniform float u_distortionAmount;
             uniform vec2 u_resolution;
+            uniform float u_gameState; // 0=idle, 1=hook_cast, 2=fish_reacting, 3=fish_moving, 4=fish_hooked
+            uniform vec2 u_hookPosition;
+            uniform vec2 u_fishTargetPosition;
+            uniform float u_showExclamation;
                         uniform sampler2D u_backgroundTexture;
             uniform sampler2D u_noiseTexture;
             uniform sampler2D u_fishTexture;
@@ -341,6 +345,22 @@ class WaterEffect {
     this.uniforms.fishTexture = this.gl.getUniformLocation(
       this.program,
       "u_fishTexture",
+    );
+    this.uniforms.gameState = this.gl.getUniformLocation(
+      this.program,
+      "u_gameState",
+    );
+    this.uniforms.hookPosition = this.gl.getUniformLocation(
+      this.program,
+      "u_hookPosition",
+    );
+    this.uniforms.fishTargetPosition = this.gl.getUniformLocation(
+      this.program,
+      "u_fishTargetPosition",
+    );
+    this.uniforms.showExclamation = this.gl.getUniformLocation(
+      this.program,
+      "u_showExclamation",
     );
   }
 
