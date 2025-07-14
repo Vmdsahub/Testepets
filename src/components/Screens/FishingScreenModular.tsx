@@ -234,11 +234,12 @@ class ModularWaterEffect {
                                         // SISTEMA SIMPLIFICADO: Apenas flip horizontal para evitar inversão
         vec2 localUV = (coords - fishPos + fishSize * 0.5) / fishSize;
 
-        // Aplicar flip horizontal baseado na direção
+                // Aplicar flip horizontal correto
         vec2 fishUV = localUV;
-        if (fishAngle > 1.5) { // Se ângulo é aproximadamente PI (nadando para direita)
-            fishUV.x = 1.0 - fishUV.x; // Flip apenas horizontal
+        if (fishAngle > 1.5) { // Se ângulo é aproximadamente PI (nadando para esquerda)
+            fishUV.x = 1.0 - fishUV.x; // Flip horizontal para esquerda
         }
+        // Quando ângulo = 0 (direita), usar orientação normal
         // Y sempre normal - NUNCA inverte verticalmente
 
                                 if (fishUV.x >= 0.0 && fishUV.x <= 1.0 && fishUV.y >= 0.0 && fishUV.y <= 1.0 && isInWaterArea(coords)) {
