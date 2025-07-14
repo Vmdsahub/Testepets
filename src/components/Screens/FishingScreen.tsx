@@ -748,7 +748,7 @@ export const FishingScreen: React.FC = () => {
         ...fishingSettings,
         [setting]: value,
       };
-      console.log("DEBUG - Updating local state:", updatedSettings);
+
       setFishingSettings(updatedSettings);
 
       // Also update WaterEffect immediately if available
