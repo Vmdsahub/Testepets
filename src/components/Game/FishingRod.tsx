@@ -646,14 +646,20 @@ class FishingSystem {
   }
 }
 
-export const FishingRod: React.FC<FishingRodProps> = ({ className }) => {
+export const FishingRod: React.FC<FishingRodProps> = ({
+  className,
+  onHookCast,
+}) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fishingSystemRef = useRef<FishingSystem | null>(null);
 
   useEffect(() => {
     if (canvasRef.current) {
       try {
-        fishingSystemRef.current = new FishingSystem(canvasRef.current);
+        fishingSystemRef.current = new FishingSystem(
+          canvasRef.current,
+          onHookCast,
+        );
       } catch (error) {
         console.error("Erro ao inicializar sistema de pesca:", error);
       }
