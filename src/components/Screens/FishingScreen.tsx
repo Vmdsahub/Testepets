@@ -733,6 +733,40 @@ class WaterEffect {
       if (this.exclamationTime > 0) {
         this.exclamationTime -= 16;
       }
+    } else if (this.gameState === "transitioning") {
+      // Transição suave do movimento direcionado para natural
+      const elapsedTime = Date.now() - this.transitionStartTime;
+      const progress = Math.min(elapsedTime / this.transitionDuration, 1);
+
+      if (progress >= 1) {
+        // Transição completa, voltar para movimento natural
+        this.gameState = "idle";
+        console.log("Transition complete - fish now in natural movement");
+      } else {
+        // Interpolar entre posição atual e movimento natural
+        const easeProgress = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+
+        // Calcular posição natural atual
+        const slowTime = this.fishTime * 0.2;
+        const moveX =
+          Math.sin(slowTime * 0.7) * 0.3 +
+          Math.sin(slowTime * 1.3) * 0.15 +
+          Math.cos(slowTime * 0.4) * 0.1;
+        const moveY =
+          Math.cos(slowTime * 0.5) * 0.08 +
+          Math.sin(slowTime * 1.1) * 0.06 +
+          Math.sin(slowTime * 0.8) * 0.04;
+        const naturalX = 0.5 + moveX * 0.35;
+        const naturalY = 0.65 + moveY * 0.15;
+
+        // Interpolar entre posição de início da transição e posição natural
+        this.fishTargetPosition.x =
+          this.transitionStartPosition.x +
+          (naturalX - this.transitionStartPosition.x) * easeProgress;
+        this.fishTargetPosition.y =
+          this.transitionStartPosition.y +
+          (naturalY - this.transitionStartPosition.y) * easeProgress;
+      }
     }
   }
 
