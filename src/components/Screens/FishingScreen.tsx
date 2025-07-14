@@ -52,7 +52,7 @@ class WaterEffect {
     this.exclamationTime = 0;
     this.onGameStart = null; // Callback para abrir modal
     this.transitionStartTime = 0;
-    this.transitionDuration = 1000; // 1 segundo para transição suave
+    this.transitionDuration = 800; // 0.8 segundos para transição suave (400ms parado + 400ms transição)
     this.transitionStartPosition = { x: 0.5, y: 0.65 };
 
     this.init();
