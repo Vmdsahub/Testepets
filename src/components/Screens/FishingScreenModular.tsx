@@ -301,32 +301,24 @@ class ModularWaterEffect {
         float naturalFishX = mix(startX, targetX, easeProgress);
         float naturalFishY = mix(startY, targetY, easeProgress);
 
-        // === SISTEMA DE ROTAÇÃO LIVRE ===
-        // Calcular ângulo de movimento baseado na velocidade instantânea
-        float deltaT = 0.05;
+                // === ROTAÇÃO BASEADA NA DIREÇÃO DO MOVIMENTO ===
+        // Calcular ângulo baseado na direção do alvo (igual ao getAngle do JS)
 
-        // Posição futura para calcular velocidade
-        float futureTime = time + deltaT;
-                // Usar as MESMAS frequências baixas para consistência
-        float futureNoiseX1 = sin(futureTime * 0.3 + 123.45) * cos(futureTime * 0.2 + 67.89);
-        float futureNoiseY1 = cos(futureTime * 0.25 + 234.56) * sin(futureTime * 0.35 + 78.90);
-        float futureNoiseX2 = sin(futureTime * 0.8 + 345.67) * 0.2;
-        float futureNoiseY2 = cos(futureTime * 0.6 + 456.78) * 0.2;
-        float futureNoiseX3 = sin(futureTime * 0.1 + 567.89) * 0.9;
-        float futureNoiseY3 = cos(futureTime * 0.08 + 678.90) * 0.9;
+        // Direção do movimento (da posição atual para o alvo)
+        float directionX = targetX - naturalFishX;
+        float directionY = targetY - naturalFishY;
 
-        float futureMoveX = (futureNoiseX1 + futureNoiseX2 + futureNoiseX3) / 3.0;
-        float futureMoveY = (futureNoiseY1 + futureNoiseY2 + futureNoiseY3) / 3.0;
+        // Ângulo baseado na direção (equivalente ao Math.atan2 do JS)
+        float fishAngle = atan(directionY, directionX);
 
-                float futureX = innerX + (innerW * 0.5) + (futureMoveX * innerW * 0.5); // 100% amplitude horizontal
-        float futureY = innerY + (innerH * 0.5) + (futureMoveY * innerH * 0.5); // 100% amplitude vertical
+        // Ajustar para que 0° seja "para cima" (como no JS: theta += 90)
+        fishAngle += 1.5708; // +90 graus em radianos
 
-        // Velocidade instantânea
-        float velocityX = futureX - naturalFishX;
-        float velocityY = futureY - naturalFishY;
-
-                // Ângulo de rotação baseado na direção do movimento (invertido para apontar corretamente)
-        float fishAngle = atan(velocityY, velocityX) + 3.14159;
+        // Quando está muito perto do alvo, manter ângulo estável
+        float distanceToTarget = length(vec2(directionX, directionY));
+        if (distanceToTarget < 0.01) {
+            fishAngle = 0.0; // Ângulo neutro quando parado
+        }
 
         float fishX, fishY;
         if (u_gameState >= 2.0) {
