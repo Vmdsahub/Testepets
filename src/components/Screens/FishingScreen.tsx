@@ -97,10 +97,11 @@ class WaterEffect {
             uniform float u_waveIntensity;
             uniform float u_distortionAmount;
             uniform vec2 u_resolution;
-                        uniform float u_gameState; // 0=idle, 1=hook_cast, 2=fish_reacting, 3=fish_moving, 4=fish_hooked, 5=transitioning
+                                    uniform float u_gameState; // 0=idle, 1=hook_cast, 2=fish_reacting, 3=fish_moving, 4=fish_hooked
             uniform vec2 u_hookPosition;
             uniform vec2 u_fishTargetPosition;
             uniform float u_showExclamation;
+            uniform float u_fishTimeOffset;
                         uniform sampler2D u_backgroundTexture;
             uniform sampler2D u_noiseTexture;
             uniform sampler2D u_fishTexture;
@@ -1389,7 +1390,7 @@ export const FishingScreen: React.FC = () => {
             }}
           >
             <h2 style={{ marginTop: 0, color: "#333", fontSize: "24px" }}>
-              🎣 Peixe Fisgado!
+              �� Peixe Fisgado!
             </h2>
             <p
               style={{ color: "#666", marginBottom: "30px", fontSize: "16px" }}
