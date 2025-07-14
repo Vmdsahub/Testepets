@@ -238,13 +238,17 @@ class WaterEffect {
                     // Usar posição alvo quando o peixe está reagindo/se movendo
                     fishX = u_fishTargetPosition.x;
                     fishY = u_fishTargetPosition.y;
-                } else {
-                    // idle (0.0) e hook_cast (1.0) - movimento natural com offset
+                                } else {
+                    // idle (0.0) e hook_cast (1.0) - movimento natural com offset e suavização
                     float adjustedTime = (u_fishTime + u_fishTimeOffset) * 0.2;
 
                     // Padrão de movimento complexo usando múltiplas ondas
                     float moveX = sin(adjustedTime * 0.7) * 0.3 + sin(adjustedTime * 1.3) * 0.15 + cos(adjustedTime * 0.4) * 0.1;
                     float moveY = cos(adjustedTime * 0.5) * 0.08 + sin(adjustedTime * 1.1) * 0.06 + sin(adjustedTime * 0.8) * 0.04;
+
+                    // Aplicar suavização de transição (reduzir movimento inicialmente)
+                    moveX *= (1.0 - u_transitionSmoothing * 0.7);
+                    moveY *= (1.0 - u_transitionSmoothing * 0.7);
 
                     // Normaliza para manter dentro dos limites (0.1 a 0.9 em X, área da água em Y)
                     fishX = 0.5 + moveX * 0.35; // Entre 0.15 e 0.85
