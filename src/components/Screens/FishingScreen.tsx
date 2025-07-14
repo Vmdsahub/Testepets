@@ -247,17 +247,17 @@ class WaterEffect {
 
                                                                                                 // Sempre calcular a posição natural primeiro
                 float adjustedTime = (u_fishTime + u_fishTimeOffset) * 0.2;
-                                                // Movimento mais amplo e natural - explora toda a área da água
-                float moveX = sin(adjustedTime * 0.6) * 0.35 + sin(adjustedTime * 1.2) * 0.25 + cos(adjustedTime * 0.3) * 0.15;
-                float moveY = cos(adjustedTime * 0.4) * 0.2 + sin(adjustedTime * 0.8) * 0.15 + sin(adjustedTime * 1.5) * 0.1;
+                                                                // Movimento MUITO AMPLO - peixe vai até as bordas da área de pesca
+                float moveX = sin(adjustedTime * 0.6) * 0.45 + sin(adjustedTime * 1.2) * 0.35 + cos(adjustedTime * 0.3) * 0.25;
+                float moveY = cos(adjustedTime * 0.4) * 0.25 + sin(adjustedTime * 0.8) * 0.2 + sin(adjustedTime * 1.5) * 0.15;
 
-                // Garantir que o peixe use toda a área disponível da água
-                float naturalFishX = 0.5 + moveX; // Entre 0.0 e 1.0 - área completa horizontal
-                float naturalFishY = 0.7 + moveY; // Entre 0.5 e 0.9 - área completa vertical da água
+                // Peixe usa TODA a área disponível - vai até as bordas tracejadas
+                float naturalFishX = 0.5 + moveX * 0.8; // Multiplica por 0.8 para alcançar bordas
+                float naturalFishY = 0.7 + moveY * 0.6; // Multiplica por 0.6 para altura completa
 
-                // Clamp para garantir que não saia dos limites da água
-                naturalFishX = clamp(naturalFishX, 0.1, 0.9);
-                naturalFishY = clamp(naturalFishY, 0.45, 0.9);
+                // Clamp apenas para evitar sair completamente da tela
+                naturalFishX = clamp(naturalFishX, 0.05, 0.95); // Vai quase até as bordas
+                naturalFishY = clamp(naturalFishY, 0.4, 0.95);  // Usa toda altura da água
 
                 if (u_gameState >= 2.0) { // fish_reacting, fish_moving, fish_hooked
                     // Usar posição alvo quando o peixe está reagindo/se movendo
