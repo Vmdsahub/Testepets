@@ -1578,44 +1578,6 @@ export const FishingScreenModular: React.FC = () => {
             />
           </div>
 
-          <div style={{ marginBottom: "10px" }}>
-            <label style={{ display: "block", marginBottom: "5px" }}>
-              Posição X: {(waterArea.x * 100).toFixed(0)}%
-            </label>
-            <input
-              type="range"
-              min="0"
-              max={Math.max(0, (1 - waterArea.width) * 100)}
-              value={waterArea.x * 100}
-              onChange={(e) =>
-                setWaterArea((prev) => ({
-                  ...prev,
-                  x: parseInt(e.target.value) / 100,
-                }))
-              }
-              style={{ width: "100%" }}
-            />
-          </div>
-
-          <div style={{ marginBottom: "10px" }}>
-            <label style={{ display: "block", marginBottom: "5px" }}>
-              Posição Y: {(waterArea.y * 100).toFixed(0)}%
-            </label>
-            <input
-              type="range"
-              min="0"
-              max={Math.max(0, (1 - waterArea.height) * 100)}
-              value={waterArea.y * 100}
-              onChange={(e) =>
-                setWaterArea((prev) => ({
-                  ...prev,
-                  y: parseInt(e.target.value) / 100,
-                }))
-              }
-              style={{ width: "100%" }}
-            />
-          </div>
-
           <div style={{ fontSize: "12px", color: "#666", marginTop: "10px" }}>
             🎯 Use <strong>Shift + arrastar</strong> na área tracejada para
             reposicionar
