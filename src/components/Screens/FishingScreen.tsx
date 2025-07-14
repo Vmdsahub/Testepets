@@ -863,6 +863,7 @@ export const FishingScreen: React.FC = () => {
   const [fishingSettings, setFishingSettings] =
     useState<FishingSettings | null>(null);
   const [isUpdatingSettings, setIsUpdatingSettings] = useState(false);
+  const [showFishingModal, setShowFishingModal] = useState(false);
 
   const isAdmin = user?.isAdmin || false;
 
