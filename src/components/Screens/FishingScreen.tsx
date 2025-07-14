@@ -912,6 +912,7 @@ class WaterEffect {
       this.uniforms.showExclamation,
       this.gameState === "fish_hooked" && this.exclamationTime > 0 ? 1.0 : 0.0,
     );
+    this.gl.uniform1f(this.uniforms.fishTimeOffset, this.fishTimeOffset);
 
     // Ativa texturas
     this.gl.activeTexture(this.gl.TEXTURE0);
