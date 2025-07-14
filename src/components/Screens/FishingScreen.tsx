@@ -1044,6 +1044,13 @@ class WaterEffect {
       this.transitionStartPosition.y,
     );
 
+    // Log de debug apenas quando há transição ativa
+    if (transitionSmoothing > 0) {
+      console.log(
+        `📤 UNIFORM DEBUG - Enviando para shader: smoothing=${transitionSmoothing.toFixed(3)}, startPos=(${this.transitionStartPosition.x.toFixed(3)}, ${this.transitionStartPosition.y.toFixed(3)})`,
+      );
+    }
+
     // Ativa texturas
     this.gl.activeTexture(this.gl.TEXTURE0);
     this.gl.bindTexture(this.gl.TEXTURE_2D, this.backgroundTexture);
