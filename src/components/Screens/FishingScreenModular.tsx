@@ -231,19 +231,15 @@ class ModularWaterEffect {
         vec2 fishPos = vec2(fishX, fishY);
         vec2 fishSize = vec2(0.08, 0.06);
 
-                                // Aplicar rotação livre baseada no ângulo
-        vec2 localPos = coords - fishPos;
+                                        // SISTEMA SIMPLIFICADO: Apenas flip horizontal para evitar inversão
+        vec2 localUV = (coords - fishPos + fishSize * 0.5) / fishSize;
 
-        // Rotacionar coordenadas baseado no ângulo do peixe
-        float cosAngle = cos(-fishAngle);
-        float sinAngle = sin(-fishAngle);
-
-        vec2 rotatedPos = vec2(
-          localPos.x * cosAngle - localPos.y * sinAngle,
-          localPos.x * sinAngle + localPos.y * cosAngle
-        );
-
-        vec2 fishUV = (rotatedPos + fishSize * 0.5) / fishSize;
+        // Aplicar flip horizontal baseado na direção
+        vec2 fishUV = localUV;
+        if (fishAngle > 1.5) { // Se ângulo é aproximadamente PI (nadando para direita)
+            fishUV.x = 1.0 - fishUV.x; // Flip apenas horizontal
+        }
+        // Y sempre normal - NUNCA inverte verticalmente
 
                                 if (fishUV.x >= 0.0 && fishUV.x <= 1.0 && fishUV.y >= 0.0 && fishUV.y <= 1.0 && isInWaterArea(coords)) {
           vec4 fishColor = texture2D(u_fishTexture, fishUV);
