@@ -322,8 +322,8 @@ class ModularWaterEffect {
         float velocityX = futureX - naturalFishX;
         float velocityY = futureY - naturalFishY;
 
-        // Ângulo de rotação baseado na direção do movimento
-        float fishAngle = atan(velocityY, velocityX);
+                // Ângulo de rotação baseado na direção do movimento (invertido para apontar corretamente)
+        float fishAngle = atan(velocityY, velocityX) + 3.14159;
 
         float fishX, fishY;
         if (u_gameState >= 2.0) {
