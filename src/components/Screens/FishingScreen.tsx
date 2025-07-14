@@ -36,7 +36,6 @@ class WaterEffect {
     this.fishTime = 0;
 
     this.init();
-    this.setupControls();
     this.render();
   }
 
