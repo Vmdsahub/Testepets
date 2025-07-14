@@ -109,7 +109,8 @@ class WaterEffect {
             float createWaves(vec2 uv, float time) {
                 float wave1 = sin(uv.x * 6.0 + time * 1.5) * 0.1;
                 float wave2 = sin(uv.y * 8.0 + time * 2.0) * 0.08;
-                float wave3 = sin((uv.x + uv.y) * 12.0 + time * 1.2) * 0.05;
+                                float wave3 = sin((uv.x + uv.y) * 12.0 + time * 1.2) * 0.05;
+                float wave4 = sin((uv.x - uv.y) * 10.0 + time * 1.8) * 0.06;
                 
                 // Adiciona ruído para movimento mais natural
                 float noise1 = snoise(uv * 10.0 + time * 0.5) * 0.03;
