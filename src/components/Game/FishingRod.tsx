@@ -59,8 +59,12 @@ class FishingSystem {
   private readonly numSegments = 20;
   private readonly waterLevel = 0.6; // 60% da altura da tela é considerado água
 
-  constructor(canvas: HTMLCanvasElement) {
+  constructor(
+    canvas: HTMLCanvasElement,
+    onHookCast?: (x: number, y: number) => void,
+  ) {
     this.canvas = canvas;
+    this.onHookCast = onHookCast;
     const context = canvas.getContext("2d");
     if (!context) {
       throw new Error("Não foi possível obter o contexto 2D do canvas");
