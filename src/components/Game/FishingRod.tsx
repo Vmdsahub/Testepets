@@ -263,11 +263,11 @@ class FishingSystem {
           const offsetX = dx * percent;
           const offsetY = dy * percent;
 
-          if (!pointA.pinned && !pointA.settled) {
+          if (!pointA.pinned) {
             pointA.x -= offsetX;
             pointA.y -= offsetY;
           }
-          if (!pointB.pinned && !pointB.settled) {
+          if (!pointB.pinned) {
             pointB.x += offsetX;
             pointB.y += offsetY;
           }
