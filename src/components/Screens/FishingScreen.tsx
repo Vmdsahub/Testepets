@@ -1325,6 +1325,18 @@ class WaterEffect {
       this.transitionStartPosition.y,
     );
 
+    // Uniforms do sistema de steering behaviors
+    this.gl.uniform2f(
+      this.uniforms.fishPosition,
+      this.fishPosition.x,
+      this.fishPosition.y,
+    );
+    this.gl.uniform2f(
+      this.uniforms.fishVelocity,
+      this.fishVelocity.x,
+      this.fishVelocity.y,
+    );
+
     // Log de debug apenas quando há transição ativa
     if (transitionSmoothing > 0) {
       console.log(
