@@ -283,7 +283,7 @@ class ModularWaterEffect {
         float targetX = areaX + (seedX * areaW);
         float targetY = areaY + (seedY * areaH);
 
-        // Posição inicial (alvo anterior)
+        // Posiç��o inicial (alvo anterior)
         float prevSeedX = sin((currentCycle - 1.0) * 12.9898 + 78.233) * 43758.5453;
         float prevSeedY = sin((currentCycle - 1.0) * 93.9898 + 67.345) * 23421.3141;
         prevSeedX = fract(prevSeedX);
@@ -343,7 +343,7 @@ class ModularWaterEffect {
         // Quando velocidade é muito baixa, manter ângulo anterior
         float speed = length(vec2(velocityX, velocityY));
         if (speed < 0.001) {
-            fishAngle = 0.0; // Ângulo padr��o quando parado
+            fishAngle = 0.0; // Ângulo padrão quando parado
         }
 
         float fishX, fishY;
@@ -896,8 +896,8 @@ class ModularWaterEffect {
   render() {
     if (!this.gl || !this.canvas) return;
 
-    this.time += 0.016 * this.animationSpeed;
-    this.fishTime += 0.016;
+    this.time += 0.016 * this.animationSpeed; // Animação da água
+    this.fishTime += 0.032; // Peixe independente, movimento 2x mais rápido
 
     this.updateFishingGame();
 
@@ -1628,7 +1628,7 @@ export const FishingScreenModular: React.FC = () => {
               fontSize: "0.9rem",
             }}
           >
-            ÁREA DA ÁGUA
+            ÁREA DA ��GUA
           </div>
 
           <div style={{ marginBottom: "10px" }}>
