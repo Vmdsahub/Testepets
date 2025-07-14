@@ -173,9 +173,7 @@ class WaterEffect {
                 float fishX = 0.5 + moveX * 0.35; // Entre 0.15 e 0.85
                 float fishY = 0.65 + moveY * 0.15; // Entre 0.5 e 0.8 (área da água)
 
-                                // Calcula velocidade do movimento para determinar direção
-                float velocity = sin(slowTime * 0.7) * 0.7 + sin(slowTime * 1.3) * 1.3 + cos(slowTime * 0.4) * 0.4;
-                bool facingRight = velocity > 0.0; // Se velocidade positiva, está indo para direita
+                                
 
                                 vec2 fishPos = vec2(fishX, fishY);
                 vec2 fishSize = vec2(0.08, 0.06); // Diminuído de 0.15x0.12 para 0.08x0.06
