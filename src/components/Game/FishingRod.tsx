@@ -232,8 +232,6 @@ class FishingSystem {
 
         point.x = point.x + (targetX - point.x) * point.reelProgress * 0.1;
         point.y = point.y + (targetY - point.y) * point.reelProgress * 0.1;
-      } else {
-        allPointsReeled = false;
       }
     }
 
