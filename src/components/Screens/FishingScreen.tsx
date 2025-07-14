@@ -1036,17 +1036,40 @@ class WaterEffect {
   }
 
   calculateDistanceForOffset(targetX, targetY, offset) {
-    const testTime = (this.fishTime + offset) * 0.2;
-    const moveX =
-      Math.sin(testTime * 0.7) * 0.3 +
-      Math.sin(testTime * 1.3) * 0.15 +
-      Math.cos(testTime * 0.4) * 0.1;
-    const moveY =
-      Math.cos(testTime * 0.5) * 0.08 +
-      Math.sin(testTime * 1.1) * 0.06 +
-      Math.sin(testTime * 0.8) * 0.04;
-    const testX = 0.5 + moveX * 0.35;
-    const testY = 0.65 + moveY * 0.15;
+    // Usar a mesma fórmula melhorada do shader
+    const time = (this.fishTime + offset) * 0.15;
+    const mainCycle = time * 0.25;
+
+    // Movimento em X com múltiplas ondas sobrepostas
+    const xWave1 = Math.sin(mainCycle) * 0.35;
+    const xWave2 = Math.sin(mainCycle * 0.7 + 1.2) * 0.15;
+    const xWave3 = Math.cos(mainCycle * 1.3 + 2.5) * 0.08;
+    const baseX = 0.5 + (xWave1 + xWave2 + xWave3);
+
+    // Movimento em Y com flutuação suave
+    const yWave1 = Math.cos(mainCycle * 0.8) * 0.18;
+    const yWave2 = Math.sin(mainCycle * 1.1 + 0.8) * 0.08;
+    const yWave3 = Math.cos(mainCycle * 0.6 + 1.5) * 0.05;
+    const baseY = 0.7 + (yWave1 + yWave2 + yWave3);
+
+    // Variações orgânicas
+    const organicX =
+      Math.sin(time * 0.4 + Math.PI) * 0.06 +
+      Math.cos(time * 0.6 + 1.57) * 0.04;
+    const organicY =
+      Math.cos(time * 0.35 + 2.1) * 0.03 + Math.sin(time * 0.55 + 0.5) * 0.025;
+
+    // Deriva lenta
+    const driftX = Math.sin(time * 0.08) * 0.12;
+    const driftY = Math.cos(time * 0.06) * 0.06;
+
+    // Posição final
+    const naturalFishX = baseX + organicX + driftX;
+    const naturalFishY = baseY + organicY + driftY;
+
+    // Clamp igual ao shader
+    const testX = Math.max(0.05, Math.min(0.95, naturalFishX));
+    const testY = Math.max(0.45, Math.min(0.95, naturalFishY));
 
     return Math.sqrt((testX - targetX) ** 2 + (testY - targetY) ** 2);
   }
