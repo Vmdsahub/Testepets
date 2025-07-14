@@ -176,8 +176,22 @@ class WaterEffect {
                 // Cria máscara suave
                                                 float waterMask = smoothstep(maskEdge - transitionWidth, maskEdge + transitionWidth, verticalPos);
                 
-                // Imagem original sem efeitos
+                                // Imagem original sem efeitos
                 vec4 originalColor = texture2D(u_backgroundTexture, uv);
+
+                // Adiciona peixe animado na área da água (atrás do efeito)
+                vec2 fishPos = vec2(
+                    mod(u_time * 0.05 + 0.1, 1.2) - 0.1,
+                    0.7 + sin(u_time * 0.8) * 0.1
+                );
+                vec2 fishSize = vec2(0.12, 0.09);
+                vec2 fishUV = (uv - fishPos + fishSize * 0.5) / fishSize;
+                if (fishUV.x >= 0.0 && fishUV.x <= 1.0 && fishUV.y >= 0.0 && fishUV.y <= 1.0) {
+                    vec4 fishColor = texture2D(u_fishTexture, fishUV);
+                    if (fishColor.a > 0.1) {
+                        originalColor = mix(originalColor, fishColor, fishColor.a);
+                    }
+                }
                 
                 // Calcula refração apenas onde há água
                 vec2 refraction = calculateRefraction(uv, u_time) * waterMask;
