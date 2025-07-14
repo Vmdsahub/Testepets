@@ -288,6 +288,18 @@ class ModularWaterEffect {
         float naturalFishX = effectiveAreaX + (effectiveAreaW * 0.5) + (moveFactorX * effectiveAreaW * 0.4);
         float naturalFishY = effectiveAreaY + (effectiveAreaH * 0.5) + (moveFactorY * effectiveAreaH * 0.4);
 
+                // Calcular direção do movimento para rotação inteligente
+        float deltaTime = 0.1;
+        float futureTime = time + deltaTime;
+        float futureWave1 = sin(futureTime * 0.8 + 1.5) * 0.4;
+        float futureWave3 = sin(futureTime * 0.6 + 4.1) * 0.2;
+        float futureMoveFactorX = (futureWave1 + futureWave3) * 0.5;
+        float futureFishX = effectiveAreaX + (effectiveAreaW * 0.5) + (futureMoveFactorX * effectiveAreaW * 0.4);
+
+        // Determinar direção baseada no movimento
+        float velocityX = futureFishX - naturalFishX;
+        bool facingRight = velocityX > 0.0;
+
         float fishX, fishY;
         if (u_gameState >= 2.0) {
           fishX = u_fishTargetPosition.x;
@@ -302,19 +314,19 @@ class ModularWaterEffect {
           fishY = naturalFishY;
         }
         
-        // Imagem original com peixe
-        vec4 originalColor = getColorWithFish(uv, fishX, fishY);
+                // Imagem original com peixe
+        vec4 originalColor = getColorWithFish(uv, fishX, fishY, facingRight);
         
         // Verificar se está na área da água
         bool inWater = isInWaterArea(uv);
         float waterMask = inWater ? 1.0 : 0.0;
         
         if (inWater) {
-          // Aplicar efeitos de água apenas dentro da área
+          // Aplicar efeitos de água apenas dentro da ��rea
           vec2 refraction = calculateRefraction(uv, u_time) * waterMask;
           vec2 distortedUV = uv + refraction;
           
-          vec4 backgroundColor = getColorWithFish(distortedUV, fishX, fishY);
+                    vec4 backgroundColor = getColorWithFish(distortedUV, fishX, fishY, facingRight);
           
           float depth = (sin(uv.x * 3.0) + sin(uv.y * 4.0)) * 0.1 + 0.9;
           backgroundColor.rgb *= depth;
