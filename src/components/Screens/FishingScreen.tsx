@@ -42,6 +42,15 @@ class WaterEffect {
     this.time = 0;
     this.fishTime = 0;
 
+    // Estados do jogo de pesca
+    this.gameState = "idle"; // 'idle', 'hook_cast', 'fish_reacting', 'fish_moving', 'fish_hooked'
+    this.hookPosition = { x: 0.5, y: 0.5 };
+    this.fishReactionTime = 0;
+    this.fishReactionDelay = 0;
+    this.originalFishMovement = { moveX: 0, moveY: 0 };
+    this.exclamationTime = 0;
+    this.onGameStart = null; // Callback para abrir modal
+
     this.init();
     this.render();
   }
@@ -175,7 +184,7 @@ class WaterEffect {
             vec4 getColorWithFish(vec2 coords) {
                 vec4 bgColor = texture2D(u_backgroundTexture, coords);
 
-                                // Movimento natural do peixe com tempo independente
+                                                // Movimento natural do peixe com tempo independente
                 float slowTime = u_fishTime * 0.2; // Movimento mais lento e independente
 
                 // Padrão de movimento complexo usando múltiplas ondas
