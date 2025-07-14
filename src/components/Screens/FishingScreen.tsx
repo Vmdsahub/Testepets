@@ -1,6 +1,11 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { useGameStore } from "../../store/gameStore";
+import { useAuthStore } from "../../store/authStore";
+import {
+  fishingSettingsService,
+  FishingSettings,
+} from "../../services/fishingSettingsService";
 
 // WebGL Water Effect Class - With 60% coverage mask
 class WaterEffect {
@@ -31,7 +36,6 @@ class WaterEffect {
     this.fishTime = 0;
 
     this.init();
-    this.setupControls();
     this.render();
   }
 
@@ -173,12 +177,14 @@ class WaterEffect {
                 float fishX = 0.5 + moveX * 0.35; // Entre 0.15 e 0.85
                 float fishY = 0.65 + moveY * 0.15; // Entre 0.5 e 0.8 (área da água)
 
-                                // Calcula velocidade do movimento para determinar direção
-                float velocity = sin(slowTime * 0.7) * 0.7 + sin(slowTime * 1.3) * 1.3 + cos(slowTime * 0.4) * 0.4;
-                bool facingRight = velocity > 0.0; // Se velocidade positiva, está indo para direita
+                                
 
-                vec2 fishPos = vec2(fishX, fishY);
-                vec2 fishSize = vec2(0.15, 0.12);
+                                vec2 fishPos = vec2(fishX, fishY);
+                vec2 fishSize = vec2(0.08, 0.06); // Diminuído de 0.15x0.12 para 0.08x0.06
+
+                // Calcula direção baseada na derivada do movimento (mais responsivo)
+                float derivative = cos(slowTime * 0.7) * 0.7 * 0.7 + cos(slowTime * 1.3) * 1.3 * 1.3 - sin(slowTime * 0.4) * 0.4 * 0.4;
+                bool facingRight = derivative > 0.0;
 
                 // Calcula UV do peixe com flip horizontal baseado na direção
                 vec2 localUV = (coords - fishPos + fishSize * 0.5) / fishSize;
@@ -192,7 +198,7 @@ class WaterEffect {
                     fishUV = localUV;
                 }
 
-                // Verifica se está na área do peixe e na área da água
+                // Verifica se est�� na área do peixe e na área da água
                 if (fishUV.x >= 0.0 && fishUV.x <= 1.0 && fishUV.y >= 0.0 && fishUV.y <= 1.0 && coords.y > 0.4) {
                     vec4 fishColor = texture2D(u_fishTexture, fishUV);
                     if (fishColor.a > 0.1) {
@@ -605,42 +611,6 @@ class WaterEffect {
     );
   }
 
-  setupControls() {
-    const waveIntensitySlider = document.getElementById("waveIntensity");
-    const distortionAmountSlider = document.getElementById("distortionAmount");
-    const animationSpeedSlider = document.getElementById("animationSpeed");
-    const backgroundUpload = document.getElementById("backgroundUpload");
-
-    waveIntensitySlider.addEventListener("input", (e) => {
-      this.waveIntensity = e.target.value / 100;
-    });
-
-    distortionAmountSlider.addEventListener("input", (e) => {
-      this.distortionAmount = e.target.value / 100;
-    });
-
-    animationSpeedSlider.addEventListener("input", (e) => {
-      this.animationSpeed = e.target.value / 100;
-    });
-
-    backgroundUpload.addEventListener("change", (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        const img = new Image();
-        img.onload = () => {
-          this.updateBackgroundFromImage(img);
-
-          // Atualiza também o background CSS
-          const backgroundLayer = document.getElementById("backgroundLayer");
-          backgroundLayer.style.backgroundImage = `url(${img.src})`;
-          backgroundLayer.style.backgroundSize = "cover";
-          backgroundLayer.style.backgroundPosition = "center";
-        };
-        img.src = URL.createObjectURL(file);
-      }
-    });
-  }
-
   render() {
     this.time += 0.016 * this.animationSpeed;
     this.fishTime += 0.016; // Tempo independente para o peixe (sempre constante)
@@ -703,19 +673,166 @@ class WaterEffect {
 
 export const FishingScreen: React.FC = () => {
   const { setCurrentScreen } = useGameStore();
+  const { user } = useAuthStore();
   const waterEffectRef = useRef<WaterEffect | null>(null);
+  const [fishingSettings, setFishingSettings] =
+    useState<FishingSettings | null>(null);
+  const [isUpdatingSettings, setIsUpdatingSettings] = useState(false);
 
+  const isAdmin = user?.isAdmin || false;
+
+  // Load fishing settings
   useEffect(() => {
-    // Initialize the water effect after component mounts
+    const loadSettings = async () => {
+      console.log("Loading fishing settings...");
+      const settings = await fishingSettingsService.getFishingSettings();
+      console.log("Loaded settings:", settings);
+      setFishingSettings(settings);
+    };
+
+    loadSettings();
+
+    // Subscribe to settings changes
+    const subscription =
+      fishingSettingsService.subscribeToFishingSettings(setFishingSettings);
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  // Initialize water effect
+  useEffect(() => {
     const timer = setTimeout(() => {
-      waterEffectRef.current = new WaterEffect();
+      try {
+        const waterEffect = new WaterEffect();
+
+        // Apply settings from database if available
+        if (fishingSettings) {
+          waterEffect.waveIntensity = fishingSettings.waveIntensity;
+          waterEffect.distortionAmount = fishingSettings.distortionAmount;
+          waterEffect.animationSpeed = fishingSettings.animationSpeed;
+
+          // Update background if custom image is set
+          if (fishingSettings.backgroundImageUrl) {
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+            img.onload = () => {
+              if (waterEffect.updateBackgroundFromImage) {
+                waterEffect.updateBackgroundFromImage(img);
+              }
+            };
+            img.src = fishingSettings.backgroundImageUrl;
+          }
+        }
+
+        waterEffectRef.current = waterEffect;
+      } catch (error) {
+        console.error("Error initializing WaterEffect:", error);
+      }
     }, 100);
 
-    // Cleanup
     return () => {
       clearTimeout(timer);
     };
-  }, []);
+  }, [fishingSettings]);
+
+  // Handle settings updates (admin only)
+  const handleSettingUpdate = async (
+    setting: keyof FishingSettings,
+    value: number,
+  ) => {
+    if (!isAdmin) return;
+
+    // Update local state immediately for responsiveness
+    if (fishingSettings) {
+      const updatedSettings = {
+        ...fishingSettings,
+        [setting]: value,
+      };
+
+      setFishingSettings(updatedSettings);
+
+      // Also update WaterEffect immediately if available
+      if (waterEffectRef.current) {
+        const waterEffect = waterEffectRef.current;
+        if (setting === "waveIntensity") waterEffect.waveIntensity = value;
+        if (setting === "distortionAmount")
+          waterEffect.distortionAmount = value;
+        if (setting === "animationSpeed") waterEffect.animationSpeed = value;
+      }
+    }
+
+    setIsUpdatingSettings(true);
+
+    const updates: any = {};
+    updates[setting] = value;
+
+    const result = await fishingSettingsService.updateFishingSettings(updates);
+
+    if (!result.success) {
+      console.error("Failed to update setting:", result.message);
+      // Revert local state if database update failed
+      if (fishingSettings) {
+        setFishingSettings(fishingSettings);
+      }
+    }
+
+    setIsUpdatingSettings(false);
+  };
+
+  // Handle background image upload (admin only)
+  const handleBackgroundUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    console.log("DEBUG - handleBackgroundUpload called:", {
+      isAdmin,
+      hasFiles: !!event.target.files?.[0],
+      fileName: event.target.files?.[0]?.name,
+    });
+
+    if (!isAdmin || !event.target.files?.[0]) {
+      console.log("DEBUG - Upload blocked: not admin or no file");
+      return;
+    }
+
+    const file = event.target.files[0];
+    setIsUpdatingSettings(true);
+
+    console.log("DEBUG - Uploading file:", file.name);
+    const result = await fishingSettingsService.uploadBackgroundImage(file);
+    console.log("DEBUG - Upload result:", result);
+
+    if (result.success && result.imageUrl) {
+      // Update local state immediately
+      if (fishingSettings) {
+        const updatedSettings = {
+          ...fishingSettings,
+          backgroundImageUrl: result.imageUrl,
+        };
+        setFishingSettings(updatedSettings);
+
+        // Apply background to WaterEffect immediately
+        if (waterEffectRef.current && result.imageUrl) {
+          const img = new Image();
+          img.crossOrigin = "anonymous";
+          img.onload = () => {
+            if (waterEffectRef.current?.updateBackgroundFromImage) {
+              waterEffectRef.current.updateBackgroundFromImage(img);
+            }
+          };
+          img.src = result.imageUrl;
+        }
+      }
+    } else {
+      console.error("Failed to upload background:", result.message);
+    }
+
+    setIsUpdatingSettings(false);
+
+    // Reset file input
+    event.target.value = "";
+  };
 
   return (
     <div
@@ -786,105 +903,155 @@ export const FishingScreen: React.FC = () => {
         Voltar
       </button>
 
-      {/* Controls */}
-      <div
-        style={{
-          position: "fixed",
-          top: "20px",
-          right: "20px",
-          zIndex: 20,
-          background: "rgba(255, 255, 255, 0.9)",
-          padding: "15px",
-          borderRadius: "8px",
-          border: "1px solid #e5e5e5",
-        }}
-      >
-        <div style={{ marginBottom: "10px" }}>
-          <label
-            htmlFor="waveIntensity"
+      {/* Admin Controls */}
+      {isAdmin && (
+        <div
+          style={{
+            position: "fixed",
+            top: "20px",
+            right: "20px",
+            zIndex: 20,
+            background: "rgba(255, 255, 255, 0.9)",
+            padding: "15px",
+            borderRadius: "8px",
+            border: "1px solid #e5e5e5",
+            opacity: isUpdatingSettings ? 0.6 : 1,
+            pointerEvents: isUpdatingSettings ? "none" : "auto",
+          }}
+        >
+          <div
             style={{
-              display: "block",
-              fontSize: "0.875rem",
-              color: "#000000",
               marginBottom: "5px",
+              fontSize: "0.75rem",
+              color: "#666",
+              fontWeight: "bold",
             }}
           >
-            Intensidade das Ondas
-          </label>
-          <input
-            type="range"
-            id="waveIntensity"
-            min="0"
-            max="100"
-            defaultValue="50"
-            style={{ width: "150px" }}
-          />
-        </div>
+            CONTROLES DE ADMINISTRADOR
+          </div>
 
-        <div style={{ marginBottom: "10px" }}>
-          <label
-            htmlFor="distortionAmount"
-            style={{
-              display: "block",
-              fontSize: "0.875rem",
-              color: "#000000",
-              marginBottom: "5px",
-            }}
-          >
-            Distorção
-          </label>
-          <input
-            type="range"
-            id="distortionAmount"
-            min="0"
-            max="100"
-            defaultValue="30"
-            style={{ width: "150px" }}
-          />
-        </div>
+          <div style={{ marginBottom: "10px" }}>
+            <label
+              style={{
+                display: "block",
+                fontSize: "0.875rem",
+                color: "#000000",
+                marginBottom: "5px",
+              }}
+            >
+              Intensidade das Ondas:{" "}
+              {(fishingSettings?.waveIntensity || 0.5).toFixed(2)}
+            </label>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={(fishingSettings?.waveIntensity || 0.5) * 100}
+              onChange={(e) => {
+                console.log(
+                  "DEBUG - Wave intensity slider changed:",
+                  e.target.value,
+                );
+                handleSettingUpdate(
+                  "waveIntensity",
+                  parseInt(e.target.value) / 100,
+                );
+              }}
+              style={{ width: "150px" }}
+              disabled={isUpdatingSettings}
+            />
+          </div>
 
-        <div style={{ marginBottom: "10px" }}>
-          <label
-            htmlFor="animationSpeed"
-            style={{
-              display: "block",
-              fontSize: "0.875rem",
-              color: "#000000",
-              marginBottom: "5px",
-            }}
-          >
-            Velocidade
-          </label>
-          <input
-            type="range"
-            id="animationSpeed"
-            min="0"
-            max="200"
-            defaultValue="100"
-            style={{ width: "150px" }}
-          />
-        </div>
+          <div style={{ marginBottom: "10px" }}>
+            <label
+              style={{
+                display: "block",
+                fontSize: "0.875rem",
+                color: "#000000",
+                marginBottom: "5px",
+              }}
+            >
+              Distorção: {(fishingSettings?.distortionAmount || 0.3).toFixed(2)}
+            </label>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={(fishingSettings?.distortionAmount || 0.3) * 100}
+              onChange={(e) => {
+                console.log(
+                  "DEBUG - Distortion slider changed:",
+                  e.target.value,
+                );
+                handleSettingUpdate(
+                  "distortionAmount",
+                  parseInt(e.target.value) / 100,
+                );
+              }}
+              style={{ width: "150px" }}
+              disabled={isUpdatingSettings}
+            />
+          </div>
 
-        <div style={{ marginBottom: "0" }}>
-          <label
-            htmlFor="backgroundUpload"
-            style={{
-              display: "block",
-              fontSize: "0.875rem",
-              color: "#000000",
-              marginBottom: "5px",
-            }}
-          >
-            Background Personalizado
-          </label>
-          <input
-            type="file"
-            id="backgroundUpload"
-            accept="image/*"
-            style={{ fontSize: "0.875rem" }}
-          />
+          <div style={{ marginBottom: "10px" }}>
+            <label
+              style={{
+                display: "block",
+                fontSize: "0.875rem",
+                color: "#000000",
+                marginBottom: "5px",
+              }}
+            >
+              Velocidade: {(fishingSettings?.animationSpeed || 1.0).toFixed(2)}
+            </label>
+            <input
+              type="range"
+              min="0"
+              max="200"
+              value={(fishingSettings?.animationSpeed || 1.0) * 100}
+              onChange={(e) => {
+                console.log(
+                  "DEBUG - Animation speed slider changed:",
+                  e.target.value,
+                );
+                handleSettingUpdate(
+                  "animationSpeed",
+                  parseInt(e.target.value) / 100,
+                );
+              }}
+              style={{ width: "150px" }}
+              disabled={isUpdatingSettings}
+            />
+          </div>
+
+          <div style={{ marginBottom: "0" }}>
+            <label
+              style={{
+                display: "block",
+                fontSize: "0.875rem",
+                color: "#000000",
+                marginBottom: "5px",
+              }}
+            >
+              Background Personalizado
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleBackgroundUpload}
+              style={{ fontSize: "0.875rem" }}
+              disabled={isUpdatingSettings}
+            />
+            {fishingSettings?.backgroundImageUrl && (
+              <div
+                style={{ fontSize: "0.75rem", color: "#666", marginTop: "2px" }}
+              >
+                ✓ Imagem personalizada ativa
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Info */}
       <div

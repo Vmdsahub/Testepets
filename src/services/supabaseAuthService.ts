@@ -20,7 +20,7 @@ const mockUsers: Record<string, { user: AuthUser; password: string }> = {
       email: "demo@example.com",
       username: "Demo Player",
       phone: "+1234567890",
-      isAdmin: false,
+      isAdmin: true, // Temporarily set to true for testing admin controls
       isVerified: true,
       language: "en-US",
       accountScore: 2500,

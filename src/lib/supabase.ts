@@ -5,7 +5,7 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 // Check if we're in development mode with mock values
-const isMockMode =
+export const isMockMode =
   supabaseUrl?.includes("temp-mock") ||
   supabaseUrl?.includes("your_supabase_project_url") ||
   supabaseAnonKey?.includes("your_supabase_anon_key") ||
@@ -177,7 +177,18 @@ const createMockClient = () => ({
                     cash: 0,
                     username: "Demo User",
                   }
-                : null,
+                : table === "fishing_settings"
+                  ? {
+                      id: "mock-fishing-settings-123",
+                      wave_intensity: 0.5,
+                      distortion_amount: 0.3,
+                      animation_speed: 1.0,
+                      background_image_url: null,
+                      created_at: new Date().toISOString(),
+                      updated_at: new Date().toISOString(),
+                      updated_by: "mock-user-123",
+                    }
+                  : null,
             error: null,
           }),
         limit: (count: number) => Promise.resolve({ data: [], error: null }),
@@ -220,6 +231,25 @@ const createMockClient = () => ({
     on: () => ({ subscribe: () => Promise.resolve() }),
     unsubscribe: () => Promise.resolve(),
   }),
+  storage: {
+    from: (bucket: string) => ({
+      upload: (path: string, file: File, options?: any) => {
+        console.log(
+          `Mock storage upload to bucket ${bucket} at path ${path}:`,
+          file.name,
+        );
+        return Promise.resolve({
+          data: { path: `mock/${path}` },
+          error: null,
+        });
+      },
+      getPublicUrl: (path: string) => ({
+        data: {
+          publicUrl: `https://mock-storage.supabase.co/storage/v1/object/public/${bucket}/${path}`,
+        },
+      }),
+    }),
+  },
 });
 
 export const supabase = isMockMode
