@@ -43,6 +43,12 @@ export const FishingScreen: React.FC = () => {
   const fishSpawnRef = useRef<NodeJS.Timeout>();
   const gameContainer = useRef<HTMLDivElement>(null);
 
+  // Water dimensions state for responsive WebGL
+  const [waterDimensions, setWaterDimensions] = useState({
+    width: typeof window !== "undefined" ? window.innerWidth : 1920,
+    height: typeof window !== "undefined" ? (window.innerHeight * 2) / 3 : 640,
+  });
+
   // Generate the single fish
   const generateFish = useCallback((): Fish => {
     return {
