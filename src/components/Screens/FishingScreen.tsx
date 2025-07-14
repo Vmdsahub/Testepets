@@ -775,7 +775,7 @@ class WaterEffect {
       y: this.fishPosition.y + directionY * this.wanderDistance,
     };
 
-    // Atualizar ângulo de wandering com variação mais suave
+    // Atualizar ângulo de wandering com varia��ão mais suave
     this.wanderAngle +=
       (Math.random() - 0.5) * this.wanderJitter * deltaTime * 0.001; // Muito mais suave
 
@@ -799,6 +799,46 @@ class WaterEffect {
     };
     this.fishAcceleration.x += floatForce.x;
     this.fishAcceleration.y += floatForce.y;
+  }
+
+  // Comportamento Seek com intensidade customizável
+  seekWithForce(target, deltaTime, forceMultiplier = 1.0) {
+    // Calcular direção desejada
+    const desired = {
+      x: target.x - this.fishPosition.x,
+      y: target.y - this.fishPosition.y,
+    };
+
+    // Normalizar e multiplicar pela velocidade máxima
+    const distance = Math.sqrt(desired.x * desired.x + desired.y * desired.y);
+    if (distance > 0) {
+      desired.x = (desired.x / distance) * this.maxSpeed;
+      desired.y = (desired.y / distance) * this.maxSpeed;
+
+      // Comportamento Arrive - desacelerar quando próximo do alvo
+      if (distance < 0.1) {
+        const arrivalForce = distance / 0.1; // Gradualmente reduz força
+        desired.x *= arrivalForce;
+        desired.y *= arrivalForce;
+      }
+    }
+
+    // Calcular força de steering
+    const steer = {
+      x: desired.x - this.fishVelocity.x,
+      y: desired.y - this.fishVelocity.y,
+    };
+
+    // Limitar força máxima e aplicar multiplicador
+    const steerMagnitude = Math.sqrt(steer.x * steer.x + steer.y * steer.y);
+    if (steerMagnitude > this.maxForce) {
+      steer.x = (steer.x / steerMagnitude) * this.maxForce;
+      steer.y = (steer.y / steerMagnitude) * this.maxForce;
+    }
+
+    // Aplicar força de steering com multiplicador
+    this.fishAcceleration.x += steer.x * forceMultiplier;
+    this.fishAcceleration.y += steer.y * forceMultiplier;
   }
 
   // Comportamento Seek - ir em direção ao alvo
