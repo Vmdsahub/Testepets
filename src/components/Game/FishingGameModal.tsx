@@ -151,7 +151,6 @@ export const FishingGameModal: React.FC<FishingGameModalProps> = ({
       // Only allow fishing in water area (bottom 70%)
       if (y < 30) return;
 
-      setTargetPosition({ x, y });
       setIsLaunching(true);
       setHookPosition({ x, y });
 
