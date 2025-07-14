@@ -104,27 +104,11 @@ class FishingSettingsService {
   subscribeToFishingSettings(
     callback: (settings: FishingSettings | null) => void,
   ) {
-    const subscription = supabase
-      .channel("fishing_settings_changes")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "fishing_settings",
-        },
-        async () => {
-          // Fetch updated settings when changes occur
-          const settings = await this.getFishingSettings();
-          callback(settings);
-        },
-      )
-      .subscribe();
-
-    // Return an object with unsubscribe method
+    // For now, return a simple unsubscribe function to avoid issues
+    // Real-time updates can be added later once the subscription API is working
     return {
       unsubscribe: () => {
-        subscription.unsubscribe();
+        // No-op for now
       },
     };
   }
