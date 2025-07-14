@@ -1000,6 +1000,11 @@ class WaterEffect {
       transitionSmoothing = 1.0 - progress; // 1.0 inicialmente, vai para 0.0
     }
     this.gl.uniform1f(this.uniforms.transitionSmoothing, transitionSmoothing);
+    this.gl.uniform2f(
+      this.uniforms.transitionStartPosition,
+      this.transitionStartPosition.x,
+      this.transitionStartPosition.y,
+    );
 
     // Ativa texturas
     this.gl.activeTexture(this.gl.TEXTURE0);
