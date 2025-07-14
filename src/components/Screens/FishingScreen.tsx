@@ -159,7 +159,7 @@ class WaterEffect {
                 vec2 screenUV = gl_FragCoord.xy / u_resolution;
                 
                 // Cria máscara de água (60% da tela de baixo para cima)
-                float waterLine = 0.6; // 60% da tela
+                                float waterLine = 0.4; // Linha da água aos 40% (deixando 60% de baixo com efeito)
                 float transitionWidth = 0.15; // Largura da transição suave
                 
                 // Calcula posição vertical (0.0 = topo, 1.0 = fundo)
