@@ -46,7 +46,7 @@ class WaterEffect {
     this.gameState = "idle"; // 'idle', 'hook_cast', 'fish_reacting', 'fish_moving', 'fish_hooked'
     this.hookPosition = { x: 0.5, y: 0.5 };
     this.fishTargetPosition = { x: 0.5, y: 0.65 };
-    this.fishReactionTime = 0;
+    this.fishReactionStartTime = 0;
     this.fishReactionDelay = 0;
     this.originalFishMovement = { moveX: 0, moveY: 0 };
     this.exclamationTime = 0;
