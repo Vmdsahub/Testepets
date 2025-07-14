@@ -173,25 +173,23 @@ class WaterEffect {
                 float fishX = 0.5 + moveX * 0.35; // Entre 0.15 e 0.85
                 float fishY = 0.65 + moveY * 0.15; // Entre 0.5 e 0.8 (área da água)
 
-                // Calcula direção do movimento para flip horizontal
-                float prevX = 0.5 + sin((slowTime - 0.1) * 0.7) * 0.3 + sin((slowTime - 0.1) * 1.3) * 0.15 + cos((slowTime - 0.1) * 0.4) * 0.1;
-                prevX = 0.5 + prevX * 0.35;
-
-                float direction = fishX - prevX; // Positivo = direita, negativo = esquerda
-                bool flipHorizontal = direction > 0.0; // Flip quando vai para direita
+                                // Calcula velocidade do movimento para determinar direção
+                float velocity = sin(slowTime * 0.7) * 0.7 + sin(slowTime * 1.3) * 1.3 + cos(slowTime * 0.4) * 0.4;
+                bool facingRight = velocity > 0.0; // Se velocidade positiva, está indo para direita
 
                 vec2 fishPos = vec2(fishX, fishY);
                 vec2 fishSize = vec2(0.15, 0.12);
 
-                // Calcula UV do peixe com possível flip horizontal
+                // Calcula UV do peixe com flip horizontal baseado na direção
+                vec2 localUV = (coords - fishPos + fishSize * 0.5) / fishSize;
                 vec2 fishUV;
-                if (flipHorizontal) {
-                    // Flip horizontal
-                    fishUV = vec2(1.0 - (coords.x - fishPos.x + fishSize.x * 0.5) / fishSize.x,
-                                  (coords.y - fishPos.y + fishSize.y * 0.5) / fishSize.y);
+
+                if (facingRight) {
+                    // Flip horizontal quando vai para direita
+                    fishUV = vec2(1.0 - localUV.x, localUV.y);
                 } else {
-                    // Normal
-                    fishUV = (coords - fishPos + fishSize * 0.5) / fishSize;
+                    // Normal quando vai para esquerda
+                    fishUV = localUV;
                 }
 
                 // Verifica se está na área do peixe e na área da água
