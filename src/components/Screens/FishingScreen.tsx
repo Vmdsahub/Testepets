@@ -156,6 +156,25 @@ class WaterEffect {
                 return pow(caustic1 * caustic2 * caustic3 + noise * 0.2, 2.0) * 0.3;
             }
 
+                        // Função para obter cor com peixe
+            vec4 getColorWithFish(vec2 coords) {
+                vec4 bgColor = texture2D(u_backgroundTexture, coords);
+
+                // Adiciona peixe na textura original
+                vec2 fishPos = vec2(mod(u_time * 0.03, 1.0), 0.75);
+                vec2 fishSize = vec2(0.15, 0.12);
+                vec2 fishUV = (coords - fishPos + fishSize * 0.5) / fishSize;
+
+                if (fishUV.x >= 0.0 && fishUV.x <= 1.0 && fishUV.y >= 0.0 && fishUV.y <= 1.0 && coords.y > 0.4) {
+                    vec4 fishColor = texture2D(u_fishTexture, fishUV);
+                    if (fishColor.a > 0.1) {
+                        bgColor = mix(bgColor, vec4(fishColor.rgb, 1.0), fishColor.a);
+                    }
+                }
+
+                return bgColor;
+            }
+
             void main() {
                 vec2 uv = v_texCoord;
                 vec2 screenUV = gl_FragCoord.xy / u_resolution;
