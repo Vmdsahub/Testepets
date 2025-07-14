@@ -1274,6 +1274,92 @@ export const FishingScreen: React.FC = () => {
         <div>WebGL Water Effect</div>
         <div>Use os controles para ajustar o efeito</div>
       </div>
+
+      {/* Modal de Jogo de Pesca */}
+      {showFishingModal && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0, 0, 0, 0.7)",
+            zIndex: 50,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <div
+            style={{
+              background: "white",
+              borderRadius: "12px",
+              padding: "30px",
+              maxWidth: "400px",
+              width: "90%",
+              textAlign: "center",
+              boxShadow: "0 10px 30px rgba(0, 0, 0, 0.3)",
+            }}
+          >
+            <h2 style={{ marginTop: 0, color: "#333", fontSize: "24px" }}>
+              🎣 Peixe Fisgado!
+            </h2>
+            <p
+              style={{ color: "#666", marginBottom: "30px", fontSize: "16px" }}
+            >
+              Parabéns! Você conseguiu fisgar um peixe. Agora é hora de jogá-lo
+              no jogo de pesca!
+            </p>
+
+            <div
+              style={{ display: "flex", gap: "10px", justifyContent: "center" }}
+            >
+              <button
+                onClick={() => {
+                  setShowFishingModal(false);
+                  if (waterEffectRef.current) {
+                    waterEffectRef.current.resetFishingGame();
+                  }
+                  console.log("Starting fishing mini-game...");
+                  // Aqui você pode adicionar a lógica do mini-jogo
+                }}
+                style={{
+                  background: "#4A90E2",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "8px",
+                  padding: "12px 24px",
+                  fontSize: "16px",
+                  cursor: "pointer",
+                }}
+              >
+                Jogar Mini-Game
+              </button>
+
+              <button
+                onClick={() => {
+                  setShowFishingModal(false);
+                  if (waterEffectRef.current) {
+                    waterEffectRef.current.resetFishingGame();
+                  }
+                }}
+                style={{
+                  background: "#ccc",
+                  color: "#333",
+                  border: "none",
+                  borderRadius: "8px",
+                  padding: "12px 24px",
+                  fontSize: "16px",
+                  cursor: "pointer",
+                }}
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
