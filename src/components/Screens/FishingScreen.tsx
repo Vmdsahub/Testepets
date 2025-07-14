@@ -785,34 +785,65 @@ class WaterEffect {
   }
 
   resetFishingGame() {
-    // Se o peixe estava em movimento direcionado, preservar posição atual
+    // Se o peixe estava em estado direcionado, ajustar fishTime para continuar da posição atual
     if (
       this.gameState === "fish_moving" ||
-      this.gameState === "fish_reacting"
+      this.gameState === "fish_reacting" ||
+      this.gameState === "fish_hooked"
     ) {
-      // Para fish_moving/fish_reacting: preservar posição atual e fazer transição suave
+      const currentX = this.fishTargetPosition.x;
+      const currentY = this.fishTargetPosition.y;
+
       console.log(
-        `Fish was in ${this.gameState}, preserving current position (${this.fishTargetPosition.x.toFixed(2)}, ${this.fishTargetPosition.y.toFixed(2)})`,
+        `Fish was in ${this.gameState}, adjusting natural movement to continue from (${currentX.toFixed(2)}, ${currentY.toFixed(2)})`,
       );
-      this.transitionStartPosition = { ...this.fishTargetPosition };
-      this.transitionStartTime = Date.now();
-      this.gameState = "transitioning";
-    } else if (this.gameState === "fish_hooked") {
-      // Para fish_hooked: usar transição suave pois o peixe estava parado
-      this.transitionStartPosition = { ...this.fishTargetPosition };
-      this.transitionStartTime = Date.now();
-      this.gameState = "transitioning";
-      console.log(
-        "Fish was hooked, starting smooth transition to natural movement",
-      );
-    } else {
-      this.gameState = "idle";
+
+      // Ajustar fishTimeOffset para que o movimento natural comece da posição atual
+      this.adjustFishTimeToPosition(currentX, currentY);
     }
 
+    this.gameState = "idle";
     this.hookPosition = { x: 0.5, y: 0.5 };
     this.fishReactionStartTime = 0;
     this.fishReactionDelay = 0;
     this.exclamationTime = 0;
+  }
+
+  adjustFishTimeToPosition(targetX, targetY) {
+    // Calcular qual fishTime resultaria na posição desejada
+    // Usar busca iterativa simples para encontrar o melhor offset
+
+    let bestOffset = 0;
+    let bestDistance = Infinity;
+
+    // Testar diferentes offsets para encontrar o que resulta na posição mais próxima
+    for (let offset = 0; offset < Math.PI * 4; offset += 0.1) {
+      const testTime = (this.fishTime + offset) * 0.2;
+      const moveX =
+        Math.sin(testTime * 0.7) * 0.3 +
+        Math.sin(testTime * 1.3) * 0.15 +
+        Math.cos(testTime * 0.4) * 0.1;
+      const moveY =
+        Math.cos(testTime * 0.5) * 0.08 +
+        Math.sin(testTime * 1.1) * 0.06 +
+        Math.sin(testTime * 0.8) * 0.04;
+      const testX = 0.5 + moveX * 0.35;
+      const testY = 0.65 + moveY * 0.15;
+
+      const distance = Math.sqrt(
+        (testX - targetX) ** 2 + (testY - targetY) ** 2,
+      );
+
+      if (distance < bestDistance) {
+        bestDistance = distance;
+        bestOffset = offset;
+      }
+    }
+
+    this.fishTimeOffset = bestOffset;
+    console.log(
+      `Set fishTimeOffset to ${bestOffset.toFixed(2)} (distance: ${bestDistance.toFixed(3)})`,
+    );
   }
 
   updateBackgroundFromImage(image) {
