@@ -656,9 +656,11 @@ class WaterEffect {
 
     // Gerar tempo de reação aleatório entre 4-12 segundos
     this.fishReactionDelay = 4000 + Math.random() * 8000;
-    this.fishReactionTime = 0;
+    this.fishReactionStartTime = Date.now();
 
-    console.log(`Fish will react in ${this.fishReactionDelay}ms`);
+    console.log(
+      `Fish will react in ${this.fishReactionDelay}ms (after ${this.fishReactionDelay / 1000}s)`,
+    );
   }
 
   updateFishingGame() {
