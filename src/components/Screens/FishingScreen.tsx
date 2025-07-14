@@ -327,6 +327,9 @@ class WaterEffect {
 
     // Cria textura de ruído
     this.createNoiseTexture();
+
+    // Cria textura do peixe
+    this.createFishTexture();
   }
 
   createBackgroundTexture() {
