@@ -880,6 +880,9 @@ export const FishingScreen: React.FC = () => {
         }}
       ></canvas>
 
+      {/* Fishing Rod Component */}
+      <FishingRod />
+
       {/* Back Button */}
       <button
         onClick={() => setCurrentScreen("exploration")}
