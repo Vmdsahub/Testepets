@@ -156,15 +156,43 @@ class WaterEffect {
                 return pow(caustic1 * caustic2 * caustic3 + noise * 0.2, 2.0) * 0.3;
             }
 
-                        // Função para obter cor com peixe
+                                    // Função para obter cor com peixe
             vec4 getColorWithFish(vec2 coords) {
                 vec4 bgColor = texture2D(u_backgroundTexture, coords);
 
-                // Adiciona peixe na textura original
-                vec2 fishPos = vec2(mod(u_time * 0.03, 1.0), 0.75);
-                vec2 fishSize = vec2(0.15, 0.12);
-                vec2 fishUV = (coords - fishPos + fishSize * 0.5) / fishSize;
+                // Movimento natural do peixe
+                float slowTime = u_time * 0.2; // Movimento mais lento
 
+                // Padrão de movimento complexo usando múltiplas ondas
+                float moveX = sin(slowTime * 0.7) * 0.3 + sin(slowTime * 1.3) * 0.15 + cos(slowTime * 0.4) * 0.1;
+                float moveY = cos(slowTime * 0.5) * 0.08 + sin(slowTime * 1.1) * 0.06 + sin(slowTime * 0.8) * 0.04;
+
+                // Normaliza para manter dentro dos limites (0.1 a 0.9 em X, área da água em Y)
+                float fishX = 0.5 + moveX * 0.35; // Entre 0.15 e 0.85
+                float fishY = 0.65 + moveY * 0.15; // Entre 0.5 e 0.8 (área da água)
+
+                // Calcula direção do movimento para flip horizontal
+                float prevX = 0.5 + sin((slowTime - 0.1) * 0.7) * 0.3 + sin((slowTime - 0.1) * 1.3) * 0.15 + cos((slowTime - 0.1) * 0.4) * 0.1;
+                prevX = 0.5 + prevX * 0.35;
+
+                float direction = fishX - prevX; // Positivo = direita, negativo = esquerda
+                bool flipHorizontal = direction > 0.0; // Flip quando vai para direita
+
+                vec2 fishPos = vec2(fishX, fishY);
+                vec2 fishSize = vec2(0.15, 0.12);
+
+                // Calcula UV do peixe com possível flip horizontal
+                vec2 fishUV;
+                if (flipHorizontal) {
+                    // Flip horizontal
+                    fishUV = vec2(1.0 - (coords.x - fishPos.x + fishSize.x * 0.5) / fishSize.x,
+                                  (coords.y - fishPos.y + fishSize.y * 0.5) / fishSize.y);
+                } else {
+                    // Normal
+                    fishUV = (coords - fishPos + fishSize * 0.5) / fishSize;
+                }
+
+                // Verifica se está na área do peixe e na área da água
                 if (fishUV.x >= 0.0 && fishUV.x <= 1.0 && fishUV.y >= 0.0 && fishUV.y <= 1.0 && coords.y > 0.4) {
                     vec4 fishColor = texture2D(u_fishTexture, fishUV);
                     if (fishColor.a > 0.1) {
