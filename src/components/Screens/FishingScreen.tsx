@@ -204,8 +204,8 @@ class WaterEffect {
                 vec2 refraction = calculateRefraction(uv, u_time) * waterMask;
                 vec2 distortedUV = uv + refraction;
                 
-                // Obtém cor do background com distorção
-                vec4 backgroundColor = texture2D(u_backgroundTexture, distortedUV);
+                                // Obtém cor do background com peixe e distorção
+                vec4 backgroundColor = getColorWithFish(distortedUV);
                 
                                 // Adiciona efeito de profundidade
                 float depth = (sin(uv.x * 3.0) + sin(uv.y * 4.0)) * 0.1 + 0.9;
