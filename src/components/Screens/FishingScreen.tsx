@@ -865,7 +865,7 @@ export const FishingScreen: React.FC = () => {
       </button>
 
       {/* Admin Controls */}
-      {isAdmin && fishingSettings && (
+      {isAdmin && (
         <div
           style={{
             position: "fixed",
