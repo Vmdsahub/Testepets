@@ -74,6 +74,14 @@ class FishingSystem {
 
   private loadFishingRodImage() {
     this.fishingRodImage = new Image();
+    this.fishingRodImage.crossOrigin = "anonymous";
+    this.fishingRodImage.onload = () => {
+      console.log("Fishing rod image loaded successfully");
+    };
+    this.fishingRodImage.onerror = () => {
+      console.error("Failed to load fishing rod image");
+      this.fishingRodImage = null;
+    };
     this.fishingRodImage.src =
       "https://cdn.builder.io/api/v1/image/assets%2F93c9d9ee317e46338402a7682b8e50f7%2F046a923883bd4f9a9603e2c3d3dab8f3?format=webp&width=800";
   }
