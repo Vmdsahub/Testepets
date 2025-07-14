@@ -102,8 +102,9 @@ class WaterEffect {
                                     uniform float u_gameState; // 0=idle, 1=hook_cast, 2=fish_reacting, 3=fish_moving, 4=fish_hooked
             uniform vec2 u_hookPosition;
             uniform vec2 u_fishTargetPosition;
-            uniform float u_showExclamation;
+                        uniform float u_showExclamation;
             uniform float u_fishTimeOffset;
+            uniform float u_transitionSmoothing; // 0.0 = movimento completo, 1.0 = movimento reduzido
                         uniform sampler2D u_backgroundTexture;
             uniform sampler2D u_noiseTexture;
             uniform sampler2D u_fishTexture;
