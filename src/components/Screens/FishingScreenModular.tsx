@@ -269,12 +269,12 @@ class ModularWaterEffect {
         float areaW = u_waterArea.z;
         float areaH = u_waterArea.w;
 
-        // Área interior com margens
-        float margin = 0.05; // 5% de margem
-        float innerX = areaX + (areaW * margin);
-        float innerY = areaY + (areaH * margin);
-        float innerW = areaW * (1.0 - margin * 2.0);
-        float innerH = areaH * (1.0 - margin * 2.0);
+                // USO COMPLETO DA ÁREA - SEM MARGENS
+        float margin = 0.0; // Sem margem - usa 100% da área
+        float innerX = areaX;
+        float innerY = areaY;
+        float innerW = areaW;
+        float innerH = areaH;
 
         // === MOVIMENTO BASEADO EM RUÍDO PERLIN SIMULADO ===
         // Usar múltiplas frequências para criar movimento orgânico
@@ -295,9 +295,9 @@ class ModularWaterEffect {
         float moveX = (noiseX1 + noiseX2 + noiseX3) / 3.0;
         float moveY = (noiseY1 + noiseY2 + noiseY3) / 3.0;
 
-        // Calcular posição dentro da área interior
-        float naturalFishX = innerX + (innerW * 0.5) + (moveX * innerW * 0.4);
-        float naturalFishY = innerY + (innerH * 0.5) + (moveY * innerH * 0.4);
+                // Calcular posição usando 100% da área disponível
+        float naturalFishX = innerX + (innerW * 0.5) + (moveX * innerW * 0.5); // 100% amplitude horizontal
+        float naturalFishY = innerY + (innerH * 0.5) + (moveY * innerH * 0.5); // 100% amplitude vertical
 
         // === SISTEMA DE ROTAÇÃO LIVRE ===
         // Calcular ângulo de movimento baseado na velocidade instantânea
