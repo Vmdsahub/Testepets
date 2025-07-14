@@ -611,42 +611,6 @@ class WaterEffect {
     );
   }
 
-  setupControls() {
-    const waveIntensitySlider = document.getElementById("waveIntensity");
-    const distortionAmountSlider = document.getElementById("distortionAmount");
-    const animationSpeedSlider = document.getElementById("animationSpeed");
-    const backgroundUpload = document.getElementById("backgroundUpload");
-
-    waveIntensitySlider.addEventListener("input", (e) => {
-      this.waveIntensity = e.target.value / 100;
-    });
-
-    distortionAmountSlider.addEventListener("input", (e) => {
-      this.distortionAmount = e.target.value / 100;
-    });
-
-    animationSpeedSlider.addEventListener("input", (e) => {
-      this.animationSpeed = e.target.value / 100;
-    });
-
-    backgroundUpload.addEventListener("change", (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        const img = new Image();
-        img.onload = () => {
-          this.updateBackgroundFromImage(img);
-
-          // Atualiza também o background CSS
-          const backgroundLayer = document.getElementById("backgroundLayer");
-          backgroundLayer.style.backgroundImage = `url(${img.src})`;
-          backgroundLayer.style.backgroundSize = "cover";
-          backgroundLayer.style.backgroundPosition = "center";
-        };
-        img.src = URL.createObjectURL(file);
-      }
-    });
-  }
-
   render() {
     this.time += 0.016 * this.animationSpeed;
     this.fishTime += 0.016; // Tempo independente para o peixe (sempre constante)
