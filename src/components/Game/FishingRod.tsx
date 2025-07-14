@@ -81,7 +81,7 @@ class FishingSystem {
       this.mouseY = e.clientY;
     });
 
-    window.addEventListener("mousedown", (e) => {
+    window.addEventListener("mousedown", () => {
       if (!this.isLineOut) {
         this.isCharging = true;
         this.chargeStartTime = Date.now();
