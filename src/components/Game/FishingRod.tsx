@@ -337,14 +337,30 @@ class FishingSystem {
           }
         } else {
           // Física normal após o lançamento
-          const velX = (point.x - point.oldX) * this.damping;
-          const velY = (point.y - point.oldY) * this.damping;
+
+          // Verificar se o ponto está na água
+          const isInWater = point.y > window.innerHeight * this.waterLevel;
+          point.inWater = isInWater;
+
+          // Aplicar damping diferente se estiver na água
+          const currentDamping = isInWater ? this.waterDamping : this.damping;
+          const currentGravity = isInWater ? this.gravity * 0.3 : this.gravity; // Menos gravidade na água
+
+          const velX = (point.x - point.oldX) * currentDamping;
+          const velY = (point.y - point.oldY) * currentDamping;
 
           point.oldX = point.x;
           point.oldY = point.y;
 
           point.x += velX;
-          point.y += velY + this.gravity;
+          point.y += velY + currentGravity;
+
+          // Adicionar pequena oscilação na água
+          if (isInWater) {
+            const time = Date.now() * 0.001;
+            const waterWave = Math.sin(time * 2 + point.x * 0.01) * 0.5;
+            point.y += waterWave;
+          }
         }
       }
     }
