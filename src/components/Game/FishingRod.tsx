@@ -215,6 +215,7 @@ class FishingSystem {
     this.linePoints.forEach((point) => {
       point.reelProgress = 0;
       point.castPhase = "reeling";
+      point.settled = false; // Resetar estado assentado para permitir movimento
     });
   }
 
