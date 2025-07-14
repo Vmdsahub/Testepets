@@ -684,7 +684,9 @@ export const FishingScreen: React.FC = () => {
   // Load fishing settings
   useEffect(() => {
     const loadSettings = async () => {
+      console.log("Loading fishing settings...");
       const settings = await fishingSettingsService.getFishingSettings();
+      console.log("Loaded settings:", settings);
       setFishingSettings(settings);
     };
 
