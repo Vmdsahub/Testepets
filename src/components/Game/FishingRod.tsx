@@ -65,9 +65,11 @@ class FishingSystem {
   constructor(
     canvas: HTMLCanvasElement,
     onHookCast?: (x: number, y: number) => void,
+    onLineReeled?: () => void,
   ) {
     this.canvas = canvas;
     this.onHookCast = onHookCast;
+    this.onLineReeled = onLineReeled;
     const context = canvas.getContext("2d");
     if (!context) {
       throw new Error("Não foi possível obter o contexto 2D do canvas");
