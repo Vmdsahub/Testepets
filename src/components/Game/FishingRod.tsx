@@ -46,8 +46,10 @@ class FishingSystem {
   // Configurações da física da linha
   private readonly gravity = 0.3;
   private readonly damping = 0.98;
+  private readonly waterDamping = 0.85; // Damping maior quando na água
   private readonly segmentLength = 15;
   private readonly numSegments = 20;
+  private readonly waterLevel = 0.6; // 60% da altura da tela é considerado água
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
