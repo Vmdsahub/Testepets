@@ -124,7 +124,7 @@ class FishingSettingsService {
     // Return an object with unsubscribe method
     return {
       unsubscribe: () => {
-        supabase.removeChannel(channel);
+        channel.unsubscribe();
       },
     };
   }
