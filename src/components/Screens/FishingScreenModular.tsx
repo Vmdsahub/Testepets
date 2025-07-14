@@ -195,8 +195,10 @@ class ModularWaterEffect {
 
       // Verificar se ponto está dentro da área da água
       bool isInWaterArea(vec2 uv) {
-        vec2 center = u_waterArea.xy + u_waterArea.zw * 0.5;
-        vec2 size = u_waterArea.zw;
+                float x = u_waterArea.x;
+        float y = u_waterArea.y;
+        float w = u_waterArea.z;
+        float h = u_waterArea.w;
         
         if (u_waterShape < 0.5) { // rectangle/square
           return uv.x >= u_waterArea.x && uv.x <= u_waterArea.x + u_waterArea.z &&
