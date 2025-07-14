@@ -196,6 +196,11 @@ class FishingSystem {
         castDelay: i * 30,
         inWater: false,
         reelProgress: 0,
+        settled: false,
+        settledX: 0,
+        settledY: 0,
+        velocityX: 0,
+        velocityY: 0,
       });
     }
   }
@@ -223,7 +228,7 @@ class FishingSystem {
       const point = this.linePoints[i];
       if (point.pinned) continue;
 
-      // Calcular progresso de recolhimento com delay baseado na distância da vara
+      // Calcular progresso de recolhimento com delay baseado na dist��ncia da vara
       const delayFactor =
         (this.linePoints.length - 1 - i) / this.linePoints.length;
       const adjustedProgress = Math.max(0, reelProgress - delayFactor * 0.3);
