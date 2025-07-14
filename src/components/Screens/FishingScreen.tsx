@@ -67,7 +67,8 @@ class WaterEffect {
     const fragmentShaderSource = `
             precision mediump float;
             
-            uniform float u_time;
+                        uniform float u_time;
+            uniform float u_fishTime;
             uniform float u_waveIntensity;
             uniform float u_distortionAmount;
             uniform vec2 u_resolution;
