@@ -781,16 +781,28 @@ export const FishingScreen: React.FC = () => {
   const handleBackgroundUpload = async (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
-    if (!isAdmin || !event.target.files?.[0]) return;
+    console.log("DEBUG - handleBackgroundUpload called:", {
+      isAdmin,
+      hasFiles: !!event.target.files?.[0],
+      fileName: event.target.files?.[0]?.name,
+    });
+
+    if (!isAdmin || !event.target.files?.[0]) {
+      console.log("DEBUG - Upload blocked: not admin or no file");
+      return;
+    }
 
     const file = event.target.files[0];
     setIsUpdatingSettings(true);
 
+    console.log("DEBUG - Uploading file:", file.name);
     const result = await fishingSettingsService.uploadBackgroundImage(file);
+    console.log("DEBUG - Upload result:", result);
 
     if (result.success) {
       // Refetch settings after successful upload
       const updatedSettings = await fishingSettingsService.getFishingSettings();
+      console.log("DEBUG - Refetched settings after upload:", updatedSettings);
       setFishingSettings(updatedSettings);
     } else {
       console.error("Failed to upload background:", result.message);
