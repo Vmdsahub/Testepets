@@ -1072,7 +1072,18 @@ export const FishingScreen: React.FC = () => {
       ></canvas>
 
       {/* Fishing Rod Component */}
-      <FishingRod />
+      <FishingRod
+        onHookCast={(x, y) => {
+          // Converter coordenadas de pixel para UV (0-1)
+          const uvX = x / window.innerWidth;
+          const uvY = y / window.innerHeight;
+          console.log("Hook cast at UV coordinates:", uvX, uvY);
+
+          if (waterEffectRef.current) {
+            waterEffectRef.current.startFishingGame(uvX, uvY);
+          }
+        }}
+      />
 
       {/* Back Button */}
       <button
