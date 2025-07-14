@@ -939,6 +939,94 @@ export const FishingScreenModular: React.FC = () => {
     }
   }, [waterArea]);
 
+  // Handle settings updates (admin only)
+  const handleSettingUpdate = async (
+    setting: keyof FishingSettings,
+    value: number,
+  ) => {
+    if (!isAdmin) return;
+
+    // Update local state immediately for responsiveness
+    if (fishingSettings) {
+      const updatedSettings = {
+        ...fishingSettings,
+        [setting]: value,
+      };
+
+      setFishingSettings(updatedSettings);
+
+      // Also update WaterEffect immediately if available
+      if (waterEffectRef.current) {
+        const waterEffect = waterEffectRef.current;
+        if (setting === "waveIntensity") waterEffect.waveIntensity = value;
+        if (setting === "distortionAmount")
+          waterEffect.distortionAmount = value;
+        if (setting === "animationSpeed") waterEffect.animationSpeed = value;
+      }
+    }
+
+    setIsUpdatingSettings(true);
+
+    const updates: any = {};
+    updates[setting] = value;
+
+    const result = await fishingSettingsService.updateFishingSettings(updates);
+
+    if (!result.success) {
+      console.error("Failed to update setting:", result.message);
+      // Revert local state if database update failed
+      if (fishingSettings) {
+        setFishingSettings(fishingSettings);
+      }
+    }
+
+    setIsUpdatingSettings(false);
+  };
+
+  // Handle background image upload (admin only)
+  const handleBackgroundUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    if (!isAdmin || !event.target.files?.[0]) {
+      return;
+    }
+
+    const file = event.target.files[0];
+    setIsUpdatingSettings(true);
+
+    const result = await fishingSettingsService.uploadBackgroundImage(file);
+
+    if (result.success && result.imageUrl) {
+      // Update local state immediately
+      if (fishingSettings) {
+        const updatedSettings = {
+          ...fishingSettings,
+          backgroundImageUrl: result.imageUrl,
+        };
+        setFishingSettings(updatedSettings);
+
+        // Apply background to WaterEffect immediately
+        if (waterEffectRef.current && result.imageUrl) {
+          const img = new Image();
+          img.crossOrigin = "anonymous";
+          img.onload = () => {
+            if (waterEffectRef.current?.updateBackgroundFromImage) {
+              waterEffectRef.current.updateBackgroundFromImage(img);
+            }
+          };
+          img.src = result.imageUrl;
+        }
+      }
+    } else {
+      console.error("Failed to upload background:", result.message);
+    }
+
+    setIsUpdatingSettings(false);
+
+    // Reset file input
+    event.target.value = "";
+  };
+
   // Renderizar overlay admin
   useEffect(() => {
     if (!isAdmin || !overlayCanvasRef.current) return;
