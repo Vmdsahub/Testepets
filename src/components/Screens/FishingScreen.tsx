@@ -767,6 +767,9 @@ class WaterEffect {
       // Ajustar fishTimeOffset para que o movimento natural comece da posição atual
       this.adjustFishTimeToPosition(currentX, currentY);
       this.transitionBackToNaturalTime = Date.now(); // Iniciar timer de suavização
+
+      // Salvar a posição atual para garantir continuidade
+      this.originalFishMovement = { moveX: currentX, moveY: currentY };
     }
 
     this.gameState = "idle";
@@ -778,13 +781,13 @@ class WaterEffect {
 
   adjustFishTimeToPosition(targetX, targetY) {
     // Calcular qual fishTime resultaria na posição desejada
-    // Usar busca iterativa refinada em duas fases
+    // Usar busca iterativa refinada em três fases para maior precisão
 
     let bestOffset = 0;
     let bestDistance = Infinity;
 
-    // Primeira fase: busca grosseira
-    for (let offset = 0; offset < Math.PI * 4; offset += 0.15) {
+    // Primeira fase: busca grosseira ampla
+    for (let offset = 0; offset < Math.PI * 8; offset += 0.1) {
       const distance = this.calculateDistanceForOffset(
         targetX,
         targetY,
@@ -796,13 +799,32 @@ class WaterEffect {
       }
     }
 
-    // Segunda fase: busca fina ao redor do melhor resultado
-    const searchRange = 0.3;
-    const searchStep = 0.01;
+    // Segunda fase: busca média ao redor do melhor resultado
+    const searchRange1 = 0.2;
+    const searchStep1 = 0.01;
     for (
-      let offset = bestOffset - searchRange;
-      offset <= bestOffset + searchRange;
-      offset += searchStep
+      let offset = bestOffset - searchRange1;
+      offset <= bestOffset + searchRange1;
+      offset += searchStep1
+    ) {
+      const distance = this.calculateDistanceForOffset(
+        targetX,
+        targetY,
+        offset,
+      );
+      if (distance < bestDistance) {
+        bestDistance = distance;
+        bestOffset = offset;
+      }
+    }
+
+    // Terceira fase: busca ultrafina para máxima precisão
+    const searchRange2 = 0.02;
+    const searchStep2 = 0.001;
+    for (
+      let offset = bestOffset - searchRange2;
+      offset <= bestOffset + searchRange2;
+      offset += searchStep2
     ) {
       const distance = this.calculateDistanceForOffset(
         targetX,
@@ -817,7 +839,7 @@ class WaterEffect {
 
     this.fishTimeOffset = bestOffset;
     console.log(
-      `Set fishTimeOffset to ${bestOffset.toFixed(3)} (distance: ${bestDistance.toFixed(4)})`,
+      `Set fishTimeOffset to ${bestOffset.toFixed(4)} (distance: ${bestDistance.toFixed(6)})`,
     );
   }
 
