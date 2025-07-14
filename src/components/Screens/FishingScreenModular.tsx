@@ -254,7 +254,7 @@ class ModularWaterEffect {
           fishUV = localUV;
         }
 
-                if (fishUV.x >= 0.0 && fishUV.x <= 1.0 && fishUV.y >= 0.0 && fishUV.y <= 1.0) {
+                                if (fishUV.x >= 0.0 && fishUV.x <= 1.0 && fishUV.y >= 0.0 && fishUV.y <= 1.0 && isInWaterArea(coords)) {
           vec4 fishColor = texture2D(u_fishTexture, fishUV);
           if (fishColor.a > 0.1) {
             bgColor = mix(bgColor, vec4(fishColor.rgb, 1.0), fishColor.a);
