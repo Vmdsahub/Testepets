@@ -759,16 +759,25 @@ class WaterEffect {
     this.fishAcceleration.y = 0;
   }
 
-  // Comportamento Wander - vagar aleatoriamente
+  // Comportamento Wander - vagar aleatoriamente com movimento curvilíneo
   wander(deltaTime) {
+    // Normalizar velocidade para direção
+    const speed = Math.sqrt(
+      this.fishVelocity.x * this.fishVelocity.x +
+        this.fishVelocity.y * this.fishVelocity.y,
+    );
+    let directionX = speed > 0.0001 ? this.fishVelocity.x / speed : 1;
+    let directionY = speed > 0.0001 ? this.fishVelocity.y / speed : 0;
+
     // Criar círculo de wandering à frente do peixe
     const circleCenter = {
-      x: this.fishPosition.x + this.fishVelocity.x * this.wanderDistance,
-      y: this.fishPosition.y + this.fishVelocity.y * this.wanderDistance,
+      x: this.fishPosition.x + directionX * this.wanderDistance,
+      y: this.fishPosition.y + directionY * this.wanderDistance,
     };
 
-    // Atualizar ângulo de wandering com variação aleatória
-    this.wanderAngle += (Math.random() - 0.5) * this.wanderJitter * deltaTime;
+    // Atualizar ângulo de wandering com variação mais suave
+    this.wanderAngle +=
+      (Math.random() - 0.5) * this.wanderJitter * deltaTime * 0.001; // Muito mais suave
 
     // Calcular ponto alvo no círculo de wandering
     this.wanderTarget.x =
@@ -776,11 +785,20 @@ class WaterEffect {
     this.wanderTarget.y =
       circleCenter.y + Math.sin(this.wanderAngle) * this.wanderRadius;
 
-    // Aplicar força de steering em direção ao alvo
-    this.seek(this.wanderTarget, deltaTime);
+    // Aplicar força de steering em direção ao alvo com intensidade reduzida
+    const seekForce = 0.3; // Reduzir intensidade do seek
+    this.seekWithForce(this.wanderTarget, deltaTime, seekForce);
 
     // Adicionar força de separação das bordas
     this.separate(deltaTime);
+
+    // Adicionar pequena força de flutuação para movimento orgânico
+    const floatForce = {
+      x: Math.sin(this.fishTime * 0.001) * 0.00001,
+      y: Math.cos(this.fishTime * 0.0008) * 0.00001,
+    };
+    this.fishAcceleration.x += floatForce.x;
+    this.fishAcceleration.y += floatForce.y;
   }
 
   // Comportamento Seek - ir em direção ao alvo
