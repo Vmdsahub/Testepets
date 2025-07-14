@@ -75,7 +75,32 @@ class FishingSettingsService {
     updates: FishingSettingsUpdate,
   ): Promise<{ success: boolean; message?: string }> {
     try {
-      console.log("DEBUG - updateFishingSettings called with:", updates);
+      // Use local storage in mock mode for persistence
+      if (isMockMode) {
+        const current =
+          fishingSettingsStorage.get() || fishingSettingsStorage.getDefault();
+
+        // Update only the fields that are provided
+        const updated = {
+          ...current,
+          ...(updates.waveIntensity !== undefined && {
+            waveIntensity: updates.waveIntensity,
+          }),
+          ...(updates.distortionAmount !== undefined && {
+            distortionAmount: updates.distortionAmount,
+          }),
+          ...(updates.animationSpeed !== undefined && {
+            animationSpeed: updates.animationSpeed,
+          }),
+          ...(updates.backgroundImageUrl !== undefined && {
+            backgroundImageUrl: updates.backgroundImageUrl,
+          }),
+          updatedAt: new Date().toISOString(),
+        };
+
+        fishingSettingsStorage.set(updated);
+        return { success: true };
+      }
 
       // Convert camelCase to snake_case for database
       const dbUpdates: any = {};
@@ -93,17 +118,12 @@ class FishingSettingsService {
         dbUpdates.background_image_url = updates.backgroundImageUrl;
       }
 
-      console.log("DEBUG - dbUpdates:", dbUpdates);
-
       const currentSettings = await this.getFishingSettings();
-      console.log("DEBUG - currentSettings:", currentSettings);
 
       const { error } = await supabase
         .from("fishing_settings")
         .update(dbUpdates)
         .eq("id", currentSettings?.id);
-
-      console.log("DEBUG - Update error:", error);
 
       if (error) {
         console.error("Error updating fishing settings:", error);
@@ -113,7 +133,6 @@ class FishingSettingsService {
         };
       }
 
-      console.log("DEBUG - Update successful");
       return { success: true };
     } catch (error) {
       console.error("Error in updateFishingSettings:", error);
