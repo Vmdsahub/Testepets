@@ -801,11 +801,27 @@ export const FishingScreen: React.FC = () => {
     const result = await fishingSettingsService.uploadBackgroundImage(file);
     console.log("DEBUG - Upload result:", result);
 
-    if (result.success) {
-      // Refetch settings after successful upload
-      const updatedSettings = await fishingSettingsService.getFishingSettings();
-      console.log("DEBUG - Refetched settings after upload:", updatedSettings);
-      setFishingSettings(updatedSettings);
+    if (result.success && result.imageUrl) {
+      // Update local state immediately
+      if (fishingSettings) {
+        const updatedSettings = {
+          ...fishingSettings,
+          backgroundImageUrl: result.imageUrl,
+        };
+        setFishingSettings(updatedSettings);
+
+        // Apply background to WaterEffect immediately
+        if (waterEffectRef.current && result.imageUrl) {
+          const img = new Image();
+          img.crossOrigin = "anonymous";
+          img.onload = () => {
+            if (waterEffectRef.current?.updateBackgroundFromImage) {
+              waterEffectRef.current.updateBackgroundFromImage(img);
+            }
+          };
+          img.src = result.imageUrl;
+        }
+      }
     } else {
       console.error("Failed to upload background:", result.message);
     }
