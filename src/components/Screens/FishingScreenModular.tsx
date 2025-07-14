@@ -958,6 +958,18 @@ export const FishingScreenModular: React.FC = () => {
           waterEffect.waveIntensity = fishingSettings.waveIntensity;
           waterEffect.distortionAmount = fishingSettings.distortionAmount;
           waterEffect.animationSpeed = fishingSettings.animationSpeed;
+
+          // Apply background if custom image is set
+          if (fishingSettings.backgroundImageUrl) {
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+            img.onload = () => {
+              if (waterEffect.updateBackgroundFromImage) {
+                waterEffect.updateBackgroundFromImage(img);
+              }
+            };
+            img.src = fishingSettings.backgroundImageUrl;
+          }
         }
 
         waterEffectRef.current = waterEffect;
