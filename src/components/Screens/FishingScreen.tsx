@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Award, Trophy } from "lucide-react";
 import { useGameStore } from "../../store/gameStore";
+import WaterShaders from "../Game/WaterShaders";
 
 interface Fish {
   id: string;
@@ -257,29 +258,14 @@ export const FishingScreen: React.FC = () => {
         />
       </div>
 
-      {/* Water Area with animated waves */}
+      {/* WebGL Water Shaders */}
       <div className="absolute top-1/3 left-0 w-full h-2/3 overflow-hidden">
-        {/* Animated water background */}
-        <motion.div
-          className="absolute inset-0 opacity-30"
-          style={{
-            background: `
-              radial-gradient(ellipse at 20% 50%, rgba(59, 130, 246, 0.3) 0%, transparent 50%),
-              radial-gradient(ellipse at 80% 30%, rgba(34, 197, 94, 0.2) 0%, transparent 50%),
-              radial-gradient(ellipse at 40% 80%, rgba(168, 85, 247, 0.2) 0%, transparent 50%)
-            `,
-          }}
-          animate={{
-            background: [
-              `radial-gradient(ellipse at 20% 50%, rgba(59, 130, 246, 0.3) 0%, transparent 50%),
-               radial-gradient(ellipse at 80% 30%, rgba(34, 197, 94, 0.2) 0%, transparent 50%),
-               radial-gradient(ellipse at 40% 80%, rgba(168, 85, 247, 0.2) 0%, transparent 50%)`,
-              `radial-gradient(ellipse at 30% 40%, rgba(59, 130, 246, 0.4) 0%, transparent 50%),
-               radial-gradient(ellipse at 70% 60%, rgba(34, 197, 94, 0.3) 0%, transparent 50%),
-               radial-gradient(ellipse at 50% 70%, rgba(168, 85, 247, 0.3) 0%, transparent 50%)`,
-            ],
-          }}
-          transition={{ duration: 8, repeat: Infinity, repeatType: "reverse" }}
+        <WaterShaders
+          width={typeof window !== "undefined" ? window.innerWidth : 1920}
+          height={
+            typeof window !== "undefined" ? (window.innerHeight * 2) / 3 : 640
+          }
+          className="absolute inset-0 w-full h-full"
         />
 
         {/* Single Mystical Fish */}
