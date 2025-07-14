@@ -198,7 +198,7 @@ class WaterEffect {
                     fishUV = localUV;
                 }
 
-                // Verifica se está na área do peixe e na área da água
+                // Verifica se est�� na área do peixe e na área da água
                 if (fishUV.x >= 0.0 && fishUV.x <= 1.0 && fishUV.y >= 0.0 && fishUV.y <= 1.0 && coords.y > 0.4) {
                     vec4 fishColor = texture2D(u_fishTexture, fishUV);
                     if (fishColor.a > 0.1) {
@@ -704,31 +704,40 @@ export const FishingScreen: React.FC = () => {
     };
   }, []);
 
-  // Initialize water effect with settings
+  // Initialize water effect
   useEffect(() => {
-    if (!fishingSettings) return;
-
     const timer = setTimeout(() => {
-      const waterEffect = new WaterEffect();
+      console.log("Initializing WaterEffect...");
+      try {
+        const waterEffect = new WaterEffect();
 
-      // Apply settings from database
-      waterEffect.waveIntensity = fishingSettings.waveIntensity;
-      waterEffect.distortionAmount = fishingSettings.distortionAmount;
-      waterEffect.animationSpeed = fishingSettings.animationSpeed;
+        // Apply settings from database if available
+        if (fishingSettings) {
+          console.log("Applying settings:", fishingSettings);
+          waterEffect.waveIntensity = fishingSettings.waveIntensity;
+          waterEffect.distortionAmount = fishingSettings.distortionAmount;
+          waterEffect.animationSpeed = fishingSettings.animationSpeed;
 
-      // Update background if custom image is set
-      if (fishingSettings.backgroundImageUrl) {
-        const img = new Image();
-        img.crossOrigin = "anonymous";
-        img.onload = () => {
-          if (waterEffect.updateBackgroundFromImage) {
-            waterEffect.updateBackgroundFromImage(img);
+          // Update background if custom image is set
+          if (fishingSettings.backgroundImageUrl) {
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+            img.onload = () => {
+              if (waterEffect.updateBackgroundFromImage) {
+                waterEffect.updateBackgroundFromImage(img);
+              }
+            };
+            img.src = fishingSettings.backgroundImageUrl;
           }
-        };
-        img.src = fishingSettings.backgroundImageUrl;
-      }
+        } else {
+          console.log("Using default WaterEffect settings");
+        }
 
-      waterEffectRef.current = waterEffect;
+        waterEffectRef.current = waterEffect;
+        console.log("WaterEffect initialized successfully");
+      } catch (error) {
+        console.error("Error initializing WaterEffect:", error);
+      }
     }, 100);
 
     return () => {
