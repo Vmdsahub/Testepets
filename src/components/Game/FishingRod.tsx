@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from "react";
 
 interface FishingRodProps {
   className?: string;
+  onHookCast?: (x: number, y: number) => void;
 }
 
 // Classe do sistema de pesca baseada no simulador fornecido
