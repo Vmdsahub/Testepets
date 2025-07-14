@@ -315,8 +315,8 @@ class ModularWaterEffect {
         float futureMoveX = (futureNoiseX1 + futureNoiseX2 + futureNoiseX3) / 3.0;
         float futureMoveY = (futureNoiseY1 + futureNoiseY2 + futureNoiseY3) / 3.0;
 
-        float futureX = innerX + (innerW * 0.5) + (futureMoveX * innerW * 0.4);
-        float futureY = innerY + (innerH * 0.5) + (futureMoveY * innerH * 0.4);
+                float futureX = innerX + (innerW * 0.5) + (futureMoveX * innerW * 0.5); // 100% amplitude horizontal
+        float futureY = innerY + (innerH * 0.5) + (futureMoveY * innerH * 0.5); // 100% amplitude vertical
 
         // Velocidade instantânea
         float velocityX = futureX - naturalFishX;
