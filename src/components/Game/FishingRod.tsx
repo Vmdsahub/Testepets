@@ -534,7 +534,7 @@ class FishingSystem {
 
       // Desenhar a imagem da vara
       const rodImageLength = 120;
-      const rodImageWidth = 12;
+      const rodImageWidth = 25; // Aumentar largura para ser mais visível
       this.ctx.drawImage(
         this.fishingRodImage,
         0,
