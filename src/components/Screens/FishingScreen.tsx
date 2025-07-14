@@ -702,13 +702,11 @@ export const FishingScreen: React.FC = () => {
   // Initialize water effect
   useEffect(() => {
     const timer = setTimeout(() => {
-      console.log("Initializing WaterEffect...");
       try {
         const waterEffect = new WaterEffect();
 
         // Apply settings from database if available
         if (fishingSettings) {
-          console.log("Applying settings:", fishingSettings);
           waterEffect.waveIntensity = fishingSettings.waveIntensity;
           waterEffect.distortionAmount = fishingSettings.distortionAmount;
           waterEffect.animationSpeed = fishingSettings.animationSpeed;
@@ -724,12 +722,9 @@ export const FishingScreen: React.FC = () => {
             };
             img.src = fishingSettings.backgroundImageUrl;
           }
-        } else {
-          console.log("Using default WaterEffect settings");
         }
 
         waterEffectRef.current = waterEffect;
-        console.log("WaterEffect initialized successfully");
       } catch (error) {
         console.error("Error initializing WaterEffect:", error);
       }
