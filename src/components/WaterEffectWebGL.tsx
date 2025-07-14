@@ -164,26 +164,26 @@ const WaterEffectWebGL: React.FC = () => {
         float particleDist = length(distortedUV - particlePos);
         particles += 1.0 / (1.0 + particleDist * 50.0);
       }
-      waterColor += particles * vec3(0.2, 0.3, 0.5) * 0.1;
+            waterColor += particles * vec3(0.1, 0.15, 0.25) * 0.05;
       
-      // Add subtle color variations
+            // Add very subtle color variations
       vec3 colorVariation = vec3(
-        sin(distortedUV.x * 3.0 + time * 0.5) * 0.1,
-        sin(distortedUV.y * 2.5 - time * 0.4) * 0.08,
-        sin((distortedUV.x + distortedUV.y) * 2.0 + time * 0.6) * 0.12
+        sin(distortedUV.x * 1.5 + time * 0.25) * 0.03,
+        sin(distortedUV.y * 1.2 - time * 0.2) * 0.025,
+        sin((distortedUV.x + distortedUV.y) * 1.0 + time * 0.3) * 0.035
       );
-      waterColor += colorVariation * 0.3;
+      waterColor += colorVariation * 0.1;
       
       // Apply vignette
       float vignetteValue = vignette(uv);
       waterColor *= vignetteValue;
       
-      // Add some brightness variation based on distortion
-      float brightness = 1.0 + (distortion.x + distortion.y) * 5.0;
+            // Add very gentle brightness variation based on distortion
+      float brightness = 1.0 + (distortion.x + distortion.y) * 1.5;
       waterColor *= brightness;
       
-      // Final color with slight blue tint enhancement
-      waterColor = mix(waterColor, vec3(0.0, 0.4, 0.7), 0.1);
+            // Final color with very slight blue tint enhancement
+      waterColor = mix(waterColor, vec3(0.0, 0.4, 0.7), 0.05);
       
       gl_FragColor = vec4(waterColor, 1.0);
     }
