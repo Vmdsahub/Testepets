@@ -989,6 +989,30 @@ export const FishingScreenModular: React.FC = () => {
     }
   }, [waterArea]);
 
+  // Detectar Shift key para modo de arraste
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Shift") {
+        setIsShiftPressed(true);
+      }
+    };
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.key === "Shift") {
+        setIsShiftPressed(false);
+        setIsDragging(false); // Para o arraste se Shift for solto
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
+  }, []);
+
   // Handle settings updates (admin only)
   const handleSettingUpdate = async (
     setting: keyof FishingSettings,
@@ -1489,7 +1513,7 @@ export const FishingScreenModular: React.FC = () => {
 
           <div style={{ marginBottom: "10px" }}>
             <label style={{ display: "block", marginBottom: "5px" }}>
-              Forma da Água:
+              Forma da ��gua:
             </label>
             <select
               value={waterArea.shape}
