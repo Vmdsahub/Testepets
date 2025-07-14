@@ -1332,22 +1332,28 @@ export const FishingScreenModular: React.FC = () => {
           </div>
 
           {/* Botão para alternar modo de edição */}
-          <div style={{ marginBottom: "15px" }}>
-            <button
-              onClick={() => setEditMode(!editMode)}
+          {/* Instruções de uso */}
+          <div
+            style={{
+              marginBottom: "15px",
+              fontSize: "12px",
+              color: "#666",
+              background: "#f0f8ff",
+              padding: "10px",
+              borderRadius: "5px",
+            }}
+          >
+            💡 <strong>Reposicionar área:</strong> Segure{" "}
+            <kbd
               style={{
-                width: "100%",
-                padding: "10px",
-                background: editMode ? "#ff6b6b" : "#4A90E2",
-                color: "white",
-                border: "none",
-                borderRadius: "5px",
-                cursor: "pointer",
-                fontWeight: "bold",
+                background: "#e0e0e0",
+                padding: "2px 4px",
+                borderRadius: "3px",
               }}
             >
-              {editMode ? "🔒 Sair do Modo Edição" : "✏️ Modo Edição da Água"}
-            </button>
+              Shift
+            </kbd>{" "}
+            + arraste a área tracejada
           </div>
 
           {/* Controles de efeitos de água */}
