@@ -299,21 +299,14 @@ class WaterEffect {
 
                 // O movimento real é calculado no sistema de steering behaviors em JavaScript
 
-                if (u_gameState >= 2.0) { // fish_reacting, fish_moving, fish_hooked
+                                if (u_gameState >= 2.0) { // fish_reacting, fish_moving, fish_hooked
                     // Usar posição alvo quando o peixe está reagindo/se movendo
                     fishX = u_fishTargetPosition.x;
                     fishY = u_fishTargetPosition.y;
-                } else if (u_transitionSmoothing > 0.0) {
-                    // Em transição: interpolar da posição de início para o movimento natural
-                    float progress = 1.0 - u_transitionSmoothing;
-                    float easeProgress = 1.0 - pow(1.0 - progress, 3.0); // Função cubic ease-out
-
-                    fishX = mix(u_transitionStartPosition.x, naturalFishX, easeProgress);
-                    fishY = mix(u_transitionStartPosition.y, naturalFishY, easeProgress);
                 } else {
-                    // Movimento natural normal
-                    fishX = naturalFishX;
-                    fishY = naturalFishY;
+                    // Usar posição do sistema de steering behaviors
+                    fishX = u_fishPosition.x;
+                    fishY = u_fishPosition.y;
                 }
 
                 // Cria máscara de água (60% da tela de baixo para cima)
