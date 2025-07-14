@@ -48,11 +48,11 @@ class WaterEffect {
     this.fishAcceleration = { x: 0, y: 0 }; // Aceleração
     this.wanderTarget = { x: 0.6, y: 0.8 }; // Alvo de wandering
     this.wanderAngle = 0; // Ângulo para wandering
-    this.maxSpeed = 0.0008; // Velocidade máxima
-    this.maxForce = 0.0001; // Força máxima de steering
-    this.wanderRadius = 0.15; // Raio do círculo de wandering
-    this.wanderDistance = 0.1; // Distância do círculo de wandering
-    this.wanderJitter = 0.8; // Variação no wandering
+    this.maxSpeed = 0.0002; // Velocidade máxima (reduzida de 0.0008 para 0.0002)
+    this.maxForce = 0.00003; // Força máxima de steering (reduzida para movimento mais suave)
+    this.wanderRadius = 0.08; // Raio do círculo de wandering (menor para curvas mais suaves)
+    this.wanderDistance = 0.05; // Distância do círculo de wandering (menor)
+    this.wanderJitter = 0.3; // Variação no wandering (reduzida para movimento mais suave)
 
     // Estados do jogo de pesca
     this.gameState = "idle"; // 'idle', 'hook_cast', 'fish_reacting', 'fish_moving', 'fish_hooked'
@@ -774,7 +774,7 @@ class WaterEffect {
     // Aplicar força de steering em direção ao alvo
     this.seek(this.wanderTarget, deltaTime);
 
-    // Adicionar for��a de separação das bordas
+    // Adicionar força de separação das bordas
     this.separate(deltaTime);
   }
 
