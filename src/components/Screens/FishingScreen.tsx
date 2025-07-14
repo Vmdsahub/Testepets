@@ -119,6 +119,21 @@ export const FishingScreen: React.FC = () => {
     return () => clearInterval(timer);
   }, []);
 
+  // Handle window resize for responsive WebGL water
+  useEffect(() => {
+    const handleResize = () => {
+      setWaterDimensions({
+        width: window.innerWidth,
+        height: (window.innerHeight * 2) / 3,
+      });
+    };
+
+    window.addEventListener("resize", handleResize);
+    handleResize(); // Set initial size
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   // Calculate line length and angle
   useEffect(() => {
     const deltaX = targetPosition.x - 50;
