@@ -811,7 +811,7 @@ class ModularWaterEffect {
       this.gameState === "fish_reacting" ||
       this.gameState === "fish_moving"
     ) {
-      const speed = 0.0003;
+      const speed = 0.00008; // Reduzido drasticamente de 0.0003 para 0.00008
       const dx = this.hookPosition.x - this.fishTargetPosition.x;
       const dy = this.hookPosition.y - this.fishTargetPosition.y;
       const distance = Math.sqrt(dx * dx + dy * dy);
