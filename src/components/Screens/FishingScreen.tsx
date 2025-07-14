@@ -172,7 +172,7 @@ class WaterEffect {
                 float maskEdge = waterLine + waveOffset;
                 
                 // Cria máscara suave
-                float waterMask = smoothstep(maskEdge - transitionWidth, maskEdge, verticalPos);
+                                float waterMask = smoothstep(maskEdge + transitionWidth, maskEdge, verticalPos);
                 
                 // Imagem original sem efeitos
                 vec4 originalColor = texture2D(u_backgroundTexture, uv);
