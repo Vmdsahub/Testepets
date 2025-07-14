@@ -282,10 +282,8 @@ export const FishingScreen: React.FC = () => {
       {/* WebGL Water Shaders */}
       <div className="absolute top-1/3 left-0 w-full h-2/3 overflow-hidden">
         <WaterShaders
-          width={typeof window !== "undefined" ? window.innerWidth : 1920}
-          height={
-            typeof window !== "undefined" ? (window.innerHeight * 2) / 3 : 640
-          }
+          width={waterDimensions.width}
+          height={waterDimensions.height}
           className="absolute inset-0 w-full h-full"
         />
 
