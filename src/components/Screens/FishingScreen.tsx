@@ -259,6 +259,10 @@ class WaterEffect {
       this.program,
       "u_noiseTexture",
     );
+    this.uniforms.fishTexture = this.gl.getUniformLocation(
+      this.program,
+      "u_fishTexture",
+    );
   }
 
   createShader(type, source) {
