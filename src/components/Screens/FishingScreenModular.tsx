@@ -368,25 +368,27 @@ class ModularWaterEffect {
                         // LÓGICA CORRETA: Peixe aponta na direção do movimento
         float fishAngle = 0.0;
 
-        if (currentDirection > 0.008) {
+                // Aumentar limiar para reduzir oscilações (de 0.008 para 0.025)
+        if (currentDirection > 0.025) {
             fishAngle = 0.0; // Direita - orientação normal (peixe olha para direita)
-        } else if (currentDirection < -0.008) {
+        } else if (currentDirection < -0.025) {
             fishAngle = 3.14159; // Esquerda - flip horizontal (peixe olha para esquerda)
         }
+        // Se está entre -0.025 e 0.025, mantém orientação anterior (sem mudança)
 
         // === REFINAMENTOS COMPORTAMENTAIS ===
 
-        // Durante descanso: orientação mais estável
+                // Durante descanso: orientação mais estável (reduzido wiggle)
         if (fishBehavior > 1.5) {
-            float restWiggle = sin(time * 0.1) * 0.1;
+            float restWiggle = sin(time * 0.05) * 0.05; // Mais suave
             fishAngle += restWiggle;
         }
 
-        // Movimento de cauda baseado na atividade
-        float tailIntensity = 1.0;
-        if (fishBehavior > 1.5) tailIntensity = 0.3; // Cauda quieta durante descanso
+        // Movimento de cauda baseado na atividade (reduzido)
+        float tailIntensity = 0.7; // Reduzido de 1.0 para 0.7
+        if (fishBehavior > 1.5) tailIntensity = 0.15; // Cauda muito mais quieta durante descanso
 
-        float tailWag = sin(time * 2.5) * 0.08 * tailIntensity;
+        float tailWag = sin(time * 1.8) * 0.04 * tailIntensity; // Frequência e amplitude reduzidas
         fishAngle += tailWag;
 
         float fishX, fishY;
