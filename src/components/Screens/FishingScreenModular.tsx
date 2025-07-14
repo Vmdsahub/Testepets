@@ -269,8 +269,8 @@ class ModularWaterEffect {
         float areaW = u_waterArea.z;
         float areaH = u_waterArea.w;
 
-        // Intervalo para mudar de alvo (3-6 segundos)
-        float targetChangeInterval = 4.0;
+                // Intervalo MAIS LONGO para mudar de alvo (movimento mais lento)
+        float targetChangeInterval = 8.0; // 8 segundos por alvo
         float currentCycle = floor(time / targetChangeInterval);
 
         // Gerar alvos pseudo-aleatórios determinísticos
@@ -291,33 +291,59 @@ class ModularWaterEffect {
         float startX = areaX + (prevSeedX * areaW);
         float startY = areaY + (prevSeedY * areaH);
 
-        // Progresso no ciclo atual (0-1)
+                // Progresso no ciclo atual (0-1)
         float cycleProgress = fract(time / targetChangeInterval);
 
-        // Interpolação suave (equivalente à transição CSS)
-        float easeProgress = smoothstep(0.0, 1.0, cycleProgress);
+        // Easing MUITO mais suave - movimento ultra fluido
+        // Usar cubic ease-in-out para movimento mais orgânico
+        float t = cycleProgress;
+        float easeProgress;
+        if (t < 0.5) {
+            easeProgress = 4.0 * t * t * t; // Ease-in cúbico
+        } else {
+            float f = ((2.0 * t) - 2.0);
+            easeProgress = 1.0 + f * f * f / 2.0; // Ease-out cúbico
+        }
 
         // Posição atual do peixe
         float naturalFishX = mix(startX, targetX, easeProgress);
         float naturalFishY = mix(startY, targetY, easeProgress);
 
-                // === ROTAÇÃO BASEADA NA DIREÇÃO DO MOVIMENTO ===
-        // Calcular ângulo baseado na direção do alvo (igual ao getAngle do JS)
+                        // === ROTAÇÃO SUAVE E PRECISA ===
+        // Calcular direção do movimento instantâneo para rotação correta
 
-        // Direção do movimento (da posição atual para o alvo)
-        float directionX = targetX - naturalFishX;
-        float directionY = targetY - naturalFishY;
+        // Direção real do movimento (velocidade instantânea)
+        float deltaTime = 0.1;
+        float futureProgress = min(cycleProgress + deltaTime / targetChangeInterval, 1.0);
 
-        // Ângulo baseado na direção (equivalente ao Math.atan2 do JS)
-        float fishAngle = atan(directionY, directionX);
+        // Aplicar mesmo easing na posição futura
+        float futureTr = futureProgress;
+        float futureEase;
+        if (futureTr < 0.5) {
+            futureEase = 4.0 * futureTr * futureTr * futureTr;
+        } else {
+            float ff = ((2.0 * futureTr) - 2.0);
+            futureEase = 1.0 + ff * ff * ff / 2.0;
+        }
 
-        // Ajustar para que 0° seja "para cima" (como no JS: theta += 90)
-        fishAngle += 1.5708; // +90 graus em radianos
+        float futureX = mix(startX, targetX, futureEase);
+        float futureY = mix(startY, targetY, futureEase);
 
-        // Quando está muito perto do alvo, manter ângulo estável
-        float distanceToTarget = length(vec2(directionX, directionY));
-        if (distanceToTarget < 0.01) {
-            fishAngle = 0.0; // Ângulo neutro quando parado
+        // Calcular direção do movimento
+        float velocityX = futureX - naturalFishX;
+        float velocityY = futureY - naturalFishY;
+
+        // Ângulo baseado na velocidade (direção do movimento)
+        float fishAngle = atan(velocityY, velocityX);
+
+        // Normalizar ângulo e ajustar orientação
+        // O peixe deve apontar na direção que está se movendo
+        fishAngle = fishAngle; // Já correto para apontar na direção do movimento
+
+        // Quando velocidade é muito baixa, manter ângulo anterior
+        float speed = length(vec2(velocityX, velocityY));
+        if (speed < 0.001) {
+            fishAngle = 0.0; // Ângulo padrão quando parado
         }
 
         float fishX, fishY;
