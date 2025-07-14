@@ -1258,8 +1258,8 @@ export const FishingScreenModular: React.FC = () => {
 
     setWaterArea((prev) => ({
       ...prev,
-      x: Math.max(0, Math.min(1 - prev.width, relX - dragOffset.x)),
-      y: Math.max(0, Math.min(1 - prev.height, relY - dragOffset.y)),
+      x: relX - dragOffset.x,
+      y: relY - dragOffset.y,
     }));
   };
 
