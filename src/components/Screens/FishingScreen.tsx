@@ -927,12 +927,16 @@ export const FishingScreen: React.FC = () => {
               min="0"
               max="100"
               value={(fishingSettings?.waveIntensity || 0.5) * 100}
-              onChange={(e) =>
+              onChange={(e) => {
+                console.log(
+                  "DEBUG - Wave intensity slider changed:",
+                  e.target.value,
+                );
                 handleSettingUpdate(
                   "waveIntensity",
                   parseInt(e.target.value) / 100,
-                )
-              }
+                );
+              }}
               style={{ width: "150px" }}
               disabled={isUpdatingSettings}
             />
