@@ -1387,6 +1387,8 @@ export const FishingScreenModular: React.FC = () => {
               Shift
             </kbd>{" "}
             + arraste a área tracejada
+            <br />
+            📏 <strong>Redimensionar:</strong> Use os sliders abaixo
           </div>
 
           {/* Controles de efeitos de água */}
