@@ -717,6 +717,140 @@ class WaterEffect {
     );
   }
 
+  // Sistema de Steering Behaviors
+  updateSteeringBehaviors(deltaTime) {
+    if (this.gameState === "idle" || this.gameState === "hook_cast") {
+      // Comportamento de wandering natural
+      this.wander(deltaTime);
+    } else if (this.gameState === "fish_moving") {
+      // Comportamento de seek/arrive em direção ao anzol
+      this.seek(this.hookPosition, deltaTime);
+    }
+
+    // Aplicar física: velocidade += aceleração
+    this.fishVelocity.x += this.fishAcceleration.x * deltaTime;
+    this.fishVelocity.y += this.fishAcceleration.y * deltaTime;
+
+    // Limitar velocidade máxima
+    const speed = Math.sqrt(
+      this.fishVelocity.x * this.fishVelocity.x +
+        this.fishVelocity.y * this.fishVelocity.y,
+    );
+    if (speed > this.maxSpeed) {
+      this.fishVelocity.x = (this.fishVelocity.x / speed) * this.maxSpeed;
+      this.fishVelocity.y = (this.fishVelocity.y / speed) * this.maxSpeed;
+    }
+
+    // Aplicar velocidade: posição += velocidade
+    this.fishPosition.x += this.fishVelocity.x * deltaTime;
+    this.fishPosition.y += this.fishVelocity.y * deltaTime;
+
+    // Manter dentro dos limites da água
+    this.fishPosition.x = Math.max(0.05, Math.min(0.95, this.fishPosition.x));
+    this.fishPosition.y = Math.max(0.45, Math.min(0.95, this.fishPosition.y));
+
+    // Resetar aceleração para próximo frame
+    this.fishAcceleration.x = 0;
+    this.fishAcceleration.y = 0;
+  }
+
+  // Comportamento Wander - vagar aleatoriamente
+  wander(deltaTime) {
+    // Criar círculo de wandering à frente do peixe
+    const circleCenter = {
+      x: this.fishPosition.x + this.fishVelocity.x * this.wanderDistance,
+      y: this.fishPosition.y + this.fishVelocity.y * this.wanderDistance,
+    };
+
+    // Atualizar ângulo de wandering com variação aleatória
+    this.wanderAngle += (Math.random() - 0.5) * this.wanderJitter * deltaTime;
+
+    // Calcular ponto alvo no círculo de wandering
+    this.wanderTarget.x =
+      circleCenter.x + Math.cos(this.wanderAngle) * this.wanderRadius;
+    this.wanderTarget.y =
+      circleCenter.y + Math.sin(this.wanderAngle) * this.wanderRadius;
+
+    // Aplicar força de steering em direção ao alvo
+    this.seek(this.wanderTarget, deltaTime);
+
+    // Adicionar força de separação das bordas
+    this.separate(deltaTime);
+  }
+
+  // Comportamento Seek - ir em direção ao alvo
+  seek(target, deltaTime) {
+    // Calcular direção desejada
+    const desired = {
+      x: target.x - this.fishPosition.x,
+      y: target.y - this.fishPosition.y,
+    };
+
+    // Normalizar e multiplicar pela velocidade máxima
+    const distance = Math.sqrt(desired.x * desired.x + desired.y * desired.y);
+    if (distance > 0) {
+      desired.x = (desired.x / distance) * this.maxSpeed;
+      desired.y = (desired.y / distance) * this.maxSpeed;
+
+      // Comportamento Arrive - desacelerar quando próximo do alvo
+      if (distance < 0.1) {
+        const arrivalForce = distance / 0.1; // Gradualmente reduz força
+        desired.x *= arrivalForce;
+        desired.y *= arrivalForce;
+      }
+    }
+
+    // Calcular força de steering
+    const steer = {
+      x: desired.x - this.fishVelocity.x,
+      y: desired.y - this.fishVelocity.y,
+    };
+
+    // Limitar força máxima
+    const steerMagnitude = Math.sqrt(steer.x * steer.x + steer.y * steer.y);
+    if (steerMagnitude > this.maxForce) {
+      steer.x = (steer.x / steerMagnitude) * this.maxForce;
+      steer.y = (steer.y / steerMagnitude) * this.maxForce;
+    }
+
+    // Aplicar força de steering
+    this.fishAcceleration.x += steer.x;
+    this.fishAcceleration.y += steer.y;
+  }
+
+  // Comportamento Separate - evitar bordas
+  separate(deltaTime) {
+    const separationForce = { x: 0, y: 0 };
+    const desiredSeparation = 0.15; // Distância desejada das bordas
+
+    // Força para evitar borda esquerda
+    if (this.fishPosition.x < desiredSeparation) {
+      separationForce.x += (desiredSeparation - this.fishPosition.x) * 0.001;
+    }
+
+    // Força para evitar borda direita
+    if (this.fishPosition.x > 1 - desiredSeparation) {
+      separationForce.x -=
+        (this.fishPosition.x - (1 - desiredSeparation)) * 0.001;
+    }
+
+    // Força para evitar borda superior
+    if (this.fishPosition.y < 0.45 + desiredSeparation) {
+      separationForce.y +=
+        (0.45 + desiredSeparation - this.fishPosition.y) * 0.001;
+    }
+
+    // Força para evitar borda inferior
+    if (this.fishPosition.y > 1 - desiredSeparation) {
+      separationForce.y -=
+        (this.fishPosition.y - (1 - desiredSeparation)) * 0.001;
+    }
+
+    // Aplicar força de separação
+    this.fishAcceleration.x += separationForce.x;
+    this.fishAcceleration.y += separationForce.y;
+  }
+
   updateFishingGame() {
     if (this.gameState === "hook_cast") {
       const elapsedTime = Date.now() - this.fishReactionStartTime;
@@ -800,7 +934,7 @@ class WaterEffect {
           `🐟 REACTION DEBUG - transitionSmoothing: ${transitionSmoothing.toFixed(4)}`,
         );
 
-        // Se há transição ativa, a posi��ão real é interpolada
+        // Se há transição ativa, a posição real é interpolada
         if (transitionSmoothing > 0.0) {
           const progress = 1.0 - transitionSmoothing;
           const easeProgress = 1.0 - Math.pow(1.0 - progress, 3.0); // Cubic ease-out
