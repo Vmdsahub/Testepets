@@ -104,7 +104,7 @@ class FishingSettingsService {
   subscribeToFishingSettings(
     callback: (settings: FishingSettings | null) => void,
   ) {
-    const channel = supabase
+    const subscription = supabase
       .channel("fishing_settings_changes")
       .on(
         "postgres_changes",
@@ -124,7 +124,7 @@ class FishingSettingsService {
     // Return an object with unsubscribe method
     return {
       unsubscribe: () => {
-        channel.unsubscribe();
+        subscription.unsubscribe();
       },
     };
   }
