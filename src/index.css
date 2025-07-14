@@ -1,230 +1,28 @@
-/* Import performance optimizations */
-@import "./styles/performance.css";
-@import "./styles/responsive.css";
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* Performance optimizations for overall app */
 * {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
+body,
 html {
-  scroll-behavior: smooth;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: "Arial", sans-serif;
+  background: #001122;
 }
 
-body {
-  -webkit-tap-highlight-color: transparent;
-  text-rendering: optimizeSpeed;
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
+#root {
+  width: 100%;
+  height: 100%;
 }
 
-/* Canvas specific optimizations - force GPU acceleration */
-canvas {
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: optimize-contrast;
-  image-rendering: optimizeSpeed;
-  image-rendering: crisp-edges;
-  transform: translate3d(0, 0, 0);
-  will-change: transform;
-  backface-visibility: hidden;
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 102, 204, 0.4) !important;
 }
 
-/* Custom slider styles for music player */
-.slider::-webkit-slider-thumb {
-  appearance: none;
-  height: 16px;
-  width: 16px;
-  border-radius: 50%;
-  background: #3b82f6;
-  cursor: pointer;
-  border: 2px solid #ffffff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.slider::-moz-range-thumb {
-  height: 16px;
-  width: 16px;
-  border-radius: 50%;
-  background: #3b82f6;
-  cursor: pointer;
-  border: 2px solid #ffffff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-/* Force GPU acceleration globally for better performance */
-* {
-  -webkit-transform: translateZ(0);
-  -moz-transform: translateZ(0);
-  -ms-transform: translateZ(0);
-  -o-transform: translateZ(0);
-  transform: translateZ(0);
-}
-
-/* Optimize all animations to use GPU */
-@media (prefers-reduced-motion: no-preference) {
-  * {
-    will-change: auto;
-  }
-
-  .animate,
-  [class*="animate-"] {
-    will-change: transform, opacity;
-    transform: translate3d(0, 0, 0);
-    backface-visibility: hidden;
-  }
-}
-
-/* Galaxy map animations */
-@keyframes twinkle {
-  0% {
-    opacity: 0.3;
-    transform: scale(0.8);
-  }
-  50% {
-    opacity: 0.8;
-    transform: scale(1);
-  }
-  100% {
-    opacity: 0.4;
-    transform: scale(0.9);
-  }
-}
-
-/* Alien text translation effect */
-@keyframes alienTranslate {
-  0% {
-    opacity: 0.8;
-    transform: scale(1.1) rotateX(10deg);
-    filter: hue-rotate(0deg) brightness(1.2);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.05) rotateX(5deg);
-    filter: hue-rotate(180deg) brightness(1.5);
-  }
-  100% {
-    opacity: 0.6;
-    transform: scale(1) rotateX(0deg);
-    filter: hue-rotate(360deg) brightness(1);
-  }
-}
-
-.alien-text {
-  animation: alienTranslate 0.15s ease-in-out;
-  background: linear-gradient(45deg, #60a5fa, #a78bfa, #34d399);
-  background-size: 200% 200%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation:
-    alienTranslate 0.15s ease-in-out,
-    gradient-shift 0.3s ease-in-out;
-}
-
-@keyframes gradient-shift {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-/* Music controls styling */
-.slider,
-.volume-slider {
-  background: linear-gradient(
-    to right,
-    #3b82f6 0%,
-    #3b82f6 50%,
-    rgba(255, 255, 255, 0.2) 50%,
-    rgba(255, 255, 255, 0.2) 100%
-  );
-}
-
-.slider::-webkit-slider-thumb,
-.volume-slider::-webkit-slider-thumb {
-  appearance: none;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: #3b82f6;
-  cursor: pointer;
-  border: 2px solid rgba(255, 255, 255, 0.8);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  touch-action: manipulation;
-}
-
-.slider::-moz-range-thumb,
-.volume-slider::-moz-range-thumb {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: #3b82f6;
-  cursor: pointer;
-  border: 2px solid rgba(255, 255, 255, 0.8);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-/* Luminous volume slider styles */
-.slider-luminous::-webkit-slider-thumb {
-  appearance: none;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: linear-gradient(45deg, #3b82f6, #60a5fa);
-  cursor: pointer;
-  border: 3px solid white;
-  box-shadow:
-    0 0 15px rgba(59, 130, 246, 0.8),
-    0 0 30px rgba(59, 130, 246, 0.4);
-  position: relative;
-  z-index: 10;
-}
-
-.slider-luminous::-moz-range-thumb {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: linear-gradient(45deg, #3b82f6, #60a5fa);
-  cursor: pointer;
-  border: 3px solid white;
-  box-shadow:
-    0 0 15px rgba(59, 130, 246, 0.8),
-    0 0 30px rgba(59, 130, 246, 0.4);
-}
-
-.slider-luminous::-webkit-slider-track {
-  background: transparent;
-  border-radius: 8px;
-}
-
-.slider-luminous::-moz-range-track {
-  background: transparent;
-  border-radius: 8px;
-}
-
-/* Touch-friendly input ranges */
-input[type="range"] {
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-  min-height: 44px;
-}
-
-/* Improve button touch targets */
-button {
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-  min-height: 44px;
+button:active {
+  transform: translateY(0);
 }
