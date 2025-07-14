@@ -30,6 +30,11 @@ class FishingSystem {
     castDelay: number;
     inWater: boolean;
     reelProgress: number;
+    settled: boolean;
+    settledX: number;
+    settledY: number;
+    velocityX: number;
+    velocityY: number;
   }> = [];
   private targetX = 0;
   private targetY = 0;
