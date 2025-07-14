@@ -343,7 +343,7 @@ class ModularWaterEffect {
         // Quando velocidade é muito baixa, manter ângulo anterior
         float speed = length(vec2(velocityX, velocityY));
         if (speed < 0.001) {
-            fishAngle = 0.0; // Ângulo padrão quando parado
+            fishAngle = 0.0; // Ângulo padr��o quando parado
         }
 
         float fishX, fishY;
@@ -766,8 +766,8 @@ class ModularWaterEffect {
     if (this.gameState === "hook_cast") {
       const elapsedTime = Date.now() - this.fishReactionStartTime;
       if (elapsedTime >= this.fishReactionDelay) {
-        // Usar sistema de movimento aleatório (reduzir velocidade)
-        const time = this.fishTime * 0.1; // Reduzido de 0.4 para 0.1 (muito mais lento)
+        // Usar sistema de movimento aleatório independente
+        const time = this.fishTime * 0.5; // Velocidade independente e constante
 
         // Parâmetros da área da água
         const areaX = this.waterArea.x;
