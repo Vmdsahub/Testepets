@@ -46,7 +46,7 @@ class FishingSystem {
   private isCharging = false;
   private chargeStartTime = 0;
   private chargePower = 0;
-  private readonly maxChargeTime = 2000; // 2 segundos para força máxima
+  private readonly maxChargeTime = 2000; // 2 segundos para força m��xima
   private readonly maxDistance = 0.55; // 55% da tela
 
   // Configurações da física da linha
@@ -216,6 +216,7 @@ class FishingSystem {
     this.linePoints.forEach((point) => {
       point.reelProgress = 0;
       point.castPhase = "reeling";
+      point.settled = false; // Permitir movimento durante recolhimento
     });
   }
 
