@@ -1581,8 +1581,9 @@ export const FishingScreenModular: React.FC = () => {
           </div>
 
           <div style={{ fontSize: "12px", color: "#666", marginTop: "10px" }}>
-            🎯 Use <strong>Shift + arrastar</strong> na área tracejada para
-            reposicionar
+            {isShiftPressed
+              ? "🎯 Shift ativo - arraste a área para reposicionar"
+              : "⌨️ Segure Shift e arraste a área tracejada para reposicionar"}
           </div>
         </div>
       )}
