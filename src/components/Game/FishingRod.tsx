@@ -43,6 +43,7 @@ class FishingSystem {
   private fishingRodTip = { x: 0, y: 0 };
   private previousRodTip = { x: 0, y: 0 };
   private castStartTime = 0;
+  private onHookCast?: (x: number, y: number) => void;
 
   // Sistema de força de lançamento
   private isCharging = false;
