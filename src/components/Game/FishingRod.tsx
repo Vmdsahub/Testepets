@@ -538,17 +538,18 @@ class FishingSystem {
 
       // Configurar transformação para posicionar e rotacionar a vara
       this.ctx.translate(rodBaseX, rodBaseY);
-      this.ctx.rotate(angle);
+      // Ajustar rotação - a imagem é vertical, então subtraímos 90 graus
+      this.ctx.rotate(angle - Math.PI / 2);
 
-      // Desenhar a imagem da vara
+      // Desenhar a imagem da vara com orientação correta
       const rodImageLength = 120;
-      const rodImageWidth = 25; // Aumentar largura para ser mais visível
+      const rodImageWidth = 25;
       this.ctx.drawImage(
         this.fishingRodImage,
-        0,
         -rodImageWidth / 2,
-        rodImageLength,
+        0,
         rodImageWidth,
+        rodImageLength,
       );
 
       this.ctx.restore();
