@@ -1188,7 +1188,7 @@ export const FishingScreenModular: React.FC = () => {
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isAdmin || !editMode || !isDragging) return;
+    if (!isAdmin || !isDragging) return;
 
     const rect = overlayCanvasRef.current?.getBoundingClientRect();
     if (!rect) return;
