@@ -192,16 +192,7 @@ class WaterEffect {
                 float depth = (sin(uv.x * 3.0) + sin(uv.y * 4.0)) * 0.1 + 0.9;
                 backgroundColor.rgb *= depth;
 
-                // Adiciona peixe entre background e efeitos de água
-                vec2 fishPos = vec2(mod(u_time * 0.03, 1.0), 0.75);
-                vec2 fishSize = vec2(0.15, 0.12);
-                vec2 fishUV = (uv - fishPos + fishSize * 0.5) / fishSize;
-                if (fishUV.x >= 0.0 && fishUV.x <= 1.0 && fishUV.y >= 0.0 && fishUV.y <= 1.0 && uv.y > 0.4) {
-                    vec4 fishColor = texture2D(u_fishTexture, fishUV);
-                    if (fishColor.a > 0.1) {
-                        backgroundColor = mix(backgroundColor, vec4(fishColor.rgb, 1.0), fishColor.a);
-                    }
-                }
+                
                 
                 // Calcula cáusticas apenas na área da água
                 float caustics = calculateCaustics(uv, u_time) * waterMask;
