@@ -94,22 +94,22 @@ const WaterEffectWebGL: React.FC = () => {
     
     // Caustics effect
     float caustics(vec2 uv, float time) {
-      vec2 p = uv * 8.0;
+            vec2 p = uv * 4.0;
       
       float c = 0.0;
       
-      // Multiple caustic layers
-      for (int i = 0; i < 3; i++) {
+            // Fewer, gentler caustic layers
+      for (int i = 0; i < 2; i++) {
         float fi = float(i);
-        vec2 offset = vec2(sin(time * (0.8 + fi * 0.3)), cos(time * (0.6 + fi * 0.4))) * 2.0;
+                vec2 offset = vec2(sin(time * (0.4 + fi * 0.15)), cos(time * (0.3 + fi * 0.2))) * 1.0;
         
-        float n1 = noise(p + offset + time * 0.5);
-        float n2 = noise(p * 1.3 - offset + time * 0.4);
+                float n1 = noise(p + offset + time * 0.25);
+        float n2 = noise(p * 1.2 - offset + time * 0.2);
         
-        c += pow(max(0.0, sin(n1 * 6.28) * sin(n2 * 6.28)), 2.0) * (0.5 + fi * 0.2);
+                c += pow(max(0.0, sin(n1 * 3.14) * sin(n2 * 3.14)), 1.5) * (0.3 + fi * 0.1);
       }
       
-      return c;
+            return c * 0.5;
     }
     
     // Vignette effect
