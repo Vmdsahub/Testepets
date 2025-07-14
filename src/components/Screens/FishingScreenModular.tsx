@@ -368,13 +368,13 @@ class ModularWaterEffect {
         float futureX = centerX + a * futureCos / futureDenom;
         float currentDirection = futureX - naturalFishX;
 
-        // Ângulo de rotação simples e eficaz
+                // CORREÇÃO: Inverter lógica para orientação correta
         float fishAngle = 0.0;
 
         if (currentDirection > 0.008) {
-            fishAngle = 0.0; // Direita
+            fishAngle = 3.14159; // Direita - flip horizontal para corrigir
         } else if (currentDirection < -0.008) {
-            fishAngle = 3.14159; // Esquerda (180°)
+            fishAngle = 0.0; // Esquerda - orientação normal
         }
 
         // === REFINAMENTOS COMPORTAMENTAIS ===
