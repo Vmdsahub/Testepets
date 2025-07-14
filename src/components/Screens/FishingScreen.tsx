@@ -581,6 +581,11 @@ class WaterEffect {
   }
 
   updateBackgroundFromImage(image) {
+    if (!this.gl || !this.backgroundTexture) {
+      console.warn("WebGL context or background texture not available");
+      return;
+    }
+
     this.gl.bindTexture(this.gl.TEXTURE_2D, this.backgroundTexture);
     this.gl.texImage2D(
       this.gl.TEXTURE_2D,
