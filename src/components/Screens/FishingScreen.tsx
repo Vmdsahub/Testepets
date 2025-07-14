@@ -445,21 +445,56 @@ class WaterEffect {
     this.fishTexture = this.gl.createTexture();
     this.gl.bindTexture(this.gl.TEXTURE_2D, this.fishTexture);
 
-    // Cria uma textura temporária enquanto carrega a imagem
-    const tempData = new Uint8Array([0, 0, 0, 0]);
+    // Cria uma textura temporária azul para teste
+    const canvas = document.createElement("canvas");
+    canvas.width = 64;
+    canvas.height = 64;
+    const ctx = canvas.getContext("2d");
+
+    // Desenha um peixe simples como fallback
+    ctx.fillStyle = "#4A90E2";
+    ctx.beginPath();
+    ctx.ellipse(32, 32, 25, 15, 0, 0, 2 * Math.PI);
+    ctx.fill();
+
+    // Cauda
+    ctx.beginPath();
+    ctx.moveTo(7, 32);
+    ctx.lineTo(15, 20);
+    ctx.lineTo(15, 44);
+    ctx.closePath();
+    ctx.fill();
+
     this.gl.texImage2D(
       this.gl.TEXTURE_2D,
       0,
       this.gl.RGBA,
-      1,
-      1,
-      0,
       this.gl.RGBA,
       this.gl.UNSIGNED_BYTE,
-      tempData,
+      canvas,
+    );
+    this.gl.texParameteri(
+      this.gl.TEXTURE_2D,
+      this.gl.TEXTURE_WRAP_S,
+      this.gl.CLAMP_TO_EDGE,
+    );
+    this.gl.texParameteri(
+      this.gl.TEXTURE_2D,
+      this.gl.TEXTURE_WRAP_T,
+      this.gl.CLAMP_TO_EDGE,
+    );
+    this.gl.texParameteri(
+      this.gl.TEXTURE_2D,
+      this.gl.TEXTURE_MIN_FILTER,
+      this.gl.LINEAR,
+    );
+    this.gl.texParameteri(
+      this.gl.TEXTURE_2D,
+      this.gl.TEXTURE_MAG_FILTER,
+      this.gl.LINEAR,
     );
 
-    // Carrega a imagem do peixe
+    // Carrega a imagem real do peixe
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.onload = () => {
@@ -492,6 +527,9 @@ class WaterEffect {
         this.gl.TEXTURE_MAG_FILTER,
         this.gl.LINEAR,
       );
+    };
+    img.onerror = () => {
+      console.log("Erro ao carregar imagem do peixe, usando fallback");
     };
     img.src =
       "https://cdn.builder.io/api/v1/image/assets%2Fae8512d3d0df4d1f8f1504a06406c6ba%2F62141810443b4226b05ad6c4f3dcd94e?format=webp&width=800";
