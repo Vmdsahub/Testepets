@@ -19,6 +19,7 @@ class WaterEffect {
     this.indexBuffer = null;
     this.backgroundTexture = null;
     this.noiseTexture = null;
+    this.fishTexture = null;
 
     this.uniforms = {};
     this.attributes = {};
