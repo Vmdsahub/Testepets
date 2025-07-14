@@ -900,13 +900,14 @@ export const FishingScreen: React.FC = () => {
                 marginBottom: "5px",
               }}
             >
-              Intensidade das Ondas: {fishingSettings.waveIntensity.toFixed(2)}
+              Intensidade das Ondas:{" "}
+              {(fishingSettings?.waveIntensity || 0.5).toFixed(2)}
             </label>
             <input
               type="range"
               min="0"
               max="100"
-              value={fishingSettings.waveIntensity * 100}
+              value={(fishingSettings?.waveIntensity || 0.5) * 100}
               onChange={(e) =>
                 handleSettingUpdate(
                   "waveIntensity",
@@ -927,13 +928,13 @@ export const FishingScreen: React.FC = () => {
                 marginBottom: "5px",
               }}
             >
-              Distorção: {fishingSettings.distortionAmount.toFixed(2)}
+              Distorção: {(fishingSettings?.distortionAmount || 0.3).toFixed(2)}
             </label>
             <input
               type="range"
               min="0"
               max="100"
-              value={fishingSettings.distortionAmount * 100}
+              value={(fishingSettings?.distortionAmount || 0.3) * 100}
               onChange={(e) =>
                 handleSettingUpdate(
                   "distortionAmount",
@@ -954,13 +955,13 @@ export const FishingScreen: React.FC = () => {
                 marginBottom: "5px",
               }}
             >
-              Velocidade: {fishingSettings.animationSpeed.toFixed(2)}
+              Velocidade: {(fishingSettings?.animationSpeed || 1.0).toFixed(2)}
             </label>
             <input
               type="range"
               min="0"
               max="200"
-              value={fishingSettings.animationSpeed * 100}
+              value={(fishingSettings?.animationSpeed || 1.0) * 100}
               onChange={(e) =>
                 handleSettingUpdate(
                   "animationSpeed",
@@ -990,7 +991,7 @@ export const FishingScreen: React.FC = () => {
               style={{ fontSize: "0.875rem" }}
               disabled={isUpdatingSettings}
             />
-            {fishingSettings.backgroundImageUrl && (
+            {fishingSettings?.backgroundImageUrl && (
               <div
                 style={{ fontSize: "0.75rem", color: "#666", marginTop: "2px" }}
               >
