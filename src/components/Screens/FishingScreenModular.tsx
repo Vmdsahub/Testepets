@@ -202,8 +202,9 @@ class ModularWaterEffect {
         
                 if (u_waterShape < 0.5) { // rectangle
           return uv.x >= x && uv.x <= x + w && uv.y >= y && uv.y <= y + h;
-        } else if (u_waterShape < 1.5) { // circle
-          float radius = min(size.x, size.y) * 0.5;
+                } else if (u_waterShape < 1.5) { // circle
+          vec2 center = vec2(x + w * 0.5, y + h * 0.5);
+          float radius = min(w, h) * 0.5;
           return distance(uv, center) <= radius;
         } else if (u_waterShape < 2.5) { // triangle
           vec2 p1 = vec2(center.x, u_waterArea.y);
