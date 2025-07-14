@@ -261,7 +261,7 @@ class ModularWaterEffect {
                                         // === MOVIMENTO PONTO-A-PONTO (BASEADO NO CÓDIGO JS) ===
         // Peixe vai diretamente de um ponto aleatório para outro
 
-                float time = u_fishTime * 0.1; // Reduzir velocidade base drasticamente
+                        float time = u_fishTime * 0.5; // Velocidade razoável e independente
 
         // Parâmetros da área da água (100% uso)
         float areaX = u_waterArea.x;
