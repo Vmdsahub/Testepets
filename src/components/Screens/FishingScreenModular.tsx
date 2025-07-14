@@ -1528,12 +1528,25 @@ export const FishingScreenModular: React.FC = () => {
             </label>
             <select
               value={waterArea.shape}
-              onChange={(e) =>
-                setWaterArea((prev) => ({
-                  ...prev,
-                  shape: e.target.value as WaterArea["shape"],
-                }))
-              }
+              onChange={(e) => {
+                const newShape = e.target.value as WaterArea["shape"];
+                setWaterArea((prev) => {
+                  // Se for círculo, igualar largura e altura
+                  if (newShape === "circle") {
+                    const size = Math.min(prev.width, prev.height);
+                    return {
+                      ...prev,
+                      shape: newShape,
+                      width: size,
+                      height: size,
+                    };
+                  }
+                  return {
+                    ...prev,
+                    shape: newShape,
+                  };
+                });
+              }}
               style={{ width: "100%", padding: "5px" }}
             >
               <option value="rectangle">Retângulo</option>
