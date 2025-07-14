@@ -756,22 +756,40 @@ export const FishingScreen: React.FC = () => {
       return;
     }
 
+    // Update local state immediately for responsiveness
+    if (fishingSettings) {
+      const updatedSettings = {
+        ...fishingSettings,
+        [setting]: value,
+      };
+      console.log("DEBUG - Updating local state:", updatedSettings);
+      setFishingSettings(updatedSettings);
+
+      // Also update WaterEffect immediately if available
+      if (waterEffectRef.current) {
+        const waterEffect = waterEffectRef.current;
+        if (setting === "waveIntensity") waterEffect.waveIntensity = value;
+        if (setting === "distortionAmount")
+          waterEffect.distortionAmount = value;
+        if (setting === "animationSpeed") waterEffect.animationSpeed = value;
+      }
+    }
+
     setIsUpdatingSettings(true);
 
     const updates: any = {};
     updates[setting] = value;
 
-    console.log("DEBUG - Updating settings:", updates);
+    console.log("DEBUG - Updating settings in database:", updates);
     const result = await fishingSettingsService.updateFishingSettings(updates);
     console.log("DEBUG - Update result:", result);
 
-    if (result.success) {
-      // Refetch settings after successful update
-      const updatedSettings = await fishingSettingsService.getFishingSettings();
-      console.log("DEBUG - Refetched settings:", updatedSettings);
-      setFishingSettings(updatedSettings);
-    } else {
+    if (!result.success) {
       console.error("Failed to update setting:", result.message);
+      // Revert local state if database update failed
+      if (fishingSettings) {
+        setFishingSettings(fishingSettings);
+      }
     }
 
     setIsUpdatingSettings(false);
