@@ -958,12 +958,16 @@ export const FishingScreen: React.FC = () => {
               min="0"
               max="100"
               value={(fishingSettings?.distortionAmount || 0.3) * 100}
-              onChange={(e) =>
+              onChange={(e) => {
+                console.log(
+                  "DEBUG - Distortion slider changed:",
+                  e.target.value,
+                );
                 handleSettingUpdate(
                   "distortionAmount",
                   parseInt(e.target.value) / 100,
-                )
-              }
+                );
+              }}
               style={{ width: "150px" }}
               disabled={isUpdatingSettings}
             />
@@ -985,12 +989,16 @@ export const FishingScreen: React.FC = () => {
               min="0"
               max="200"
               value={(fishingSettings?.animationSpeed || 1.0) * 100}
-              onChange={(e) =>
+              onChange={(e) => {
+                console.log(
+                  "DEBUG - Animation speed slider changed:",
+                  e.target.value,
+                );
                 handleSettingUpdate(
                   "animationSpeed",
                   parseInt(e.target.value) / 100,
-                )
-              }
+                );
+              }}
               style={{ width: "150px" }}
               disabled={isUpdatingSettings}
             />
