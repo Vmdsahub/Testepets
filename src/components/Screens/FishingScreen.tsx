@@ -759,7 +759,7 @@ class WaterEffect {
         const naturalX = 0.5 + moveX * 0.35;
         const naturalY = 0.65 + moveY * 0.15;
 
-        // Interpolar entre posição de início da transição e posição natural
+        // Interpolar entre posição de início da transiç��o e posição natural
         this.fishTargetPosition.x =
           this.transitionStartPosition.x +
           (naturalX - this.transitionStartPosition.x) * easeProgress;
@@ -884,7 +884,11 @@ class WaterEffect {
             ? 2
             : this.gameState === "fish_moving"
               ? 3
-              : 4;
+              : this.gameState === "fish_hooked"
+                ? 4
+                : this.gameState === "transitioning"
+                  ? 5
+                  : 0;
     this.gl.uniform1f(this.uniforms.gameState, gameStateValue);
     this.gl.uniform2f(
       this.uniforms.hookPosition,
