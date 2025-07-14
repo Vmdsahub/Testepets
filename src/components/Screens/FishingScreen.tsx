@@ -780,9 +780,12 @@ class WaterEffect {
         `Fish was in ${this.gameState}, adjusting natural movement to continue from (${currentX.toFixed(2)}, ${currentY.toFixed(2)})`,
       );
 
+      // Salvar a posição atual como ponto de início da transição
+      this.transitionStartPosition = { x: currentX, y: currentY };
+      this.transitionBackToNaturalTime = Date.now(); // Iniciar timer de suavização
+
       // Ajustar fishTimeOffset para que o movimento natural comece da posição atual
       this.adjustFishTimeToPosition(currentX, currentY);
-      this.transitionBackToNaturalTime = Date.now(); // Iniciar timer de suavização
 
       // Salvar a posição atual para garantir continuidade
       this.originalFishMovement = { moveX: currentX, moveY: currentY };
