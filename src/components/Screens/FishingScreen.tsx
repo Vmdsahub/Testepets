@@ -188,16 +188,25 @@ class WaterEffect {
             vec4 getColorWithFish(vec2 coords) {
                 vec4 bgColor = texture2D(u_backgroundTexture, coords);
 
-                                                // Movimento natural do peixe com tempo independente
-                float slowTime = u_fishTime * 0.2; // Movimento mais lento e independente
+                                                                // Movimento do peixe baseado no estado do jogo
+                float fishX, fishY;
 
-                // Padrão de movimento complexo usando múltiplas ondas
-                float moveX = sin(slowTime * 0.7) * 0.3 + sin(slowTime * 1.3) * 0.15 + cos(slowTime * 0.4) * 0.1;
-                float moveY = cos(slowTime * 0.5) * 0.08 + sin(slowTime * 1.1) * 0.06 + sin(slowTime * 0.8) * 0.04;
+                if (u_gameState >= 2.0) { // fish_reacting ou fish_moving
+                    // Usar posição alvo quando o peixe está reagindo/se movendo
+                    fishX = u_fishTargetPosition.x;
+                    fishY = u_fishTargetPosition.y;
+                } else {
+                    // Movimento natural do peixe com tempo independente
+                    float slowTime = u_fishTime * 0.2; // Movimento mais lento e independente
 
-                // Normaliza para manter dentro dos limites (0.1 a 0.9 em X, área da água em Y)
-                float fishX = 0.5 + moveX * 0.35; // Entre 0.15 e 0.85
-                float fishY = 0.65 + moveY * 0.15; // Entre 0.5 e 0.8 (área da água)
+                    // Padrão de movimento complexo usando múltiplas ondas
+                    float moveX = sin(slowTime * 0.7) * 0.3 + sin(slowTime * 1.3) * 0.15 + cos(slowTime * 0.4) * 0.1;
+                    float moveY = cos(slowTime * 0.5) * 0.08 + sin(slowTime * 1.1) * 0.06 + sin(slowTime * 0.8) * 0.04;
+
+                    // Normaliza para manter dentro dos limites (0.1 a 0.9 em X, área da água em Y)
+                    fishX = 0.5 + moveX * 0.35; // Entre 0.15 e 0.85
+                    fishY = 0.65 + moveY * 0.15; // Entre 0.5 e 0.8 (área da água)
+                }
 
                                 
 
