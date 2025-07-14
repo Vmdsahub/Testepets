@@ -368,7 +368,7 @@ class FishingSystem {
             point.oldX = point.x;
             point.oldY = point.y;
 
-            // Permitir movimento mínimo
+            // Permitir movimento m��nimo
             point.x += velX * 0.1;
             point.y += velY * 0.1;
 
@@ -524,24 +524,46 @@ class FishingSystem {
       this.ctx.restore();
     }
 
-    // Desenhar vara de pesca
-    this.ctx.strokeStyle = "#8B4513";
-    this.ctx.lineWidth = 6;
-    this.ctx.beginPath();
-    this.ctx.moveTo(rodBaseX, rodBaseY);
-    this.ctx.lineTo(rodTipX, rodTipY);
-    this.ctx.stroke();
+    // Desenhar vara de pesca usando a nova imagem
+    if (this.fishingRodImage && this.fishingRodImage.complete) {
+      this.ctx.save();
 
-    // Desenhar cabo da vara
-    this.ctx.strokeStyle = "#654321";
-    this.ctx.lineWidth = 8;
-    this.ctx.beginPath();
-    this.ctx.moveTo(rodBaseX, rodBaseY);
-    this.ctx.lineTo(
-      rodBaseX + Math.cos(angle) * 25,
-      rodBaseY + Math.sin(angle) * 25,
-    );
-    this.ctx.stroke();
+      // Configurar transformação para posicionar e rotacionar a vara
+      this.ctx.translate(rodBaseX, rodBaseY);
+      this.ctx.rotate(angle);
+
+      // Desenhar a imagem da vara
+      const rodImageLength = 120;
+      const rodImageWidth = 12;
+      this.ctx.drawImage(
+        this.fishingRodImage,
+        0,
+        -rodImageWidth / 2,
+        rodImageLength,
+        rodImageWidth,
+      );
+
+      this.ctx.restore();
+    } else {
+      // Fallback: desenhar vara básica se a imagem não carregar
+      this.ctx.strokeStyle = "#8B4513";
+      this.ctx.lineWidth = 6;
+      this.ctx.beginPath();
+      this.ctx.moveTo(rodBaseX, rodBaseY);
+      this.ctx.lineTo(rodTipX, rodTipY);
+      this.ctx.stroke();
+
+      // Desenhar cabo da vara
+      this.ctx.strokeStyle = "#654321";
+      this.ctx.lineWidth = 8;
+      this.ctx.beginPath();
+      this.ctx.moveTo(rodBaseX, rodBaseY);
+      this.ctx.lineTo(
+        rodBaseX + Math.cos(angle) * 25,
+        rodBaseY + Math.sin(angle) * 25,
+      );
+      this.ctx.stroke();
+    }
 
     // Desenhar linha de pesca
     if (this.isLineOut && this.linePoints.length > 0) {
