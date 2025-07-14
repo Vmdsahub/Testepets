@@ -11,6 +11,8 @@ class FishingSystem {
   private mouseX = 0;
   private mouseY = 0;
   private isLineOut = false;
+  private isReelingIn = false;
+  private reelStartTime = 0;
   private linePoints: Array<{
     x: number;
     y: number;
@@ -26,6 +28,8 @@ class FishingSystem {
     castPhase: string;
     castSpeed: number;
     castDelay: number;
+    inWater: boolean;
+    reelProgress: number;
   }> = [];
   private targetX = 0;
   private targetY = 0;
