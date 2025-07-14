@@ -933,6 +933,7 @@ export const FishingScreenModular: React.FC = () => {
     useState<FishingSettings | null>(null);
   const [isUpdatingSettings, setIsUpdatingSettings] = useState(false);
   const [editMode, setEditMode] = useState(false); // Modo de edição da área da água
+  const [isShiftPressed, setIsShiftPressed] = useState(false);
 
   const isAdmin = user?.isAdmin || false;
 
