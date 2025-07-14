@@ -283,7 +283,7 @@ class ModularWaterEffect {
         float targetX = areaX + (seedX * areaW);
         float targetY = areaY + (seedY * areaH);
 
-        // Posiç��o inicial (alvo anterior)
+        // Posição inicial (alvo anterior)
         float prevSeedX = sin((currentCycle - 1.0) * 12.9898 + 78.233) * 43758.5453;
         float prevSeedY = sin((currentCycle - 1.0) * 93.9898 + 67.345) * 23421.3141;
         prevSeedX = fract(prevSeedX);
@@ -333,12 +333,17 @@ class ModularWaterEffect {
         float velocityX = futureX - naturalFishX;
         float velocityY = futureY - naturalFishY;
 
-        // Ângulo baseado na velocidade (direção do movimento)
-        float fishAngle = atan(velocityY, velocityX);
+                // ORIENTAÇÃO CORRETA: Apenas flip horizontal, nunca vertical
+        float fishAngle = 0.0; // Ângulo base (horizontal)
 
-        // Normalizar ângulo e ajustar orientação
-                // CORREÇÃO: Inverter ângulo para orientar peixe corretamente
-        fishAngle = fishAngle + 3.14159; // Adicionar 180 graus para virar o peixe
+        // Determinar direção horizontal apenas
+        if (velocityX > 0.0) {
+            // Nadando para direita - orientação normal (0 graus)
+            fishAngle = 0.0;
+        } else if (velocityX < -0.0001) {
+            // Nadando para esquerda - flip horizontal (180 graus)
+            fishAngle = 3.14159;
+        }
 
         // Quando velocidade é muito baixa, manter ângulo anterior
         float speed = length(vec2(velocityX, velocityY));
@@ -1628,7 +1633,7 @@ export const FishingScreenModular: React.FC = () => {
               fontSize: "0.9rem",
             }}
           >
-            ÁREA DA ��GUA
+            ÁREA DA ÁGUA
           </div>
 
           <div style={{ marginBottom: "10px" }}>
