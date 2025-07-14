@@ -262,7 +262,7 @@ class WaterEffect {
                                                 float waterMask = smoothstep(maskEdge - transitionWidth, maskEdge + transitionWidth, verticalPos);
                 
                                                                 // Imagem original com peixe
-                vec4 originalColor = getColorWithFish(uv);
+                                vec4 originalColor = getColorWithFish(uv, fishX, fishY);
 
                                 
                 
@@ -271,7 +271,7 @@ class WaterEffect {
                 vec2 distortedUV = uv + refraction;
                 
                                 // Obtém cor do background com peixe e distorção
-                vec4 backgroundColor = getColorWithFish(distortedUV);
+                                vec4 backgroundColor = getColorWithFish(distortedUV, fishX, fishY);
                 
                                 // Adiciona efeito de profundidade
                 float depth = (sin(uv.x * 3.0) + sin(uv.y * 4.0)) * 0.1 + 0.9;
