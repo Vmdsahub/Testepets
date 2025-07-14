@@ -337,8 +337,8 @@ class ModularWaterEffect {
         float fishAngle = atan(velocityY, velocityX);
 
         // Normalizar ângulo e ajustar orientação
-        // O peixe deve apontar na direção que está se movendo
-        fishAngle = fishAngle; // Já correto para apontar na direção do movimento
+                // CORREÇÃO: Inverter ângulo para orientar peixe corretamente
+        fishAngle = fishAngle + 3.14159; // Adicionar 180 graus para virar o peixe
 
         // Quando velocidade é muito baixa, manter ângulo anterior
         float speed = length(vec2(velocityX, velocityY));
@@ -1497,7 +1497,7 @@ export const FishingScreenModular: React.FC = () => {
             </kbd>{" "}
             + arraste a área tracejada
             <br />
-            📏 <strong>Redimensionar:</strong> Use os sliders abaixo
+            �� <strong>Redimensionar:</strong> Use os sliders abaixo
           </div>
 
           {/* Controles de efeitos de água */}
@@ -1538,7 +1538,8 @@ export const FishingScreenModular: React.FC = () => {
                 marginBottom: "5px",
               }}
             >
-              Distorção: {(fishingSettings?.distortionAmount || 0.3).toFixed(2)}
+              Distorç��o:{" "}
+              {(fishingSettings?.distortionAmount || 0.3).toFixed(2)}
             </label>
             <input
               type="range"
