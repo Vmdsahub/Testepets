@@ -681,11 +681,6 @@ export const FishingScreen: React.FC = () => {
 
   const isAdmin = user?.isAdmin || false;
 
-  // Debug logs
-  console.log("FishingScreen - User:", user);
-  console.log("FishingScreen - isAdmin:", isAdmin);
-  console.log("FishingScreen - fishingSettings:", fishingSettings);
-
   // Load fishing settings
   useEffect(() => {
     const loadSettings = async () => {
