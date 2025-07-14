@@ -12,11 +12,17 @@ import { FishingRod } from "../Game/FishingRod";
 class WaterEffect {
   constructor() {
     this.canvas = document.getElementById("waterCanvas");
+
+    if (!this.canvas) {
+      console.warn("Canvas element not found");
+      return;
+    }
+
     this.gl =
       this.canvas.getContext("webgl2") || this.canvas.getContext("webgl");
 
     if (!this.gl) {
-      alert("WebGL não é suportado neste navegador");
+      console.warn("WebGL não é suportado neste navegador");
       return;
     }
 
@@ -36,6 +42,19 @@ class WaterEffect {
     this.time = 0;
     this.fishTime = 0;
 
+    // Estados do jogo de pesca
+    this.gameState = "idle"; // 'idle', 'hook_cast', 'fish_reacting', 'fish_moving', 'fish_hooked'
+    this.hookPosition = { x: 0.5, y: 0.5 };
+    this.fishTargetPosition = { x: 0.5, y: 0.65 };
+    this.fishReactionStartTime = 0;
+    this.fishReactionDelay = 0;
+    this.originalFishMovement = { moveX: 0, moveY: 0 };
+    this.exclamationTime = 0;
+    this.onGameStart = null; // Callback para abrir modal
+    this.fishTimeOffset = 0; // Offset para sincronizar movimento natural com posição atual
+    this.transitionBackToNaturalTime = 0; // Tempo desde que voltou para movimento natural
+    this.transitionBackToNaturalDuration = 500; // 0.5 segundos para suavizar retorno
+
     this.init();
     this.render();
   }
@@ -50,6 +69,8 @@ class WaterEffect {
   }
 
   resizeCanvas() {
+    if (!this.canvas || !this.gl) return;
+
     this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;
     this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
@@ -73,11 +94,17 @@ class WaterEffect {
     const fragmentShaderSource = `
             precision mediump float;
             
-                        uniform float u_time;
+                                    uniform float u_time;
             uniform float u_fishTime;
             uniform float u_waveIntensity;
             uniform float u_distortionAmount;
             uniform vec2 u_resolution;
+                                    uniform float u_gameState; // 0=idle, 1=hook_cast, 2=fish_reacting, 3=fish_moving, 4=fish_hooked
+            uniform vec2 u_hookPosition;
+            uniform vec2 u_fishTargetPosition;
+                        uniform float u_showExclamation;
+            uniform float u_fishTimeOffset;
+            uniform float u_transitionSmoothing; // 0.0 = movimento completo, 1.0 = movimento reduzido
                         uniform sampler2D u_backgroundTexture;
             uniform sampler2D u_noiseTexture;
             uniform sampler2D u_fishTexture;
@@ -163,28 +190,18 @@ class WaterEffect {
                 return pow(caustic1 * caustic2 * caustic3 + noise * 0.2, 2.0) * 0.3;
             }
 
-                                    // Função para obter cor com peixe
-            vec4 getColorWithFish(vec2 coords) {
+                                                // Função para obter cor com peixe
+            vec4 getColorWithFish(vec2 coords, float fishX, float fishY) {
                 vec4 bgColor = texture2D(u_backgroundTexture, coords);
-
-                                // Movimento natural do peixe com tempo independente
-                float slowTime = u_fishTime * 0.2; // Movimento mais lento e independente
-
-                // Padrão de movimento complexo usando múltiplas ondas
-                float moveX = sin(slowTime * 0.7) * 0.3 + sin(slowTime * 1.3) * 0.15 + cos(slowTime * 0.4) * 0.1;
-                float moveY = cos(slowTime * 0.5) * 0.08 + sin(slowTime * 1.1) * 0.06 + sin(slowTime * 0.8) * 0.04;
-
-                // Normaliza para manter dentro dos limites (0.1 a 0.9 em X, área da água em Y)
-                float fishX = 0.5 + moveX * 0.35; // Entre 0.15 e 0.85
-                float fishY = 0.65 + moveY * 0.15; // Entre 0.5 e 0.8 (área da água)
 
                                 
 
                                 vec2 fishPos = vec2(fishX, fishY);
                 vec2 fishSize = vec2(0.08, 0.06); // Diminuído de 0.15x0.12 para 0.08x0.06
 
-                // Calcula direção baseada na derivada do movimento (mais responsivo)
-                float derivative = cos(slowTime * 0.7) * 0.7 * 0.7 + cos(slowTime * 1.3) * 1.3 * 1.3 - sin(slowTime * 0.4) * 0.4 * 0.4;
+                                // Calcula direção baseada na derivada do movimento (mais responsivo)
+                float fishSlowTime = u_fishTime * 0.2;
+                float derivative = cos(fishSlowTime * 0.7) * 0.7 * 0.7 + cos(fishSlowTime * 1.3) * 1.3 * 1.3 - sin(fishSlowTime * 0.4) * 0.4 * 0.4;
                 bool facingRight = derivative > 0.0;
 
                 // Calcula UV do peixe com flip horizontal baseado na direção
@@ -214,6 +231,30 @@ class WaterEffect {
                 vec2 uv = v_texCoord;
                 vec2 screenUV = gl_FragCoord.xy / u_resolution;
                 
+                                // Calcular posição do peixe baseada no estado do jogo
+                float fishX, fishY;
+
+                                                                                if (u_gameState >= 2.0) { // fish_reacting, fish_moving, fish_hooked
+                    // Usar posição alvo quando o peixe está reagindo/se movendo
+                    fishX = u_fishTargetPosition.x;
+                    fishY = u_fishTargetPosition.y;
+                                } else {
+                    // idle (0.0) e hook_cast (1.0) - movimento natural com offset e suavização
+                    float adjustedTime = (u_fishTime + u_fishTimeOffset) * 0.2;
+
+                    // Padrão de movimento complexo usando múltiplas ondas
+                    float moveX = sin(adjustedTime * 0.7) * 0.3 + sin(adjustedTime * 1.3) * 0.15 + cos(adjustedTime * 0.4) * 0.1;
+                    float moveY = cos(adjustedTime * 0.5) * 0.08 + sin(adjustedTime * 1.1) * 0.06 + sin(adjustedTime * 0.8) * 0.04;
+
+                    // Aplicar suavização de transição (reduzir movimento inicialmente)
+                    moveX *= (1.0 - u_transitionSmoothing * 0.7);
+                    moveY *= (1.0 - u_transitionSmoothing * 0.7);
+
+                    // Normaliza para manter dentro dos limites (0.1 a 0.9 em X, área da água em Y)
+                    fishX = 0.5 + moveX * 0.35; // Entre 0.15 e 0.85
+                    fishY = 0.65 + moveY * 0.15; // Entre 0.5 e 0.8 (área da água)
+                }
+
                 // Cria máscara de água (60% da tela de baixo para cima)
                                 float waterLine = 0.4; // Linha da água aos 40% (deixando 60% de baixo com efeito)
                 float transitionWidth = 0.15; // Largura da transição suave
@@ -231,7 +272,7 @@ class WaterEffect {
                                                 float waterMask = smoothstep(maskEdge - transitionWidth, maskEdge + transitionWidth, verticalPos);
                 
                                                                 // Imagem original com peixe
-                vec4 originalColor = getColorWithFish(uv);
+                                vec4 originalColor = getColorWithFish(uv, fishX, fishY);
 
                                 
                 
@@ -240,7 +281,7 @@ class WaterEffect {
                 vec2 distortedUV = uv + refraction;
                 
                                 // Obtém cor do background com peixe e distorção
-                vec4 backgroundColor = getColorWithFish(distortedUV);
+                                vec4 backgroundColor = getColorWithFish(distortedUV, fishX, fishY);
                 
                                 // Adiciona efeito de profundidade
                 float depth = (sin(uv.x * 3.0) + sin(uv.y * 4.0)) * 0.1 + 0.9;
@@ -270,6 +311,26 @@ class WaterEffect {
                 // Mistura entre imagem original e efeito de água
                 vec3 finalColor = mix(originalColor.rgb, waterColor, waterMask);
                 
+                                // Adicionar exclamação amarela se necessário
+                if (u_showExclamation > 0.0 && u_gameState >= 4.0) { // fish_hooked
+                    vec2 exclamationPos = vec2(fishX, fishY - 0.08); // Acima do peixe
+                    float distToExclamation = distance(uv, exclamationPos);
+
+                    // Desenhar círculo amarelo para exclamação
+                    if (distToExclamation < 0.02) {
+                        finalColor = mix(finalColor, vec3(1.0, 1.0, 0.0), 0.8);
+                    }
+
+                    // Desenhar "!" no centro
+                    vec2 localUV = (uv - exclamationPos) / 0.02;
+                    if (abs(localUV.x) < 0.2 && localUV.y > -0.5 && localUV.y < 0.2) {
+                        finalColor = mix(finalColor, vec3(0.0, 0.0, 0.0), 0.9);
+                    }
+                    if (abs(localUV.x) < 0.2 && localUV.y > 0.4 && localUV.y < 0.7) {
+                        finalColor = mix(finalColor, vec3(0.0, 0.0, 0.0), 0.9);
+                    }
+                }
+
                 gl_FragColor = vec4(finalColor, 1.0);
             }
         `;
@@ -324,6 +385,30 @@ class WaterEffect {
     this.uniforms.fishTexture = this.gl.getUniformLocation(
       this.program,
       "u_fishTexture",
+    );
+    this.uniforms.gameState = this.gl.getUniformLocation(
+      this.program,
+      "u_gameState",
+    );
+    this.uniforms.hookPosition = this.gl.getUniformLocation(
+      this.program,
+      "u_hookPosition",
+    );
+    this.uniforms.fishTargetPosition = this.gl.getUniformLocation(
+      this.program,
+      "u_fishTargetPosition",
+    );
+    this.uniforms.showExclamation = this.gl.getUniformLocation(
+      this.program,
+      "u_showExclamation",
+    );
+    this.uniforms.fishTimeOffset = this.gl.getUniformLocation(
+      this.program,
+      "u_fishTimeOffset",
+    );
+    this.uniforms.transitionSmoothing = this.gl.getUniformLocation(
+      this.program,
+      "u_transitionSmoothing",
     );
   }
 
@@ -580,7 +665,184 @@ class WaterEffect {
       "https://cdn.builder.io/api/v1/image/assets%2Fae8512d3d0df4d1f8f1504a06406c6ba%2F62141810443b4226b05ad6c4f3dcd94e?format=webp&width=800";
   }
 
+  // Métodos do jogo de pesca
+  startFishingGame(hookX, hookY) {
+    console.log("Starting fishing game at", hookX, hookY);
+    this.gameState = "hook_cast";
+    this.hookPosition = { x: hookX, y: hookY };
+
+    // Gerar tempo de reação aleatório entre 4-12 segundos
+    this.fishReactionDelay = 4000 + Math.random() * 8000;
+    this.fishReactionStartTime = Date.now();
+
+    console.log(
+      `Fish will react in ${this.fishReactionDelay}ms (after ${this.fishReactionDelay / 1000}s)`,
+    );
+  }
+
+  updateFishingGame() {
+    if (this.gameState === "hook_cast") {
+      const elapsedTime = Date.now() - this.fishReactionStartTime;
+
+      // Debug: log do tempo a cada segundo
+      if (
+        Math.floor(elapsedTime / 1000) !== Math.floor((elapsedTime - 16) / 1000)
+      ) {
+        console.log(
+          `Fish reaction timer: ${(elapsedTime / 1000).toFixed(1)}s / ${(this.fishReactionDelay / 1000).toFixed(1)}s`,
+        );
+      }
+
+      if (elapsedTime >= this.fishReactionDelay) {
+        // Agora o peixe vai reagir - capturar posição atual do movimento natural
+        const slowTime = this.fishTime * 0.2;
+        const moveX =
+          Math.sin(slowTime * 0.7) * 0.3 +
+          Math.sin(slowTime * 1.3) * 0.15 +
+          Math.cos(slowTime * 0.4) * 0.1;
+        const moveY =
+          Math.cos(slowTime * 0.5) * 0.08 +
+          Math.sin(slowTime * 1.1) * 0.06 +
+          Math.sin(slowTime * 0.8) * 0.04;
+        const currentFishX = 0.5 + moveX * 0.35;
+        const currentFishY = 0.65 + moveY * 0.15;
+
+        // Definir a posiç��o atual como ponto de partida
+        this.fishTargetPosition = { x: currentFishX, y: currentFishY };
+        this.gameState = "fish_reacting";
+        console.log(
+          "Fish is now reacting to hook from position:",
+          this.fishTargetPosition,
+        );
+      }
+    } else if (
+      this.gameState === "fish_reacting" ||
+      this.gameState === "fish_moving"
+    ) {
+      // Mover peixe em direção ao anzol
+      const speed = 0.0003; // velocidade do movimento (reduzida para ser mais realista)
+      const dx = this.hookPosition.x - this.fishTargetPosition.x;
+      const dy = this.hookPosition.y - this.fishTargetPosition.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      if (distance > 0.01) {
+        // ainda não chegou ao anzol
+        this.gameState = "fish_moving";
+        this.fishTargetPosition.x += (dx / distance) * speed;
+        this.fishTargetPosition.y += (dy / distance) * speed;
+      } else {
+        // Peixe chegou ao anzol
+        this.gameState = "fish_hooked";
+        this.exclamationTime = 1000; // mostrar exclamação por 1 segundo
+        console.log("Fish hooked! Starting exclamation timer.");
+
+        // Agendar abertura do modal após 1 segundo
+        setTimeout(() => {
+          if (this.onGameStart) {
+            this.onGameStart();
+          }
+        }, 1000);
+      }
+    } else if (this.gameState === "fish_hooked") {
+      if (this.exclamationTime > 0) {
+        this.exclamationTime -= 16;
+      }
+    }
+  }
+
+  resetFishingGame() {
+    // Se o peixe estava em estado direcionado, ajustar fishTime para continuar da posição atual
+    if (
+      this.gameState === "fish_moving" ||
+      this.gameState === "fish_reacting" ||
+      this.gameState === "fish_hooked"
+    ) {
+      const currentX = this.fishTargetPosition.x;
+      const currentY = this.fishTargetPosition.y;
+
+      console.log(
+        `Fish was in ${this.gameState}, adjusting natural movement to continue from (${currentX.toFixed(2)}, ${currentY.toFixed(2)})`,
+      );
+
+      // Ajustar fishTimeOffset para que o movimento natural comece da posição atual
+      this.adjustFishTimeToPosition(currentX, currentY);
+      this.transitionBackToNaturalTime = Date.now(); // Iniciar timer de suavização
+    }
+
+    this.gameState = "idle";
+    this.hookPosition = { x: 0.5, y: 0.5 };
+    this.fishReactionStartTime = 0;
+    this.fishReactionDelay = 0;
+    this.exclamationTime = 0;
+  }
+
+  adjustFishTimeToPosition(targetX, targetY) {
+    // Calcular qual fishTime resultaria na posição desejada
+    // Usar busca iterativa refinada em duas fases
+
+    let bestOffset = 0;
+    let bestDistance = Infinity;
+
+    // Primeira fase: busca grosseira
+    for (let offset = 0; offset < Math.PI * 4; offset += 0.15) {
+      const distance = this.calculateDistanceForOffset(
+        targetX,
+        targetY,
+        offset,
+      );
+      if (distance < bestDistance) {
+        bestDistance = distance;
+        bestOffset = offset;
+      }
+    }
+
+    // Segunda fase: busca fina ao redor do melhor resultado
+    const searchRange = 0.3;
+    const searchStep = 0.01;
+    for (
+      let offset = bestOffset - searchRange;
+      offset <= bestOffset + searchRange;
+      offset += searchStep
+    ) {
+      const distance = this.calculateDistanceForOffset(
+        targetX,
+        targetY,
+        offset,
+      );
+      if (distance < bestDistance) {
+        bestDistance = distance;
+        bestOffset = offset;
+      }
+    }
+
+    this.fishTimeOffset = bestOffset;
+    console.log(
+      `Set fishTimeOffset to ${bestOffset.toFixed(3)} (distance: ${bestDistance.toFixed(4)})`,
+    );
+  }
+
+  calculateDistanceForOffset(targetX, targetY, offset) {
+    const testTime = (this.fishTime + offset) * 0.2;
+    const moveX =
+      Math.sin(testTime * 0.7) * 0.3 +
+      Math.sin(testTime * 1.3) * 0.15 +
+      Math.cos(testTime * 0.4) * 0.1;
+    const moveY =
+      Math.cos(testTime * 0.5) * 0.08 +
+      Math.sin(testTime * 1.1) * 0.06 +
+      Math.sin(testTime * 0.8) * 0.04;
+    const testX = 0.5 + moveX * 0.35;
+    const testY = 0.65 + moveY * 0.15;
+
+    return Math.sqrt((testX - targetX) ** 2 + (testY - targetY) ** 2);
+  }
+
   updateBackgroundFromImage(image) {
+    if (!this.gl || !this.backgroundTexture) {
+      console.warn("WebGL context or background texture not available");
+      return;
+    }
+
     this.gl.bindTexture(this.gl.TEXTURE_2D, this.backgroundTexture);
     this.gl.texImage2D(
       this.gl.TEXTURE_2D,
@@ -613,8 +875,13 @@ class WaterEffect {
   }
 
   render() {
+    if (!this.gl || !this.canvas) return;
+
     this.time += 0.016 * this.animationSpeed;
     this.fishTime += 0.016; // Tempo independente para o peixe (sempre constante)
+
+    // Atualizar lógica do jogo de pesca
+    this.updateFishingGame();
 
     this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 
@@ -651,6 +918,48 @@ class WaterEffect {
       this.canvas.height,
     );
 
+    // Uniforms do jogo de pesca
+    const gameStateValue =
+      this.gameState === "idle"
+        ? 0
+        : this.gameState === "hook_cast"
+          ? 1
+          : this.gameState === "fish_reacting"
+            ? 2
+            : this.gameState === "fish_moving"
+              ? 3
+              : this.gameState === "fish_hooked"
+                ? 4
+                : 0;
+    this.gl.uniform1f(this.uniforms.gameState, gameStateValue);
+    this.gl.uniform2f(
+      this.uniforms.hookPosition,
+      this.hookPosition.x,
+      this.hookPosition.y,
+    );
+    this.gl.uniform2f(
+      this.uniforms.fishTargetPosition,
+      this.fishTargetPosition.x,
+      this.fishTargetPosition.y,
+    );
+    this.gl.uniform1f(
+      this.uniforms.showExclamation,
+      this.gameState === "fish_hooked" && this.exclamationTime > 0 ? 1.0 : 0.0,
+    );
+    this.gl.uniform1f(this.uniforms.fishTimeOffset, this.fishTimeOffset);
+
+    // Calcular suavização de transição
+    let transitionSmoothing = 0.0;
+    if (this.transitionBackToNaturalTime > 0) {
+      const elapsedTime = Date.now() - this.transitionBackToNaturalTime;
+      const progress = Math.min(
+        elapsedTime / this.transitionBackToNaturalDuration,
+        1,
+      );
+      transitionSmoothing = 1.0 - progress; // 1.0 inicialmente, vai para 0.0
+    }
+    this.gl.uniform1f(this.uniforms.transitionSmoothing, transitionSmoothing);
+
     // Ativa texturas
     this.gl.activeTexture(this.gl.TEXTURE0);
     this.gl.bindTexture(this.gl.TEXTURE_2D, this.backgroundTexture);
@@ -679,6 +988,7 @@ export const FishingScreen: React.FC = () => {
   const [fishingSettings, setFishingSettings] =
     useState<FishingSettings | null>(null);
   const [isUpdatingSettings, setIsUpdatingSettings] = useState(false);
+  const [showFishingModal, setShowFishingModal] = useState(false);
 
   const isAdmin = user?.isAdmin || false;
 
@@ -707,6 +1017,12 @@ export const FishingScreen: React.FC = () => {
     const timer = setTimeout(() => {
       try {
         const waterEffect = new WaterEffect();
+
+        // Configurar callback para abrir modal
+        waterEffect.onGameStart = () => {
+          console.log("Opening fishing game modal");
+          setShowFishingModal(true);
+        };
 
         // Apply settings from database if available
         if (fishingSettings) {
@@ -881,7 +1197,24 @@ export const FishingScreen: React.FC = () => {
       ></canvas>
 
       {/* Fishing Rod Component */}
-      <FishingRod />
+      <FishingRod
+        onHookCast={(x, y) => {
+          // Converter coordenadas de pixel para UV (0-1)
+          const uvX = x / window.innerWidth;
+          const uvY = y / window.innerHeight;
+          console.log("Hook cast at UV coordinates:", uvX, uvY);
+
+          if (waterEffectRef.current) {
+            waterEffectRef.current.startFishingGame(uvX, uvY);
+          }
+        }}
+        onLineReeled={() => {
+          console.log("Line reeled in - resetting fishing game");
+          if (waterEffectRef.current) {
+            waterEffectRef.current.resetFishingGame();
+          }
+        }}
+      />
 
       {/* Back Button */}
       <button
@@ -1072,6 +1405,92 @@ export const FishingScreen: React.FC = () => {
         <div>WebGL Water Effect</div>
         <div>Use os controles para ajustar o efeito</div>
       </div>
+
+      {/* Modal de Jogo de Pesca */}
+      {showFishingModal && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0, 0, 0, 0.7)",
+            zIndex: 50,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <div
+            style={{
+              background: "white",
+              borderRadius: "12px",
+              padding: "30px",
+              maxWidth: "400px",
+              width: "90%",
+              textAlign: "center",
+              boxShadow: "0 10px 30px rgba(0, 0, 0, 0.3)",
+            }}
+          >
+            <h2 style={{ marginTop: 0, color: "#333", fontSize: "24px" }}>
+              🎣 Peixe Fisgado!
+            </h2>
+            <p
+              style={{ color: "#666", marginBottom: "30px", fontSize: "16px" }}
+            >
+              Parabéns! Você conseguiu fisgar um peixe. Agora é hora de jogá-lo
+              no jogo de pesca!
+            </p>
+
+            <div
+              style={{ display: "flex", gap: "10px", justifyContent: "center" }}
+            >
+              <button
+                onClick={() => {
+                  setShowFishingModal(false);
+                  if (waterEffectRef.current) {
+                    waterEffectRef.current.resetFishingGame();
+                  }
+                  console.log("Starting fishing mini-game...");
+                  // Aqui você pode adicionar a lógica do mini-jogo
+                }}
+                style={{
+                  background: "#4A90E2",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "8px",
+                  padding: "12px 24px",
+                  fontSize: "16px",
+                  cursor: "pointer",
+                }}
+              >
+                Jogar Mini-Game
+              </button>
+
+              <button
+                onClick={() => {
+                  setShowFishingModal(false);
+                  if (waterEffectRef.current) {
+                    waterEffectRef.current.resetFishingGame();
+                  }
+                }}
+                style={{
+                  background: "#ccc",
+                  color: "#333",
+                  border: "none",
+                  borderRadius: "8px",
+                  padding: "12px 24px",
+                  fontSize: "16px",
+                  cursor: "pointer",
+                }}
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

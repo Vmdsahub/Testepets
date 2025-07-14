@@ -2,6 +2,8 @@ import React, { useEffect, useRef } from "react";
 
 interface FishingRodProps {
   className?: string;
+  onHookCast?: (x: number, y: number) => void;
+  onLineReeled?: () => void;
 }
 
 // Classe do sistema de pesca baseada no simulador fornecido
@@ -42,6 +44,8 @@ class FishingSystem {
   private fishingRodTip = { x: 0, y: 0 };
   private previousRodTip = { x: 0, y: 0 };
   private castStartTime = 0;
+  private onHookCast?: (x: number, y: number) => void;
+  private onLineReeled?: () => void;
 
   // Sistema de força de lançamento
   private isCharging = false;
@@ -58,8 +62,14 @@ class FishingSystem {
   private readonly numSegments = 20;
   private readonly waterLevel = 0.6; // 60% da altura da tela é considerado água
 
-  constructor(canvas: HTMLCanvasElement) {
+  constructor(
+    canvas: HTMLCanvasElement,
+    onHookCast?: (x: number, y: number) => void,
+    onLineReeled?: () => void,
+  ) {
     this.canvas = canvas;
+    this.onHookCast = onHookCast;
+    this.onLineReeled = onLineReeled;
     const context = canvas.getContext("2d");
     if (!context) {
       throw new Error("Não foi possível obter o contexto 2D do canvas");
@@ -180,6 +190,11 @@ class FishingSystem {
     const arcHeight = actualDistance * (0.3 + this.chargePower * 0.2);
     const controlY = Math.min(startY, this.targetY) - arcHeight;
 
+    // Chamar callback se fornecido
+    if (this.onHookCast) {
+      this.onHookCast(this.targetX, this.targetY);
+    }
+
     // Inicializar segmentos da linha gradualmente
     this.linePoints = [];
 
@@ -227,6 +242,11 @@ class FishingSystem {
 
     this.isReelingIn = true;
     this.reelStartTime = Date.now();
+
+    // Notificar que a linha está sendo recolhida
+    if (this.onLineReeled) {
+      this.onLineReeled();
+    }
 
     // Marcar todos os pontos para recolhimento
     this.linePoints.forEach((point) => {
@@ -635,14 +655,22 @@ class FishingSystem {
   }
 }
 
-export const FishingRod: React.FC<FishingRodProps> = ({ className }) => {
+export const FishingRod: React.FC<FishingRodProps> = ({
+  className,
+  onHookCast,
+  onLineReeled,
+}) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fishingSystemRef = useRef<FishingSystem | null>(null);
 
   useEffect(() => {
     if (canvasRef.current) {
       try {
-        fishingSystemRef.current = new FishingSystem(canvasRef.current);
+        fishingSystemRef.current = new FishingSystem(
+          canvasRef.current,
+          onHookCast,
+          onLineReeled,
+        );
       } catch (error) {
         console.error("Erro ao inicializar sistema de pesca:", error);
       }
