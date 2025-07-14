@@ -350,8 +350,38 @@ class FishingSystem {
           const isInWater = point.y > window.innerHeight * this.waterLevel;
           point.inWater = isInWater;
 
-          // Se o ponto já está assentado, manter posição fixa
+          // Se o ponto já está assentado, aplicar movimento suave e responsivo
           if (point.settled) {
+            // Calcular movimento da vara
+            const rodMovementX = this.fishingRodTip.x - this.previousRodTip.x;
+            const rodMovementY = this.fishingRodTip.y - this.previousRodTip.y;
+
+            // Calcular influência baseada na distância da vara (pontos mais próximos são mais influenciados)
+            const distanceFromRod = Math.sqrt(
+              Math.pow(point.x - this.fishingRodTip.x, 2) +
+                Math.pow(point.y - this.fishingRodTip.y, 2),
+            );
+            const maxInfluenceDistance = this.segmentLength * this.numSegments;
+            const influence = Math.max(
+              0,
+              1 - distanceFromRod / maxInfluenceDistance,
+            );
+
+            // Aplicar movimento da vara com influência reduzida
+            const rodInfluenceX = rodMovementX * influence * 0.3;
+            const rodInfluenceY = rodMovementY * influence * 0.2;
+
+            // Adicionar oscilação suave na água
+            const time = Date.now() * 0.001;
+            const waterWaveX = Math.sin(time * 1.5 + point.x * 0.02) * 0.8;
+            const waterWaveY = Math.sin(time * 2 + point.y * 0.015) * 0.6;
+
+            // Aplicar pequeno amortecimento para suavizar movimentos
+            const dampingFactor = 0.95;
+            point.settledX += (rodInfluenceX + waterWaveX) * dampingFactor;
+            point.settledY += (rodInfluenceY + waterWaveY) * dampingFactor;
+
+            // Atualizar posição atual
             point.x = point.settledX;
             point.y = point.settledY;
             point.oldX = point.settledX;
