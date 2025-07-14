@@ -201,22 +201,56 @@ class WaterEffect {
                                 vec2 fishPos = vec2(fishX, fishY);
                 vec2 fishSize = vec2(0.08, 0.06); // Diminuído de 0.15x0.12 para 0.08x0.06
 
-                                                                                // Direção baseada no movimento atual
-                float cycleTime = ((u_fishTime + u_fishTimeOffset) * 0.3) * 0.5;
-                float velocity = cos(cycleTime) * 0.48; // Derivada do sin(cycleTime)
-                bool facingRight = velocity > 0.0;
+                                                                                                                                                                // SISTEMA DE ROTAÇÃO MELHORADO - CALCULA DIREÇÃO DO MOVIMENTO
+
+                // Calcular direção do movimento baseado na velocidade atual
+                float deltaTime = 0.001; // Pequeno delta para calcular velocidade
+                float futureTime = time + deltaTime;
+
+                // Posição atual
+                float currentX = naturalFishX;
+                float currentY = naturalFishY;
+
+                // Posição futura (para calcular direção)
+                float futureCycle = futureTime * 0.25;
+                float futureXWave1 = sin(futureCycle) * 0.35;
+                float futureXWave2 = sin(futureCycle * 0.7 + 1.2) * 0.15;
+                float futureXWave3 = cos(futureCycle * 1.3 + 2.5) * 0.08;
+                float futureYWave1 = cos(futureCycle * 0.8) * 0.18;
+                float futureYWave2 = sin(futureCycle * 1.1 + 0.8) * 0.08;
+                float futureYWave3 = cos(futureCycle * 0.6 + 1.5) * 0.05;
+
+                float futureOrganicX = sin(futureTime * 0.4 + 3.14159) * 0.06 + cos(futureTime * 0.6 + 1.57) * 0.04;
+                float futureOrganicY = cos(futureTime * 0.35 + 2.1) * 0.03 + sin(futureTime * 0.55 + 0.5) * 0.025;
+                float futureDriftX = sin(futureTime * 0.08) * 0.12;
+                float futureDriftY = cos(futureTime * 0.06) * 0.06;
+
+                float futureX = 0.5 + (futureXWave1 + futureXWave2 + futureXWave3) + futureOrganicX + futureDriftX;
+                float futureY = 0.7 + (futureYWave1 + futureYWave2 + futureYWave3) + futureOrganicY + futureDriftY;
+
+                // Clamp para future position também
+                futureX = clamp(futureX, 0.05, 0.95);
+                futureY = clamp(futureY, 0.45, 0.95);
+
+                // Calcular velocidade (direção do movimento)
+                float velocityX = (futureX - currentX) / deltaTime;
+                float velocityY = (futureY - currentY) / deltaTime;
+
+                // Determinar orientação baseada na velocidade horizontal predominante
+                // Usar maior sensibilidade para mudanças suaves de direção
+                bool facingRight = velocityX > 0.001; // Limiar baixo para maior responsividade
 
                 // Calcula UV do peixe garantindo orientação sempre correta
                 vec2 localUV = (coords - fishPos + fishSize * 0.5) / fishSize;
                 vec2 fishUV;
 
                 // GARANTIA ABSOLUTA: peixe nunca fica de cabeça para baixo
-                // Apenas flip horizontal baseado na direção, Y sempre correto
+                // Rotação suave apenas horizontal, Y sempre correto (nunca inverte verticalmente)
                 if (facingRight) {
-                    // Flip horizontal quando nada para direita
+                    // Flip horizontal quando nada para direita (peixe olha para direita)
                     fishUV = vec2(1.0 - localUV.x, localUV.y);
                 } else {
-                    // Orientação normal quando nada para esquerda
+                    // Orientação normal quando nada para esquerda (peixe olha para esquerda)
                     fishUV = vec2(localUV.x, localUV.y);
                 }
 
