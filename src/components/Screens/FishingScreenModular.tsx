@@ -352,17 +352,27 @@ class ModularWaterEffect {
         float velocityX = futureX - naturalFishX;
         float velocityY = futureY - naturalFishY;
 
-                // ORIENTAÇÃO CORRETA: Apenas flip horizontal, nunca vertical
-        float fishAngle = 0.0; // Ângulo base (horizontal)
+                        // ROTAÇÃO SUAVE: Transição gradual entre direções
+        float targetAngle = 0.0;
 
-        // Determinar direção horizontal apenas
-        if (velocityX > 0.0) {
-            // Nadando para direita - orientação normal (0 graus)
-            fishAngle = 0.0;
-        } else if (velocityX < -0.0001) {
-            // Nadando para esquerda - flip horizontal (180 graus)
-            fishAngle = 3.14159;
+        // Determinar ângulo alvo baseado na direção
+        if (velocityX > 0.001) {
+            targetAngle = 0.0; // Direita - normal
+        } else if (velocityX < -0.001) {
+            targetAngle = 3.14159; // Esquerda - flip
+        } else {
+            // Parado - manter ângulo atual (sem rotação brusca)
+            targetAngle = 0.0;
         }
+
+        // Suavizar transição do ângulo (sem mudanças bruscas)
+        float angleDiff = targetAngle - 0.0;
+        float smoothFactor = smoothstep(0.0, 1.0, abs(velocityX) * 500.0);
+        float fishAngle = mix(0.0, targetAngle, smoothFactor);
+
+        // Adicionar pequena oscilação natural (simula movimento de cauda)
+        float tailWag = sin(time * 2.0) * 0.1 * smoothstep(0.001, 0.01, abs(velocityX));
+        fishAngle += tailWag;
 
         // Quando velocidade é muito baixa, manter ângulo anterior
         float speed = length(vec2(velocityX, velocityY));
@@ -777,7 +787,7 @@ class ModularWaterEffect {
     this.waterArea = waterArea;
   }
 
-  // M��todos do jogo de pesca (mantidos originais mas simplificados)
+  // Métodos do jogo de pesca (mantidos originais mas simplificados)
   startFishingGame(hookX, hookY) {
     console.log("Starting fishing game at", hookX, hookY);
     this.gameState = "hook_cast";
