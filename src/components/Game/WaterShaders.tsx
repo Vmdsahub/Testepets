@@ -60,7 +60,7 @@ const WaterShaders: React.FC<WaterShadersProps> = ({
       float amplitude = 0.5;
       float frequency = 1.0;
       
-      for (int i = 0; i < 5; i++) {
+            for (int i = 0; i < 3; i++) {
         value += amplitude * smoothNoise(p * frequency);
         frequency *= 2.0;
         amplitude *= 0.5;
