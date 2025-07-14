@@ -865,7 +865,28 @@ class WaterEffect {
 
     this.fishTimeOffset = bestOffset;
     console.log(
-      `Set fishTimeOffset to ${bestOffset.toFixed(4)} (distance: ${bestDistance.toFixed(6)})`,
+      `🎯 OFFSET DEBUG - Set fishTimeOffset to ${bestOffset.toFixed(4)} (distance: ${bestDistance.toFixed(6)})`,
+    );
+
+    // Verificar qual posição resulta com este offset
+    const testResult = this.calculateDistanceForOffset(
+      targetX,
+      targetY,
+      bestOffset,
+    );
+    const testTime = (this.fishTime + bestOffset) * 0.2;
+    const moveX =
+      Math.sin(testTime * 0.7) * 0.3 +
+      Math.sin(testTime * 1.3) * 0.15 +
+      Math.cos(testTime * 0.4) * 0.1;
+    const moveY =
+      Math.cos(testTime * 0.5) * 0.08 +
+      Math.sin(testTime * 1.1) * 0.06 +
+      Math.sin(testTime * 0.8) * 0.04;
+    const resultX = 0.5 + moveX * 0.35;
+    const resultY = 0.65 + moveY * 0.15;
+    console.log(
+      `🎯 OFFSET DEBUG - Target: (${targetX.toFixed(3)}, ${targetY.toFixed(3)}) -> Result: (${resultX.toFixed(3)}, ${resultY.toFixed(3)})`,
     );
   }
 
