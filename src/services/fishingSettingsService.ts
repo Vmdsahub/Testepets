@@ -120,6 +120,15 @@ class FishingSettingsService {
     file: File,
   ): Promise<{ success: boolean; imageUrl?: string; message?: string }> {
     try {
+      // Check if storage is available
+      if (!supabase.storage) {
+        console.warn("Storage not available in mock mode");
+        return {
+          success: false,
+          message: "File upload not available in development mode",
+        };
+      }
+
       // Generate unique filename
       const fileExt = file.name.split(".").pop();
       const fileName = `fishing-background-${Date.now()}.${fileExt}`;
