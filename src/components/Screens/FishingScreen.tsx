@@ -103,8 +103,9 @@ class WaterEffect {
             uniform vec2 u_hookPosition;
             uniform vec2 u_fishTargetPosition;
                         uniform float u_showExclamation;
-            uniform float u_fishTimeOffset;
+                        uniform float u_fishTimeOffset;
             uniform float u_transitionSmoothing; // 0.0 = movimento completo, 1.0 = movimento reduzido
+            uniform vec2 u_transitionStartPosition; // Posição onde o peixe estava quando iniciou a transição
                         uniform sampler2D u_backgroundTexture;
             uniform sampler2D u_noiseTexture;
             uniform sampler2D u_fishTexture;
