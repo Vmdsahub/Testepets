@@ -28,6 +28,7 @@ class WaterEffect {
     this.distortionAmount = 0.3;
     this.animationSpeed = 1.0;
     this.time = 0;
+    this.fishTime = 0;
 
     this.init();
     this.setupControls();
