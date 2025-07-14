@@ -221,9 +221,9 @@ class WaterEffect {
                 float velocityX = u_fishVelocity.x;
                 float velocityY = u_fishVelocity.y;
 
-                                // Determinar orientação baseada na velocidade horizontal
-                // Limiar baixo para evitar oscilações quando parado
-                bool facingRight = velocityX > 0.0001;
+                                                // Determinar orientação baseada na velocidade horizontal
+                // Limiar mais alto para reduzir oscilações (aumentado de 0.0001 para 0.0008)
+                bool facingRight = velocityX > 0.0008;
 
                 // Calcula UV do peixe garantindo orientação sempre correta
                 vec2 localUV = (coords - fishPos + fishSize * 0.5) / fishSize;
@@ -329,7 +329,7 @@ class WaterEffect {
                 // Adiciona um leve tint azulado para simular água
                 waterColor = mix(waterColor, waterColor * vec3(0.9, 0.95, 1.1), 0.3 * waterMask);
                 
-                // Adiciona ondulação da superfície
+                // Adiciona ondula��ão da superfície
                 float surfaceWave = createWaves(uv, u_time) * 0.1 * waterMask + 0.9;
                 waterColor *= surfaceWave;
                 
