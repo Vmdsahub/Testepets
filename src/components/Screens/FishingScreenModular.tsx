@@ -261,7 +261,7 @@ class ModularWaterEffect {
                                 // === SISTEMA DE MOVIMENTO ALEATÓRIO DO PEIXE ===
         // Movimento completamente livre com rotação de 360 graus
 
-        float time = u_fishTime * 0.4; // Velocidade base
+                float time = u_fishTime * 0.15; // Velocidade MUITO mais lenta para direções consistentes
 
         // Parâmetros da área da água
         float areaX = u_waterArea.x;
@@ -279,17 +279,18 @@ class ModularWaterEffect {
         // === MOVIMENTO BASEADO EM RUÍDO PERLIN SIMULADO ===
         // Usar múltiplas frequências para criar movimento orgânico
 
-        // Ruído base para direção geral
-        float noiseX1 = sin(time * 0.7 + 123.45) * cos(time * 0.5 + 67.89);
-        float noiseY1 = cos(time * 0.6 + 234.56) * sin(time * 0.8 + 78.90);
+                // Movimento MUITO mais suave - direções persistentes
+        // Frequências MUITO baixas para mudanças lentas de direção
+        float noiseX1 = sin(time * 0.3 + 123.45) * cos(time * 0.2 + 67.89);
+        float noiseY1 = cos(time * 0.25 + 234.56) * sin(time * 0.35 + 78.90);
 
-        // Ruído de alta frequência para variação
-        float noiseX2 = sin(time * 2.3 + 345.67) * 0.3;
-        float noiseY2 = cos(time * 1.9 + 456.78) * 0.3;
+        // Variação sutil - frequências reduzidas drasticamente
+        float noiseX2 = sin(time * 0.8 + 345.67) * 0.2;
+        float noiseY2 = cos(time * 0.6 + 456.78) * 0.2;
 
-        // Ruído de baixa frequência para movimentos amplos
-        float noiseX3 = sin(time * 0.2 + 567.89) * 0.8;
-        float noiseY3 = cos(time * 0.15 + 678.90) * 0.8;
+        // Movimento amplo - ainda mais lento
+        float noiseX3 = sin(time * 0.1 + 567.89) * 0.9;
+        float noiseY3 = cos(time * 0.08 + 678.90) * 0.9;
 
         // Combinar ruídos para movimento natural
         float moveX = (noiseX1 + noiseX2 + noiseX3) / 3.0;
