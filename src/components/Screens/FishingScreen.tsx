@@ -724,6 +724,33 @@ class WaterEffect {
       this.canvas.height,
     );
 
+    // Uniforms do jogo de pesca
+    const gameStateValue =
+      this.gameState === "idle"
+        ? 0
+        : this.gameState === "hook_cast"
+          ? 1
+          : this.gameState === "fish_reacting"
+            ? 2
+            : this.gameState === "fish_moving"
+              ? 3
+              : 4;
+    this.gl.uniform1f(this.uniforms.gameState, gameStateValue);
+    this.gl.uniform2f(
+      this.uniforms.hookPosition,
+      this.hookPosition.x,
+      this.hookPosition.y,
+    );
+    this.gl.uniform2f(
+      this.uniforms.fishTargetPosition,
+      this.fishTargetPosition.x,
+      this.fishTargetPosition.y,
+    );
+    this.gl.uniform1f(
+      this.uniforms.showExclamation,
+      this.gameState === "fish_hooked" && this.exclamationTime > 0 ? 1.0 : 0.0,
+    );
+
     // Ativa texturas
     this.gl.activeTexture(this.gl.TEXTURE0);
     this.gl.bindTexture(this.gl.TEXTURE_2D, this.backgroundTexture);
