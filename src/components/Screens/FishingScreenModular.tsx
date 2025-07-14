@@ -258,47 +258,48 @@ class ModularWaterEffect {
       void main() {
         vec2 uv = v_texCoord;
         
-                                // === SISTEMA DE MOVIMENTO ALEATÓRIO DO PEIXE ===
-        // Movimento completamente livre com rotação de 360 graus
+                                        // === MOVIMENTO PONTO-A-PONTO (BASEADO NO CÓDIGO JS) ===
+        // Peixe vai diretamente de um ponto aleatório para outro
 
-                float time = u_fishTime * 0.15; // Velocidade MUITO mais lenta para direções consistentes
+        float time = u_fishTime;
 
-        // Parâmetros da área da água
+        // Parâmetros da área da água (100% uso)
         float areaX = u_waterArea.x;
         float areaY = u_waterArea.y;
         float areaW = u_waterArea.z;
         float areaH = u_waterArea.w;
 
-                // USO COMPLETO DA ÁREA - SEM MARGENS
-        float margin = 0.0; // Sem margem - usa 100% da área
-        float innerX = areaX;
-        float innerY = areaY;
-        float innerW = areaW;
-        float innerH = areaH;
+        // Intervalo para mudar de alvo (3-6 segundos)
+        float targetChangeInterval = 4.0;
+        float currentCycle = floor(time / targetChangeInterval);
 
-        // === MOVIMENTO BASEADO EM RUÍDO PERLIN SIMULADO ===
-        // Usar múltiplas frequências para criar movimento orgânico
+        // Gerar alvos pseudo-aleatórios determinísticos
+        float seedX = sin(currentCycle * 12.9898 + 78.233) * 43758.5453;
+        float seedY = sin(currentCycle * 93.9898 + 67.345) * 23421.3141;
+        seedX = fract(seedX); // 0-1
+        seedY = fract(seedY); // 0-1
 
-                // Movimento MUITO mais suave - direções persistentes
-        // Frequências MUITO baixas para mudanças lentas de direção
-        float noiseX1 = sin(time * 0.3 + 123.45) * cos(time * 0.2 + 67.89);
-        float noiseY1 = cos(time * 0.25 + 234.56) * sin(time * 0.35 + 78.90);
+        // Alvo atual
+        float targetX = areaX + (seedX * areaW);
+        float targetY = areaY + (seedY * areaH);
 
-        // Variação sutil - frequências reduzidas drasticamente
-        float noiseX2 = sin(time * 0.8 + 345.67) * 0.2;
-        float noiseY2 = cos(time * 0.6 + 456.78) * 0.2;
+        // Posição inicial (alvo anterior)
+        float prevSeedX = sin((currentCycle - 1.0) * 12.9898 + 78.233) * 43758.5453;
+        float prevSeedY = sin((currentCycle - 1.0) * 93.9898 + 67.345) * 23421.3141;
+        prevSeedX = fract(prevSeedX);
+        prevSeedY = fract(prevSeedY);
+        float startX = areaX + (prevSeedX * areaW);
+        float startY = areaY + (prevSeedY * areaH);
 
-        // Movimento amplo - ainda mais lento
-        float noiseX3 = sin(time * 0.1 + 567.89) * 0.9;
-        float noiseY3 = cos(time * 0.08 + 678.90) * 0.9;
+        // Progresso no ciclo atual (0-1)
+        float cycleProgress = fract(time / targetChangeInterval);
 
-        // Combinar ruídos para movimento natural
-        float moveX = (noiseX1 + noiseX2 + noiseX3) / 3.0;
-        float moveY = (noiseY1 + noiseY2 + noiseY3) / 3.0;
+        // Interpolação suave (equivalente à transição CSS)
+        float easeProgress = smoothstep(0.0, 1.0, cycleProgress);
 
-                // Calcular posição usando 100% da área disponível
-        float naturalFishX = innerX + (innerW * 0.5) + (moveX * innerW * 0.5); // 100% amplitude horizontal
-        float naturalFishY = innerY + (innerH * 0.5) + (moveY * innerH * 0.5); // 100% amplitude vertical
+        // Posição atual do peixe
+        float naturalFishX = mix(startX, targetX, easeProgress);
+        float naturalFishY = mix(startY, targetY, easeProgress);
 
         // === SISTEMA DE ROTAÇÃO LIVRE ===
         // Calcular ângulo de movimento baseado na velocidade instantânea
