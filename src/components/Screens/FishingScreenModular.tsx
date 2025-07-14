@@ -1136,10 +1136,6 @@ export const FishingScreenModular: React.FC = () => {
       case "rectangle":
         ctx.rect(pixelX, pixelY, pixelWidth, pixelHeight);
         break;
-      case "square":
-        const size = Math.min(pixelWidth, pixelHeight);
-        ctx.rect(pixelX, pixelY, size, size);
-        break;
       case "circle":
         const centerX = pixelX + pixelWidth / 2;
         const centerY = pixelY + pixelHeight / 2;
@@ -1174,14 +1170,6 @@ export const FishingScreenModular: React.FC = () => {
           relX <= waterArea.x + waterArea.width &&
           relY >= waterArea.y &&
           relY <= waterArea.y + waterArea.height
-        );
-      case "square":
-        const size = Math.min(waterArea.width, waterArea.height);
-        return (
-          relX >= waterArea.x &&
-          relX <= waterArea.x + size &&
-          relY >= waterArea.y &&
-          relY <= waterArea.y + size
         );
       case "circle":
         const centerX = waterArea.x + waterArea.width / 2;
