@@ -232,11 +232,11 @@ class WaterEffect {
                                 // Calcular posição do peixe baseada no estado do jogo
                 float fishX, fishY;
 
-                                                if (u_gameState >= 2.0) { // fish_reacting, fish_moving, fish_hooked, ou transitioning
+                                                                if (u_gameState >= 2.0) { // fish_reacting, fish_moving, fish_hooked, ou transitioning
                     // Usar posição alvo quando o peixe está reagindo/se movendo/em transição
                     fishX = u_fishTargetPosition.x;
                     fishY = u_fishTargetPosition.y;
-                } else {
+                } else if (u_gameState == 0.0) { // idle - movimento natural
                     // Movimento natural do peixe com tempo independente
                     float slowTime = u_fishTime * 0.2; // Movimento mais lento e independente
 
@@ -247,6 +247,13 @@ class WaterEffect {
                     // Normaliza para manter dentro dos limites (0.1 a 0.9 em X, área da água em Y)
                     fishX = 0.5 + moveX * 0.35; // Entre 0.15 e 0.85
                     fishY = 0.65 + moveY * 0.15; // Entre 0.5 e 0.8 (área da água)
+                } else {
+                    // hook_cast (1.0) - continuar movimento natural
+                    float slowTime = u_fishTime * 0.2;
+                    float moveX = sin(slowTime * 0.7) * 0.3 + sin(slowTime * 1.3) * 0.15 + cos(slowTime * 0.4) * 0.1;
+                    float moveY = cos(slowTime * 0.5) * 0.08 + sin(slowTime * 1.1) * 0.06 + sin(slowTime * 0.8) * 0.04;
+                    fishX = 0.5 + moveX * 0.35;
+                    fishY = 0.65 + moveY * 0.15;
                 }
 
                 // Cria máscara de água (60% da tela de baixo para cima)
