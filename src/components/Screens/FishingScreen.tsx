@@ -159,7 +159,7 @@ class WaterEffect {
 
             // Função para criar ondas realistas
             float createWaves(vec2 uv, float time) {
-                // Ondas balanceadas em múltiplas direç��es
+                // Ondas balanceadas em múltiplas direções
                 float wave1 = sin(uv.x * 6.0 + time * 1.5) * 0.1;
                 float wave2 = sin(uv.y * 8.0 + time * 2.0) * 0.08;
                 float wave3 = sin((uv.x + uv.y) * 12.0 + time * 1.2) * 0.05;
@@ -438,6 +438,14 @@ class WaterEffect {
     this.uniforms.transitionStartPosition = this.gl.getUniformLocation(
       this.program,
       "u_transitionStartPosition",
+    );
+    this.uniforms.fishPosition = this.gl.getUniformLocation(
+      this.program,
+      "u_fishPosition",
+    );
+    this.uniforms.fishVelocity = this.gl.getUniformLocation(
+      this.program,
+      "u_fishVelocity",
     );
   }
 
@@ -792,7 +800,7 @@ class WaterEffect {
           `🐟 REACTION DEBUG - transitionSmoothing: ${transitionSmoothing.toFixed(4)}`,
         );
 
-        // Se há transição ativa, a posição real é interpolada
+        // Se há transição ativa, a posi��ão real é interpolada
         if (transitionSmoothing > 0.0) {
           const progress = 1.0 - transitionSmoothing;
           const easeProgress = 1.0 - Math.pow(1.0 - progress, 3.0); // Cubic ease-out
