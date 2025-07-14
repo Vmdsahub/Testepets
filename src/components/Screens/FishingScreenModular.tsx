@@ -255,9 +255,10 @@ class ModularWaterEffect {
       void main() {
         vec2 uv = v_texCoord;
         
-                        // NOVO SISTEMA DE MOVIMENTO INTELIGENTE DO PEIXE
-        // O peixe se move livremente dentro da área definida pelos controles admin
-        float time = u_fishTime * 0.3; // Velocidade base do movimento
+                                // === SISTEMA DE MOVIMENTO ALEATÓRIO DO PEIXE ===
+        // Movimento completamente livre com rotação de 360 graus
+
+        float time = u_fishTime * 0.4; // Velocidade base
 
         // Parâmetros da área da água
         float areaX = u_waterArea.x;
@@ -265,40 +266,61 @@ class ModularWaterEffect {
         float areaW = u_waterArea.z;
         float areaH = u_waterArea.w;
 
-        // Movimento baseado em múltiplas ondas para parecer natural
-        float wave1 = sin(time * 0.8 + 1.5) * 0.4;
-        float wave2 = cos(time * 1.2 + 2.3) * 0.3;
-        float wave3 = sin(time * 0.6 + 4.1) * 0.2;
-        float wave4 = cos(time * 1.5 + 0.7) * 0.25;
+        // Área interior com margens
+        float margin = 0.05; // 5% de margem
+        float innerX = areaX + (areaW * margin);
+        float innerY = areaY + (areaH * margin);
+        float innerW = areaW * (1.0 - margin * 2.0);
+        float innerH = areaH * (1.0 - margin * 2.0);
 
-        // Movimento em X e Y dentro da área definida
-        float moveFactorX = (wave1 + wave3) * 0.5;
-        float moveFactorY = (wave2 + wave4) * 0.5;
+        // === MOVIMENTO BASEADO EM RUÍDO PERLIN SIMULADO ===
+        // Usar múltiplas frequências para criar movimento orgânico
 
-        // Calcular posição dentro da área da água com margens
-        float marginX = areaW * 0.1; // 10% de margem
-        float marginY = areaH * 0.1; // 10% de margem
+        // Ruído base para direção geral
+        float noiseX1 = sin(time * 0.7 + 123.45) * cos(time * 0.5 + 67.89);
+        float noiseY1 = cos(time * 0.6 + 234.56) * sin(time * 0.8 + 78.90);
 
-        float effectiveAreaX = areaX + marginX;
-        float effectiveAreaY = areaY + marginY;
-        float effectiveAreaW = areaW - (marginX * 2.0);
-        float effectiveAreaH = areaH - (marginY * 2.0);
+        // Ruído de alta frequência para variação
+        float noiseX2 = sin(time * 2.3 + 345.67) * 0.3;
+        float noiseY2 = cos(time * 1.9 + 456.78) * 0.3;
 
-        // Posição natural do peixe dentro da área efetiva
-        float naturalFishX = effectiveAreaX + (effectiveAreaW * 0.5) + (moveFactorX * effectiveAreaW * 0.4);
-        float naturalFishY = effectiveAreaY + (effectiveAreaH * 0.5) + (moveFactorY * effectiveAreaH * 0.4);
+        // Ruído de baixa frequência para movimentos amplos
+        float noiseX3 = sin(time * 0.2 + 567.89) * 0.8;
+        float noiseY3 = cos(time * 0.15 + 678.90) * 0.8;
 
-                // Calcular direção do movimento para rotação inteligente
-        float deltaTime = 0.1;
-        float futureTime = time + deltaTime;
-        float futureWave1 = sin(futureTime * 0.8 + 1.5) * 0.4;
-        float futureWave3 = sin(futureTime * 0.6 + 4.1) * 0.2;
-        float futureMoveFactorX = (futureWave1 + futureWave3) * 0.5;
-        float futureFishX = effectiveAreaX + (effectiveAreaW * 0.5) + (futureMoveFactorX * effectiveAreaW * 0.4);
+        // Combinar ruídos para movimento natural
+        float moveX = (noiseX1 + noiseX2 + noiseX3) / 3.0;
+        float moveY = (noiseY1 + noiseY2 + noiseY3) / 3.0;
 
-        // Determinar direção baseada no movimento
-        float velocityX = futureFishX - naturalFishX;
-        bool facingRight = velocityX > 0.0;
+        // Calcular posição dentro da área interior
+        float naturalFishX = innerX + (innerW * 0.5) + (moveX * innerW * 0.4);
+        float naturalFishY = innerY + (innerH * 0.5) + (moveY * innerH * 0.4);
+
+        // === SISTEMA DE ROTAÇÃO LIVRE ===
+        // Calcular ângulo de movimento baseado na velocidade instantânea
+        float deltaT = 0.05;
+
+        // Posição futura para calcular velocidade
+        float futureTime = time + deltaT;
+        float futureNoiseX1 = sin(futureTime * 0.7 + 123.45) * cos(futureTime * 0.5 + 67.89);
+        float futureNoiseY1 = cos(futureTime * 0.6 + 234.56) * sin(futureTime * 0.8 + 78.90);
+        float futureNoiseX2 = sin(futureTime * 2.3 + 345.67) * 0.3;
+        float futureNoiseY2 = cos(futureTime * 1.9 + 456.78) * 0.3;
+        float futureNoiseX3 = sin(futureTime * 0.2 + 567.89) * 0.8;
+        float futureNoiseY3 = cos(futureTime * 0.15 + 678.90) * 0.8;
+
+        float futureMoveX = (futureNoiseX1 + futureNoiseX2 + futureNoiseX3) / 3.0;
+        float futureMoveY = (futureNoiseY1 + futureNoiseY2 + futureNoiseY3) / 3.0;
+
+        float futureX = innerX + (innerW * 0.5) + (futureMoveX * innerW * 0.4);
+        float futureY = innerY + (innerH * 0.5) + (futureMoveY * innerH * 0.4);
+
+        // Velocidade instantânea
+        float velocityX = futureX - naturalFishX;
+        float velocityY = futureY - naturalFishY;
+
+        // Ângulo de rotação baseado na direção do movimento
+        float fishAngle = atan(velocityY, velocityX);
 
         float fishX, fishY;
         if (u_gameState >= 2.0) {
