@@ -52,7 +52,7 @@ class WaterEffect {
     this.maxForce = 0.00003; // Força máxima de steering (reduzida para movimento mais suave)
     this.wanderRadius = 0.08; // Raio do círculo de wandering (menor para curvas mais suaves)
     this.wanderDistance = 0.05; // Distância do círculo de wandering (menor)
-    this.wanderJitter = 0.3; // Variação no wandering (reduzida para movimento mais suave)
+    this.wanderJitter = 0.15; // Variação no wandering (ainda mais reduzida para menos oscilação)
 
     // Estados do jogo de pesca
     this.gameState = "idle"; // 'idle', 'hook_cast', 'fish_reacting', 'fish_moving', 'fish_hooked'
@@ -329,7 +329,7 @@ class WaterEffect {
                 // Adiciona um leve tint azulado para simular água
                 waterColor = mix(waterColor, waterColor * vec3(0.9, 0.95, 1.1), 0.3 * waterMask);
                 
-                // Adiciona ondula��ão da superfície
+                // Adiciona ondulação da superfície
                 float surfaceWave = createWaves(uv, u_time) * 0.1 * waterMask + 0.9;
                 waterColor *= surfaceWave;
                 
@@ -775,9 +775,9 @@ class WaterEffect {
       y: this.fishPosition.y + directionY * this.wanderDistance,
     };
 
-    // Atualizar ângulo de wandering com variação mais suave
+    // Atualizar ângulo de wandering com variação ultra suave
     this.wanderAngle +=
-      (Math.random() - 0.5) * this.wanderJitter * deltaTime * 0.001; // Muito mais suave
+      (Math.random() - 0.5) * this.wanderJitter * deltaTime * 0.0005; // Ultra suave para reduzir oscilações
 
     // Calcular ponto alvo no círculo de wandering
     this.wanderTarget.x =
