@@ -433,7 +433,6 @@ class FishingSystem {
 
       // Desenhar linha de mira
       this.ctx.globalAlpha = 0.6;
-      this.ctx.strokeStyle = this.ctx.strokeStyle;
       this.ctx.lineWidth = 2;
       this.ctx.setLineDash([5, 5]);
       this.ctx.beginPath();
