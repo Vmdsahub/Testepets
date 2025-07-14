@@ -716,9 +716,23 @@ class WaterEffect {
         const currentFishX = 0.5 + moveX * 0.35;
         const currentFishY = 0.65 + moveY * 0.15;
 
-        // Definir a posiç��o atual como ponto de partida
+        // Definir a posição atual como ponto de partida
         this.fishTargetPosition = { x: currentFishX, y: currentFishY };
         this.gameState = "fish_reacting";
+
+        // Debug: verificar se posição JS bate com shader
+        console.log(
+          `🎣 REACTION DEBUG - Hook at: (${this.hookPosition.x.toFixed(3)}, ${this.hookPosition.y.toFixed(3)})`,
+        );
+        console.log(
+          `🐟 REACTION DEBUG - Fish position (JS calc): (${currentFishX.toFixed(3)}, ${currentFishY.toFixed(3)})`,
+        );
+        console.log(
+          `🐟 REACTION DEBUG - fishTime: ${this.fishTime.toFixed(2)}, fishTimeOffset: ${this.fishTimeOffset.toFixed(4)}`,
+        );
+        console.log(
+          `🐟 REACTION DEBUG - slowTime used: ${slowTime.toFixed(4)}, moveX: ${moveX.toFixed(4)}, moveY: ${moveY.toFixed(4)}`,
+        );
         console.log(
           "Fish is now reacting to hook from position:",
           this.fishTargetPosition,
