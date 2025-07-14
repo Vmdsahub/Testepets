@@ -243,6 +243,11 @@ class FishingSystem {
     this.isReelingIn = true;
     this.reelStartTime = Date.now();
 
+    // Notificar que a linha está sendo recolhida
+    if (this.onLineReeled) {
+      this.onLineReeled();
+    }
+
     // Marcar todos os pontos para recolhimento
     this.linePoints.forEach((point) => {
       point.reelProgress = 0;
