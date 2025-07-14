@@ -1230,6 +1230,9 @@ class WaterEffect {
     this.time += 0.016 * this.animationSpeed;
     this.fishTime += 0.016; // Tempo independente para o peixe (sempre constante)
 
+    // Atualizar sistema de steering behaviors
+    this.updateSteeringBehaviors(16); // 16ms delta time
+
     // Atualizar lógica do jogo de pesca
     this.updateFishingGame();
 
