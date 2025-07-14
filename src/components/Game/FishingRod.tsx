@@ -284,6 +284,12 @@ class FishingSystem {
   private updateLinePhysics() {
     if (!this.isLineOut || this.linePoints.length === 0) return;
 
+    // Processar recolhimento se estiver acontecendo
+    if (this.isReelingIn) {
+      this.updateReeling();
+      return;
+    }
+
     // Atualizar posições com Verlet integration
     for (let i = 0; i < this.linePoints.length; i++) {
       const point = this.linePoints[i];
