@@ -709,7 +709,7 @@ class WaterEffect {
       this.gameState === "fish_moving"
     ) {
       // Mover peixe em direção ao anzol
-      const speed = 0.001; // velocidade do movimento
+      const speed = 0.0003; // velocidade do movimento (reduzida para ser mais realista)
       const dx = this.hookPosition.x - this.fishTargetPosition.x;
       const dy = this.hookPosition.y - this.fishTargetPosition.y;
       const distance = Math.sqrt(dx * dx + dy * dy);
