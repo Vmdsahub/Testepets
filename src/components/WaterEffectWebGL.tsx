@@ -147,7 +147,7 @@ const WaterEffectWebGL: React.FC = () => {
       // Add surface foam/bubbles
       float foam = 0.0;
       if (uv.y < 0.1) {
-        foam = noise(uv * 20.0 + time * 2.0) * 0.3;
+                foam = noise(uv * 12.0 + time * 1.0) * 0.15;
         foam = smoothstep(0.4, 0.8, foam);
         waterColor = mix(waterColor, vec3(0.8, 0.9, 1.0), foam * (1.0 - uv.y * 10.0));
       }
