@@ -202,7 +202,7 @@ class FishingSystem {
     this.reelStartTime = Date.now();
 
     // Marcar todos os pontos para recolhimento
-    this.linePoints.forEach((point, index) => {
+    this.linePoints.forEach((point) => {
       point.reelProgress = 0;
       point.castPhase = "reeling";
     });
