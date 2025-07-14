@@ -719,17 +719,41 @@ class ModularWaterEffect {
     if (this.gameState === "hook_cast") {
       const elapsedTime = Date.now() - this.fishReactionStartTime;
       if (elapsedTime >= this.fishReactionDelay) {
-        const adjustedTime = (this.fishTime + this.fishTimeOffset) * 0.2;
-        const moveX =
-          Math.sin(adjustedTime * 0.7) * 0.3 +
-          Math.sin(adjustedTime * 1.3) * 0.15 +
-          Math.cos(adjustedTime * 0.4) * 0.1;
-        const moveY =
-          Math.cos(adjustedTime * 0.5) * 0.08 +
-          Math.sin(adjustedTime * 1.1) * 0.06 +
-          Math.sin(adjustedTime * 0.8) * 0.04;
-        const currentFishX = 0.5 + moveX * 0.35;
-        const currentFishY = 0.65 + moveY * 0.15;
+        // Usar novo sistema de movimento baseado na área da água
+        const time = this.fishTime * 0.3;
+
+        // Parâmetros da área da água
+        const areaX = this.waterArea.x;
+        const areaY = this.waterArea.y;
+        const areaW = this.waterArea.width;
+        const areaH = this.waterArea.height;
+
+        // Movimento baseado em múltiplas ondas
+        const wave1 = Math.sin(time * 0.8 + 1.5) * 0.4;
+        const wave2 = Math.cos(time * 1.2 + 2.3) * 0.3;
+        const wave3 = Math.sin(time * 0.6 + 4.1) * 0.2;
+        const wave4 = Math.cos(time * 1.5 + 0.7) * 0.25;
+
+        const moveFactorX = (wave1 + wave3) * 0.5;
+        const moveFactorY = (wave2 + wave4) * 0.5;
+
+        // Área efetiva com margens
+        const marginX = areaW * 0.1;
+        const marginY = areaH * 0.1;
+        const effectiveAreaX = areaX + marginX;
+        const effectiveAreaY = areaY + marginY;
+        const effectiveAreaW = areaW - marginX * 2.0;
+        const effectiveAreaH = areaH - marginY * 2.0;
+
+        // Posição dentro da área efetiva
+        const currentFishX =
+          effectiveAreaX +
+          effectiveAreaW * 0.5 +
+          moveFactorX * effectiveAreaW * 0.4;
+        const currentFishY =
+          effectiveAreaY +
+          effectiveAreaH * 0.5 +
+          moveFactorY * effectiveAreaH * 0.4;
 
         this.fishTargetPosition = { x: currentFishX, y: currentFishY };
         this.gameState = "fish_reacting";
