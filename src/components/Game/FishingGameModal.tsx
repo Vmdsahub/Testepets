@@ -33,7 +33,7 @@ export const FishingGameModal: React.FC<FishingGameModalProps> = ({
   // Game state
   const [fish, setFish] = useState<Fish | null>(null);
   const [hookPosition, setHookPosition] = useState({ x: 50, y: 100 });
-  const [targetPosition, setTargetPosition] = useState({ x: 50, y: 50 });
+
   const [isLaunching, setIsLaunching] = useState(false);
   const [isRetracting, setIsRetracting] = useState(false);
   const [isFishing, setIsFishing] = useState(false);
