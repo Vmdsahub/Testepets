@@ -208,6 +208,79 @@ class FishingSystem {
     });
   }
 
+  private updateReeling() {
+    const reelTime = Date.now() - this.reelStartTime;
+    const reelDuration = 2000; // 2 segundos para recolher totalmente
+    const reelProgress = Math.min(reelTime / reelDuration, 1);
+
+    let allPointsReeled = true;
+
+    // Recolher pontos de trás para frente (do anzol para a vara)
+    for (let i = this.linePoints.length - 1; i >= 0; i--) {
+      const point = this.linePoints[i];
+      if (point.pinned) continue;
+
+      // Calcular progresso de recolhimento com delay baseado na distância da vara
+      const delayFactor =
+        (this.linePoints.length - 1 - i) / this.linePoints.length;
+      const adjustedProgress = Math.max(0, reelProgress - delayFactor * 0.3);
+
+      if (adjustedProgress > 0) {
+        point.reelProgress = this.easeOutQuart(adjustedProgress);
+
+        // Mover o ponto em direção à vara
+        const targetX = this.fishingRodTip.x;
+        const targetY = this.fishingRodTip.y;
+
+        point.x = point.x + (targetX - point.x) * point.reelProgress * 0.1;
+        point.y = point.y + (targetY - point.y) * point.reelProgress * 0.1;
+      } else {
+        allPointsReeled = false;
+      }
+    }
+
+    // Aplicar restrições de distância durante o recolhimento
+    for (let iteration = 0; iteration < 2; iteration++) {
+      for (let i = 0; i < this.linePoints.length - 1; i++) {
+        const pointA = this.linePoints[i];
+        const pointB = this.linePoints[i + 1];
+
+        const dx = pointB.x - pointA.x;
+        const dy = pointB.y - pointA.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance > this.segmentLength) {
+          const difference = this.segmentLength - distance;
+          const percent = difference / distance / 2;
+          const offsetX = dx * percent;
+          const offsetY = dy * percent;
+
+          if (!pointA.pinned) {
+            pointA.x -= offsetX;
+            pointA.y -= offsetY;
+          }
+          if (!pointB.pinned) {
+            pointB.x += offsetX;
+            pointB.y += offsetY;
+          }
+        }
+      }
+    }
+
+    // Manter conexão com a vara
+    if (this.linePoints.length > 0) {
+      this.linePoints[0].x = this.fishingRodTip.x;
+      this.linePoints[0].y = this.fishingRodTip.y;
+    }
+
+    // Finalizar recolhimento quando completo
+    if (reelProgress >= 1) {
+      this.isLineOut = false;
+      this.isReelingIn = false;
+      this.linePoints = [];
+    }
+  }
+
   private updateLinePhysics() {
     if (!this.isLineOut || this.linePoints.length === 0) return;
 
