@@ -690,7 +690,7 @@ class WaterEffect {
         const currentFishX = 0.5 + moveX * 0.35;
         const currentFishY = 0.65 + moveY * 0.15;
 
-        // Definir a posição atual como ponto de partida
+        // Definir a posiç��o atual como ponto de partida
         this.fishTargetPosition = { x: currentFishX, y: currentFishY };
         this.gameState = "fish_reacting";
         console.log(
@@ -736,10 +736,11 @@ class WaterEffect {
   resetFishingGame() {
     this.gameState = "idle";
     this.hookPosition = { x: 0.5, y: 0.5 };
-    this.fishTargetPosition = { x: 0.5, y: 0.65 };
+    // NÃO resetar fishTargetPosition - deixar o peixe continuar de onde estava
     this.fishReactionStartTime = 0;
     this.fishReactionDelay = 0;
     this.exclamationTime = 0;
+    console.log("Fishing game reset - fish will continue natural movement");
   }
 
   updateBackgroundFromImage(image) {
