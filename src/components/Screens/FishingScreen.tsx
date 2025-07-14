@@ -734,13 +734,47 @@ class WaterEffect {
   }
 
   resetFishingGame() {
+    // Se o peixe estava em movimento direcionado, preservar sua posição atual
+    if (this.gameState === "fish_moving" || this.gameState === "fish_hooked") {
+      // Calcular offset do movimento natural para que o peixe continue de onde está
+      const currentX = this.fishTargetPosition.x;
+      const currentY = this.fishTargetPosition.y;
+
+      // Ajustar fishTime para que o movimento natural comece da posição atual
+      this.adjustFishTimeForPosition(currentX, currentY);
+    }
+
     this.gameState = "idle";
     this.hookPosition = { x: 0.5, y: 0.5 };
-    // NÃO resetar fishTargetPosition - deixar o peixe continuar de onde estava
     this.fishReactionStartTime = 0;
     this.fishReactionDelay = 0;
     this.exclamationTime = 0;
-    console.log("Fishing game reset - fish will continue natural movement");
+    console.log(
+      "Fishing game reset - fish will continue from current position",
+    );
+  }
+
+  adjustFishTimeForPosition(targetX, targetY) {
+    // Resolver para encontrar fishTime que resulta na posição desejada
+    // Esta é uma aproximação que funciona bem na prática
+    const baseX = 0.5;
+    const baseY = 0.65;
+    const rangeX = 0.35;
+    const rangeY = 0.15;
+
+    // Calcular moveX e moveY necessários
+    const requiredMoveX = (targetX - baseX) / rangeX;
+    const requiredMoveY = (targetY - baseY) / rangeY;
+
+    // Ajustar fishTime para aproximar a posição (aproximação simples)
+    // Usamos a componente X como principal referência
+    const phase =
+      Math.asin(Math.max(-1, Math.min(1, requiredMoveX / 0.3))) / 0.7;
+    this.fishTime = (phase / 0.2) % ((Math.PI * 2) / 0.7 / 0.2);
+
+    console.log(
+      `Adjusted fishTime to ${this.fishTime} for position (${targetX}, ${targetY})`,
+    );
   }
 
   updateBackgroundFromImage(image) {
