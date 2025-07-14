@@ -745,8 +745,8 @@ class ModularWaterEffect {
     if (this.gameState === "hook_cast") {
       const elapsedTime = Date.now() - this.fishReactionStartTime;
       if (elapsedTime >= this.fishReactionDelay) {
-        // Usar novo sistema de movimento baseado na área da água
-        const time = this.fishTime * 0.3;
+        // Usar sistema de movimento aleatório
+        const time = this.fishTime * 0.4;
 
         // Parâmetros da área da água
         const areaX = this.waterArea.x;
@@ -754,32 +754,34 @@ class ModularWaterEffect {
         const areaW = this.waterArea.width;
         const areaH = this.waterArea.height;
 
-        // Movimento baseado em múltiplas ondas
-        const wave1 = Math.sin(time * 0.8 + 1.5) * 0.4;
-        const wave2 = Math.cos(time * 1.2 + 2.3) * 0.3;
-        const wave3 = Math.sin(time * 0.6 + 4.1) * 0.2;
-        const wave4 = Math.cos(time * 1.5 + 0.7) * 0.25;
+        // Área interior com margens
+        const margin = 0.05;
+        const innerX = areaX + areaW * margin;
+        const innerY = areaY + areaH * margin;
+        const innerW = areaW * (1.0 - margin * 2.0);
+        const innerH = areaH * (1.0 - margin * 2.0);
 
-        const moveFactorX = (wave1 + wave3) * 0.5;
-        const moveFactorY = (wave2 + wave4) * 0.5;
+        // Ruído base para direção geral
+        const noiseX1 =
+          Math.sin(time * 0.7 + 123.45) * Math.cos(time * 0.5 + 67.89);
+        const noiseY1 =
+          Math.cos(time * 0.6 + 234.56) * Math.sin(time * 0.8 + 78.9);
 
-        // Área efetiva com margens
-        const marginX = areaW * 0.1;
-        const marginY = areaH * 0.1;
-        const effectiveAreaX = areaX + marginX;
-        const effectiveAreaY = areaY + marginY;
-        const effectiveAreaW = areaW - marginX * 2.0;
-        const effectiveAreaH = areaH - marginY * 2.0;
+        // Ruído de alta frequência
+        const noiseX2 = Math.sin(time * 2.3 + 345.67) * 0.3;
+        const noiseY2 = Math.cos(time * 1.9 + 456.78) * 0.3;
 
-        // Posição dentro da área efetiva
-        const currentFishX =
-          effectiveAreaX +
-          effectiveAreaW * 0.5 +
-          moveFactorX * effectiveAreaW * 0.4;
-        const currentFishY =
-          effectiveAreaY +
-          effectiveAreaH * 0.5 +
-          moveFactorY * effectiveAreaH * 0.4;
+        // Ruído de baixa frequência
+        const noiseX3 = Math.sin(time * 0.2 + 567.89) * 0.8;
+        const noiseY3 = Math.cos(time * 0.15 + 678.9) * 0.8;
+
+        // Combinar ruídos
+        const moveX = (noiseX1 + noiseX2 + noiseX3) / 3.0;
+        const moveY = (noiseY1 + noiseY2 + noiseY3) / 3.0;
+
+        // Posição dentro da área interior
+        const currentFishX = innerX + innerW * 0.5 + moveX * innerW * 0.4;
+        const currentFishY = innerY + innerH * 0.5 + moveY * innerH * 0.4;
 
         this.fishTargetPosition = { x: currentFishX, y: currentFishY };
         this.gameState = "fish_reacting";
