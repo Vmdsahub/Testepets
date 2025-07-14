@@ -13,6 +13,7 @@ class FishingSystem {
   private isLineOut = false;
   private isReelingIn = false;
   private reelStartTime = 0;
+  private fishingRodImage: HTMLImageElement | null = null;
   private linePoints: Array<{
     x: number;
     y: number;
@@ -65,9 +66,24 @@ class FishingSystem {
     }
     this.ctx = context;
 
+    this.loadFishingRodImage();
     this.setupCanvas();
     this.bindEvents();
     this.startRenderLoop();
+  }
+
+  private loadFishingRodImage() {
+    this.fishingRodImage = new Image();
+    this.fishingRodImage.crossOrigin = "anonymous";
+    this.fishingRodImage.onload = () => {
+      console.log("Fishing rod image loaded successfully");
+    };
+    this.fishingRodImage.onerror = () => {
+      console.error("Failed to load fishing rod image");
+      this.fishingRodImage = null;
+    };
+    this.fishingRodImage.src =
+      "https://cdn.builder.io/api/v1/image/assets%2F93c9d9ee317e46338402a7682b8e50f7%2F046a923883bd4f9a9603e2c3d3dab8f3?format=webp&width=800";
   }
 
   private setupCanvas() {
@@ -360,7 +376,7 @@ class FishingSystem {
             point.oldX = point.x;
             point.oldY = point.y;
 
-            // Permitir movimento mínimo
+            // Permitir movimento m��nimo
             point.x += velX * 0.1;
             point.y += velY * 0.1;
 
@@ -516,24 +532,49 @@ class FishingSystem {
       this.ctx.restore();
     }
 
-    // Desenhar vara de pesca
-    this.ctx.strokeStyle = "#8B4513";
-    this.ctx.lineWidth = 6;
-    this.ctx.beginPath();
-    this.ctx.moveTo(rodBaseX, rodBaseY);
-    this.ctx.lineTo(rodTipX, rodTipY);
-    this.ctx.stroke();
+    // Desenhar vara de pesca usando a nova imagem
+    if (this.fishingRodImage && this.fishingRodImage.complete) {
+      this.ctx.save();
 
-    // Desenhar cabo da vara
-    this.ctx.strokeStyle = "#654321";
-    this.ctx.lineWidth = 8;
-    this.ctx.beginPath();
-    this.ctx.moveTo(rodBaseX, rodBaseY);
-    this.ctx.lineTo(
-      rodBaseX + Math.cos(angle) * 25,
-      rodBaseY + Math.sin(angle) * 25,
-    );
-    this.ctx.stroke();
+      // Configurar transformação para posicionar e rotacionar a vara
+      this.ctx.translate(rodBaseX, rodBaseY);
+      // Ajustar rotação - a imagem é vertical, então subtraímos 90 graus
+      this.ctx.rotate(angle - Math.PI / 2);
+      // Flip vertical da imagem
+      this.ctx.scale(1, -1);
+
+      // Desenhar a imagem da vara com orientação correta
+      const rodImageLength = 128; // Comprimento definido para 128px
+      const rodImageWidth = 120; // Largura definida para 120px
+      this.ctx.drawImage(
+        this.fishingRodImage,
+        -rodImageWidth / 2,
+        -rodImageLength,
+        rodImageWidth,
+        rodImageLength,
+      );
+
+      this.ctx.restore();
+    } else {
+      // Fallback: desenhar vara básica se a imagem não carregar
+      this.ctx.strokeStyle = "#8B4513";
+      this.ctx.lineWidth = 6;
+      this.ctx.beginPath();
+      this.ctx.moveTo(rodBaseX, rodBaseY);
+      this.ctx.lineTo(rodTipX, rodTipY);
+      this.ctx.stroke();
+
+      // Desenhar cabo da vara
+      this.ctx.strokeStyle = "#654321";
+      this.ctx.lineWidth = 8;
+      this.ctx.beginPath();
+      this.ctx.moveTo(rodBaseX, rodBaseY);
+      this.ctx.lineTo(
+        rodBaseX + Math.cos(angle) * 25,
+        rodBaseY + Math.sin(angle) * 25,
+      );
+      this.ctx.stroke();
+    }
 
     // Desenhar linha de pesca
     if (this.isLineOut && this.linePoints.length > 0) {
