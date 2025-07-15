@@ -454,7 +454,7 @@ class ModularWaterEffect {
                                 // === SISTEMA DE ROTAÇÃO DIAGONAL SUAVE ===
         // Aplica rotação baseada na direção vertical do movimento
         // u_fishAngle contém o ângulo calculado pelo JavaScript (-30° a +30°)
-        float diagonalTilt = u_fishAngle * 0.8; // 80% do ângulo para rotação visível mas suave
+                float diagonalTilt = u_fishAngle * 0.9; // 90% do ângulo para rotação bem visível
 
         // Combinar flip horizontal com rotação diagonal
         if (u_fishDirection > 0.0) {
@@ -1219,8 +1219,8 @@ class ModularWaterEffect {
           Math.abs(horizontalComponent),
         );
 
-        // Limitar o ângulo para rotações mais suaves (máximo 30 graus para cima/baixo)
-        const maxRotation = Math.PI / 6; // 30 graus
+        // Limitar o ângulo para rotações visíveis mas naturais (máximo 45 graus para cima/baixo)
+        const maxRotation = Math.PI / 4; // 45 graus para ser mais visível
         targetAngle = Math.max(
           -maxRotation,
           Math.min(maxRotation, targetAngle),
@@ -1230,8 +1230,8 @@ class ModularWaterEffect {
         if (this.fishAngle === undefined) {
           this.fishAngle = targetAngle;
         } else {
-          // Suavização suave para transições naturais
-          const smoothingFactor = 0.1; // Ajuste para mais ou menos suavidade
+          // Suavização balanceada: responsíva mas suave
+          const smoothingFactor = 0.15; // Aumentado para ser mais responsívo
           this.fishAngle =
             this.fishAngle + (targetAngle - this.fishAngle) * smoothingFactor;
         }
