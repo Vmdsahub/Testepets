@@ -499,8 +499,8 @@ class ModularWaterEffect {
           // Pulsação suave para chamar atenção
           float pulse = 0.98 + 0.02 * sin(u_time * 8.0);
 
-          // Tamanho da exclamação (40% maior)
-          vec2 exclamationSize = vec2(0.015, 0.025) * 1.4 * pulse;
+                    // Tamanho da exclamação (82% maior que o original)
+          vec2 exclamationSize = vec2(0.015, 0.025) * 1.82 * pulse;
 
           // Calcular UV da exclamação
           vec2 exclamationUV = (uv - exclamationPos + exclamationSize * 0.5) / exclamationSize;
