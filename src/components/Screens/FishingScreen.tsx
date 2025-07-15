@@ -329,7 +329,7 @@ class WaterEffect {
                 // Adiciona um leve tint azulado para simular água
                 waterColor = mix(waterColor, waterColor * vec3(0.9, 0.95, 1.1), 0.3 * waterMask);
                 
-                // Adiciona ondulação da superfície
+                // Adiciona ondulaç��o da superfície
                 float surfaceWave = createWaves(uv, u_time) * 0.1 * waterMask + 0.9;
                 waterColor *= surfaceWave;
                 
@@ -831,7 +831,7 @@ class WaterEffect {
       y: this.fishPosition.y + directionY * this.wanderDistance,
     };
 
-    // Atualizar ângulo de wandering com variação ultra suave
+    // Atualizar ��ngulo de wandering com variação ultra suave
     this.wanderAngle +=
       (Math.random() - 0.5) * this.wanderJitter * deltaTime * 0.0005; // Ultra suave para reduzir oscilações
 
@@ -1147,9 +1147,15 @@ class WaterEffect {
 
   resetFishingGame() {
     // Limpar todos os timers ativos para evitar comportamentos persistentes
-    this.activeTimers.forEach((timer) => clearTimeout(timer));
-    this.activeTimers = [];
-    console.log("🧹 Cleared all active timers");
+    if (this.activeTimers) {
+      this.activeTimers.forEach((timer) => clearTimeout(timer));
+      this.activeTimers = [];
+      console.log("🧹 Cleared all active timers");
+    } else {
+      // Inicializar se não existe
+      this.activeTimers = [];
+      console.log("🧹 Initialized activeTimers array");
+    }
 
     // Se o peixe estava em estado direcionado, ajustar fishTime para continuar da posição atual
     if (
