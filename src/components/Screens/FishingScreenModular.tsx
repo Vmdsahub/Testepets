@@ -267,7 +267,7 @@ class ModularWaterEffect {
         float totalShadowAlpha = 0.0;
         vec3 totalShadowColor = vec3(0.0);
 
-        // 4 sombras ligeiramente deslocadas para criar dispers��o
+        // 4 sombras ligeiramente deslocadas para criar dispersão
         for(int i = 0; i < 4; i++) {
             float angle = float(i) * 1.57; // 90 graus entre cada sombra
             vec2 disperseOffset = vec2(cos(angle), sin(angle)) * 0.003; // Dispersão mínima
@@ -1222,9 +1222,9 @@ class ModularWaterEffect {
     // fishDirection < 0 = nada para esquerda, imagem normal (0), boca fica à ESQUERDA
     let mouthOffsetX;
     if (this.fishDirection > 0) {
-      mouthOffsetX = fishSizePixelX / 2; // Boca à direita quando peixe nada para direita (flipado)
+      mouthOffsetX = fishSizePixelX / 2 + 5; // Boca à direita + 5px mais próximo da ponta
     } else {
-      mouthOffsetX = -fishSizePixelX / 2; // Boca à esquerda quando peixe nada para esquerda (normal)
+      mouthOffsetX = -(fishSizePixelX / 2) - 5; // Boca à esquerda + 5px mais próximo da ponta
     }
 
     const mouthX = fishPixelX + mouthOffsetX;
