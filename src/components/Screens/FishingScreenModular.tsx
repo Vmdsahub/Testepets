@@ -224,7 +224,7 @@ class ModularWaterEffect {
         return false;
       }
 
-      // Função para obter cor com peixe (mantida original)
+      // Fun��ão para obter cor com peixe (mantida original)
             vec4 getColorWithFish(vec2 coords, float fishX, float fishY, float fishAngle) {
         vec4 bgColor = texture2D(u_backgroundTexture, coords);
         
@@ -354,37 +354,46 @@ class ModularWaterEffect {
 
         // === SISTEMA DE ROTAÇÃO NATURAL ===
 
-                                                        // === ORIENTAÇÃO PRECISA BASEADA NA DIREÇÃO REAL ===
+                                                                // === ORIENTAÇÃO PRECISA BASEADA NA DERIVADA MATEMÁTICA ===
 
-        // Calcular direção usando derivação matemática
-        float dt = 0.05;
+        // Calcular derivada matemática real dos padrões de movimento
         float currentAngle = time * moveSpeed;
-        float futureAngle = (time + dt) * moveSpeed;
-
-        float futureBaseX;
+        float velocityX = 0.0;
 
         if (currentPattern < 1.0) {
-            // Padrão 1: Calcular posição futura
-            float wave1 = sin(futureAngle * 0.3) * areaW * 0.48;
-            float wave2 = cos(futureAngle * 0.17) * areaW * 0.25;
-            futureBaseX = centerX + wave1 + wave2;
+            // Padrão 1: Derivada de sin(angle * 0.3) + cos(angle * 0.17)
+            // d/dt[sin(angle * 0.3)] = cos(angle * 0.3) * 0.3 * moveSpeed
+            // d/dt[cos(angle * 0.17)] = -sin(angle * 0.17) * 0.17 * moveSpeed
+            float deriv1 = cos(currentAngle * 0.3) * 0.3 * moveSpeed * areaW * 0.48;
+            float deriv2 = -sin(currentAngle * 0.17) * 0.17 * moveSpeed * areaW * 0.25;
+            velocityX = deriv1 + deriv2;
 
         } else if (currentPattern < 2.0) {
-            // Padrão 2: Rosácea
+            // Padrão 2: Rosácea - derivada de roseRadius * cos(angle) + sin(angle * 0.08)
             float r = min(areaW, areaH) * 0.45;
             float k = 5.0;
-            float roseRadius = r * sin(k * futureAngle * 0.4);
-            futureBaseX = centerX + roseRadius * cos(futureAngle * 0.4) + sin(futureAngle * 0.08) * areaW * 0.2;
+            float angleRose = currentAngle * 0.4;
+
+            // Derivada de [r * sin(k * angle) * cos(angle) + sin(angle * 0.08) * areaW * 0.2]
+            float roseRadius = r * sin(k * angleRose);
+            float roseRadiusDerivative = r * cos(k * angleRose) * k * 0.4 * moveSpeed;
+
+            float rosePart1 = roseRadiusDerivative * cos(angleRose);
+            float rosePart2 = roseRadius * (-sin(angleRose)) * 0.4 * moveSpeed;
+            float sinDerivative = cos(currentAngle * 0.08) * 0.08 * moveSpeed * areaW * 0.2;
+
+            velocityX = rosePart1 + rosePart2 + sinDerivative;
 
         } else {
-            // Padrão 3: Drunk walk
-            float x1 = sin(futureAngle * 0.13) * areaW * 0.35;
-            float x2 = cos(futureAngle * 0.29) * areaW * 0.28;
-            float x3 = sin(futureAngle * 0.41) * areaW * 0.15;
-            futureBaseX = centerX + x1 + x2 + x3;
+            // Padrão 3: Drunk walk - derivadas das três ondas
+            // d/dt[sin(angle * 0.13)] = cos(angle * 0.13) * 0.13 * moveSpeed
+            // d/dt[cos(angle * 0.29)] = -sin(angle * 0.29) * 0.29 * moveSpeed
+            // d/dt[sin(angle * 0.41)] = cos(angle * 0.41) * 0.41 * moveSpeed
+            float deriv1 = cos(currentAngle * 0.13) * 0.13 * moveSpeed * areaW * 0.35;
+            float deriv2 = -sin(currentAngle * 0.29) * 0.29 * moveSpeed * areaW * 0.28;
+            float deriv3 = cos(currentAngle * 0.41) * 0.41 * moveSpeed * areaW * 0.15;
+            velocityX = deriv1 + deriv2 + deriv3;
         }
-
-        float velocityX = futureBaseX - baseX;
 
         float fishAngle = 0.0;
 
