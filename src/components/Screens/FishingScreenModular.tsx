@@ -78,6 +78,11 @@ class ModularWaterEffect {
     this.transitionBackToNaturalDuration = 2000;
     this.transitionStartPosition = { x: 0.5, y: 0.65 };
 
+    // Novos estados para melhorias
+    this.showFisgadoText = false;
+    this.fisgadoTextStartTime = 0;
+    this.isVibrating = false;
+
     this.init();
     this.render();
   }
