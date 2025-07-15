@@ -245,30 +245,47 @@ class ModularWaterEffect {
         // fishAngle = 0 (direita): usar imagem normal
         // Y sempre inalterado - nunca inverte verticalmente
 
-                                                // === RENDERIZAR SOMBRA SUAVE DO PEIXE ===
+                                                        // === RENDERIZAR SOMBRA SUAVE E DISPERSA DO PEIXE ===
 
         // Offset da sombra (ligeiramente para baixo e direita)
-        vec2 shadowOffset = vec2(0.012, 0.02);
-        vec2 shadowPos = fishPos + shadowOffset;
-        vec2 shadowUV = (coords - shadowPos + fishSize * 0.5) / fishSize;
+        vec2 shadowOffset = vec2(0.008, 0.015);
 
-        // Aplicar orientação à sombra também
-        if (fishAngle > 1.5) {
-            shadowUV.x = 1.0 - shadowUV.x;
+        // Criar múltiplas sombras dispersas para efeito suave
+        float totalShadowAlpha = 0.0;
+        vec3 totalShadowColor = vec3(0.0);
+
+        // 4 sombras ligeiramente deslocadas para criar dispersão
+        for(int i = 0; i < 4; i++) {
+            float angle = float(i) * 1.57; // 90 graus entre cada sombra
+            vec2 disperseOffset = vec2(cos(angle), sin(angle)) * 0.003; // Dispersão mínima
+
+            vec2 shadowPos = fishPos + shadowOffset + disperseOffset;
+            vec2 shadowUV = (coords - shadowPos + fishSize * 0.5) / fishSize;
+
+            // Aplicar orientação à sombra
+            if (fishAngle > 1.5) {
+                shadowUV.x = 1.0 - shadowUV.x;
+            }
+
+            // Verificar se está na área válida
+            if (shadowUV.x >= 0.0 && shadowUV.x <= 1.0 && shadowUV.y >= 0.0 && shadowUV.y <= 1.0 && isInWaterArea(coords)) {
+                vec4 shadowTexture = texture2D(u_fishTexture, shadowUV);
+                if (shadowTexture.a > 0.05) {
+                    // Sombra muito sutil e azulada
+                    vec3 shadowTint = vec3(0.3, 0.4, 0.5) * 0.25; // Tom azul muito fraco
+                    float shadowAlpha = shadowTexture.a * 0.08; // Muito transparente
+
+                    totalShadowColor += shadowTint * shadowAlpha;
+                    totalShadowAlpha += shadowAlpha;
+                }
+            }
         }
 
-        // Renderizar sombra se estiver na área válida
-        if (shadowUV.x >= 0.0 && shadowUV.x <= 1.0 && shadowUV.y >= 0.0 && shadowUV.y <= 1.0 && isInWaterArea(coords)) {
-            vec4 shadowTexture = texture2D(u_fishTexture, shadowUV);
-            if (shadowTexture.a > 0.1) {
-                // Manter o formato exato da imagem do peixe
-                // Escurecer a imagem original para criar sombra natural
-                vec3 shadowColor = shadowTexture.rgb * 0.15; // Muito escuro
-                float shadowAlpha = shadowTexture.a * 0.5; // Usar alpha original da texture
-
-                // Misturar sombra mantendo o formato original
-                bgColor = mix(bgColor, vec4(shadowColor, 1.0), shadowAlpha);
-            }
+        // Aplicar sombra dispersa e sutil
+        if (totalShadowAlpha > 0.0) {
+            // Limitar intensidade máxima da sombra
+            totalShadowAlpha = min(totalShadowAlpha, 0.2);
+            bgColor = mix(bgColor, vec4(totalShadowColor / max(totalShadowAlpha, 0.01), 1.0), totalShadowAlpha);
         }
 
         // === RENDERIZAR PEIXE POR CIMA DA SOMBRA ===
