@@ -1144,8 +1144,7 @@ class WaterEffect {
     }
 
     // Verificar se o anzol ainda está na água para permitir novo interesse
-    const hookInWater =
-      this.hookPosition.x !== 0.5 || this.hookPosition.y !== 0.5;
+    const hookInWater = this.isHookInWater();
 
     if (hookInWater) {
       // Se o anzol ainda estiver na água, voltar ao estado hook_cast para nova tentativa
