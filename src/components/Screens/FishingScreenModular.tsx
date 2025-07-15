@@ -1186,6 +1186,12 @@ class ModularWaterEffect {
 
   // Método para lidar com clique na exclama��ão
   handleExclamationClick() {
+    console.log(
+      "🎯 handleExclamationClick called - gameState:",
+      this.gameState,
+      "canClick:",
+      this.canClickExclamation,
+    );
     if (this.gameState === "fish_hooked" && this.canClickExclamation) {
       console.log("Player clicked exclamation! Showing Fisgado text.");
       this.canClickExclamation = false;
