@@ -537,6 +537,23 @@ class FishingSystem {
         } else {
           // Física normal após o lançamento
 
+          // Se é o último ponto e terminou a animação mas ainda não chamou callback
+          if (
+            i === this.linePoints.length - 1 &&
+            !this.hookCastCallbackCalled &&
+            this.onHookCast
+          ) {
+            const velX = point.x - point.oldX;
+            const velY = point.y - point.oldY;
+            const speed = Math.sqrt(velX * velX + velY * velY);
+
+            // Se velocidade baixa, considerar que chegou ao destino
+            if (speed < 0.5) {
+              this.hookCastCallbackCalled = true;
+              this.onHookCast(point.x, point.y);
+            }
+          }
+
           // Verificar se o ponto está na água usando área configurada
           const isInWater = this.isLinePointInWaterArea(point.x, point.y);
           const justEnteredWater = !point.wasInWater && isInWater;
@@ -624,7 +641,7 @@ class FishingSystem {
       }
     }
 
-    // Aplicar restri��ões de distância
+    // Aplicar restrições de distância
     for (let iteration = 0; iteration < 3; iteration++) {
       for (let i = 0; i < this.linePoints.length - 1; i++) {
         const pointA = this.linePoints[i];
