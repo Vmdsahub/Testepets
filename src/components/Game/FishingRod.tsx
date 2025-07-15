@@ -613,11 +613,6 @@ class FishingSystem {
                   this.onHookCast(point.x, point.y); // Usar posição real final
                 }
               }
-
-              // Adicionar oscilação suave na água
-              const time = Date.now() * 0.001;
-              const waterWave = Math.sin(time * 1.5 + point.x * 0.01) * 0.5;
-              point.y += waterWave;
             }
           }
         }
