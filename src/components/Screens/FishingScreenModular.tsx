@@ -1850,7 +1850,9 @@ export const FishingScreenModular: React.FC = () => {
     return () => {
       clearTimeout(timer);
       // Remover listener global quando componente for desmontado
-      document.removeEventListener("click", handleGlobalClick);
+      if (globalClickHandler) {
+        document.removeEventListener("click", globalClickHandler);
+      }
     };
   }, [fishingSettings]);
 
