@@ -427,7 +427,7 @@ class ModularWaterEffect {
         velocityX += cos(t * 1.5) * 1.5 * swimSpeed * areaW * 0.15;
         velocityX += -sin(t * 0.6 + 2.0) * 0.6 * swimSpeed * areaW * 0.2;
 
-        // Movimento de busca rápido
+        // Movimento de busca r��pido
         velocityX += cos(t * 2.2) * 2.2 * swimSpeed * areaW * 0.1;
 
         // Aplicar aceleração
@@ -461,7 +461,7 @@ class ModularWaterEffect {
         float waterMask = inWater ? 1.0 : 0.0;
         
         if (inWater) {
-          // Aplicar efeitos de água apenas dentro da ��rea
+          // Aplicar efeitos de água apenas dentro da ����rea
           vec2 refraction = calculateRefraction(uv, u_time) * waterMask;
           vec2 distortedUV = uv + refraction;
           
@@ -1826,7 +1826,11 @@ export const FishingScreenModular: React.FC = () => {
       }
     }, 100);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      // Remover listener global quando componente for desmontado
+      document.removeEventListener("click", handleGlobalClick);
+    };
   }, [fishingSettings]);
 
   // Atualizar área da água no effect
