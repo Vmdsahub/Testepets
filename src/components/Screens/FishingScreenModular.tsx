@@ -1075,7 +1075,7 @@ class ModularWaterEffect {
         targetDirection.y /= magnitude;
       }
 
-      // Aplicar for��a de direção suavemente à velocidade
+      // Aplicar força de direção suavemente à velocidade
       const acceleration = 0.00002; // Aceleração mais suave e lenta
       this.fishVelocity.x += targetDirection.x * acceleration;
       this.fishVelocity.y += targetDirection.y * acceleration;
@@ -1283,7 +1283,7 @@ class ModularWaterEffect {
       );
 
       if (distance < 0.03) {
-        // VERIFICAÇ��O: Anzol deve estar na água para peixe ser fisgado
+        // VERIFICAÇÃO: Anzol deve estar na água para peixe ser fisgado
         if (!this.isHookInWater()) {
           console.log(
             "🎣 Fish reached hook position but hook is not in water - resetting",
@@ -2284,10 +2284,14 @@ export const FishingScreenModular: React.FC = () => {
   // Helper function para redefinir o callback onGameStart
   const redefineGameStartCallback = () => {
     if (waterEffectRef.current) {
-      waterEffectRef.current.onGameStart = () => {
+      const callback = () => {
         console.log("🎮 Triggering minigame - setShowMinigame(true)");
         setShowMinigame(true);
       };
+
+      waterEffectRef.current.onGameStart = callback;
+      waterEffectRef.current.onGameStartBackup = callback; // Salvar backup
+      console.log("🔄 Callback defined and backed up");
     }
   };
   const [fishingSettings, setFishingSettings] =
