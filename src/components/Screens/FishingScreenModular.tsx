@@ -57,9 +57,14 @@ class ModularWaterEffect {
     this.hookPosition = { x: 0.5, y: 0.5 };
     this.fishTargetPosition = { x: 0.5, y: 0.65 };
     this.fishCurrentPosition = { x: 0.5, y: 0.65 }; // Posição atual real do peixe
-    this.fishVelocity = { x: 0, y: 0 }; // Velocidade para movimento suave
+    this.fishVelocity = { x: 0, y: 0 }; // Velocidade atual do peixe
     this.fishDirection = 1; // 1 = direita, -1 = esquerda
-    this.lastNaturalPosition = { x: 0.5, y: 0.65 }; // Última posição natural conhecida
+
+    // Sistema de movimento orgânico
+    this.fishDesiredDirection = { x: 1, y: 0 }; // Direção desejada
+    this.fishSpeed = 0.0008; // Velocidade base
+    this.directionChangeTime = 0; // Timer para mudança de direção
+    this.directionChangeCooldown = 2000 + Math.random() * 3000; // 2-5 segundos entre mudanças
     this.fishReactionStartTime = 0;
     this.fishReactionDelay = 0;
     this.originalFishMovement = { moveX: 0, moveY: 0 };
@@ -901,7 +906,7 @@ class ModularWaterEffect {
       this.gameState === "fish_reacting" ||
       this.gameState === "fish_moving"
     ) {
-      // Interpolar suavemente em dire��ão ao anzol
+      // Interpolar suavemente em direção ao anzol
       this.fishTargetPosition = {
         x: this.hookPosition.x,
         y: this.hookPosition.y,
@@ -1120,7 +1125,7 @@ class ModularWaterEffect {
       8,
     );
 
-    // Define uniforms básicos
+    // Define uniforms b��sicos
     this.gl.uniform1f(this.uniforms.time, this.time);
     this.gl.uniform1f(this.uniforms.fishTime, this.fishTime);
     this.gl.uniform1f(this.uniforms.waveIntensity, this.waveIntensity);
