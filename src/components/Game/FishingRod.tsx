@@ -547,9 +547,9 @@ class FishingSystem {
             point.y += waterWave;
           } else {
             // Aplicar física normal
-            const currentDamping = isInWater ? 0.75 : this.damping;
+            const currentDamping = isInWater ? 0.5 : this.damping; // Damping muito mais forte na água
             const currentGravity = isInWater
-              ? this.gravity * 0.1
+              ? this.gravity * 0.02 // Gravidade quase zero na água
               : this.gravity;
 
             const velX = (point.x - point.oldX) * currentDamping;
@@ -561,11 +561,11 @@ class FishingSystem {
             point.x += velX;
             point.y += velY + currentGravity;
 
-            // Verificar se deve assentar - ser mais responsivo quando entra na água
+            // Verificar se deve assentar - ser muito mais responsivo quando entra na água
             if (isInWater) {
               const speed = Math.sqrt(velX * velX + velY * velY);
-              // Reduzir limiar de velocidade para assentar mais rapidamente na água
-              if (speed < 1.2) {
+              // Assentar quase imediatamente ao entrar na água
+              if (speed < 2.0) {
                 point.settled = true;
                 point.settledX = point.x;
                 point.settledY = point.y;
