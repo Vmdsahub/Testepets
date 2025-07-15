@@ -99,26 +99,30 @@ export const FishingScreenNew: React.FC = () => {
         targetY: baseY,
       }));
     } else if (fish.state === "moving") {
-      // Calcular posição alvo do CENTRO do peixe para que a BOCA toque o anzol
-      const hookX = hook.x / window.innerWidth;
-      const hookY = hook.y / window.innerHeight;
+      // A boca está na extremidade ESQUERDA do peixe
+      // Boca = centro - 30px em coordenadas de pixel
+      // Precisamos posicionar o CENTRO do peixe para que a BOCA toque o anzol
 
-      // Offset da boca em coordenadas normalizadas (30 pixels = raio da elipse)
-      const mouthOffsetX = 30 / window.innerWidth; // Converter 30px para coordenadas normalizadas
+      const hookPixelX = hook.x;
+      const hookPixelY = hook.y;
 
-      // Posição alvo do centro do peixe (anzol + offset da boca)
-      const targetCenterX = hookX + mouthOffsetX; // Boca fica à ESQUERDA do centro
-      const targetCenterY = hookY; // Boca no mesmo Y do centro
+      // Para que a boca (centro - 30px) toque o anzol:
+      // centro - 30 = anzol => centro = anzol + 30
+      const targetCenterPixelX = hookPixelX + 30;
+      const targetCenterPixelY = hookPixelY;
+
+      // Converter para coordenadas normalizadas
+      const targetCenterX = targetCenterPixelX / window.innerWidth;
+      const targetCenterY = targetCenterPixelY / window.innerHeight;
 
       // Distância do centro atual para a posição alvo
       const dx = targetCenterX - fish.x;
       const dy = targetCenterY - fish.y;
       const distance = Math.sqrt(dx * dx + dy * dy);
 
-      if (distance > 0.002) {
-        // Distância muito pequena para colisão precisa
-        // Movimento suave sem teleporte
-        const moveSpeed = Math.min(fish.speed, distance * 0.1); // Reduzir velocidade conforme se aproxima
+      if (distance > 0.003) {
+        // Movimento suave
+        const moveSpeed = Math.min(fish.speed, distance * 0.2);
         const moveX = (dx / distance) * moveSpeed;
         const moveY = (dy / distance) * moveSpeed;
 
@@ -128,7 +132,7 @@ export const FishingScreenNew: React.FC = () => {
           y: prev.y + moveY,
         }));
       } else {
-        // Posicionar exatamente para que a boca toque o anzol
+        // Chegou na posição - boca toca o anzol
         setFish((prev) => ({
           ...prev,
           x: targetCenterX,
@@ -138,15 +142,14 @@ export const FishingScreenNew: React.FC = () => {
         setShowFishingModal(true);
       }
     } else if (fish.state === "hooked") {
-      // Quando hooked, manter posição exata para que boca permaneça no anzol
-      const hookX = hook.x / window.innerWidth;
-      const hookY = hook.y / window.innerHeight;
-      const mouthOffsetX = 30 / window.innerWidth;
+      // Quando hooked, forçar posição para que boca permaneça no anzol
+      const targetCenterPixelX = hook.x + 30; // Centro = anzol + 30px
+      const targetCenterPixelY = hook.y;
 
       setFish((prev) => ({
         ...prev,
-        x: hookX + mouthOffsetX, // Força posição exata
-        y: hookY,
+        x: targetCenterPixelX / window.innerWidth,
+        y: targetCenterPixelY / window.innerHeight,
       }));
     }
   };
