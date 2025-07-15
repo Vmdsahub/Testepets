@@ -111,7 +111,7 @@
   isolation: isolate;
 }
 
-/* Transições ultra suaves para navega��ão entre páginas */
+/* Transições ultra suaves para navegação entre páginas */
 .smooth-page-transition {
   transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
   will-change: transform, opacity, filter;
@@ -134,4 +134,13 @@
   transform: translate3d(0, 0, 0);
   will-change: transform;
   backface-visibility: hidden;
+}
+
+/* Classe para elementos UI que precisam de nitidez */
+.crisp-ui {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: optimize-contrast;
+  image-rendering: crisp-edges;
+  /* Para elementos de interface que precisam de nitidez */
 }
