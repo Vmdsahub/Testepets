@@ -451,8 +451,8 @@ class ModularWaterEffect {
             fishAngle = 0.0; // Esquerda (0 para sem flip)
         }
 
-                // ADICIONAR: Pequeno ajuste diagonal sem quebrar o sistema
-        float diagonalTilt = u_fishAngle * 0.3; // Apenas 30% da rotação para ser sutil
+                        // NOVA IMPLEMENTAÇÃO: Rotação diagonal mais perceptível e suave
+        float diagonalTilt = u_fishAngle * 0.8; // Aumentar para 80% para ser mais visível
 
         // Aplicar inclinação diagonal mantendo o sistema original
         if (u_fishDirection > 0.0) {
@@ -1200,26 +1200,59 @@ class ModularWaterEffect {
       // Manter sistema original para direção horizontal
       this.fishDirection = this.fishVelocity.x > 0 ? 1 : -1;
 
-      // ADICIONAR: Calcular apenas o ângulo vertical para ajuste diagonal
-      // Limitar a apenas um pequeno ajuste vertical, não mudar completamente
+      // NOVA IMPLEMENTAÇÃO: Rotação diagonal suave baseada na direção do movimento
+      const horizontalComponent = this.fishVelocity.x;
       const verticalComponent = this.fishVelocity.y;
-      const horizontalComponent = Math.abs(this.fishVelocity.x);
 
-      // Calcular um pequeno ângulo de inclinação baseado na proporção vertical
-      if (horizontalComponent > 0.0001) {
-        this.fishAngle =
-          Math.atan(verticalComponent / horizontalComponent) * 0.5; // Reduzir intensidade
+      // Calcular o ângulo completo baseado na velocidade
+      if (
+        Math.abs(horizontalComponent) > 0.0001 ||
+        Math.abs(verticalComponent) > 0.0001
+      ) {
+        // Calcular ângulo total da velocidade
+        let targetAngle = Math.atan2(
+          verticalComponent,
+          Math.abs(horizontalComponent),
+        );
+
+        // Limitar o ângulo para rotações mais suaves (máximo 30 graus para cima/baixo)
+        const maxRotation = Math.PI / 6; // 30 graus
+        targetAngle = Math.max(
+          -maxRotation,
+          Math.min(maxRotation, targetAngle),
+        );
+
+        // Aplicar suavização para evitar mudanças bruscas
+        if (this.fishAngle === undefined) {
+          this.fishAngle = targetAngle;
+        } else {
+          // Suavização suave para transições naturais
+          const smoothingFactor = 0.1; // Ajuste para mais ou menos suavidade
+          this.fishAngle =
+            this.fishAngle + (targetAngle - this.fishAngle) * smoothingFactor;
+        }
       } else {
-        this.fishAngle = 0;
+        // Quando não há movimento, gradualmente retornar para posição horizontal
+        if (this.fishAngle !== undefined) {
+          this.fishAngle *= 0.95; // Gradualmente reduzir para 0
+          if (Math.abs(this.fishAngle) < 0.01) {
+            this.fishAngle = 0;
+          }
+        } else {
+          this.fishAngle = 0;
+        }
       }
     } else if (this.fishAngle === undefined) {
       this.fishAngle = 0;
     }
 
-    // Log de debug ocasional
+    // Log de debug ocasional com informações de rotação
     if (Math.random() < 0.005) {
+      const angleDegrees = this.fishAngle
+        ? (this.fishAngle * 180) / Math.PI
+        : 0;
       console.log(
-        `🐟 ORGANIC - Pos: (${this.fishCurrentPosition.x.toFixed(3)}, ${this.fishCurrentPosition.y.toFixed(3)}), Vel: (${this.fishVelocity.x.toFixed(4)}, ${this.fishVelocity.y.toFixed(4)}), Dir: ${this.fishDirection > 0 ? "RIGHT" : "LEFT"}, Tilt: ${((this.fishAngle * 180) / Math.PI).toFixed(1)}°`,
+        `🐟 ORGANIC - Pos: (${this.fishCurrentPosition.x.toFixed(3)}, ${this.fishCurrentPosition.y.toFixed(3)}), Vel: (${this.fishVelocity.x.toFixed(4)}, ${this.fishVelocity.y.toFixed(4)}), Dir: ${this.fishDirection > 0 ? "RIGHT" : "LEFT"}, Rotation: ${angleDegrees.toFixed(1)}°`,
       );
     }
   }
