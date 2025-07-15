@@ -2323,8 +2323,6 @@ export const FishingScreenModular: React.FC = () => {
             img.src = fishingSettings.backgroundImageUrl;
           }
         }
-
-        waterEffectRef.current = waterEffect;
       } catch (error) {
         console.error("Error initializing ModularWaterEffect:", error);
       }
@@ -2937,7 +2935,7 @@ export const FishingScreenModular: React.FC = () => {
             >
               <option value="rectangle">Retângulo</option>
               <option value="circle">Círculo</option>
-              <option value="triangle">Triângulo</option>
+              <option value="triangle">Tri��ngulo</option>
             </select>
           </div>
 
