@@ -492,17 +492,9 @@ class ModularWaterEffect {
         
                                                                 // Adicionar exclamação com imagem fornecida
         if (u_showExclamation > 0.0 && u_gameState >= 4.0) {
-          // Vibração quando fisgado - mesma que o peixe
-          vec2 vibrationOffset = vec2(0.0, 0.0);
-          if (u_gameState >= 4.0) {
-            float vibrationIntensity = 0.003;
-            vibrationOffset.x = sin(u_time * 50.0) * vibrationIntensity;
-            vibrationOffset.y = cos(u_time * 47.0) * vibrationIntensity;
-          }
-
-                                        // Posição da exclamação (10px para esquerda do centro do peixe)
+                    // Posição da exclamação (10px para esquerda do centro do peixe, sem vibração)
           float leftOffset = 10.0 / u_resolution.x; // Converter 10px para coordenadas UV
-          vec2 exclamationPos = vec2(fishX + vibrationOffset.x - leftOffset, fishY + vibrationOffset.y);
+          vec2 exclamationPos = vec2(fishX - leftOffset, fishY);
 
           // Pulsação suave para chamar atenção
           float pulse = 0.98 + 0.02 * sin(u_time * 8.0);
