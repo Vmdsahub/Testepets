@@ -1477,7 +1477,7 @@ export const FishingScreenModular: React.FC = () => {
           const uvX = x / window.innerWidth;
           const uvY = y / window.innerHeight;
 
-          if (waterEffectRef.current && isPointInWaterArea(x, y)) {
+          if (waterEffectRef.current) {
             waterEffectRef.current.startFishingGame(uvX, uvY);
           }
         }}
