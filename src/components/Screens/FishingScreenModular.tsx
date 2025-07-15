@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { ArrowLeft } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useGameStore } from "../../store/gameStore";
 import { useAuthStore } from "../../store/authStore";
 import {
@@ -1170,7 +1171,7 @@ class ModularWaterEffect {
       );
     }
 
-    // Calcular dire��ão do peixe baseada na velocidade
+    // Calcular direção do peixe baseada na velocidade
     if (Math.abs(this.fishVelocity.x) > 0.0001) {
       this.fishDirection = this.fishVelocity.x > 0 ? 1 : -1;
     }
