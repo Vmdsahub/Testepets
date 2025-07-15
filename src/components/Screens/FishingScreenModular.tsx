@@ -1797,7 +1797,7 @@ export const FishingScreenModular: React.FC = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       try {
-        const waterEffect = new ModularWaterEffect(waterArea);
+        const waterEffect = new ModularWaterEffect(waterArea, isAdmin);
         waterEffect.onGameStart = () => {
           setShowMinigame(true);
         };
