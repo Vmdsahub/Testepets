@@ -245,7 +245,37 @@ class ModularWaterEffect {
         // fishAngle = 0 (direita): usar imagem normal
         // Y sempre inalterado - nunca inverte verticalmente
 
-                                if (fishUV.x >= 0.0 && fishUV.x <= 1.0 && fishUV.y >= 0.0 && fishUV.y <= 1.0 && isInWaterArea(coords)) {
+                                        // === RENDERIZAR SOMBRA SUAVE DO PEIXE ===
+
+        // Offset da sombra (ligeiramente para baixo e direita)
+        vec2 shadowOffset = vec2(0.015, 0.025);
+        vec2 shadowPos = fishPos + shadowOffset;
+        vec2 shadowUV = (coords - shadowPos + fishSize * 0.5) / fishSize;
+
+        // Aplicar orientação à sombra também
+        if (fishAngle > 1.5) {
+            shadowUV.x = 1.0 - shadowUV.x;
+        }
+
+        // Renderizar sombra se estiver na área válida
+        if (shadowUV.x >= 0.0 && shadowUV.x <= 1.0 && shadowUV.y >= 0.0 && shadowUV.y <= 1.0 && isInWaterArea(coords)) {
+            vec4 shadowColor = texture2D(u_fishTexture, shadowUV);
+            if (shadowColor.a > 0.1) {
+                // Sombra escura e suave
+                vec3 shadowTint = vec3(0.2, 0.3, 0.4) * 0.4; // Tom azulado escuro
+                float shadowAlpha = shadowColor.a * 0.6; // Sombra mais transparente
+
+                // Suavizar bordas da sombra
+                float shadowSoftness = 1.0 - smoothstep(0.1, 0.9, distance(shadowUV, vec2(0.5, 0.5)) * 2.0);
+                shadowAlpha *= shadowSoftness;
+
+                bgColor = mix(bgColor, vec4(shadowTint, 1.0), shadowAlpha);
+            }
+        }
+
+        // === RENDERIZAR PEIXE POR CIMA DA SOMBRA ===
+
+        if (fishUV.x >= 0.0 && fishUV.x <= 1.0 && fishUV.y >= 0.0 && fishUV.y <= 1.0 && isInWaterArea(coords)) {
           vec4 fishColor = texture2D(u_fishTexture, fishUV);
           if (fishColor.a > 0.1) {
             bgColor = mix(bgColor, vec4(fishColor.rgb, 1.0), fishColor.a);
@@ -1641,7 +1671,7 @@ export const FishingScreenModular: React.FC = () => {
               fontSize: "0.9rem",
             }}
           >
-            ÁREA DA ÁGUA
+            ��REA DA ÁGUA
           </div>
 
           <div style={{ marginBottom: "10px" }}>
