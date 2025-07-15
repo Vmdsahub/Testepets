@@ -860,7 +860,7 @@ class ModularWaterEffect {
     const centerX = this.waterArea.x + this.waterArea.width / 2;
     const centerY = this.waterArea.y + this.waterArea.height / 2;
 
-    let steeringForce = { x: 0, y: 0 };
+    const steeringForce = { x: 0, y: 0 };
     let shouldChangeDirection = false;
 
     // Verificar proximidade das bordas e criar força de direcionamento natural
@@ -962,7 +962,7 @@ class ModularWaterEffect {
       const avoidanceForce = this.avoidBorders();
 
       // Combinar direção desejada com evitação de bordas
-      let targetDirection = {
+      const targetDirection = {
         x: this.fishDesiredDirection.x + avoidanceForce.x,
         y: this.fishDesiredDirection.y + avoidanceForce.y,
       };

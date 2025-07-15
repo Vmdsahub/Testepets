@@ -784,8 +784,8 @@ class WaterEffect {
       this.fishVelocity.x * this.fishVelocity.x +
         this.fishVelocity.y * this.fishVelocity.y,
     );
-    let directionX = speed > 0.0001 ? this.fishVelocity.x / speed : 1;
-    let directionY = speed > 0.0001 ? this.fishVelocity.y / speed : 0;
+    const directionX = speed > 0.0001 ? this.fishVelocity.x / speed : 1;
+    const directionY = speed > 0.0001 ? this.fishVelocity.y / speed : 0;
 
     // Criar círculo de wandering à frente do peixe
     const circleCenter = {

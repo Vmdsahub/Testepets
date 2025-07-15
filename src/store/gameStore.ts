@@ -2030,7 +2030,7 @@ export const useGameStore = create<GameStore>()(
         try {
           // Apply rewards
           const rewards = redeemCode.rewards;
-          let rewardMessages: string[] = [];
+          const rewardMessages: string[] = [];
 
           // Currency rewards
           if (rewards.xenocoins && rewards.xenocoins > 0) {
@@ -2365,7 +2365,7 @@ export const useGameStore = create<GameStore>()(
 
           // Clear egg hatching state if it belongs to a different user
           const state = get();
-          let updateData: any = {
+          const updateData: any = {
             pets,
             activePet,
             inventory,
