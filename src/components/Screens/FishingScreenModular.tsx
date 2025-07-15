@@ -288,13 +288,16 @@ class ModularWaterEffect {
 
                 float moveSpeed = 0.0375; // Velocidade aumentada em 50% (0.025 * 1.5)
 
-        // Trajetória circular contínua - sem início nem fim
+                // Trajetória que usa toda a área da água
         float angle = time * moveSpeed;
-        float radius = min(areaW, areaH) * 0.3;
 
-        // Posição base em círculo perfeito
-        float baseX = centerX + cos(angle) * radius;
-        float baseY = centerY + sin(angle) * radius * 0.7; // Elíptico para ficar mais natural
+        // Raios que usam quase toda a área (90% para manter margem)
+        float radiusX = areaW * 0.45; // 90% da largura / 2
+        float radiusY = areaH * 0.4;  // 80% da altura / 2
+
+        // Movimento em trajetória elíptica que cobre toda a área
+        float baseX = centerX + cos(angle) * radiusX;
+        float baseY = centerY + sin(angle) * radiusY;
 
                 // Posição natural simples sem modificações
         float naturalFishX = baseX;
