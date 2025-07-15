@@ -84,6 +84,9 @@ class ModularWaterEffect {
     this.fisgadoTextStartTime = 0;
     this.isVibrating = false;
 
+    // Rastreamento de timers para limpeza adequada
+    this.activeTimers = [];
+
     this.init();
     this.render();
   }
@@ -357,7 +360,7 @@ class ModularWaterEffect {
         float mainRadius = min(areaW, areaH) * 0.4;
         float mainAngle = t * 0.8; // Circular mais rápido
 
-        // Posição base do movimento circular
+        // Posiç��o base do movimento circular
         float circleX = cos(mainAngle) * mainRadius;
         float circleY = sin(mainAngle) * mainRadius * 0.7; // Elipse
 
