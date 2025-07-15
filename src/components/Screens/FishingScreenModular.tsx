@@ -2180,6 +2180,13 @@ export const FishingScreenModular: React.FC = () => {
       {/* Fishing Rod Component */}
       <FishingRod
         waterArea={waterArea}
+        isFishBiting={() => {
+          // Verificar se peixe está mordendo (fish_hooked + canClickExclamation)
+          return (
+            waterEffectRef.current?.gameState === "fish_hooked" &&
+            waterEffectRef.current?.canClickExclamation === true
+          );
+        }}
         onHookCast={(x, y) => {
           // Verificar se o clique está dentro da área de água antes de iniciar o jogo
           if (isPointInWaterArea(x, y)) {
