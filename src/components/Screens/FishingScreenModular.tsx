@@ -1680,7 +1680,6 @@ interface FishingMinigameProps {
 }
 
 const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
-  console.log("🎮 FishingMinigame component rendered!");
   const [fishPosition, setFishPosition] = useState(50); // Posição do peixe (0-100)
   const [barPosition, setBarPosition] = useState(50); // Posição da barra do jogador (0-100)
   const [progress, setProgress] = useState(0); // Progresso de captura (0-100)
@@ -2935,7 +2934,7 @@ export const FishingScreenModular: React.FC = () => {
             >
               <option value="rectangle">Retângulo</option>
               <option value="circle">Círculo</option>
-              <option value="triangle">Tri��ngulo</option>
+              <option value="triangle">Triângulo</option>
             </select>
           </div>
 
