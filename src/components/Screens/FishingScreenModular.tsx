@@ -443,11 +443,13 @@ class ModularWaterEffect {
 
         float fishAngle = 0.0;
 
-                                        // === ORIENTAÇÃO DO PEIXE BASEADA NA DIREÇÃO CALCULADA ===
-        if (u_fishDirection > 0.0) {
-            fishAngle = 3.14159; // Direita (PI para flip correto)
-        } else {
-            fishAngle = 0.0; // Esquerda (0 para sem flip)
+                                                                                // === ORIENTAÇÃO DO PEIXE BASEADA NO ÂNGULO REAL ===
+        // Usar o ângulo real calculado no JavaScript para movimento diagonal
+        fishAngle = u_fishAngle;
+
+        // Se o peixe está indo para a esquerda (componente X negativo), flipar horizontalmente
+        if (cos(u_fishAngle) < 0.0) {
+            fishAngle = 3.14159 - u_fishAngle; // Flip horizontal para esquerda
         }
 
                                 // Usar posição calculada pelo JavaScript com vibração
@@ -500,7 +502,7 @@ class ModularWaterEffect {
         
                                                                 // Adicionar exclamação com imagem fornecida
         if (u_showExclamation > 0.0 && u_gameState >= 4.0) {
-                    // Posição da exclamação (10px para esquerda do centro do peixe, sem vibração)
+                    // Posição da exclamação (10px para esquerda do centro do peixe, sem vibra��ão)
           float leftOffset = 10.0 / u_resolution.x; // Converter 10px para coordenadas UV
           vec2 exclamationPos = vec2(fishX - leftOffset, fishY);
 
