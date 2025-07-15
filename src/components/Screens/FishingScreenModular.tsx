@@ -443,22 +443,26 @@ class ModularWaterEffect {
 
         float fishAngle = 0.0;
 
-                                                                                                                                                                // === ORIENTAÇÃO DO PEIXE BASEADA NA DIREÇÃO CALCULADA ===
-        // Manter sistema original funcionando
+                                                                                                                                                                        // === ORIENTAÇÃO DO PEIXE BASEADA NA DIREÇÃO CALCULADA ===
+        // Sistema base: controla o flip horizontal (esquerda/direita)
         if (u_fishDirection > 0.0) {
             fishAngle = 3.14159; // Direita (PI para flip correto)
         } else {
             fishAngle = 0.0; // Esquerda (0 para sem flip)
         }
 
-                        // NOVA IMPLEMENTAÇÃO: Rotação diagonal mais perceptível e suave
-        float diagonalTilt = u_fishAngle * 0.8; // Aumentar para 80% para ser mais visível
+                                // === SISTEMA DE ROTAÇÃO DIAGONAL SUAVE ===
+        // Aplica rotação baseada na direção vertical do movimento
+        // u_fishAngle contém o ângulo calculado pelo JavaScript (-30° a +30°)
+        float diagonalTilt = u_fishAngle * 0.8; // 80% do ângulo para rotação visível mas suave
 
-        // Aplicar inclinação diagonal mantendo o sistema original
+        // Combinar flip horizontal com rotação diagonal
         if (u_fishDirection > 0.0) {
-            fishAngle = 3.14159 - diagonalTilt; // Direita com inclinação
+            // Nadando para direita: PI (flip) + ajuste diagonal
+            fishAngle = 3.14159 - diagonalTilt;
         } else {
-            fishAngle = diagonalTilt; // Esquerda com inclinação
+            // Nadando para esquerda: 0 (sem flip) + ajuste diagonal
+            fishAngle = diagonalTilt;
         }
 
                                 // Usar posição calculada pelo JavaScript com vibração
