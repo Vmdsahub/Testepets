@@ -352,41 +352,47 @@ class ModularWaterEffect {
 
         // === SISTEMA DE ROTAÇÃO NATURAL ===
 
-                                                // === ORIENTAÇÃO ESTÁVEL BASEADA NO MOVIMENTO REAL ===
+                                                        // === ORIENTAÇÃO PRECISA BASEADA NA DIREÇÃO REAL ===
 
-        // Calcular direção usando as posições reais do baseX
-        float dt = 0.1;
+        // Calcular direção usando derivação matemática
+        float dt = 0.05;
         float currentAngle = time * moveSpeed;
         float futureAngle = (time + dt) * moveSpeed;
 
-        // Usar baseX atual e calcular futuro baseX
         float futureBaseX;
 
         if (currentPattern < 1.0) {
-            futureBaseX = centerX + cos(futureAngle) * areaW * 0.4;
+            // Padrão 1: Calcular posição futura
+            float wave1 = sin(futureAngle * 0.3) * areaW * 0.48;
+            float wave2 = cos(futureAngle * 0.17) * areaW * 0.25;
+            futureBaseX = centerX + wave1 + wave2;
+
         } else if (currentPattern < 2.0) {
-            float scale = min(areaW, areaH) * 0.3;
-            float sinFuture = sin(futureAngle);
-            float cosFuture = cos(futureAngle);
-            futureBaseX = centerX + scale * cosFuture / (1.0 + sinFuture * sinFuture);
-        } else if (currentPattern < 3.0) {
-            futureBaseX = centerX + sin(futureAngle * 0.5) * areaW * 0.4;
+            // Padrão 2: Rosácea
+            float r = min(areaW, areaH) * 0.45;
+            float k = 5.0;
+            float roseRadius = r * sin(k * futureAngle * 0.4);
+            futureBaseX = centerX + roseRadius * cos(futureAngle * 0.4) + sin(futureAngle * 0.08) * areaW * 0.2;
+
         } else {
-            float radiusFuture = (sin(futureAngle * 0.1) * 0.5 + 0.5) * min(areaW, areaH) * 0.4;
-            futureBaseX = centerX + cos(futureAngle * 2.0) * radiusFuture;
+            // Padrão 3: Drunk walk
+            float x1 = sin(futureAngle * 0.13) * areaW * 0.35;
+            float x2 = cos(futureAngle * 0.29) * areaW * 0.28;
+            float x3 = sin(futureAngle * 0.41) * areaW * 0.15;
+            futureBaseX = centerX + x1 + x2 + x3;
         }
 
         float velocityX = futureBaseX - baseX;
 
         float fishAngle = 0.0;
 
-        // Limiar maior para evitar oscilações
-        if (velocityX > 0.008) {
-            fishAngle = 0.0; // Direita
-        } else if (velocityX < -0.008) {
-            fishAngle = 3.14159; // Esquerda
+        // Sistema de orientação simples e direto
+        if (velocityX > 0.005) {
+            fishAngle = 0.0; // Nadando pra DIREITA -> apontar DIREITA
+        } else if (velocityX < -0.005) {
+            fishAngle = 3.14159; // Nadando pra ESQUERDA -> apontar ESQUERDA
         }
-        // Zona neutra ampla para estabilidade
+        // Zona neutra pequena para resposta rápida
 
         float fishX, fishY;
         if (u_gameState >= 2.0) {
