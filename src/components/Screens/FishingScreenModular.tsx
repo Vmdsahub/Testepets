@@ -62,9 +62,9 @@ class ModularWaterEffect {
 
     // Sistema de movimento orgânico
     this.fishDesiredDirection = { x: 1, y: 0 }; // Direção desejada
-    this.fishSpeed = 0.0008; // Velocidade base
+    this.fishSpeed = 0.0012; // Velocidade base (aumentada para mais dinamismo)
     this.directionChangeTime = 0; // Timer para mudança de direção
-    this.directionChangeCooldown = 2000 + Math.random() * 3000; // 2-5 segundos entre mudanças
+    this.directionChangeCooldown = 1000 + Math.random() * 2500; // 1-3.5 segundos entre mudanças (mais frequente)
     this.fishReactionStartTime = 0;
     this.fishReactionDelay = 0;
     this.originalFishMovement = { moveX: 0, moveY: 0 };
@@ -901,7 +901,7 @@ class ModularWaterEffect {
     }
   }
 
-  // Método para atualizar posição do peixe suavemente
+  // Método para atualizar posi��ão do peixe suavemente
   updateFishPosition() {
     if (this.gameState === "idle" || this.gameState === "hook_cast") {
       // === MOVIMENTO ORGÂNICO LIVRE ===
