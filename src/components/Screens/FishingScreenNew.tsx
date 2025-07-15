@@ -298,6 +298,30 @@ export const FishingScreenNew: React.FC = () => {
       ctx.fill();
     }
 
+    // Debug visual para posição exata da boca
+    if (isAdmin || fish.state === "moving") {
+      const mouthOffsetX = 30 / window.innerWidth;
+      const fishMouthX = fish.x - mouthOffsetX;
+      const fishMouthPixelX = fishMouthX * canvas.width;
+      const fishMouthPixelY = fish.y * canvas.height;
+
+      // Desenhar cruz na posição exata da boca
+      ctx.strokeStyle = "#00ff00"; // Verde brilhante
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(fishMouthPixelX - 8, fishMouthPixelY);
+      ctx.lineTo(fishMouthPixelX + 8, fishMouthPixelY);
+      ctx.moveTo(fishMouthPixelX, fishMouthPixelY - 8);
+      ctx.lineTo(fishMouthPixelX, fishMouthPixelY + 8);
+      ctx.stroke();
+
+      // Círculo na posição da boca
+      ctx.fillStyle = "rgba(0, 255, 0, 0.5)";
+      ctx.beginPath();
+      ctx.arc(fishMouthPixelX, fishMouthPixelY, 6, 0, 2 * Math.PI);
+      ctx.fill();
+    }
+
     // Debug info para admins
     if (isAdmin) {
       ctx.fillStyle = "white";
