@@ -58,6 +58,7 @@ class ModularWaterEffect {
     this.fishTargetPosition = { x: 0.5, y: 0.65 };
     this.fishCurrentPosition = { x: 0.5, y: 0.65 }; // Posição atual real do peixe
     this.fishVelocity = { x: 0, y: 0 }; // Velocidade para movimento suave
+    this.fishDirection = 1; // 1 = direita, -1 = esquerda
     this.lastNaturalPosition = { x: 0.5, y: 0.65 }; // Última posição natural conhecida
     this.fishReactionStartTime = 0;
     this.fishReactionDelay = 0;
