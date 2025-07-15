@@ -471,7 +471,7 @@ class ModularWaterEffect {
         }
 
                                 // === SISTEMA DE ROTAÇÃO DIAGONAL SUAVE ===
-        // Aplica rotação baseada na direção vertical do movimento
+        // Aplica rotação baseada na dire��ão vertical do movimento
         // u_fishAngle contém o ângulo calculado pelo JavaScript (-30° a +30°)
                 float diagonalTilt = u_fishAngle * 0.9; // 90% do ângulo para rotação bem visível
 
@@ -1250,14 +1250,14 @@ class ModularWaterEffect {
           this.fishAngle = targetAngle;
         } else {
           // Suavização balanceada: responsíva mas suave
-          const smoothingFactor = 0.15; // Aumentado para ser mais responsívo
+          const smoothingFactor = 0.25; // Aumentado para ser mais responsívo e visível
           this.fishAngle =
             this.fishAngle + (targetAngle - this.fishAngle) * smoothingFactor;
         }
       } else {
         // Quando não há movimento, gradualmente retornar para posição horizontal
         if (this.fishAngle !== undefined) {
-          this.fishAngle *= 0.95; // Gradualmente reduzir para 0
+          this.fishAngle *= 0.9; // Reduzir mais rapidamente para 0
           if (Math.abs(this.fishAngle) < 0.01) {
             this.fishAngle = 0;
           }
@@ -2353,7 +2353,7 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
                   </h3>
                   <p className="text-sm opacity-90">
                     {gameResult === "success"
-                      ? "Parabéns! Voc�� conseguiu!"
+                      ? "Parabéns! Você conseguiu!"
                       : "Tente novamente da próxima vez!"}
                   </p>
 
