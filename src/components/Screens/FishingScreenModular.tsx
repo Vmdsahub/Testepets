@@ -1233,13 +1233,14 @@ class ModularWaterEffect {
         Math.abs(verticalComponent) > 0.0001
       ) {
         // Calcular ângulo total da velocidade
+        // Inverter o sinal para corrigir direção: movimento para cima = rotação para cima
         let targetAngle = Math.atan2(
-          verticalComponent,
+          -verticalComponent, // Inverter Y para corrigir direção
           Math.abs(horizontalComponent),
         );
 
-        // Limitar o ângulo para rotações visíveis mas naturais (máximo 45 graus para cima/baixo)
-        const maxRotation = Math.PI / 4; // 45 graus para ser mais visível
+        // Limitar o ângulo para rotações naturais (máximo 25 graus para cima/baixo)
+        const maxRotation = Math.PI / 7; // ~25 graus para movimento mais natural
         targetAngle = Math.max(
           -maxRotation,
           Math.min(maxRotation, targetAngle),
@@ -1250,15 +1251,16 @@ class ModularWaterEffect {
           this.fishAngle = targetAngle;
         } else {
           // Suavização balanceada: responsíva mas suave
-          const smoothingFactor = 0.25; // Aumentado para ser mais responsívo e visível
+          const smoothingFactor = 0.2; // Balanceado para responsividade natural
           this.fishAngle =
             this.fishAngle + (targetAngle - this.fishAngle) * smoothingFactor;
         }
       } else {
         // Quando não há movimento, gradualmente retornar para posição horizontal
         if (this.fishAngle !== undefined) {
-          this.fishAngle *= 0.9; // Reduzir mais rapidamente para 0
-          if (Math.abs(this.fishAngle) < 0.01) {
+          this.fishAngle *= 0.95; // Retorno mais suave para 0
+          if (Math.abs(this.fishAngle) < 0.005) {
+            // Threshold menor para parada mais rápida
             this.fishAngle = 0;
           }
         } else {
@@ -1313,7 +1315,7 @@ class ModularWaterEffect {
         // Após 600ms, esconder texto e abrir minigame
         const fisgadoTimer = setTimeout(() => {
           this.showFisgadoText = false;
-          console.log("🎮 Opening minigame now...");
+          console.log("���� Opening minigame now...");
           savedCallback(); // Usar callback salvo
         }, 600);
 
@@ -1661,7 +1663,7 @@ class ModularWaterEffect {
       fishPixelX + mouthOffsetX + (this.fishDirection > 0 ? -7 : 7); // -7px para direita ou +7px para esquerda (mais 4px próximo da boca)
     const mouthY = fishPixelY + 2; // +2px para baixo
 
-    // Desenhar CÍRCULO ROSA MUITO PEQUENO na posição da boca
+    // Desenhar CÍRCULO ROSA MUITO PEQUENO na posi��ão da boca
     ctx.fillStyle = "rgba(255, 0, 255, 0.8)";
     ctx.beginPath();
     ctx.arc(mouthX, mouthY, 2, 0, 2 * Math.PI); // Diminuído para 2px
