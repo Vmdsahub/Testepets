@@ -115,7 +115,8 @@ export const FishingScreenNew: React.FC = () => {
       const dy = targetCenterY - fish.y;
       const distance = Math.sqrt(dx * dx + dy * dy);
 
-      if (distance > 0.005) {
+      if (distance > 0.002) {
+        // Distância muito pequena para colisão precisa
         // Movimento suave sem teleporte
         const moveSpeed = Math.min(fish.speed, distance * 0.1); // Reduzir velocidade conforme se aproxima
         const moveX = (dx / distance) * moveSpeed;
