@@ -3012,6 +3012,11 @@ export const FishingScreenModular: React.FC = () => {
             // Sucesso ou falha, apenas fecha o minigame
             if (waterEffectRef.current) {
               waterEffectRef.current.resetFishingGame();
+              // IMPORTANTE: Redefinir o callback onGameStart após o reset
+              waterEffectRef.current.onGameStart = () => {
+                console.log("🎮 Triggering minigame - setShowMinigame(true)");
+                setShowMinigame(true);
+              };
             }
           }}
         />
