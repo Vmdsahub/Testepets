@@ -457,8 +457,8 @@ class FishingSystem {
         } else {
           // Física normal após o lançamento
 
-          // Verificar se o ponto está na água
-          const isInWater = point.y > window.innerHeight * this.waterLevel;
+          // Verificar se o ponto está na água usando área configurada
+          const isInWater = this.isPointInWaterArea(point.x, point.y);
           point.inWater = isInWater;
 
           // Se o ponto está assentado, aplicar movimento muito reduzido
@@ -504,10 +504,7 @@ class FishingSystem {
             // Verificar se deve assentar
             if (isInWater) {
               const speed = Math.sqrt(velX * velX + velY * velY);
-              if (
-                speed < 0.8 &&
-                point.y > window.innerHeight * (this.waterLevel + 0.03)
-              ) {
+              if (speed < 0.8 && isInWater) {
                 point.settled = true;
                 point.settledX = point.x;
                 point.settledY = point.y;
