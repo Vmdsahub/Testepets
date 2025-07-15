@@ -285,7 +285,7 @@ class ModularWaterEffect {
                 shadowUV.x = 1.0 - shadowUV.x;
             }
 
-            // Verificar se está na área válida
+            // Verificar se está na área v��lida
             if (shadowUV.x >= 0.0 && shadowUV.x <= 1.0 && shadowUV.y >= 0.0 && shadowUV.y <= 1.0 && isInWaterArea(coords)) {
                 vec4 shadowTexture = texture2D(u_fishTexture, shadowUV);
                 if (shadowTexture.a > 0.05) {
@@ -500,14 +500,15 @@ class ModularWaterEffect {
             vibrationOffset.y = cos(u_time * 47.0) * vibrationIntensity;
           }
 
-                              // Posição da exclamação (no centro do peixe)
-          vec2 exclamationPos = vec2(fishX + vibrationOffset.x, fishY + vibrationOffset.y);
+                                        // Posição da exclamação (10px para esquerda do centro do peixe)
+          float leftOffset = 10.0 / u_resolution.x; // Converter 10px para coordenadas UV
+          vec2 exclamationPos = vec2(fishX + vibrationOffset.x - leftOffset, fishY + vibrationOffset.y);
 
           // Pulsação suave para chamar atenção
           float pulse = 0.98 + 0.02 * sin(u_time * 8.0);
 
-          // Tamanho da exclamação (ainda menor)
-          vec2 exclamationSize = vec2(0.015, 0.025) * pulse;
+          // Tamanho da exclamação (40% maior)
+          vec2 exclamationSize = vec2(0.015, 0.025) * 1.4 * pulse;
 
           // Calcular UV da exclamação
           vec2 exclamationUV = (uv - exclamationPos + exclamationSize * 0.5) / exclamationSize;
