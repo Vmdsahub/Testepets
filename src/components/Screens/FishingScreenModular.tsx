@@ -1242,6 +1242,15 @@ class ModularWaterEffect {
       );
 
       if (distance < 0.03) {
+        // VERIFICAÇÃO: Anzol deve estar na água para peixe ser fisgado
+        if (!this.isHookInWater()) {
+          console.log(
+            "🎣 Fish reached hook position but hook is not in water - resetting",
+          );
+          this.resetFishingGame();
+          return;
+        }
+
         // Chegou próximo ao anzol
         this.gameState = "fish_hooked";
         this.exclamationTime = 1000;
