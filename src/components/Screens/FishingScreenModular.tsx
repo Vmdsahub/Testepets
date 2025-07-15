@@ -912,7 +912,7 @@ class ModularWaterEffect {
       this.fishDesiredDirection.x = Math.cos(newAngle);
       this.fishDesiredDirection.y = Math.sin(newAngle) * 0.6;
 
-      // Resetar timer para evitar mudanças muito frequentes
+      // Resetar timer para evitar mudan��as muito frequentes
       this.directionChangeTime = Date.now();
       this.directionChangeCooldown = 2000 + Math.random() * 3000; // 2-5 segundos após evitação
     }
@@ -1768,6 +1768,7 @@ export const FishingScreenModular: React.FC = () => {
 
       {/* Fishing Rod Component */}
       <FishingRod
+        waterArea={waterArea}
         onHookCast={(x, y) => {
           const uvX = x / window.innerWidth;
           const uvY = y / window.innerHeight;
