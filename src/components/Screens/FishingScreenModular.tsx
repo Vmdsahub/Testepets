@@ -321,7 +321,7 @@ class ModularWaterEffect {
       void main() {
         vec2 uv = v_texCoord;
         
-                                                // === SISTEMA ORG��NICO DE MOVIMENTO DO PEIXE - TOTALMENTE NOVO ===
+                                                // === SISTEMA ORGÂNICO DE MOVIMENTO DO PEIXE - TOTALMENTE NOVO ===
 
         float time = u_fishTime;
 
@@ -1219,13 +1219,17 @@ class ModularWaterEffect {
       this.transitionBackToNaturalTime = Date.now();
     }
 
+    // Voltar ao estado idle para permitir novo interesse no anzol
     this.gameState = "idle";
-    this.hookPosition = { x: 0.5, y: 0.5 };
     this.fishReactionStartTime = 0;
     this.fishReactionDelay = 0;
     this.exclamationTime = 0;
     this.isVibrating = false;
     this.showFisgadoText = false;
+    this.canClickExclamation = false;
+
+    // Manter a posição do anzol para o peixe poder se interessar novamente
+    // this.hookPosition = { x: 0.5, y: 0.5 }; // Comentado para manter anzol ativo
   }
 
   updateBackgroundFromImage(image) {
