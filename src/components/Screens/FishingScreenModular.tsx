@@ -1198,15 +1198,23 @@ class ModularWaterEffect {
     );
 
     if (velocityMagnitude > 0.0001) {
-      // Calcular ângulo real baseado na velocidade (atan2 da direção)
-      // atan2(y, x) retorna ângulo em radianos de -PI a PI
-      this.fishAngle = Math.atan2(this.fishVelocity.y, this.fishVelocity.x);
-
-      // Manter fishDirection para compatibilidade (principalmente horizontal)
+      // Manter sistema original para direção horizontal
       this.fishDirection = this.fishVelocity.x > 0 ? 1 : -1;
+
+      // ADICIONAR: Calcular apenas o ângulo vertical para ajuste diagonal
+      // Limitar a apenas um pequeno ajuste vertical, não mudar completamente
+      const verticalComponent = this.fishVelocity.y;
+      const horizontalComponent = Math.abs(this.fishVelocity.x);
+
+      // Calcular um pequeno ângulo de inclinação baseado na proporção vertical
+      if (horizontalComponent > 0.0001) {
+        this.fishAngle =
+          Math.atan(verticalComponent / horizontalComponent) * 0.5; // Reduzir intensidade
+      } else {
+        this.fishAngle = 0;
+      }
     } else if (this.fishAngle === undefined) {
-      // Inicializar ângulo se ainda não foi definido
-      this.fishAngle = 0; // Apontando para a direita por padrão
+      this.fishAngle = 0;
     }
 
     // Log de debug ocasional
