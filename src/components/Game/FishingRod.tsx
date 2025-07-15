@@ -13,6 +13,7 @@ interface FishingRodProps {
   onHookCast?: (x: number, y: number) => void;
   onLineReeled?: () => void;
   waterArea?: WaterArea;
+  isFishBiting?: () => boolean; // Nova prop para verificar se peixe está mordendo
 }
 
 // Classe do sistema de pesca baseada no simulador fornecido
