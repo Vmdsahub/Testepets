@@ -11,7 +11,7 @@ import { FishingRod } from "../Game/FishingRod";
 // Tipos para o sistema modular
 interface WaterArea {
   x: number; // Posição X relativa (0-1)
-  y: number; // Posiç��o Y relativa (0-1)
+  y: number; // Posiç���o Y relativa (0-1)
   width: number; // Largura relativa (0-1)
   height: number; // Altura relativa (0-1)
   shape: "rectangle" | "circle" | "triangle";
@@ -227,7 +227,7 @@ class ModularWaterEffect {
         return false;
       }
 
-      // Fun��ão para obter cor com peixe (mantida original)
+      // Fun����ão para obter cor com peixe (mantida original)
             vec4 getColorWithFish(vec2 coords, float fishX, float fishY, float fishAngle) {
         vec4 bgColor = texture2D(u_backgroundTexture, coords);
         
@@ -912,13 +912,24 @@ class ModularWaterEffect {
       this.gameState === "fish_reacting" ||
       this.gameState === "fish_moving"
     ) {
-      // Verificar se o peixe chegou próximo ao anzol usando posição natural
-      // Como não temos acesso direto à posição natural aqui, vamos usar timer
+      // Verificar se o peixe chegou próximo ao anzol usando timer
       const timeSinceReaction =
         Date.now() - this.fishReactionStartTime - this.fishReactionDelay;
-      const timeToReachHook = 3000; // 3 segundos para chegar ao anzol
+      const timeToReachHook = 4000; // 4 segundos para chegar ao anzol
 
-      if (timeSinceReaction > timeToReachHook) {
+      if (timeSinceReaction > 0 && timeSinceReaction <= timeToReachHook) {
+        // Ainda se movendo em direção ao anzol
+        if (this.gameState === "fish_reacting") {
+          this.gameState = "fish_moving";
+        }
+
+        // Log de debug ocasional
+        if (Math.random() < 0.01) {
+          console.log(
+            `🐟 MOVING - Time since reaction: ${(timeSinceReaction / 1000).toFixed(1)}s / ${(timeToReachHook / 1000).toFixed(1)}s`,
+          );
+        }
+      } else if (timeSinceReaction > timeToReachHook) {
         this.gameState = "fish_hooked";
         this.exclamationTime = 1000;
         this.exclamationStartTime = Date.now();
