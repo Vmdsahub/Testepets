@@ -1233,9 +1233,9 @@ class ModularWaterEffect {
         Math.abs(verticalComponent) > 0.0001
       ) {
         // Calcular ângulo total da velocidade
-        // Inverter o sinal para corrigir direção: movimento para cima = rotação para cima
+        // Sistema de coordenadas: Y positivo = para baixo, atan2 natural
         let targetAngle = Math.atan2(
-          -verticalComponent, // Inverter Y para corrigir direção
+          verticalComponent, // Y natural: positivo = para baixo, negativo = para cima
           Math.abs(horizontalComponent),
         );
 
