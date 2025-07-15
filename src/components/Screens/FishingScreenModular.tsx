@@ -1225,7 +1225,7 @@ class ModularWaterEffect {
         // Capturar posição atual e começar reação
         this.gameState = "fish_reacting";
         console.log(
-          `🎣 Fish reacting! Current position: (${this.fishCurrentPosition.x.toFixed(3)}, ${this.fishCurrentPosition.y.toFixed(3)})`,
+          `🎣 Fish reacting! Hook at (${this.hookPosition.x.toFixed(3)}, ${this.hookPosition.y.toFixed(3)}) - Fish at (${this.fishCurrentPosition.x.toFixed(3)}, ${this.fishCurrentPosition.y.toFixed(3)}) - Hook in water: ${this.isHookInWater()}`,
         );
 
         // Come��ar movimento ap��s breve pausa
@@ -2161,7 +2161,7 @@ export const FishingScreenModular: React.FC = () => {
         );
         return distance <= radius;
       case "triangle":
-        // Implementação básica de triângulo
+        // Implementaç��o básica de triângulo
         const tx1 = waterArea.x + waterArea.width / 2;
         const ty1 = waterArea.y;
         const tx2 = waterArea.x;
