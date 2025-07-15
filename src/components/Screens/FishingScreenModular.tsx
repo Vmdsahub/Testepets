@@ -189,7 +189,7 @@ class ModularWaterEffect {
         return gradient * u_distortionAmount;
       }
 
-      // Simulação de c��usticas (mantida original)
+      // Simulação de cáusticas (mantida original)
       float calculateCaustics(vec2 uv, float time) {
         vec2 causticsUV = uv * 15.0;
         float caustic1 = abs(sin(causticsUV.x + time * 2.0));
@@ -910,10 +910,12 @@ class ModularWaterEffect {
     }
 
     // Interpolação suave para a posição alvo
-    let lerpSpeed = 0.01; // Velocidade de interpolação (mais lenta para movimento natural)
+    let lerpSpeed = 0.008; // Velocidade de interpolação (mais lenta para movimento natural)
 
-    if (this.gameState === "fish_moving" || this.gameState === "fish_hooked") {
-      lerpSpeed = 0.03; // Mais rápida quando indo ao anzol
+    if (this.gameState === "fish_moving") {
+      lerpSpeed = 0.015; // Velocidade moderada quando indo ao anzol (reduzida)
+    } else if (this.gameState === "fish_hooked") {
+      lerpSpeed = 0.0; // Parar completamente quando fisgado
     }
     const dx = this.fishTargetPosition.x - this.fishCurrentPosition.x;
     const dy = this.fishTargetPosition.y - this.fishCurrentPosition.y;
@@ -1319,7 +1321,7 @@ export const FishingScreenModular: React.FC = () => {
     return () => clearTimeout(timer);
   }, [fishingSettings]);
 
-  // Atualizar ��rea da água no effect
+  // Atualizar área da água no effect
   useEffect(() => {
     if (waterEffectRef.current) {
       waterEffectRef.current.updateWaterArea(waterArea);
@@ -1992,7 +1994,7 @@ export const FishingScreenModular: React.FC = () => {
             }}
           >
             <h2 style={{ marginTop: 0, color: "#333", fontSize: "24px" }}>
-              🎣 Peixe Fisgado!
+              �� Peixe Fisgado!
             </h2>
             <p
               style={{ color: "#666", marginBottom: "30px", fontSize: "16px" }}
