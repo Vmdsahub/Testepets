@@ -950,12 +950,7 @@ class ModularWaterEffect {
     if (Math.abs(this.fishVelocity.x) > 0.0001) {
       this.fishDirection = this.fishVelocity.x > 0 ? 1 : -1;
     } else if (this.gameState === "idle" || this.gameState === "hook_cast") {
-      // Para movimento natural, calcular direção baseada na mudança da posição natural
-      const currentNatural = this.calculateNaturalFishPosition();
-      const deltaX = currentNatural.x - this.lastNaturalPosition.x;
-      if (Math.abs(deltaX) > 0.001) {
-        this.fishDirection = deltaX > 0 ? 1 : -1;
-      }
+      // Direção será calculada pela velocidade atual
     }
 
     // Log de debug ocasional
@@ -1017,7 +1012,7 @@ class ModularWaterEffect {
         this.canClickExclamation = true;
         console.log("🎣 Fish hooked! Starting exclamation timer.");
 
-        // Timer de 1 segundo - se n��o clicar, voltar ao movimento natural
+        // Timer de 1 segundo - se não clicar, voltar ao movimento natural
         setTimeout(() => {
           if (this.gameState === "fish_hooked" && this.canClickExclamation) {
             console.log(
