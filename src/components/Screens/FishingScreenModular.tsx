@@ -442,9 +442,16 @@ class ModularWaterEffect {
             fishAngle = 0.0; // Esquerda (0 para sem flip)
         }
 
-                        // Usar posição calculada pelo JavaScript
+                                // Usar posição calculada pelo JavaScript com vibração
         float fishX = u_fishTargetPosition.x;
         float fishY = u_fishTargetPosition.y;
+
+        // Aplicar vibração no shader se necessário (sincronizada)
+        if (u_gameState >= 4.0) {
+          float vibrationIntensity = 0.003;
+          fishX += sin(u_time * 50.0) * vibrationIntensity;
+          fishY += cos(u_time * 47.0) * vibrationIntensity;
+        }
         
                                 // Imagem original com peixe
         vec4 originalColor = getColorWithFish(uv, fishX, fishY, fishAngle);
