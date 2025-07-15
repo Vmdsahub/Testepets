@@ -1664,6 +1664,9 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
   const [progress, setProgress] = useState(0); // Progresso de captura (0-100)
   const [gameTime, setGameTime] = useState(8000); // 8 segundos para capturar
   const [isHolding, setIsHolding] = useState(false);
+  const [fishInBar, setFishInBar] = useState(false); // Para efeitos visuais
+  const [progressGain, setProgressGain] = useState(false); // Para animação de ganho
+  const [isLowTime, setIsLowTime] = useState(false); // Para efeitos de tempo baixo
 
   // Refs para acessar valores atuais dentro do interval
   const fishPositionRef = useRef(fishPosition);
@@ -2366,7 +2369,7 @@ export const FishingScreenModular: React.FC = () => {
         }}
       />
 
-      {/* Overlay para mostrar posição da boca do peixe */}
+      {/* Overlay para mostrar posi��ão da boca do peixe */}
       <canvas
         id="fishMouthOverlay"
         style={{
