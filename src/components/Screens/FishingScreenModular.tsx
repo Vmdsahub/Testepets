@@ -288,15 +288,15 @@ class ModularWaterEffect {
 
         float moveSpeed = 0.025; // Velocidade reduzida para movimentos mais longos
 
-        // Ciclo muito lento para padrões longos (a cada ~12 minutos)
+                // Ciclo muito lento para padrões longos (a cada ~12 minutos)
         float patternTime = time * 0.0015;
         float patternCycle = sin(patternTime) * 0.5 + 0.5;
         float continuousPattern = patternCycle * 6.0; // 6 padrões complexos
 
-        // Suavização entre padrões para evitar teleporte
+        // Usar padrão atual sem blending por enquanto para evitar problemas
         float currentPattern = floor(continuousPattern);
-        float blendFactor = fract(continuousPattern);
-        float smoothBlend = smoothstep(0.0, 0.2, blendFactor) * (1.0 - smoothstep(0.8, 1.0, blendFactor));
+        // float blendFactor = fract(continuousPattern);
+        // float smoothBlend = smoothstep(0.0, 0.2, blendFactor) * (1.0 - smoothstep(0.8, 1.0, blendFactor));
 
         float angle = time * moveSpeed;
         float baseX = centerX, baseY = centerY;
