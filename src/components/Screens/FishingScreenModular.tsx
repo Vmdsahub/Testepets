@@ -913,6 +913,12 @@ class ModularWaterEffect {
     } else if (this.gameState === "fish_hooked") {
       if (this.exclamationTime > 0) {
         this.exclamationTime -= 16;
+
+        // Se passou 1 segundo, desabilitar clique
+        const elapsedTime = Date.now() - this.exclamationStartTime;
+        if (elapsedTime >= 1000) {
+          this.canClickExclamation = false;
+        }
       }
     }
   }
