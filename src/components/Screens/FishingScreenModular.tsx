@@ -17,7 +17,7 @@ interface WaterArea {
   shape: "rectangle" | "circle" | "triangle";
 }
 
-// WebGL Water Effect Class Modular - NOVO: Movimento aleat��rio livre com rotação 360° baseado na área definida
+// WebGL Water Effect Class Modular - NOVO: Movimento aleat���rio livre com rotação 360° baseado na área definida
 class ModularWaterEffect {
   constructor(waterArea) {
     this.canvas = document.getElementById("waterCanvas");
@@ -1151,6 +1151,54 @@ export const FishingScreenModular: React.FC = () => {
         waterEffect.onGameStart = () => {
           setShowFishingModal(true);
         };
+
+        // Adicionar listener para cliques na exclamação
+        const handleCanvasClick = (e: MouseEvent) => {
+          if (
+            waterEffect.gameState === "fish_hooked" &&
+            waterEffect.canClickExclamation
+          ) {
+            const rect = (e.target as HTMLElement).getBoundingClientRect();
+            const x = (e.clientX - rect.left) / rect.width;
+            const y = (e.clientY - rect.top) / rect.height;
+
+            // Posição da exclamação (acima do peixe)
+            // Usar posição natural do peixe baseada no tempo
+            const time = waterEffect.fishTime * 0.5;
+            const areaX = waterEffect.waterArea.x;
+            const areaY = waterEffect.waterArea.y;
+            const areaW = waterEffect.waterArea.width;
+            const areaH = waterEffect.waterArea.height;
+
+            // Calcular posição do peixe (baseado no shader)
+            const centerX = areaX + areaW / 2;
+            const centerY = areaY + areaH / 2;
+            const mainRadius = Math.min(areaW, areaH) * 0.35;
+            const mainAngle = time * 0.8;
+            const circleX = Math.cos(mainAngle) * mainRadius;
+            const circleY = Math.sin(mainAngle) * mainRadius * 0.7;
+
+            const fishX = centerX + circleX * 0.01; // Conversão aproximada para coordenadas UV
+            const fishY = centerY + circleY * 0.01;
+            const exclamationX = fishX;
+            const exclamationY = fishY - 0.08;
+
+            // Verificar se clicou na área da exclamação
+            const distance = Math.sqrt(
+              Math.pow(x - exclamationX, 2) + Math.pow(y - exclamationY, 2),
+            );
+
+            if (distance <= 0.05) {
+              // Área clicável da exclamação
+              waterEffect.handleExclamationClick();
+            }
+          }
+        };
+
+        const canvas = document.getElementById("waterCanvas");
+        if (canvas) {
+          canvas.addEventListener("click", handleCanvasClick);
+        }
 
         if (fishingSettings) {
           waterEffect.waveIntensity = fishingSettings.waveIntensity;
