@@ -288,20 +288,43 @@ export const FishingScreenNew: React.FC = () => {
     if (isAdmin) {
       ctx.fillStyle = "white";
       ctx.font = "14px monospace";
+
+      const fishMouthX = fish.x + 0.03;
+      const fishMouthY = fish.y;
+
       ctx.fillText(
-        `Fish: (${fish.x.toFixed(2)}, ${fish.y.toFixed(2)}) - ${fish.state}`,
+        `Fish Center: (${fish.x.toFixed(2)}, ${fish.y.toFixed(2)}) - ${fish.state}`,
         10,
         30,
       );
       ctx.fillText(
-        `Hook: (${hook.x}, ${hook.y}) - ${hook.active ? "active" : "inactive"}`,
+        `Fish Mouth: (${fishMouthX.toFixed(2)}, ${fishMouthY.toFixed(2)})`,
         10,
         50,
       );
       ctx.fillText(
-        `Water: ${waterArea.shape} at (${waterArea.x}, ${waterArea.y})`,
+        `Hook: (${(hook.x / window.innerWidth).toFixed(2)}, ${(hook.y / window.innerHeight).toFixed(2)}) - ${hook.active ? "active" : "inactive"}`,
         10,
         70,
+      );
+      ctx.fillText(
+        `Water: ${waterArea.shape} at (${waterArea.x}, ${waterArea.y})`,
+        10,
+        90,
+      );
+
+      // Verificar se peixe está na água
+      const fishPixelX = fish.x * canvas.width;
+      const fishPixelY = fish.y * canvas.height;
+      const isFishInWater = isPointInWaterArea(fishPixelX, fishPixelY);
+      const isHookInWater = hook.active
+        ? isPointInWaterArea(hook.x, hook.y)
+        : false;
+
+      ctx.fillText(
+        `Fish in water: ${isFishInWater}, Hook in water: ${isHookInWater}`,
+        10,
+        110,
       );
     }
   };
