@@ -1007,6 +1007,23 @@ class ModularWaterEffect {
     if (this.gameState !== "fish_hooked") {
       this.fishCurrentPosition.x += this.fishVelocity.x;
       this.fishCurrentPosition.y += this.fishVelocity.y;
+
+      // Forçar peixe a ficar dentro da área da água (clamp)
+      const clampMargin = 0.02;
+      this.fishCurrentPosition.x = Math.max(
+        this.waterArea.x + clampMargin,
+        Math.min(
+          this.waterArea.x + this.waterArea.width - clampMargin,
+          this.fishCurrentPosition.x,
+        ),
+      );
+      this.fishCurrentPosition.y = Math.max(
+        this.waterArea.y + clampMargin,
+        Math.min(
+          this.waterArea.y + this.waterArea.height - clampMargin,
+          this.fishCurrentPosition.y,
+        ),
+      );
     }
 
     // Calcular direção do peixe baseada na velocidade
