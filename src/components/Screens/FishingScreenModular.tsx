@@ -877,23 +877,27 @@ class ModularWaterEffect {
         const currentFishX = innerX + innerW * 0.5 + moveX * innerW * 0.4;
         const currentFishY = innerY + innerH * 0.5 + moveY * innerH * 0.4;
 
-        this.fishTargetPosition = { x: currentFishX, y: currentFishY };
+        // Não fazer nada aqui - deixar o movimento natural do peixe continuar
         this.gameState = "fish_reacting";
+
+        // Começar movimento após breve pausa
+        setTimeout(() => {
+          if (this.gameState === "fish_reacting") {
+            this.gameState = "fish_moving";
+          }
+        }, 500);
       }
     } else if (
       this.gameState === "fish_reacting" ||
       this.gameState === "fish_moving"
     ) {
-      const speed = 0.0002; // Velocidade razoável para movimento visível
-      const dx = this.hookPosition.x - this.fishTargetPosition.x;
-      const dy = this.hookPosition.y - this.fishTargetPosition.y;
-      const distance = Math.sqrt(dx * dx + dy * dy);
+      // Verificar se o peixe chegou próximo ao anzol usando posição natural
+      // Como não temos acesso direto à posição natural aqui, vamos usar timer
+      const timeSinceReaction =
+        Date.now() - this.fishReactionStartTime - this.fishReactionDelay;
+      const timeToReachHook = 3000; // 3 segundos para chegar ao anzol
 
-      if (distance > 0.01) {
-        this.gameState = "fish_moving";
-        this.fishTargetPosition.x += (dx / distance) * speed;
-        this.fishTargetPosition.y += (dy / distance) * speed;
-      } else {
+      if (timeSinceReaction > timeToReachHook) {
         this.gameState = "fish_hooked";
         this.exclamationTime = 1000;
         this.exclamationStartTime = Date.now();
