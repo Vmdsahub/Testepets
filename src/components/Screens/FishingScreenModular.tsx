@@ -2987,7 +2987,6 @@ export const FishingScreenModular: React.FC = () => {
       )}
 
       {/* Minigame de Pesca estilo Stardew Valley */}
-      {console.log("🎮 showMinigame:", showMinigame)}
       {showMinigame && (
         <FishingMinigame
           onComplete={(success) => {
