@@ -342,29 +342,41 @@ class ModularWaterEffect {
 
         // === SISTEMA DE ROTAÇÃO NATURAL ===
 
-                                        // === ORIENTAÇÃO CORRETA BASEADA NA VELOCIDADE ===
+                                                // === ORIENTAÇÃO ESTÁVEL BASEADA NO MOVIMENTO REAL ===
 
-        // Calcular velocidade atual (derivação)
-        float dt = 0.05; // Delta time menor para mais precisão
+        // Calcular direção usando as posições reais do baseX
+        float dt = 0.1;
         float currentAngle = time * moveSpeed;
         float futureAngle = (time + dt) * moveSpeed;
 
-        // Posição atual e futura
-        float currentX = centerX + cos(currentAngle) * radiusX;
-        float futureX = centerX + cos(futureAngle) * radiusX;
+        // Usar baseX atual e calcular futuro baseX
+        float futureBaseX;
 
-        // Velocidade X (direção do movimento)
-        float velocityX = futureX - currentX;
-
-                float fishAngle = 0.0;
-
-        // Orientação baseada na velocidade real (mais sensível)
-        if (velocityX > 0.0005) {
-            fishAngle = 0.0; // Movendo para direita -> apontar direita
-        } else if (velocityX < -0.0005) {
-            fishAngle = 3.14159; // Movendo para esquerda -> apontar esquerda
+        if (currentPattern < 1.0) {
+            futureBaseX = centerX + cos(futureAngle) * areaW * 0.4;
+        } else if (currentPattern < 2.0) {
+            float scale = min(areaW, areaH) * 0.3;
+            float sinFuture = sin(futureAngle);
+            float cosFuture = cos(futureAngle);
+            futureBaseX = centerX + scale * cosFuture / (1.0 + sinFuture * sinFuture);
+        } else if (currentPattern < 3.0) {
+            futureBaseX = centerX + sin(futureAngle * 0.5) * areaW * 0.4;
+        } else {
+            float radiusFuture = (sin(futureAngle * 0.1) * 0.5 + 0.5) * min(areaW, areaH) * 0.4;
+            futureBaseX = centerX + cos(futureAngle * 2.0) * radiusFuture;
         }
-        // Zona neutra menor para resposta mais rápida
+
+        float velocityX = futureBaseX - baseX;
+
+        float fishAngle = 0.0;
+
+        // Limiar maior para evitar oscilações
+        if (velocityX > 0.008) {
+            fishAngle = 0.0; // Direita
+        } else if (velocityX < -0.008) {
+            fishAngle = 3.14159; // Esquerda
+        }
+        // Zona neutra ampla para estabilidade
 
         float fishX, fishY;
         if (u_gameState >= 2.0) {
