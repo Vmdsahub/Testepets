@@ -1812,7 +1812,6 @@ export const FishingScreenModular: React.FC = () => {
               "🎣 Player clicked anywhere during fish bite - triggering minigame!",
             );
             waterEffect.handleExclamationClick();
-            const centerX = areaX + areaW / 2;
           }
         };
 
