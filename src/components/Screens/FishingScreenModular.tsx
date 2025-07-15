@@ -1227,12 +1227,9 @@ class ModularWaterEffect {
     const fishPixelX = fishUvX * overlayCanvas.width;
     const fishPixelY = fishUvY * overlayCanvas.height;
 
-    // A boca do peixe está na extremidade esquerda (assumindo orientação)
-    // O peixe tem direção baseada na velocidade
-    let mouthOffsetX = -40; // Boca à esquerda por padrão
-    if (this.fishDirection > 0) {
-      mouthOffsetX = 40; // Boca à direita se virado para direita
-    }
+    // A boca do peixe está sempre no lado esquerdo da imagem (como na foto)
+    // Independente da direção, a boca fica na extremidade esquerda
+    const mouthOffsetX = -40; // Sempre à esquerda da posição central do peixe
 
     const mouthX = fishPixelX + mouthOffsetX;
     const mouthY = fishPixelY;
