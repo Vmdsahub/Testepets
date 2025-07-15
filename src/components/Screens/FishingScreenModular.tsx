@@ -1667,6 +1667,9 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
   const [fishInBar, setFishInBar] = useState(false); // Para efeitos visuais
   const [progressGain, setProgressGain] = useState(false); // Para animação de ganho
   const [isLowTime, setIsLowTime] = useState(false); // Para efeitos de tempo baixo
+  const [gameResult, setGameResult] = useState<
+    "playing" | "success" | "failure"
+  >("playing");
 
   // Refs para acessar valores atuais dentro do interval
   const fishPositionRef = useRef(fishPosition);
