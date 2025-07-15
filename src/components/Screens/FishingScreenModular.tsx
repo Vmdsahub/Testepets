@@ -477,21 +477,27 @@ class ModularWaterEffect {
           gl_FragColor = originalColor;
         }
         
-        // Adicionar exclamação se necessário
+                // Adicionar exclamação se necessário
         if (u_showExclamation > 0.0 && u_gameState >= 4.0) {
           vec2 exclamationPos = vec2(fishX, fishY - 0.08);
           float distToExclamation = distance(uv, exclamationPos);
 
-          if (distToExclamation < 0.02) {
-            gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(1.0, 1.0, 0.0), 0.8);
+          // Pulsação para chamar atenção
+          float pulse = 0.8 + 0.2 * sin(u_time * 8.0);
+          float exclamationSize = 0.025 * pulse;
+
+          // Círculo amarelo de fundo
+          if (distToExclamation < exclamationSize) {
+            gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(1.0, 1.0, 0.0), 0.9);
           }
 
-          vec2 localUV = (uv - exclamationPos) / 0.02;
-          if (abs(localUV.x) < 0.2 && localUV.y > -0.5 && localUV.y < 0.2) {
-            gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(0.0, 0.0, 0.0), 0.9);
+          // Desenhar "!" no centro
+          vec2 localUV = (uv - exclamationPos) / exclamationSize;
+          if (abs(localUV.x) < 0.15 && localUV.y > -0.4 && localUV.y < 0.2) {
+            gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(0.0, 0.0, 0.0), 0.95);
           }
-          if (abs(localUV.x) < 0.2 && localUV.y > 0.4 && localUV.y < 0.7) {
-            gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(0.0, 0.0, 0.0), 0.9);
+          if (abs(localUV.x) < 0.15 && localUV.y > 0.35 && localUV.y < 0.5) {
+            gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(0.0, 0.0, 0.0), 0.95);
           }
         }
       }
