@@ -1205,31 +1205,18 @@ class ModularWaterEffect {
     // Limpar canvas
     ctx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
 
-    // Calcular posição atual do peixe (mesmo cálculo do shader)
-    const time = this.fishTime * 0.5;
-    const areaX = this.waterArea.x;
-    const areaY = this.waterArea.y;
-    const areaW = this.waterArea.width;
-    const areaH = this.waterArea.height;
-
-    const centerX = areaX + areaW / 2;
-    const centerY = areaY + areaH / 2;
-    const mainRadius = Math.min(areaW, areaH) * 0.35;
-    const mainAngle = time * 0.8;
-    const circleX = Math.cos(mainAngle) * mainRadius;
-    const circleY = Math.sin(mainAngle) * mainRadius * 0.7;
-
-    // Posição do peixe em coordenadas UV
-    const fishUvX = centerX + circleX * 0.01;
-    const fishUvY = centerY + circleY * 0.01;
+    // Usar a MESMA posição do peixe que o shader usa
+    const fishUvX = this.fishCurrentPosition.x;
+    const fishUvY = this.fishCurrentPosition.y;
 
     // Converter para pixels
     const fishPixelX = fishUvX * overlayCanvas.width;
     const fishPixelY = fishUvY * overlayCanvas.height;
 
     // A boca do peixe está sempre no lado esquerdo da imagem (como na foto)
-    // Independente da direção, a boca fica na extremidade esquerda
-    const mouthOffsetX = -40; // Sempre à esquerda da posição central do peixe
+    // Tamanho do peixe no shader: 0.08 width, 0.06 height
+    const fishSizePixelX = 0.08 * overlayCanvas.width;
+    const mouthOffsetX = -fishSizePixelX / 2; // Metade do tamanho à esquerda
 
     const mouthX = fishPixelX + mouthOffsetX;
     const mouthY = fishPixelY;
