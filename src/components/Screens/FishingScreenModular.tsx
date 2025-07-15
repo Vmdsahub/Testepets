@@ -930,7 +930,7 @@ class ModularWaterEffect {
       let angle;
 
       if (Math.random() < 0.7) {
-        // 70% chance de movimento mais horizontal (-45° a 45° ou 135° a 225°)
+        // 70% chance de movimento mais horizontal (-45° a 45° ou 135�� a 225°)
         if (Math.random() < 0.5) {
           angle = (Math.random() - 0.5) * Math.PI * 0.5; // -45° a 45°
         } else {
@@ -1083,7 +1083,7 @@ class ModularWaterEffect {
           `🎣 Fish reacting! Current position: (${this.fishCurrentPosition.x.toFixed(3)}, ${this.fishCurrentPosition.y.toFixed(3)})`,
         );
 
-        // Começar movimento ap��s breve pausa
+        // Come��ar movimento ap��s breve pausa
         setTimeout(() => {
           if (this.gameState === "fish_reacting") {
             this.gameState = "fish_moving";
@@ -1188,6 +1188,70 @@ class ModularWaterEffect {
       this.gl.TEXTURE_MAG_FILTER,
       this.gl.LINEAR,
     );
+  }
+
+  // Método para desenhar overlay da boca do peixe
+  drawFishMouthOverlay() {
+    const overlayCanvas = document.getElementById("fishMouthOverlay");
+    if (!overlayCanvas) return;
+
+    const ctx = overlayCanvas.getContext("2d");
+    if (!ctx) return;
+
+    // Ajustar tamanho do overlay
+    overlayCanvas.width = window.innerWidth;
+    overlayCanvas.height = window.innerHeight;
+
+    // Limpar canvas
+    ctx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+
+    // Calcular posição atual do peixe (mesmo cálculo do shader)
+    const time = this.fishTime * 0.5;
+    const areaX = this.waterArea.x;
+    const areaY = this.waterArea.y;
+    const areaW = this.waterArea.width;
+    const areaH = this.waterArea.height;
+
+    const centerX = areaX + areaW / 2;
+    const centerY = areaY + areaH / 2;
+    const mainRadius = Math.min(areaW, areaH) * 0.35;
+    const mainAngle = time * 0.8;
+    const circleX = Math.cos(mainAngle) * mainRadius;
+    const circleY = Math.sin(mainAngle) * mainRadius * 0.7;
+
+    // Posição do peixe em coordenadas UV
+    const fishUvX = centerX + circleX * 0.01;
+    const fishUvY = centerY + circleY * 0.01;
+
+    // Converter para pixels
+    const fishPixelX = fishUvX * overlayCanvas.width;
+    const fishPixelY = fishUvY * overlayCanvas.height;
+
+    // A boca do peixe está na extremidade esquerda (assumindo orientação)
+    // O peixe tem direção baseada na velocidade
+    let mouthOffsetX = -40; // Boca à esquerda por padrão
+    if (this.fishDirection > 0) {
+      mouthOffsetX = 40; // Boca à direita se virado para direita
+    }
+
+    const mouthX = fishPixelX + mouthOffsetX;
+    const mouthY = fishPixelY;
+
+    // Desenhar CÍRCULO GRANDE ROSA na posição da boca
+    ctx.fillStyle = "rgba(255, 0, 255, 0.8)";
+    ctx.beginPath();
+    ctx.arc(mouthX, mouthY, 30, 0, 2 * Math.PI);
+    ctx.fill();
+
+    // Borda do círculo
+    ctx.strokeStyle = "#ff00ff";
+    ctx.lineWidth = 4;
+    ctx.stroke();
+
+    // Texto indicativo
+    ctx.fillStyle = "#fff";
+    ctx.font = "16px Arial";
+    ctx.fillText("BOCA", mouthX - 20, mouthY - 40);
   }
 
   render() {
@@ -1321,6 +1385,9 @@ class ModularWaterEffect {
     // Desenha
     this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
     this.gl.drawElements(this.gl.TRIANGLES, 6, this.gl.UNSIGNED_SHORT, 0);
+
+    // Desenhar overlay da boca do peixe
+    this.drawFishMouthOverlay();
 
     requestAnimationFrame(() => this.render());
   }
@@ -1784,6 +1851,20 @@ export const FishingScreenModular: React.FC = () => {
           if (waterEffectRef.current) {
             waterEffectRef.current.resetFishingGame();
           }
+        }}
+      />
+
+      {/* Overlay para mostrar posição da boca do peixe */}
+      <canvas
+        id="fishMouthOverlay"
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          pointerEvents: "none",
+          zIndex: 20,
         }}
       />
 

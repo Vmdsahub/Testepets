@@ -48,7 +48,7 @@ export const FishingScreenNew: React.FC = () => {
     targetX: 0.5,
     targetY: 0.7,
     state: "swimming",
-    speed: 0.001,
+    speed: 0.003,
   });
 
   const [waterArea, setWaterArea] = useState<WaterArea>({
@@ -99,14 +99,32 @@ export const FishingScreenNew: React.FC = () => {
         targetY: baseY,
       }));
     } else if (fish.state === "moving") {
-      // Movimento em direção ao anzol
-      const dx = hook.x / window.innerWidth - fish.x;
-      const dy = hook.y / window.innerHeight - fish.y;
+      // A boca está na extremidade ESQUERDA do peixe
+      // Boca = centro - 30px em coordenadas de pixel
+      // Precisamos posicionar o CENTRO do peixe para que a BOCA toque o anzol
+
+      const hookPixelX = hook.x;
+      const hookPixelY = hook.y;
+
+      // Para que a boca (centro - 30px) toque o anzol:
+      // centro - 30 = anzol => centro = anzol + 30
+      const targetCenterPixelX = hookPixelX + 30;
+      const targetCenterPixelY = hookPixelY;
+
+      // Converter para coordenadas normalizadas
+      const targetCenterX = targetCenterPixelX / window.innerWidth;
+      const targetCenterY = targetCenterPixelY / window.innerHeight;
+
+      // Distância do centro atual para a posição alvo
+      const dx = targetCenterX - fish.x;
+      const dy = targetCenterY - fish.y;
       const distance = Math.sqrt(dx * dx + dy * dy);
 
-      if (distance > 0.01) {
-        const moveX = (dx / distance) * fish.speed;
-        const moveY = (dy / distance) * fish.speed;
+      if (distance > 0.003) {
+        // Movimento suave
+        const moveSpeed = Math.min(fish.speed, distance * 0.2);
+        const moveX = (dx / distance) * moveSpeed;
+        const moveY = (dy / distance) * moveSpeed;
 
         setFish((prev) => ({
           ...prev,
@@ -114,10 +132,25 @@ export const FishingScreenNew: React.FC = () => {
           y: prev.y + moveY,
         }));
       } else {
-        // Chegou ao anzol
-        setFish((prev) => ({ ...prev, state: "hooked" }));
+        // Chegou na posição - boca toca o anzol
+        setFish((prev) => ({
+          ...prev,
+          x: targetCenterX,
+          y: targetCenterY,
+          state: "hooked",
+        }));
         setShowFishingModal(true);
       }
+    } else if (fish.state === "hooked") {
+      // Quando hooked, forçar posição para que boca permaneça no anzol
+      const targetCenterPixelX = hook.x + 30; // Centro = anzol + 30px
+      const targetCenterPixelY = hook.y;
+
+      setFish((prev) => ({
+        ...prev,
+        x: targetCenterPixelX / window.innerWidth,
+        y: targetCenterPixelY / window.innerHeight,
+      }));
     }
   };
 
@@ -130,23 +163,30 @@ export const FishingScreenNew: React.FC = () => {
     // Verificar se o anzol caiu na área da água
     const isInWater = isPointInWaterArea(x, y);
     if (isInWater) {
-      // Iniciar reação do peixe após delay aleatório
-      const reactionDelay = 2000 + Math.random() * 5000; // 2-7 segundos
+      // Verificar se o peixe também está na água
+      const fishPixelX = fish.x * window.innerWidth;
+      const fishPixelY = fish.y * window.innerHeight;
+      const isFishInWater = isPointInWaterArea(fishPixelX, fishPixelY);
 
-      setTimeout(() => {
-        setFish((prev) => ({
-          ...prev,
-          state: "reacting",
-        }));
+      if (isFishInWater) {
+        // Iniciar reação do peixe após delay aleatório
+        const reactionDelay = 2000 + Math.random() * 5000; // 2-7 segundos
 
-        // Após breve reação, começar movimento
         setTimeout(() => {
           setFish((prev) => ({
             ...prev,
-            state: "moving",
+            state: "reacting",
           }));
-        }, 1000);
-      }, reactionDelay);
+
+          // Após breve reação, começar movimento
+          setTimeout(() => {
+            setFish((prev) => ({
+              ...prev,
+              state: "moving",
+            }));
+          }, 1000);
+        }, reactionDelay);
+      }
     }
   };
 
@@ -226,20 +266,55 @@ export const FishingScreenNew: React.FC = () => {
     }
 
     // 2. Peixe (atrás da água)
-    const fishPixelX = fish.x * canvas.width;
-    const fishPixelY = fish.y * canvas.height;
+    // O centro do peixe está em fish.x, fish.y
+    // A BOCA está na extremidade ESQUERDA
+    const fishCenterX = fish.x * canvas.width;
+    const fishCenterY = fish.y * canvas.height;
 
+    // Desenhar corpo do peixe (elipse)
     ctx.fillStyle = fish.state === "hooked" ? "#ff6b6b" : "#4A90E2";
     ctx.beginPath();
-    ctx.ellipse(fishPixelX, fishPixelY, 30, 20, 0, 0, 2 * Math.PI);
+    ctx.ellipse(fishCenterX, fishCenterY, 30, 20, 0, 0, 2 * Math.PI);
     ctx.fill();
 
-    // Cauda do peixe
+    // BOCA DO PEIXE - extremidade esquerda (fishCenterX - 30)
+    const fishMouthX = fishCenterX - 30;
+    const fishMouthY = fishCenterY;
+
+    // CÍRCULO GRANDE PARA VERIFICAÇÃO DA POSIÇÃO DA BOCA
+    ctx.fillStyle = "rgba(255, 0, 255, 0.8)"; // Rosa brilhante
     ctx.beginPath();
-    ctx.moveTo(fishPixelX - 25, fishPixelY);
-    ctx.lineTo(fishPixelX - 45, fishPixelY - 15);
-    ctx.lineTo(fishPixelX - 45, fishPixelY + 15);
+    ctx.arc(fishMouthX, fishMouthY, 25, 0, 2 * Math.PI); // Círculo grande de 25px
+    ctx.fill();
+
+    // Borda do círculo para destaque
+    ctx.strokeStyle = "#ff00ff";
+    ctx.lineWidth = 4;
+    ctx.stroke();
+
+    // Desenhar boca (pequeno círculo na extremidade esquerda)
+    ctx.fillStyle = fish.state === "moving" ? "#ff0000" : "#000";
+    ctx.beginPath();
+    ctx.arc(fishMouthX, fishMouthY, 4, 0, 2 * Math.PI);
+    ctx.fill();
+
+    // Cauda do peixe (à direita - oposto da boca)
+    ctx.fillStyle = fish.state === "hooked" ? "#ff6b6b" : "#4A90E2";
+    ctx.beginPath();
+    ctx.moveTo(fishCenterX + 25, fishCenterY);
+    ctx.lineTo(fishCenterX + 45, fishCenterY - 15);
+    ctx.lineTo(fishCenterX + 45, fishCenterY + 15);
     ctx.closePath();
+    ctx.fill();
+
+    // Olho do peixe (próximo ao centro, mas à direita da boca)
+    ctx.fillStyle = "#fff";
+    ctx.beginPath();
+    ctx.arc(fishCenterX - 10, fishCenterY - 5, 4, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.fillStyle = "#000";
+    ctx.beginPath();
+    ctx.arc(fishCenterX - 8, fishCenterY - 5, 2, 0, 2 * Math.PI);
     ctx.fill();
 
     // 3. Área da água (acima do peixe)
@@ -255,26 +330,93 @@ export const FishingScreenNew: React.FC = () => {
       ctx.beginPath();
       ctx.arc(hook.x, hook.y, 8, 0, 2 * Math.PI);
       ctx.fill();
+
+      // Se peixe está hooked, desenhar conexão visual
+      if (fish.state === "hooked") {
+        // A boca está na extremidade esquerda (fishCenterX - 30)
+        const fishCenterX = fish.x * canvas.width;
+        const fishCenterY = fish.y * canvas.height;
+        const mouthPixelX = fishCenterX - 30;
+        const mouthPixelY = fishCenterY;
+
+        // Linha fina conectando boca ao anzol
+        ctx.strokeStyle = "#444";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(mouthPixelX, mouthPixelY);
+        ctx.lineTo(hook.x, hook.y);
+        ctx.stroke();
+      }
+    }
+
+    // Debug visual para posição exata da boca
+    if (isAdmin || fish.state === "moving") {
+      const fishCenterX = fish.x * canvas.width;
+      const fishCenterY = fish.y * canvas.height;
+      const fishMouthPixelX = fishCenterX - 30; // Boca na extremidade esquerda
+      const fishMouthPixelY = fishCenterY;
+
+      // Desenhar cruz verde na posição exata da boca
+      ctx.strokeStyle = "#00ff00";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(fishMouthPixelX - 8, fishMouthPixelY);
+      ctx.lineTo(fishMouthPixelX + 8, fishMouthPixelY);
+      ctx.moveTo(fishMouthPixelX, fishMouthPixelY - 8);
+      ctx.lineTo(fishMouthPixelX, fishMouthPixelY + 8);
+      ctx.stroke();
+
+      // Círculo verde na posição da boca
+      ctx.fillStyle = "rgba(0, 255, 0, 0.7)";
+      ctx.beginPath();
+      ctx.arc(fishMouthPixelX, fishMouthPixelY, 6, 0, 2 * Math.PI);
+      ctx.fill();
     }
 
     // Debug info para admins
     if (isAdmin) {
       ctx.fillStyle = "white";
       ctx.font = "14px monospace";
+
+      // Boca está na extremidade esquerda (centro - 30px)
+      const fishCenterX = fish.x * canvas.width;
+      const fishMouthPixelX = fishCenterX - 30;
+      const fishMouthX = fishMouthPixelX / canvas.width; // Coordenada normalizada da boca
+      const fishMouthY = fish.y;
+
       ctx.fillText(
-        `Fish: (${fish.x.toFixed(2)}, ${fish.y.toFixed(2)}) - ${fish.state}`,
+        `Fish Center: (${fish.x.toFixed(2)}, ${fish.y.toFixed(2)}) - ${fish.state}`,
         10,
         30,
       );
       ctx.fillText(
-        `Hook: (${hook.x}, ${hook.y}) - ${hook.active ? "active" : "inactive"}`,
+        `Fish Mouth: (${fishMouthX.toFixed(2)}, ${fishMouthY.toFixed(2)})`,
         10,
         50,
       );
       ctx.fillText(
-        `Water: ${waterArea.shape} at (${waterArea.x}, ${waterArea.y})`,
+        `Hook: (${(hook.x / window.innerWidth).toFixed(2)}, ${(hook.y / window.innerHeight).toFixed(2)}) - ${hook.active ? "active" : "inactive"}`,
         10,
         70,
+      );
+      ctx.fillText(
+        `Water: ${waterArea.shape} at (${waterArea.x}, ${waterArea.y})`,
+        10,
+        90,
+      );
+
+      // Verificar se peixe está na água
+      const fishPixelX = fish.x * canvas.width;
+      const fishPixelY = fish.y * canvas.height;
+      const isFishInWater = isPointInWaterArea(fishPixelX, fishPixelY);
+      const isHookInWater = hook.active
+        ? isPointInWaterArea(hook.x, hook.y)
+        : false;
+
+      ctx.fillText(
+        `Fish in water: ${isFishInWater}, Hook in water: ${isHookInWater}`,
+        10,
+        110,
       );
     }
   };

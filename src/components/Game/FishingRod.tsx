@@ -571,30 +571,13 @@ class FishingSystem {
             point.oldY = point.y - velY * 0.05; // Reduzir velocidade vertical drasticamente
           }
 
-          // Se o ponto está assentado, aplicar movimento muito reduzido
+          // Se o ponto está assentado, manter posição fixa sem oscilações
           if (point.settled) {
-            // Movimento muito sutil quando assentado
-            const settledDamping = 0.92;
-            const velX = (point.x - point.oldX) * settledDamping;
-            const velY = (point.y - point.oldY) * settledDamping;
-
-            point.oldX = point.x;
-            point.oldY = point.y;
-
-            // Permitir movimento m��nimo
-            point.x += velX * 0.1;
-            point.y += velY * 0.1;
-
-            // Manter próximo à posição assentada
-            const pullX = (point.settledX - point.x) * 0.05;
-            const pullY = (point.settledY - point.y) * 0.05;
-            point.x += pullX;
-            point.y += pullY;
-
-            // Pequena oscilação na água
-            const time = Date.now() * 0.001;
-            const waterWave = Math.sin(time * 1.5 + point.x * 0.01) * 0.3;
-            point.y += waterWave;
+            // Manter posição exatamente na posição assentada
+            point.x = point.settledX;
+            point.y = point.settledY;
+            point.oldX = point.settledX;
+            point.oldY = point.settledY;
           } else {
             // Aplicar física normal
             const currentDamping = isInWater ? 0.5 : this.damping; // Damping muito mais forte na água
@@ -630,11 +613,6 @@ class FishingSystem {
                   this.onHookCast(point.x, point.y); // Usar posição real final
                 }
               }
-
-              // Adicionar oscilação suave na água
-              const time = Date.now() * 0.001;
-              const waterWave = Math.sin(time * 1.5 + point.x * 0.01) * 0.5;
-              point.y += waterWave;
             }
           }
         }
@@ -828,29 +806,6 @@ class FishingSystem {
         this.ctx.moveTo(lastPoint.x + 6, lastPoint.y + 3);
         this.ctx.lineTo(lastPoint.x + 4, lastPoint.y - 1);
         this.ctx.stroke();
-
-        // DEBUG: Adicionar indicador vermelho na posição real do anzol quando assentado
-        if (lastPoint.settled) {
-          this.ctx.fillStyle = "rgba(255, 0, 0, 0.7)";
-          this.ctx.beginPath();
-          this.ctx.arc(
-            lastPoint.settledX,
-            lastPoint.settledY,
-            8,
-            0,
-            Math.PI * 2,
-          );
-          this.ctx.fill();
-
-          // Texto debug
-          this.ctx.fillStyle = "red";
-          this.ctx.font = "12px Arial";
-          this.ctx.fillText(
-            `Real: ${Math.round(lastPoint.settledX)}, ${Math.round(lastPoint.settledY)}`,
-            lastPoint.settledX + 15,
-            lastPoint.settledY - 10,
-          );
-        }
       }
     }
   }
