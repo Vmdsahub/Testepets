@@ -388,13 +388,13 @@ class ModularWaterEffect {
 
         float fishAngle = 0.0;
 
-        // Sistema de orientação simples e direto
-        if (velocityX > 0.005) {
-            fishAngle = 0.0; // Nadando pra DIREITA -> apontar DIREITA
-        } else if (velocityX < -0.005) {
-            fishAngle = 3.14159; // Nadando pra ESQUERDA -> apontar ESQUERDA
+                // Sistema de orientação muito responsivo
+        if (velocityX > 0.001) {
+            fishAngle = 0.0; // Velocidade POSITIVA = movendo pra DIREITA
+        } else if (velocityX < -0.001) {
+            fishAngle = 3.14159; // Velocidade NEGATIVA = movendo pra ESQUERDA
         }
-        // Zona neutra pequena para resposta rápida
+        // Limiar muito baixo para detectar qualquer movimento
 
         float fishX, fishY;
         if (u_gameState >= 2.0) {
@@ -1550,7 +1550,7 @@ export const FishingScreenModular: React.FC = () => {
             �� <strong>Redimensionar:</strong> Use os sliders abaixo
           </div>
 
-          {/* Controles de efeitos de ��gua */}
+          {/* Controles de efeitos de água */}
           <div style={{ marginBottom: "10px" }}>
             <label
               style={{
