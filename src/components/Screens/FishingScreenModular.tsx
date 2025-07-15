@@ -1272,7 +1272,7 @@ class ModularWaterEffect {
         this.canClickExclamation = true;
         this.isVibrating = true;
         console.log(
-          "🎣 Fish hooked! Starting exclamation timer and vibration.",
+          `🎣 Fish hooked! Hook at (${this.hookPosition.x.toFixed(3)}, ${this.hookPosition.y.toFixed(3)}) - Hook in water: ${this.isHookInWater()} - Starting exclamation timer.`,
         );
 
         // Timer automático será gerenciado no updateFishingGame()
@@ -2161,7 +2161,7 @@ export const FishingScreenModular: React.FC = () => {
         );
         return distance <= radius;
       case "triangle":
-        // Implementaç��o básica de triângulo
+        // Implementação básica de triângulo
         const tx1 = waterArea.x + waterArea.width / 2;
         const ty1 = waterArea.y;
         const tx2 = waterArea.x;
