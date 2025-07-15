@@ -2690,10 +2690,7 @@ export const FishingScreenModular: React.FC = () => {
             waterEffectRef.current.hookPosition = { x: 0.5, y: 0.5 };
             waterEffectRef.current.resetFishingGame();
             // Redefinir callback onGameStart
-            waterEffectRef.current.onGameStart = () => {
-              console.log("🎮 Triggering minigame - setShowMinigame(true)");
-              setShowMinigame(true);
-            };
+            redefineGameStartCallback();
           }
         }}
       />
