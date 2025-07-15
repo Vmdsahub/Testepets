@@ -901,7 +901,7 @@ class ModularWaterEffect {
     }
   }
 
-  // Método para atualizar posi��ão do peixe suavemente
+  // Método para atualizar posição do peixe suavemente
   updateFishPosition() {
     if (this.gameState === "idle" || this.gameState === "hook_cast") {
       // === MOVIMENTO ORGÂNICO LIVRE ===
@@ -929,12 +929,15 @@ class ModularWaterEffect {
       }
 
       // Aplicar força de direção suavemente à velocidade
-      const acceleration = 0.00002; // Aceleração suave
+      const acceleration = 0.00004; // Aceleração mais responsiva
       this.fishVelocity.x += targetDirection.x * acceleration;
       this.fishVelocity.y += targetDirection.y * acceleration;
 
-      // Variar velocidade naturalmente
-      const speedVariation = 0.5 + 0.5 * Math.sin(Date.now() * 0.001);
+      // Variar velocidade naturalmente com mudanças mais dinâmicas
+      const speedVariation =
+        0.6 +
+        0.4 * Math.sin(Date.now() * 0.002) +
+        0.2 * Math.cos(Date.now() * 0.0015);
       const maxSpeed = this.fishSpeed * speedVariation;
 
       // Limitar velocidade máxima
