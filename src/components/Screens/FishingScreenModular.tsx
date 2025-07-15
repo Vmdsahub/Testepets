@@ -1473,6 +1473,7 @@ export const FishingScreenModular: React.FC = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [showFishingModal, setShowFishingModal] = useState(false);
+  const [showMinigame, setShowMinigame] = useState(false);
   const [fishingSettings, setFishingSettings] =
     useState<FishingSettings | null>(null);
   const [isUpdatingSettings, setIsUpdatingSettings] = useState(false);
