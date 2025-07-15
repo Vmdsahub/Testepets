@@ -284,27 +284,42 @@ class ModularWaterEffect {
             fishBehavior = 0.0; // ESTADO: Nadando livre (30%)
         }
 
-                                                // === MOVIMENTO NATURAL DE PEIXE EM AQUÁRIO 2D ===
+                                                        // === MOVIMENTO ESTILO EVO FISH - NATAÇÃO ORGÂNICA ===
 
-        // Parâmetros básicos do movimento
-        float swimSpeed = 0.015; // Velocidade mais natural
-        float waveTime = time * swimSpeed;
+        // Parâmetros do movimento natural
+        float swimSpeed = 0.012;
+        float t = time * swimSpeed;
 
-        // Movimento principal: nadação suave em "S" como peixe real
-        float mainX = sin(waveTime * 0.4) * areaW * 0.35;
-        float mainY = cos(waveTime * 0.25) * areaH * 0.25;
+        // Sistema de direção mutável (como peixes reais que mudam direção gradualmente)
+        float directionChangeSpeed = 0.008;
+        float targetDirectionX = sin(t * directionChangeSpeed) * 0.7 + cos(t * directionChangeSpeed * 0.6) * 0.3;
+        float targetDirectionY = cos(t * directionChangeSpeed * 0.8) * 0.6 + sin(t * directionChangeSpeed * 0.4) * 0.4;
 
-        // Ondulação corporal natural (como peixe de verdade)
-        float bodyWave = sin(waveTime * 1.2) * areaW * 0.08;
-        float verticalFloat = sin(waveTime * 0.15) * areaH * 0.12;
+        // Curvas suaves de trajetória (característico de peixes em jogos como Evo Fish)
+        float pathCurveX = 0.0;
+        float pathCurveY = 0.0;
 
-        // Movimento de exploração lento
-        float exploreX = sin(waveTime * 0.08) * areaW * 0.2;
-        float exploreY = cos(waveTime * 0.06) * areaH * 0.15;
+        // Criar trajetória curva baseada na direção
+        for(int i = 0; i < 3; i++) {
+            float frequency = 0.3 + float(i) * 0.15;
+            float amplitude = 0.25 - float(i) * 0.08;
+            pathCurveX += sin(t * frequency + float(i)) * amplitude * targetDirectionX;
+            pathCurveY += cos(t * frequency * 0.7 + float(i) * 2.0) * amplitude * targetDirectionY;
+        }
 
-        // Combinar todos os movimentos para movimento natural
-        float baseX = centerX + mainX + bodyWave + exploreX;
-        float baseY = centerY + mainY + verticalFloat + exploreY;
+        // Movimento de deriva lenta (exploração natural)
+        float driftX = sin(t * 0.05) * 0.4 + cos(t * 0.03) * 0.2;
+        float driftY = cos(t * 0.04) * 0.3 + sin(t * 0.025) * 0.25;
+
+        // Ondulação corporal sutil (movimento da cauda)
+        float tailWave = sin(t * 2.5) * 0.06;
+
+        // Pausas ocasionais e acelerações (comportamento natural)
+        float speedVariation = (sin(t * 0.1) * 0.3 + 0.7); // Varia entre 0.4 e 1.0
+
+        // Combinar movimentos com escala apropriada
+        float baseX = centerX + (pathCurveX + driftX + tailWave) * areaW * 0.35 * speedVariation;
+        float baseY = centerY + (pathCurveY + driftY) * areaH * 0.3 * speedVariation;
 
                         // Suavização para evitar teleporte entre padrões
         float transitionSmooth = 0.95; // Suavização forte
