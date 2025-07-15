@@ -80,6 +80,7 @@ class FishingSystem {
     onHookCast?: (x: number, y: number) => void,
     onLineReeled?: () => void,
     waterArea?: WaterArea,
+    isFishBiting?: () => boolean,
   ) {
     this.canvas = canvas;
     this.onHookCast = onHookCast;
