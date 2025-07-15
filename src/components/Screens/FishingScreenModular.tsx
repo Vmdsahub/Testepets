@@ -1288,8 +1288,17 @@ class ModularWaterEffect {
     );
   }
 
-  // Método para desenhar overlay da boca do peixe
+  // Método para desenhar overlay da boca do peixe (APENAS ADMIN)
   drawFishMouthOverlay() {
+    // VERIFICAÇÃO: Círculo rosa da boca visível APENAS para admin
+    if (!this.isAdmin) {
+      // Se não é admin, apenas desenhar texto "Fisgado!" se necessário
+      if (this.showFisgadoText) {
+        this.drawFisgadoTextOnly();
+      }
+      return;
+    }
+
     const overlayCanvas = document.getElementById("fishMouthOverlay");
     if (!overlayCanvas) return;
 
