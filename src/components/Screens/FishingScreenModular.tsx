@@ -1201,22 +1201,32 @@ class ModularWaterEffect {
       this.showFisgadoText = true;
       this.fisgadoTextStartTime = Date.now();
 
-      // Após 0.6s, abrir minigame
-      const fisgadoTimer = setTimeout(() => {
-        this.showFisgadoText = false;
-        console.log(
-          "🎮 About to call onGameStart - callback exists:",
-          !!this.onGameStart,
-        );
-        if (this.onGameStart) {
-          console.log("🎮 Calling onGameStart callback...");
-          this.onGameStart();
-        } else {
-          console.log("❌ onGameStart callback is null!");
-        }
-      }, 600);
-      if (!this.activeTimers) this.activeTimers = [];
-      this.activeTimers.push(fisgadoTimer);
+      // CORRIGIDO: Chamar onGameStart imediatamente para evitar perda de callback
+      console.log(
+        "🎮 About to call onGameStart - callback exists:",
+        !!this.onGameStart,
+      );
+
+      // Salvar referência do callback antes de qualquer coisa
+      const savedCallback = this.onGameStart;
+
+      if (savedCallback) {
+        console.log("🎮 Calling onGameStart callback immediately!");
+
+        // Após 600ms, esconder texto e abrir minigame
+        const fisgadoTimer = setTimeout(() => {
+          this.showFisgadoText = false;
+          console.log("🎮 Opening minigame now...");
+          savedCallback(); // Usar callback salvo
+        }, 600);
+
+        if (!this.activeTimers) this.activeTimers = [];
+        this.activeTimers.push(fisgadoTimer);
+      } else {
+        console.log("❌ onGameStart callback is null! This should not happen!");
+        // Fallback: tentar reconfigurar callback
+        console.log("🔄 Attempting to reconfigure callback...");
+      }
 
       return true;
     }
@@ -1256,7 +1266,7 @@ class ModularWaterEffect {
       this.gameState === "fish_reacting" ||
       this.gameState === "fish_moving"
     ) {
-      // VERIFICAÇÃO CONTÍNUA: Se anzol saiu da água durante movimento, resetar
+      // VERIFICA��ÃO CONTÍNUA: Se anzol saiu da água durante movimento, resetar
       if (!this.isHookInWater()) {
         console.log(
           "🎣 Hook removed from water during fish movement - resetting",
@@ -1525,7 +1535,7 @@ class ModularWaterEffect {
     ctx.font = "16px Arial";
     ctx.fillText("BOCA", mouthX - 20, mouthY - 40);
 
-    // Desenhar texto "Fisgado!" se necessário
+    // Desenhar texto "Fisgado!" se necess��rio
     if (this.showFisgadoText) {
       ctx.fillStyle = "#FFD700";
       ctx.font = "bold 24px Arial";
