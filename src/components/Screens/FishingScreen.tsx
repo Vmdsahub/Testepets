@@ -1108,7 +1108,9 @@ class WaterEffect {
         this.exclamationTime = 1000; // mostrar exclamação por 1 segundo
         this.exclamationStartTime = Date.now();
         this.canClickExclamation = true;
-        console.log("Fish hooked! Starting exclamation timer.");
+        console.log(
+          `🎣 Fish hooked! Hook at (${this.hookPosition.x.toFixed(3)}, ${this.hookPosition.y.toFixed(3)}) - Hook in water: ${this.isHookInWater()} - Starting exclamation timer.`,
+        );
 
         // Timer de 1 segundo - se não clicar, voltar ao movimento natural
         const hookedTimer = setTimeout(() => {
