@@ -1476,6 +1476,39 @@ export const FishingScreen: React.FC = () => {
           setShowFishingModal(true);
         };
 
+        // Adicionar listener para cliques na exclamação
+        const handleCanvasClick = (e: MouseEvent) => {
+          if (
+            waterEffect.gameState === "fish_hooked" &&
+            waterEffect.canClickExclamation
+          ) {
+            const rect = (e.target as HTMLElement).getBoundingClientRect();
+            const x = (e.clientX - rect.left) / rect.width;
+            const y = (e.clientY - rect.top) / rect.height;
+
+            // Posição da exclamação (acima do peixe)
+            const fishX = waterEffect.fishPosition.x;
+            const fishY = waterEffect.fishPosition.y;
+            const exclamationX = fishX;
+            const exclamationY = fishY - 0.08;
+
+            // Verificar se clicou na área da exclamação
+            const distance = Math.sqrt(
+              Math.pow(x - exclamationX, 2) + Math.pow(y - exclamationY, 2),
+            );
+
+            if (distance <= 0.05) {
+              // Área clicável da exclamação
+              waterEffect.handleExclamationClick();
+            }
+          }
+        };
+
+        const canvas = document.getElementById("waterCanvas");
+        if (canvas) {
+          canvas.addEventListener("click", handleCanvasClick);
+        }
+
         // Apply settings from database if available
         if (fishingSettings) {
           waterEffect.waveIntensity = fishingSettings.waveIntensity;
