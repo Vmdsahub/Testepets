@@ -87,6 +87,7 @@ class FishingSystem {
     this.onHookCast = onHookCast;
     this.onLineReeled = onLineReeled;
     this.waterArea = waterArea;
+    this.isFishBiting = isFishBiting;
     const context = canvas.getContext("2d");
     if (!context) {
       throw new Error("Não foi possível obter o contexto 2D do canvas");
