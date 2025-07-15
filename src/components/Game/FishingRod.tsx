@@ -57,6 +57,7 @@ class FishingSystem {
   private onHookCast?: (x: number, y: number) => void;
   private onLineReeled?: () => void;
   private waterArea?: WaterArea;
+  private hookCastCallbackCalled = false;
 
   // Sistema de força de lançamento
   private isCharging = false;
