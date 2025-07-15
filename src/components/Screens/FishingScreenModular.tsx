@@ -199,7 +199,7 @@ class ModularWaterEffect {
         return (wave1 + wave2 + wave3 + wave4 + wave5 + noise1 + noise2 + noise3) * u_waveIntensity;
       }
 
-      // Fun����ão para calcular a refração (mantida original)
+      // Fun��ão para calcular a refração (mantida original)
       vec2 calculateRefraction(vec2 uv, float time) {
         float waveHeight = createWaves(uv, time);
         vec2 epsilon = vec2(0.01, 0.0);
@@ -443,18 +443,23 @@ class ModularWaterEffect {
 
         float fishAngle = 0.0;
 
-                                                                                                                        // === ORIENTAÇÃO DO PEIXE BASEADA NO ÂNGULO REAL ===
-        // Usar o ângulo real calculado no JavaScript para movimento diagonal
-        float realAngle = u_fishAngle;
-
-        // Ajustar para o sistema de coordenadas do shader
-        // Se o peixe vai para a esquerda (cos < 0), precisamos flipar
-        if (cos(realAngle) < 0.0) {
-            // Para esquerda: usar ângulo original mas com flip
-            fishAngle = -realAngle;
+                                                                                                                                                                // === ORIENTAÇÃO DO PEIXE BASEADA NA DIREÇÃO CALCULADA ===
+        // Manter sistema original funcionando
+        if (u_fishDirection > 0.0) {
+            fishAngle = 3.14159; // Direita (PI para flip correto)
         } else {
-            // Para direita: usar ângulo + PI para flip da textura
-            fishAngle = realAngle + 3.14159;
+            fishAngle = 0.0; // Esquerda (0 para sem flip)
+        }
+
+        // ADICIONAR: Rotação adicional baseada no ângulo para diagonais
+        // Apenas ajustar a rotação sem quebrar o sistema existente
+        float diagonalRotation = u_fishAngle;
+
+        // Aplicar rotação diagonal mantendo o flip horizontal original
+        if (u_fishDirection > 0.0) {
+            fishAngle = 3.14159 + diagonalRotation; // Direita + rotação diagonal
+        } else {
+            fishAngle = -diagonalRotation; // Esquerda + rotação diagonal
         }
 
                                 // Usar posição calculada pelo JavaScript com vibração
@@ -471,7 +476,7 @@ class ModularWaterEffect {
                                 // Imagem original com peixe
         vec4 originalColor = getColorWithFish(uv, fishX, fishY, fishAngle);
         
-        // Verificar se está na ��rea da água
+        // Verificar se está na área da água
         bool inWater = isInWaterArea(uv);
         float waterMask = inWater ? 1.0 : 0.0;
         
