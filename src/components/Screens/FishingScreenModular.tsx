@@ -629,7 +629,7 @@ class ModularWaterEffect {
       "u_fishDirection",
     );
 
-    // Novos uniforms para área modular
+    // Novos uniforms para ��rea modular
     this.uniforms.waterArea = this.gl.getUniformLocation(
       this.program,
       "u_waterArea",
@@ -1348,8 +1348,10 @@ class ModularWaterEffect {
         `🎣 Fish will try again in ${(this.fishReactionDelay / 1000).toFixed(1)}s since hook is still in water`,
       );
     } else {
-      // Se não, voltar ao estado idle
+      // Se não, voltar ao estado idle e garantir reset completo
+      console.log("🔄 Complete reset - hook removed from water");
       this.gameState = "idle";
+      this.hookPosition = { x: 0.5, y: 0.5 }; // Garantir reset da posição
       this.fishReactionStartTime = 0;
       this.fishReactionDelay = 0;
     }
@@ -1437,7 +1439,7 @@ class ModularWaterEffect {
 
   // Método para desenhar overlay da boca do peixe (APENAS ADMIN)
   drawFishMouthOverlay() {
-    // VERIFICAÇÃO: Círculo rosa da boca visível APENAS para admin
+    // VERIFICAÇÃO: Círculo rosa da boca vis��vel APENAS para admin
     if (!this.isAdmin) {
       // Se não é admin, apenas desenhar texto "Fisgado!" se necessário
       if (this.showFisgadoText) {
