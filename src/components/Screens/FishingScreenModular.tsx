@@ -362,7 +362,7 @@ class ModularWaterEffect {
         float mainRadius = min(areaW, areaH) * 0.4;
         float mainAngle = t * 0.8; // Circular mais rápido
 
-        // Posi��ão base do movimento circular
+        // Posi����ão base do movimento circular
         float circleX = cos(mainAngle) * mainRadius;
         float circleY = sin(mainAngle) * mainRadius * 0.7; // Elipse
 
@@ -1354,6 +1354,15 @@ class ModularWaterEffect {
 
   resetFishingGame() {
     // IMPORTANTE: NÃO limpar timers se o minigame está sendo ativado
+    console.log(
+      "🔄 resetFishingGame called - showFisgadoText:",
+      this.showFisgadoText,
+      "onGameStart:",
+      !!this.onGameStart,
+      "backup:",
+      !!this.onGameStartBackup,
+    );
+
     if (this.showFisgadoText) {
       console.log("⚠️ Skipping timer cleanup - minigame is starting!");
       // Não limpar timers quando "Fisgado!" está sendo mostrado
