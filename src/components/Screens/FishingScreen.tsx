@@ -1813,6 +1813,16 @@ export const FishingScreen: React.FC = () => {
           height: 0.4, // 40% restante da altura
           shape: "rectangle",
         }}
+        isFishBiting={() => {
+          // Função para verificar se o peixe está mordendo
+          if (waterEffectRef.current) {
+            return (
+              waterEffectRef.current.gameState === "fish_hooked" &&
+              waterEffectRef.current.canClickExclamation
+            );
+          }
+          return false;
+        }}
         onHookCast={(x, y) => {
           // Converter coordenadas de pixel para UV (0-1)
           const uvX = x / window.innerWidth;
