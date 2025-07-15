@@ -322,22 +322,19 @@ export const FishingScreenNew: React.FC = () => {
 
       // Se peixe está hooked, desenhar conexão visual
       if (fish.state === "hooked") {
-        const mouthPixelX = fishPixelX - 30; // Posição da boca em pixels
-        const mouthPixelY = fishPixelY;
+        // A boca está na extremidade esquerda (fishCenterX - 30)
+        const fishCenterX = fish.x * canvas.width;
+        const fishCenterY = fish.y * canvas.height;
+        const mouthPixelX = fishCenterX - 30;
+        const mouthPixelY = fishCenterY;
 
-        // Linha conectando boca ao anzol
-        ctx.strokeStyle = "#654321";
-        ctx.lineWidth = 3;
+        // Linha fina conectando boca ao anzol
+        ctx.strokeStyle = "#444";
+        ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(mouthPixelX, mouthPixelY);
         ctx.lineTo(hook.x, hook.y);
         ctx.stroke();
-
-        // Pequeno círculo na boca indicando "presa"
-        ctx.fillStyle = "#ff0000";
-        ctx.beginPath();
-        ctx.arc(mouthPixelX, mouthPixelY, 4, 0, 2 * Math.PI);
-        ctx.fill();
       }
     }
 
