@@ -1649,6 +1649,7 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
         } else {
           newPos = Math.min(100, prev + 2); // Desce por gravidade
         }
+        barPositionRef.current = newPos;
         return newPos;
       });
 
