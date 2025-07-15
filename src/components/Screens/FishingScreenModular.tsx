@@ -443,13 +443,18 @@ class ModularWaterEffect {
 
         float fishAngle = 0.0;
 
-                                                                                // === ORIENTAÇÃO DO PEIXE BASEADA NO ÂNGULO REAL ===
+                                                                                                                        // === ORIENTAÇÃO DO PEIXE BASEADA NO ÂNGULO REAL ===
         // Usar o ângulo real calculado no JavaScript para movimento diagonal
-        fishAngle = u_fishAngle;
+        float realAngle = u_fishAngle;
 
-        // Se o peixe está indo para a esquerda (componente X negativo), flipar horizontalmente
-        if (cos(u_fishAngle) < 0.0) {
-            fishAngle = 3.14159 - u_fishAngle; // Flip horizontal para esquerda
+        // Ajustar para o sistema de coordenadas do shader
+        // Se o peixe vai para a esquerda (cos < 0), precisamos flipar
+        if (cos(realAngle) < 0.0) {
+            // Para esquerda: usar ângulo original mas com flip
+            fishAngle = -realAngle;
+        } else {
+            // Para direita: usar ângulo + PI para flip da textura
+            fishAngle = realAngle + 3.14159;
         }
 
                                 // Usar posição calculada pelo JavaScript com vibração
