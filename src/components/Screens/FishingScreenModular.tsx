@@ -411,7 +411,7 @@ class ModularWaterEffect {
 
                 // === DELIMITAÇÃO DA ÁREA - EXATAMENTE NA LINHA TRACEJADA ===
 
-        // Manter dentro da área exatamente na linha tracejada
+        // Manter dentro da ��rea exatamente na linha tracejada
         float margin = 0.01; // Margem mínima apenas para evitar pixel bleeding
         naturalFishX = clamp(naturalFishX, areaX + areaW * margin, areaX + areaW * (1.0 - margin));
         naturalFishY = clamp(naturalFishY, areaY + areaH * margin, areaY + areaH * (1.0 - margin));
@@ -1203,6 +1203,8 @@ class ModularWaterEffect {
     this.fishReactionStartTime = 0;
     this.fishReactionDelay = 0;
     this.exclamationTime = 0;
+    this.isVibrating = false;
+    this.showFisgadoText = false;
   }
 
   updateBackgroundFromImage(image) {
