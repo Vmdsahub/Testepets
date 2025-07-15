@@ -906,10 +906,7 @@ class ModularWaterEffect {
     const deltaTime = 16; // Assumindo ~60fps
 
     if (this.gameState === "idle" || this.gameState === "hook_cast") {
-      // Seguir movimento natural
-      const naturalPos = this.calculateNaturalFishPosition();
-      this.fishTargetPosition = naturalPos;
-      this.lastNaturalPosition = naturalPos;
+      // Movimento orgânico será controlado abaixo
     } else if (
       this.gameState === "fish_reacting" ||
       this.gameState === "fish_moving"
@@ -1020,7 +1017,7 @@ class ModularWaterEffect {
         this.canClickExclamation = true;
         console.log("🎣 Fish hooked! Starting exclamation timer.");
 
-        // Timer de 1 segundo - se não clicar, voltar ao movimento natural
+        // Timer de 1 segundo - se n��o clicar, voltar ao movimento natural
         setTimeout(() => {
           if (this.gameState === "fish_hooked" && this.canClickExclamation) {
             console.log(
