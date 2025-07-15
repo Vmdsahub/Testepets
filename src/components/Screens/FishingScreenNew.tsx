@@ -103,8 +103,8 @@ export const FishingScreenNew: React.FC = () => {
       const hookX = hook.x / window.innerWidth;
       const hookY = hook.y / window.innerHeight;
 
-      // Posição alvo do centro do peixe (anzol - offset da boca)
-      const targetCenterX = hookX - 0.03; // Boca fica 0.03 à direita do centro
+      // Posição alvo do centro do peixe (anzol + offset da boca)
+      const targetCenterX = hookX + 0.03; // Boca fica 0.03 à ESQUERDA do centro
       const targetCenterY = hookY; // Boca no mesmo Y do centro
 
       // Distância do centro atual para a posição alvo
