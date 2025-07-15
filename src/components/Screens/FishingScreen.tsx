@@ -351,7 +351,7 @@ class WaterEffect {
                     // Calcular UV da exclamação
                     vec2 exclamationUV = (uv - exclamationPos + exclamationSize * 0.5) / exclamationSize;
 
-                    // Verificar se está na área da exclamação
+                    // Verificar se est�� na área da exclamação
                     if (exclamationUV.x >= 0.0 && exclamationUV.x <= 1.0 && exclamationUV.y >= 0.0 && exclamationUV.y <= 1.0) {
                         // Simular a imagem de exclamação amarela fornecida
                         vec2 localPos = exclamationUV * 2.0 - 1.0; // Converter para -1 a 1
@@ -999,11 +999,12 @@ class WaterEffect {
         this.gameState = "fish_reacting";
 
         // Começar movimento suave após breve pausa
-        setTimeout(() => {
+        const reactionTimer = setTimeout(() => {
           if (this.gameState === "fish_reacting") {
             this.gameState = "fish_moving";
           }
         }, 500);
+        this.activeTimers.push(reactionTimer);
 
         // Debug: verificar se posição JS bate com shader
         console.log(
