@@ -264,10 +264,10 @@ export const FishingScreenNew: React.FC = () => {
     ctx.closePath();
     ctx.fill();
 
-    // Boca do peixe (à direita) - indicador visual
+    // Boca do peixe (à ESQUERDA) - indicador visual
     ctx.fillStyle = fish.state === "moving" ? "#ff0000" : "#333";
     ctx.beginPath();
-    ctx.arc(fishPixelX + 30, fishPixelY, 3, 0, 2 * Math.PI);
+    ctx.arc(fishPixelX - 30, fishPixelY, 3, 0, 2 * Math.PI);
     ctx.fill();
 
     // Olho do peixe
