@@ -2125,6 +2125,10 @@ export const FishingScreen: React.FC = () => {
       </div>
 
       {/* Modal de Jogo de Pesca */}
+      {console.log(
+        "📺 Modal render check - showFishingModal:",
+        showFishingModal,
+      )}
       {showFishingModal && (
         <div
           style={{
