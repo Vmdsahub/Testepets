@@ -127,7 +127,7 @@ export const FishingScreenNew: React.FC = () => {
           x: prev.x + moveX,
           y: prev.y + moveY,
         }));
-      } else {
+            } else {
         // Posicionar exatamente para que a boca toque o anzol
         setFish((prev) => ({
           ...prev,
@@ -137,6 +137,18 @@ export const FishingScreenNew: React.FC = () => {
         }));
         setShowFishingModal(true);
       }
+    } else if (fish.state === "hooked") {
+      // Quando hooked, manter posição exata para que boca permaneça no anzol
+      const hookX = hook.x / window.innerWidth;
+      const hookY = hook.y / window.innerHeight;
+      const mouthOffsetX = 30 / window.innerWidth;
+
+      setFish((prev) => ({
+        ...prev,
+        x: hookX + mouthOffsetX, // Força posição exata
+        y: hookY,
+      }));
+    }
     }
   };
 
