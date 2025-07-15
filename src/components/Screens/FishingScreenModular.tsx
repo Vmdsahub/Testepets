@@ -1235,6 +1235,15 @@ class ModularWaterEffect {
       this.gameState === "fish_reacting" ||
       this.gameState === "fish_moving"
     ) {
+      // VERIFICAÇÃO CONTÍNUA: Se anzol saiu da água durante movimento, resetar
+      if (!this.isHookInWater()) {
+        console.log(
+          "🎣 Hook removed from water during fish movement - resetting",
+        );
+        this.resetFishingGame();
+        return;
+      }
+
       // Verificar se chegou próximo ao anzol
       const distance = Math.sqrt(
         Math.pow(this.fishCurrentPosition.x - this.hookPosition.x, 2) +
