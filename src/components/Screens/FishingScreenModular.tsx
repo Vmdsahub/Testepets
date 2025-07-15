@@ -895,9 +895,9 @@ class ModularWaterEffect {
       this.fishDesiredDirection.x = Math.cos(angle);
       this.fishDesiredDirection.y = Math.sin(angle);
 
-      // Resetar timer com novo intervalo aleatório
+      // Resetar timer com novo intervalo aleatório mais dinâmico
       this.directionChangeTime = currentTime;
-      this.directionChangeCooldown = 1500 + Math.random() * 4000; // 1.5-5.5 segundos
+      this.directionChangeCooldown = 800 + Math.random() * 3000; // 0.8-3.8 segundos (mais variação)
     }
   }
 
