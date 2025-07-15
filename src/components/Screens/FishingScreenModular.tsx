@@ -17,7 +17,7 @@ interface WaterArea {
   shape: "rectangle" | "circle" | "triangle";
 }
 
-// WebGL Water Effect Class Modular - NOVO: Movimento aleatório livre com rotação 360° baseado na área definida
+// WebGL Water Effect Class Modular - NOVO: Movimento aleat��rio livre com rotação 360° baseado na área definida
 class ModularWaterEffect {
   constructor(waterArea) {
     this.canvas = document.getElementById("waterCanvas");
@@ -231,16 +231,19 @@ class ModularWaterEffect {
         vec2 fishPos = vec2(fishX, fishY);
         vec2 fishSize = vec2(0.08, 0.06);
 
-                                        // SISTEMA SIMPLIFICADO: Apenas flip horizontal para evitar inversão
+                                                                                // SISTEMA ULTRA SIMPLES: Flip horizontal apenas quando necessário
         vec2 localUV = (coords - fishPos + fishSize * 0.5) / fishSize;
 
-                // Aplicar flip horizontal correto
+                // Lógica de orientação simplificada
         vec2 fishUV = localUV;
-        if (fishAngle > 1.5) { // Se ângulo é aproximadamente PI (nadando para esquerda)
-            fishUV.x = 1.0 - fishUV.x; // Flip horizontal para esquerda
+
+                                        // Lógica original do shader: não mexer
+        // fishAngle = 0 (direita), fishAngle = PI (esquerda)
+        if (fishAngle > 1.5) {
+            fishUV.x = 1.0 - fishUV.x; // Flip quando fishAngle = PI (esquerda)
         }
-        // Quando ângulo = 0 (direita), usar orientação normal
-        // Y sempre normal - NUNCA inverte verticalmente
+        // fishAngle = 0 (direita): usar imagem normal
+        // Y sempre inalterado - nunca inverte verticalmente
 
                                 if (fishUV.x >= 0.0 && fishUV.x <= 1.0 && fishUV.y >= 0.0 && fishUV.y <= 1.0 && isInWaterArea(coords)) {
           vec4 fishColor = texture2D(u_fishTexture, fishUV);
@@ -281,69 +284,66 @@ class ModularWaterEffect {
             fishBehavior = 0.0; // ESTADO: Nadando livre (30%)
         }
 
-        // === MOVIMENTO BASE: TRAJETÓRIA ORGÂNICA ===
+                                // === SISTEMA DE PADRÕES LONGOS E COMPLEXOS ===
 
-        float moveSpeed = 0.03; // Velocidade base muito suave
+        float moveSpeed = 0.025; // Velocidade reduzida para movimentos mais longos
 
-        // Trajetória principal: Lemniscata (símbolo do infinito) suave
-        float mainPhase = time * moveSpeed;
+        // Ciclo muito lento para padrões longos (a cada ~8 minutos)
+        float patternTime = time * 0.002;
+        float patternCycle = sin(patternTime) * 0.5 + 0.5;
+        float currentPattern = floor(patternCycle * 3.0); // 3 padrões complexos
 
-        // Parâmetros da lemniscata
-        float a = min(areaW, areaH) * 0.25; // Raio baseado na menor dimensão
+        float angle = time * moveSpeed;
+        float baseX, baseY;
 
-        float cosPhase = cos(mainPhase);
-        float sinPhase = sin(mainPhase);
-        float denominator = 1.0 + sinPhase * sinPhase;
+        if (currentPattern < 1.0) {
+            // Padrão 1: Trajetória complexa que cobre toda a área
+            // Combinação de ondas seno/cosseno em diferentes frequências
+            float wave1 = sin(angle * 0.3) * areaW * 0.48;
+            float wave2 = cos(angle * 0.17) * areaW * 0.25;
+            float wave3 = sin(angle * 0.45) * areaH * 0.42;
+            float wave4 = cos(angle * 0.23) * areaH * 0.18;
 
-        // Coordenadas da lemniscata
-        float lemnX = a * cosPhase / denominator;
-        float lemnY = a * sinPhase * cosPhase / denominator;
+            baseX = centerX + wave1 + wave2;
+            baseY = centerY + wave3 + wave4;
 
-        // Posição base
-        float baseX = centerX + lemnX;
-        float baseY = centerY + lemnY;
+        } else if (currentPattern < 2.0) {
+            // Padrão 2: Movimento em forma de rosácea complexa
+            float r = min(areaW, areaH) * 0.45;
+            float k = 5.0; // Número de pétalas
+            float roseRadius = r * sin(k * angle * 0.4);
 
-        // === MODIFICAÇÕES POR ESTADO ===
+            baseX = centerX + roseRadius * cos(angle * 0.4);
+            baseY = centerY + roseRadius * sin(angle * 0.4) * 0.85;
+
+            // Adicionar variação lenta para cobrir mais área
+            baseX += sin(angle * 0.08) * areaW * 0.2;
+            baseY += cos(angle * 0.06) * areaH * 0.15;
+
+        } else {
+            // Padrão 3: Movimento tipo "drunk walk" controlado
+            // Múltiplas ondas com frequências prímas para evitar repetição
+            float x1 = sin(angle * 0.13) * areaW * 0.35;
+            float x2 = cos(angle * 0.29) * areaW * 0.28;
+            float x3 = sin(angle * 0.41) * areaW * 0.15;
+
+            float y1 = cos(angle * 0.19) * areaH * 0.38;
+            float y2 = sin(angle * 0.31) * areaH * 0.22;
+            float y3 = cos(angle * 0.37) * areaH * 0.12;
+
+            baseX = centerX + x1 + x2 + x3;
+            baseY = centerY + y1 + y2 + y3;
+        }
+
+                        // Suavização para evitar teleporte entre padrões
+        float transitionSmooth = 0.95; // Suavização forte
 
         float naturalFishX = baseX;
         float naturalFishY = baseY;
 
-        if (fishBehavior < 0.5) { // NADANDO LIVRE
-            // Movimento dinâmico com variações
-            float explorePhase = time * 0.05;
-            naturalFishX += sin(explorePhase * 2.3) * areaW * 0.08;
-            naturalFishY += cos(explorePhase * 1.7) * areaH * 0.06;
-
-            // Variações secundárias
-            naturalFishX += sin(explorePhase * 5.1) * areaW * 0.03;
-            naturalFishY += cos(explorePhase * 4.3) * areaH * 0.025;
-
-        } else if (fishBehavior < 1.5) { // EXPLORANDO
-            // Movimento médio com curiosidade
-            float searchPhase = time * 0.02;
-            naturalFishX += sin(searchPhase * 1.1) * areaW * 0.05;
-            naturalFishY += cos(searchPhase * 0.9) * areaH * 0.04;
-
-        } else { // DESCANSANDO
-            // Movimento mínimo, apenas flutuação
-            float restPhase = time * 0.01;
-            naturalFishX += sin(restPhase * 0.7) * areaW * 0.015;
-            naturalFishY += cos(restPhase * 0.5) * areaH * 0.01;
-        }
-
-        // === MOVIMENTO CORPORAL REALISTA ===
-
-        // Simulação de nadadeiras
-        float finMovement = sin(time * 0.8) * 0.005;
-        naturalFishX += finMovement;
-
-        // Respiração/movimento gill
-        float gillCycle = sin(time * 1.5) * 0.003;
-        naturalFishY += gillCycle;
-
-        // Flutuação natural (controle de boia natatória)
-        float buoyancy = sin(time * 0.06) * areaH * 0.02;
-        naturalFishY += buoyancy;
+        // Pequena variação orgânica sutil
+        naturalFishX += sin(time * 0.006) * areaW * 0.008;
+        naturalFishY += cos(time * 0.004) * areaH * 0.006;
 
         // === DELIMITAÇÃO DA ÁREA ===
 
@@ -354,40 +354,47 @@ class ModularWaterEffect {
 
         // === SISTEMA DE ROTAÇÃO NATURAL ===
 
-        // Calcular direção do movimento
-        float lookAhead = 2.0; // Olhar 2 segundos à frente
-        float futurePhase = (time + lookAhead) * moveSpeed;
+                                                        // === ORIENTAÇÃO PRECISA BASEADA NA DIREÇÃO REAL ===
 
-        float futureCos = cos(futurePhase);
-        float futureSin = sin(futurePhase);
-        float futureDenom = 1.0 + futureSin * futureSin;
+        // Calcular direção usando derivação matemática
+        float dt = 0.05;
+        float currentAngle = time * moveSpeed;
+        float futureAngle = (time + dt) * moveSpeed;
 
-        float futureX = centerX + a * futureCos / futureDenom;
-        float currentDirection = futureX - naturalFishX;
+        float futureBaseX;
 
-                        // LÓGICA CORRETA: Peixe aponta na direção do movimento
+        if (currentPattern < 1.0) {
+            // Padrão 1: Calcular posição futura
+            float wave1 = sin(futureAngle * 0.3) * areaW * 0.48;
+            float wave2 = cos(futureAngle * 0.17) * areaW * 0.25;
+            futureBaseX = centerX + wave1 + wave2;
+
+        } else if (currentPattern < 2.0) {
+            // Padrão 2: Rosácea
+            float r = min(areaW, areaH) * 0.45;
+            float k = 5.0;
+            float roseRadius = r * sin(k * futureAngle * 0.4);
+            futureBaseX = centerX + roseRadius * cos(futureAngle * 0.4) + sin(futureAngle * 0.08) * areaW * 0.2;
+
+        } else {
+            // Padrão 3: Drunk walk
+            float x1 = sin(futureAngle * 0.13) * areaW * 0.35;
+            float x2 = cos(futureAngle * 0.29) * areaW * 0.28;
+            float x3 = sin(futureAngle * 0.41) * areaW * 0.15;
+            futureBaseX = centerX + x1 + x2 + x3;
+        }
+
+        float velocityX = futureBaseX - baseX;
+
         float fishAngle = 0.0;
 
-        if (currentDirection > 0.008) {
-            fishAngle = 0.0; // Direita - orientação normal (peixe olha para direita)
-        } else if (currentDirection < -0.008) {
-            fishAngle = 3.14159; // Esquerda - flip horizontal (peixe olha para esquerda)
+                                // CORRETO: Inverter a lógica de orientação do peixe
+        // O problema estava na interpretação de qual é direita/esquerda
+        if (velocityX > 0.001) {
+            fishAngle = 3.14159; // MOVENDO PRA DIREITA -> apontar DIREITA (PI para flip correto)
+        } else if (velocityX < -0.001) {
+            fishAngle = 0.0; // MOVENDO PRA ESQUERDA -> apontar ESQUERDA (0 para sem flip)
         }
-
-        // === REFINAMENTOS COMPORTAMENTAIS ===
-
-        // Durante descanso: orientação mais estável
-        if (fishBehavior > 1.5) {
-            float restWiggle = sin(time * 0.1) * 0.1;
-            fishAngle += restWiggle;
-        }
-
-        // Movimento de cauda baseado na atividade
-        float tailIntensity = 1.0;
-        if (fishBehavior > 1.5) tailIntensity = 0.3; // Cauda quieta durante descanso
-
-        float tailWag = sin(time * 2.5) * 0.08 * tailIntensity;
-        fishAngle += tailWag;
 
         float fishX, fishY;
         if (u_gameState >= 2.0) {
@@ -940,7 +947,7 @@ class ModularWaterEffect {
     if (!this.gl || !this.canvas) return;
 
     this.time += 0.016 * this.animationSpeed; // Animação da água
-    this.fishTime += 0.032; // Peixe independente, movimento 2x mais rápido
+    this.fishTime += 0.016; // Peixe na mesma velocidade da água para evitar teleporte
 
     this.updateFishingGame();
 

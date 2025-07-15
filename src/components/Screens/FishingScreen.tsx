@@ -52,7 +52,7 @@ class WaterEffect {
     this.maxForce = 0.00003; // Força máxima de steering (reduzida para movimento mais suave)
     this.wanderRadius = 0.08; // Raio do círculo de wandering (menor para curvas mais suaves)
     this.wanderDistance = 0.05; // Distância do círculo de wandering (menor)
-    this.wanderJitter = 0.3; // Variação no wandering (reduzida para movimento mais suave)
+    this.wanderJitter = 0.15; // Variação no wandering (ainda mais reduzida para menos oscilação)
 
     // Estados do jogo de pesca
     this.gameState = "idle"; // 'idle', 'hook_cast', 'fish_reacting', 'fish_moving', 'fish_hooked'
@@ -221,9 +221,9 @@ class WaterEffect {
                 float velocityX = u_fishVelocity.x;
                 float velocityY = u_fishVelocity.y;
 
-                                // Determinar orientação baseada na velocidade horizontal
-                // Limiar baixo para evitar oscilações quando parado
-                bool facingRight = velocityX > 0.0001;
+                                                // Determinar orientação baseada na velocidade horizontal
+                // Limiar mais alto para reduzir oscilações (aumentado de 0.0001 para 0.0008)
+                bool facingRight = velocityX > 0.0008;
 
                 // Calcula UV do peixe garantindo orientação sempre correta
                 vec2 localUV = (coords - fishPos + fishSize * 0.5) / fishSize;
@@ -775,9 +775,9 @@ class WaterEffect {
       y: this.fishPosition.y + directionY * this.wanderDistance,
     };
 
-    // Atualizar ângulo de wandering com variação mais suave
+    // Atualizar ângulo de wandering com variação ultra suave
     this.wanderAngle +=
-      (Math.random() - 0.5) * this.wanderJitter * deltaTime * 0.001; // Muito mais suave
+      (Math.random() - 0.5) * this.wanderJitter * deltaTime * 0.0005; // Ultra suave para reduzir oscilações
 
     // Calcular ponto alvo no círculo de wandering
     this.wanderTarget.x =
