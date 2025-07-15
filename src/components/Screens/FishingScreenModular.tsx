@@ -1250,13 +1250,14 @@ class ModularWaterEffect {
       this.fishAngle = 0;
     }
 
-    // Log de debug ocasional com informações de rotação
-    if (Math.random() < 0.005) {
+    // Log de debug temporário MAIS FREQUENTE para investigação
+    if (Math.random() < 0.05) {
+      // Aumentado para 5% para debug
       const angleDegrees = this.fishAngle
         ? (this.fishAngle * 180) / Math.PI
         : 0;
       console.log(
-        `🐟 ORGANIC - Pos: (${this.fishCurrentPosition.x.toFixed(3)}, ${this.fishCurrentPosition.y.toFixed(3)}), Vel: (${this.fishVelocity.x.toFixed(4)}, ${this.fishVelocity.y.toFixed(4)}), Dir: ${this.fishDirection > 0 ? "RIGHT" : "LEFT"}, Rotation: ${angleDegrees.toFixed(1)}°`,
+        `🐟 DEBUG ROTAÇÃO - Pos: (${this.fishCurrentPosition.x.toFixed(3)}, ${this.fishCurrentPosition.y.toFixed(3)}), Vel: (${this.fishVelocity.x.toFixed(4)}, ${this.fishVelocity.y.toFixed(4)}), VelMag: ${velocityMagnitude.toFixed(4)}, Dir: ${this.fishDirection > 0 ? "RIGHT" : "LEFT"}, Angle: ${angleDegrees.toFixed(1)}°`,
       );
     }
   }
