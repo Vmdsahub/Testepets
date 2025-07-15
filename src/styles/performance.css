@@ -125,3 +125,14 @@
   /* Reduzir motion blur durante transições */
   image-rendering: optimizeSpeed;
 }
+
+/* Classe específica para fundo de estrelas sem grid */
+.space-background {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: optimize-contrast;
+  image-rendering: optimizeSpeed;
+  /* SEM crisp-edges para evitar grid no espaço */
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+  backface-visibility: hidden;
+}
