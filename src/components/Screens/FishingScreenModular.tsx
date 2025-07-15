@@ -1633,10 +1633,12 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
       // Movimento aleatório do peixe
       setFishPosition((prev) => {
         const change = (Math.random() - 0.5) * 8;
-        return Math.max(
+        const newPos = Math.max(
           fishSize / 2,
           Math.min(100 - fishSize / 2, prev + change),
         );
+        fishPositionRef.current = newPos;
+        return newPos;
       });
 
       // Movimento da barra (cai por gravidade ou sobe se pressionado)
