@@ -758,9 +758,20 @@ class WaterEffect {
 
   // Método para lidar com clique na exclamação
   handleExclamationClick() {
+    console.log(
+      "handleExclamationClick called - gameState:",
+      this.gameState,
+      "canClickExclamation:",
+      this.canClickExclamation,
+    );
     if (this.gameState === "fish_hooked" && this.canClickExclamation) {
-      console.log("Player clicked exclamation! Opening modal.");
+      console.log("Player clicked exclamation! Showing Fisgado text.");
       this.canClickExclamation = false;
+      // Limpar timers para evitar reset automático
+      if (this.activeTimers) {
+        this.activeTimers.forEach((timer) => clearTimeout(timer));
+        this.activeTimers = [];
+      }
       if (this.onGameStart) {
         this.onGameStart();
       }
@@ -1106,14 +1117,14 @@ class WaterEffect {
 
         // Peixe chegou ao anzol
         this.gameState = "fish_hooked";
-        this.exclamationTime = 1000; // mostrar exclamação por 1 segundo
+        this.exclamationTime = 3000; // mostrar exclamação por 3 segundos (aumentado)
         this.exclamationStartTime = Date.now();
         this.canClickExclamation = true;
         console.log(
           `🎣 Fish hooked! Hook at (${this.hookPosition.x.toFixed(3)}, ${this.hookPosition.y.toFixed(3)}) - Hook in water: ${this.isHookInWater()} - Starting exclamation timer.`,
         );
 
-        // Timer de 1 segundo - se não clicar, voltar ao movimento natural
+        // Timer de 3 segundos - se não clicar, voltar ao movimento natural
         const hookedTimer = setTimeout(() => {
           if (this.gameState === "fish_hooked" && this.canClickExclamation) {
             console.log(
@@ -1121,7 +1132,7 @@ class WaterEffect {
             );
             this.resetFishingGame();
           }
-        }, 1000);
+        }, 3000);
         if (!this.activeTimers) this.activeTimers = [];
         this.activeTimers.push(hookedTimer);
       }
@@ -1138,9 +1149,9 @@ class WaterEffect {
       if (this.exclamationTime > 0) {
         this.exclamationTime -= 16;
 
-        // Se passou 1 segundo, desabilitar clique
+        // Se passou 3 segundos, desabilitar clique
         const elapsedTime = Date.now() - this.exclamationStartTime;
-        if (elapsedTime >= 1000) {
+        if (elapsedTime >= 3000) {
           this.canClickExclamation = false;
         }
       }
