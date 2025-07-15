@@ -854,31 +854,59 @@ class ModularWaterEffect {
     this.fishReactionStartTime = Date.now();
   }
 
-  // Método para movimento orgânico - evitar bordas
+  // Método para movimento orgânico - evitar bordas (melhorado)
   avoidBorders() {
-    const margin = 0.05;
+    const margin = 0.08; // Margem maior para evitação mais cedo
     const areaLeft = this.waterArea.x + margin;
     const areaRight = this.waterArea.x + this.waterArea.width - margin;
     const areaTop = this.waterArea.y + margin;
     const areaBottom = this.waterArea.y + this.waterArea.height - margin;
 
     let avoidanceForce = { x: 0, y: 0 };
+    const forceMultiplier = 5; // Força mais intensa
 
     // Evitar borda esquerda
     if (this.fishCurrentPosition.x < areaLeft) {
-      avoidanceForce.x += (areaLeft - this.fishCurrentPosition.x) * 2;
+      avoidanceForce.x +=
+        (areaLeft - this.fishCurrentPosition.x) * forceMultiplier;
     }
     // Evitar borda direita
     if (this.fishCurrentPosition.x > areaRight) {
-      avoidanceForce.x -= (this.fishCurrentPosition.x - areaRight) * 2;
+      avoidanceForce.x -=
+        (this.fishCurrentPosition.x - areaRight) * forceMultiplier;
     }
     // Evitar borda superior
     if (this.fishCurrentPosition.y < areaTop) {
-      avoidanceForce.y += (areaTop - this.fishCurrentPosition.y) * 2;
+      avoidanceForce.y +=
+        (areaTop - this.fishCurrentPosition.y) * forceMultiplier;
     }
     // Evitar borda inferior
     if (this.fishCurrentPosition.y > areaBottom) {
-      avoidanceForce.y -= (this.fishCurrentPosition.y - areaBottom) * 2;
+      avoidanceForce.y -=
+        (this.fishCurrentPosition.y - areaBottom) * forceMultiplier;
+    }
+
+    // Força preventiva quando se aproxima das bordas
+    const preventiveMargin = 0.12;
+    const preventiveForce = 1;
+
+    if (this.fishCurrentPosition.x < this.waterArea.x + preventiveMargin) {
+      avoidanceForce.x += preventiveForce;
+    }
+    if (
+      this.fishCurrentPosition.x >
+      this.waterArea.x + this.waterArea.width - preventiveMargin
+    ) {
+      avoidanceForce.x -= preventiveForce;
+    }
+    if (this.fishCurrentPosition.y < this.waterArea.y + preventiveMargin) {
+      avoidanceForce.y += preventiveForce;
+    }
+    if (
+      this.fishCurrentPosition.y >
+      this.waterArea.y + this.waterArea.height - preventiveMargin
+    ) {
+      avoidanceForce.y -= preventiveForce;
     }
 
     return avoidanceForce;
