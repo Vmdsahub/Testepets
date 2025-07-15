@@ -1132,8 +1132,8 @@ class ModularWaterEffect {
     );
     this.gl.uniform2f(
       this.uniforms.fishTargetPosition,
-      this.fishTargetPosition.x,
-      this.fishTargetPosition.y,
+      this.fishCurrentPosition.x,
+      this.fishCurrentPosition.y,
     );
     const showExclamationValue =
       this.gameState === "fish_hooked" && this.exclamationTime > 0 ? 1.0 : 0.0;
