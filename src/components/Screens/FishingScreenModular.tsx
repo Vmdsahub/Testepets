@@ -56,6 +56,9 @@ class ModularWaterEffect {
     this.gameState = "idle";
     this.hookPosition = { x: 0.5, y: 0.5 };
     this.fishTargetPosition = { x: 0.5, y: 0.65 };
+    this.fishCurrentPosition = { x: 0.5, y: 0.65 }; // Posição atual real do peixe
+    this.fishVelocity = { x: 0, y: 0 }; // Velocidade para movimento suave
+    this.lastNaturalPosition = { x: 0.5, y: 0.65 }; // Última posição natural conhecida
     this.fishReactionStartTime = 0;
     this.fishReactionDelay = 0;
     this.originalFishMovement = { moveX: 0, moveY: 0 };
@@ -932,7 +935,7 @@ class ModularWaterEffect {
         // Log de debug ocasional
         if (Math.random() < 0.01) {
           console.log(
-            `�� MOVING - Time since reaction: ${(timeSinceReaction / 1000).toFixed(1)}s / ${(timeToReachHook / 1000).toFixed(1)}s`,
+            `🐟 MOVING - Time since reaction: ${(timeSinceReaction / 1000).toFixed(1)}s / ${(timeToReachHook / 1000).toFixed(1)}s`,
           );
         }
       } else if (timeSinceReaction > timeToReachHook) {
