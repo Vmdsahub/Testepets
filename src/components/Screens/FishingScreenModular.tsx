@@ -77,6 +77,7 @@ class ModularWaterEffect {
     this.exclamationStartTime = 0;
     this.canClickExclamation = false;
     this.onGameStart = null;
+    this.onGameStartBackup = null; // Backup do callback
     this.onExclamationClick = null;
     this.fishTimeOffset = 0;
     this.transitionBackToNaturalTime = 0;
@@ -497,7 +498,7 @@ class ModularWaterEffect {
         
                                                                 // Adicionar exclamação com imagem fornecida
         if (u_showExclamation > 0.0 && u_gameState >= 4.0) {
-                    // Posição da exclamaç��o (10px para esquerda do centro do peixe, sem vibração)
+                    // Posição da exclamação (10px para esquerda do centro do peixe, sem vibração)
           float leftOffset = 10.0 / u_resolution.x; // Converter 10px para coordenadas UV
           vec2 exclamationPos = vec2(fishX - leftOffset, fishY);
 
@@ -1074,7 +1075,7 @@ class ModularWaterEffect {
         targetDirection.y /= magnitude;
       }
 
-      // Aplicar força de direção suavemente à velocidade
+      // Aplicar for��a de direção suavemente à velocidade
       const acceleration = 0.00002; // Aceleração mais suave e lenta
       this.fishVelocity.x += targetDirection.x * acceleration;
       this.fishVelocity.y += targetDirection.y * acceleration;
@@ -1282,7 +1283,7 @@ class ModularWaterEffect {
       );
 
       if (distance < 0.03) {
-        // VERIFICAÇÃO: Anzol deve estar na água para peixe ser fisgado
+        // VERIFICAÇ��O: Anzol deve estar na água para peixe ser fisgado
         if (!this.isHookInWater()) {
           console.log(
             "🎣 Fish reached hook position but hook is not in water - resetting",
