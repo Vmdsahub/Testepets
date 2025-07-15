@@ -1267,9 +1267,9 @@ class ModularWaterEffect {
       this.fishAngle = 0;
     }
 
-    // Log de debug mais frequente para investigação
-    if (Math.random() < 0.03) {
-      // 3% para debug detalhado
+    // Log de debug para monitoramento
+    if (Math.random() < 0.008) {
+      // 0.8% para debug moderado
       const angleDegrees = this.fishAngle
         ? (this.fishAngle * 180) / Math.PI
         : 0;
@@ -2935,7 +2935,7 @@ export const FishingScreenModular: React.FC = () => {
               borderRadius: "5px",
             }}
           >
-            ��� <strong>Reposicionar área:</strong> Segure{" "}
+            ����� <strong>Reposicionar área:</strong> Segure{" "}
             <kbd
               style={{
                 background: "#e0e0e0",
