@@ -206,7 +206,7 @@ class ModularWaterEffect {
         return gradient * u_distortionAmount;
       }
 
-      // Simulação de c��usticas (mantida original)
+      // Simulação de cáusticas (mantida original)
       float calculateCaustics(vec2 uv, float time) {
         vec2 causticsUV = uv * 15.0;
         float caustic1 = abs(sin(causticsUV.x + time * 2.0));
@@ -1632,7 +1632,7 @@ class ModularWaterEffect {
     );
     this.gl.uniform1f(this.uniforms.fishDirection, this.fishDirection);
 
-    // Novos uniforms para ��rea modular
+    // Novos uniforms para área modular
     this.gl.uniform4f(
       this.uniforms.waterArea,
       this.waterArea.x,
@@ -1776,6 +1776,14 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
   useEffect(() => {
     setIsLowTime(gameTime < 3000);
   }, [gameTime]);
+
+  // Gerenciar progressGain com timeout
+  useEffect(() => {
+    if (progressGain) {
+      const timer = setTimeout(() => setProgressGain(false), 200);
+      return () => clearTimeout(timer);
+    }
+  }, [progressGain]);
 
   // Atualizar resultado para failure quando tempo acabar
   useEffect(() => {
