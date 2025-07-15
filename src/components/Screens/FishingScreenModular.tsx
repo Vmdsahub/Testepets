@@ -1015,9 +1015,23 @@ class ModularWaterEffect {
       }
     } else if (this.gameState === "fish_hooked") {
       // === PARADO NO ANZOL ===
+      // A BOCA deve ficar no anzol, não o centro do peixe
       this.fishVelocity.x = 0;
       this.fishVelocity.y = 0;
-      this.fishCurrentPosition.x = this.hookPosition.x;
+
+      // Calcular posição do centro do peixe para que a boca fique no anzol
+      const fishSize = 0.08; // Tamanho do peixe (width)
+      let mouthOffsetX;
+      if (this.fishDirection > 0) {
+        // Peixe nada para direita (flipado), boca à direita
+        mouthOffsetX = fishSize / 2;
+      } else {
+        // Peixe nada para esquerda (normal), boca à esquerda
+        mouthOffsetX = -fishSize / 2;
+      }
+
+      // Posicionar centro do peixe para que boca fique no anzol
+      this.fishCurrentPosition.x = this.hookPosition.x - mouthOffsetX;
       this.fishCurrentPosition.y = this.hookPosition.y;
     }
 
