@@ -1015,9 +1015,23 @@ class ModularWaterEffect {
       }
     } else if (this.gameState === "fish_hooked") {
       // === PARADO NO ANZOL ===
+      // A BOCA deve ficar no anzol, não o centro do peixe
       this.fishVelocity.x = 0;
       this.fishVelocity.y = 0;
-      this.fishCurrentPosition.x = this.hookPosition.x;
+
+      // Calcular posição do centro do peixe para que a boca fique no anzol
+      const fishSize = 0.08; // Tamanho do peixe (width)
+      let mouthOffsetX;
+      if (this.fishDirection > 0) {
+        // Peixe nada para direita (flipado), boca à direita
+        mouthOffsetX = fishSize / 2;
+      } else {
+        // Peixe nada para esquerda (normal), boca à esquerda
+        mouthOffsetX = -fishSize / 2;
+      }
+
+      // Posicionar centro do peixe para que boca fique no anzol
+      this.fishCurrentPosition.x = this.hookPosition.x - mouthOffsetX;
       this.fishCurrentPosition.y = this.hookPosition.y;
     }
 
@@ -1057,7 +1071,7 @@ class ModularWaterEffect {
     }
   }
 
-  // Método para lidar com clique na exclamação
+  // Método para lidar com clique na exclama��ão
   handleExclamationClick() {
     if (this.gameState === "fish_hooked" && this.canClickExclamation) {
       console.log("Player clicked exclamation! Opening modal.");
@@ -1205,42 +1219,36 @@ class ModularWaterEffect {
     // Limpar canvas
     ctx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
 
-    // Calcular posição atual do peixe (mesmo cálculo do shader)
-    const time = this.fishTime * 0.5;
-    const areaX = this.waterArea.x;
-    const areaY = this.waterArea.y;
-    const areaW = this.waterArea.width;
-    const areaH = this.waterArea.height;
-
-    const centerX = areaX + areaW / 2;
-    const centerY = areaY + areaH / 2;
-    const mainRadius = Math.min(areaW, areaH) * 0.35;
-    const mainAngle = time * 0.8;
-    const circleX = Math.cos(mainAngle) * mainRadius;
-    const circleY = Math.sin(mainAngle) * mainRadius * 0.7;
-
-    // Posição do peixe em coordenadas UV
-    const fishUvX = centerX + circleX * 0.01;
-    const fishUvY = centerY + circleY * 0.01;
+    // Usar a MESMA posição do peixe que o shader usa
+    const fishUvX = this.fishCurrentPosition.x;
+    const fishUvY = this.fishCurrentPosition.y;
 
     // Converter para pixels
     const fishPixelX = fishUvX * overlayCanvas.width;
     const fishPixelY = fishUvY * overlayCanvas.height;
 
-    // A boca do peixe está na extremidade esquerda (assumindo orientação)
-    // O peixe tem direção baseada na velocidade
-    let mouthOffsetX = -40; // Boca à esquerda por padrão
+    // A boca do peixe muda de lado dependendo da direção
+    // Tamanho do peixe no shader: 0.08 width, 0.06 height
+    const fishSizePixelX = 0.08 * overlayCanvas.width;
+
+    // Lógica correta baseada no shader:
+    // fishDirection > 0 = nada para direita, imagem flipada (PI), boca fica à DIREITA
+    // fishDirection < 0 = nada para esquerda, imagem normal (0), boca fica à ESQUERDA
+    let mouthOffsetX;
     if (this.fishDirection > 0) {
-      mouthOffsetX = 40; // Boca à direita se virado para direita
+      mouthOffsetX = fishSizePixelX / 2 - 10; // Boca à direita - 10px mais próximo da ponta
+    } else {
+      mouthOffsetX = -(fishSizePixelX / 2) + 10; // Boca à esquerda + 10px mais próximo da ponta
     }
 
-    const mouthX = fishPixelX + mouthOffsetX;
-    const mouthY = fishPixelY;
+    const mouthX =
+      fishPixelX + mouthOffsetX + (this.fishDirection > 0 ? 9 : -9); // +9px para direita ou -9px para esquerda
+    const mouthY = fishPixelY + 2; // +2px para baixo
 
-    // Desenhar CÍRCULO GRANDE ROSA na posição da boca
+    // Desenhar CÍRCULO ROSA MUITO PEQUENO na posição da boca
     ctx.fillStyle = "rgba(255, 0, 255, 0.8)";
     ctx.beginPath();
-    ctx.arc(mouthX, mouthY, 30, 0, 2 * Math.PI);
+    ctx.arc(mouthX, mouthY, 2, 0, 2 * Math.PI); // Diminuído para 2px
     ctx.fill();
 
     // Borda do círculo
@@ -2044,7 +2052,7 @@ export const FishingScreenModular: React.FC = () => {
               <div
                 style={{ fontSize: "0.75rem", color: "#666", marginTop: "2px" }}
               >
-                ✓ Imagem personalizada ativa
+                �� Imagem personalizada ativa
               </div>
             )}
           </div>
