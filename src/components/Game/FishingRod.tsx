@@ -828,6 +828,29 @@ class FishingSystem {
         this.ctx.moveTo(lastPoint.x + 6, lastPoint.y + 3);
         this.ctx.lineTo(lastPoint.x + 4, lastPoint.y - 1);
         this.ctx.stroke();
+
+        // DEBUG: Adicionar indicador vermelho na posição real do anzol quando assentado
+        if (lastPoint.settled) {
+          this.ctx.fillStyle = "rgba(255, 0, 0, 0.7)";
+          this.ctx.beginPath();
+          this.ctx.arc(
+            lastPoint.settledX,
+            lastPoint.settledY,
+            8,
+            0,
+            Math.PI * 2,
+          );
+          this.ctx.fill();
+
+          // Texto debug
+          this.ctx.fillStyle = "red";
+          this.ctx.font = "12px Arial";
+          this.ctx.fillText(
+            `Real: ${Math.round(lastPoint.settledX)}, ${Math.round(lastPoint.settledY)}`,
+            lastPoint.settledX + 15,
+            lastPoint.settledY - 10,
+          );
+        }
       }
     }
   }
