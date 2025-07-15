@@ -1093,10 +1093,17 @@ class ModularWaterEffect {
       this.fishTargetPosition.x,
       this.fishTargetPosition.y,
     );
-    this.gl.uniform1f(
-      this.uniforms.showExclamation,
-      this.gameState === "fish_hooked" && this.exclamationTime > 0 ? 1.0 : 0.0,
-    );
+    const showExclamationValue =
+      this.gameState === "fish_hooked" && this.exclamationTime > 0 ? 1.0 : 0.0;
+
+    // Log temporário para debug
+    if (this.gameState === "fish_hooked") {
+      console.log(
+        `🔔 EXCLAMATION DEBUG - gameState: ${this.gameState}, exclamationTime: ${this.exclamationTime}, showValue: ${showExclamationValue}`,
+      );
+    }
+
+    this.gl.uniform1f(this.uniforms.showExclamation, showExclamationValue);
     this.gl.uniform1f(this.uniforms.fishTimeOffset, this.fishTimeOffset);
 
     // Calcular suavização de transição
