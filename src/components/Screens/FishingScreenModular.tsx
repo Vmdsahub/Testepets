@@ -1232,17 +1232,29 @@ class ModularWaterEffect {
       this.transitionBackToNaturalTime = Date.now();
     }
 
-    // Voltar ao estado idle para permitir novo interesse no anzol
-    this.gameState = "idle";
-    this.fishReactionStartTime = 0;
-    this.fishReactionDelay = 0;
+    // Verificar se o anzol ainda está na água para permitir novo interesse
+    const hookInWater =
+      this.hookPosition.x !== 0.5 || this.hookPosition.y !== 0.5;
+
+    if (hookInWater) {
+      // Se o anzol ainda estiver na água, voltar ao estado hook_cast para nova tentativa
+      this.gameState = "hook_cast";
+      this.fishReactionDelay = 3000 + Math.random() * 6000; // 3-9 segundos para nova tentativa
+      this.fishReactionStartTime = Date.now();
+      console.log(
+        `🎣 Fish will try again in ${(this.fishReactionDelay / 1000).toFixed(1)}s since hook is still in water`,
+      );
+    } else {
+      // Se não, voltar ao estado idle
+      this.gameState = "idle";
+      this.fishReactionStartTime = 0;
+      this.fishReactionDelay = 0;
+    }
+
     this.exclamationTime = 0;
     this.isVibrating = false;
     this.showFisgadoText = false;
     this.canClickExclamation = false;
-
-    // Manter a posição do anzol para o peixe poder se interessar novamente
-    // this.hookPosition = { x: 0.5, y: 0.5 }; // Comentado para manter anzol ativo
   }
 
   updateBackgroundFromImage(image) {
