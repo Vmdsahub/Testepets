@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { ArrowLeft } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useGameStore } from "../../store/gameStore";
 import { useAuthStore } from "../../store/authStore";
 import {
@@ -20,6 +21,9 @@ interface WaterArea {
 // WebGL Water Effect Class Modular - NOVO: Movimento aleat���rio livre com rotação 360° baseado na área definida
 class ModularWaterEffect {
   constructor(waterArea, isAdmin = false) {
+    // Inicializar activeTimers PRIMEIRO para evitar undefined
+    this.activeTimers = [];
+
     this.canvas = document.getElementById("waterCanvas");
     this.waterArea = waterArea;
     this.isAdmin = isAdmin;
@@ -64,7 +68,7 @@ class ModularWaterEffect {
     // Sistema de movimento orgânico
     this.fishDesiredDirection = { x: 1, y: 0 }; // Direção desejada
     this.fishSpeed = 0.0006; // Velocidade base mais lenta
-    this.directionChangeTime = 0; // Timer para mudança de direção
+    this.directionChangeTime = 0; // Timer para mudança de direç��o
     this.directionChangeCooldown = 3000 + Math.random() * 4000; // 3-7 segundos entre mudanças (mais lento)
     this.fishReactionStartTime = 0;
     this.fishReactionDelay = 0;
@@ -326,7 +330,7 @@ class ModularWaterEffect {
 
         float time = u_fishTime;
 
-        // Área da água
+        // Área da ��gua
         float areaX = u_waterArea.x;
         float areaY = u_waterArea.y;
         float areaW = u_waterArea.z;
@@ -512,7 +516,7 @@ class ModularWaterEffect {
             // Criar forma de exclamação baseada na imagem
             vec2 localPos = exclamationUV * 2.0 - 1.0; // Converter para -1 a 1
 
-            // Corpo da exclamação (parte comprida) - corrigido para orientação correta
+            // Corpo da exclamação (parte comprida) - corrigido para orienta��ão correta
             float bodyWidth = 0.2;
             bool inBody = abs(localPos.x) < bodyWidth && localPos.y > -0.8 && localPos.y < 0.4;
 
@@ -626,7 +630,7 @@ class ModularWaterEffect {
       "u_fishDirection",
     );
 
-    // Novos uniforms para área modular
+    // Novos uniforms para ��rea modular
     this.uniforms.waterArea = this.gl.getUniformLocation(
       this.program,
       "u_waterArea",
@@ -925,7 +929,7 @@ class ModularWaterEffect {
         const tx3 = x + width; // Base direita
         const ty3 = y + height;
 
-        // Algoritmo de área para verificar se ponto está dentro do triângulo
+        // Algoritmo de ��rea para verificar se ponto está dentro do triângulo
         const area = Math.abs(
           (tx2 - tx1) * (ty3 - ty1) - (tx3 - tx1) * (ty2 - ty1),
         );
@@ -1017,7 +1021,7 @@ class ModularWaterEffect {
   updateDesiredDirection() {
     const currentTime = Date.now();
 
-    // Verificar se é hora de mudar direção
+    // Verificar se �� hora de mudar direção
     if (currentTime - this.directionChangeTime > this.directionChangeCooldown) {
       // Gerar nova direção favorecendo movimento horizontal
       let angle;
@@ -1182,6 +1186,12 @@ class ModularWaterEffect {
 
   // Método para lidar com clique na exclama��ão
   handleExclamationClick() {
+    console.log(
+      "🎯 handleExclamationClick called - gameState:",
+      this.gameState,
+      "canClick:",
+      this.canClickExclamation,
+    );
     if (this.gameState === "fish_hooked" && this.canClickExclamation) {
       console.log("Player clicked exclamation! Showing Fisgado text.");
       this.canClickExclamation = false;
@@ -1192,12 +1202,21 @@ class ModularWaterEffect {
       this.fisgadoTextStartTime = Date.now();
 
       // Após 0.6s, abrir minigame
-      setTimeout(() => {
+      const fisgadoTimer = setTimeout(() => {
         this.showFisgadoText = false;
+        console.log(
+          "🎮 About to call onGameStart - callback exists:",
+          !!this.onGameStart,
+        );
         if (this.onGameStart) {
+          console.log("🎮 Calling onGameStart callback...");
           this.onGameStart();
+        } else {
+          console.log("❌ onGameStart callback is null!");
         }
       }, 600);
+      if (!this.activeTimers) this.activeTimers = [];
+      this.activeTimers.push(fisgadoTimer);
 
       return true;
     }
@@ -1221,20 +1240,31 @@ class ModularWaterEffect {
         // Capturar posição atual e começar reação
         this.gameState = "fish_reacting";
         console.log(
-          `🎣 Fish reacting! Current position: (${this.fishCurrentPosition.x.toFixed(3)}, ${this.fishCurrentPosition.y.toFixed(3)})`,
+          `🎣 Fish reacting! Hook at (${this.hookPosition.x.toFixed(3)}, ${this.hookPosition.y.toFixed(3)}) - Fish at (${this.fishCurrentPosition.x.toFixed(3)}, ${this.fishCurrentPosition.y.toFixed(3)}) - Hook in water: ${this.isHookInWater()}`,
         );
 
-        // Come��ar movimento ap��s breve pausa
-        setTimeout(() => {
+        // Come��ar movimento ap����s breve pausa
+        const reactionTimer = setTimeout(() => {
           if (this.gameState === "fish_reacting") {
             this.gameState = "fish_moving";
           }
         }, 500);
+        if (!this.activeTimers) this.activeTimers = [];
+        this.activeTimers.push(reactionTimer);
       }
     } else if (
       this.gameState === "fish_reacting" ||
       this.gameState === "fish_moving"
     ) {
+      // VERIFICAÇÃO CONTÍNUA: Se anzol saiu da água durante movimento, resetar
+      if (!this.isHookInWater()) {
+        console.log(
+          "🎣 Hook removed from water during fish movement - resetting",
+        );
+        this.resetFishingGame();
+        return;
+      }
+
       // Verificar se chegou próximo ao anzol
       const distance = Math.sqrt(
         Math.pow(this.fishCurrentPosition.x - this.hookPosition.x, 2) +
@@ -1242,6 +1272,15 @@ class ModularWaterEffect {
       );
 
       if (distance < 0.03) {
+        // VERIFICAÇÃO: Anzol deve estar na água para peixe ser fisgado
+        if (!this.isHookInWater()) {
+          console.log(
+            "🎣 Fish reached hook position but hook is not in water - resetting",
+          );
+          this.resetFishingGame();
+          return;
+        }
+
         // Chegou próximo ao anzol
         this.gameState = "fish_hooked";
         this.exclamationTime = 1000;
@@ -1249,12 +1288,22 @@ class ModularWaterEffect {
         this.canClickExclamation = true;
         this.isVibrating = true;
         console.log(
-          "🎣 Fish hooked! Starting exclamation timer and vibration.",
+          `🎣 Fish hooked! Hook at (${this.hookPosition.x.toFixed(3)}, ${this.hookPosition.y.toFixed(3)}) - Hook in water: ${this.isHookInWater()} - Starting exclamation timer.`,
         );
 
         // Timer automático será gerenciado no updateFishingGame()
       }
     } else if (this.gameState === "fish_hooked") {
+      // VERIFICAÇÃO CONTÍNUA: Se anzol saiu da água durante fish_hooked, resetar imediatamente
+      if (!this.isHookInWater()) {
+        console.log(
+          "��� Hook removed from water while fish hooked - resetting immediately",
+        );
+        this.isVibrating = false;
+        this.resetFishingGame();
+        return;
+      }
+
       // Usar tempo real em vez de contador de frames
       const elapsedTime = Date.now() - this.exclamationStartTime;
 
@@ -1276,6 +1325,17 @@ class ModularWaterEffect {
   }
 
   resetFishingGame() {
+    // Limpar todos os timers ativos para evitar comportamentos persistentes
+    if (this.activeTimers) {
+      this.activeTimers.forEach((timer) => clearTimeout(timer));
+      this.activeTimers = [];
+      console.log("🧹 Cleared all active timers");
+    } else {
+      // Inicializar se não existe
+      this.activeTimers = [];
+      console.log("🧹 Initialized activeTimers array");
+    }
+
     if (
       this.gameState === "fish_moving" ||
       this.gameState === "fish_reacting" ||
@@ -1290,9 +1350,19 @@ class ModularWaterEffect {
 
     // Verificar se o anzol ainda está na água para permitir novo interesse
     const hookInWater = this.isHookInWater();
+    console.log(
+      `🔄 RESET DEBUG - Hook position: (${this.hookPosition.x.toFixed(3)}, ${this.hookPosition.y.toFixed(3)}) - isHookInWater: ${hookInWater}`,
+    );
 
-    if (hookInWater) {
-      // Se o anzol ainda estiver na água, voltar ao estado hook_cast para nova tentativa
+    // CORREÇÃO: Só reagir novamente se o anzol foi genuinamente lançado pela vara
+    // e não apenas está na posição de água por acaso
+    const wasProperlyReset =
+      this.hookPosition.x === 0.5 && this.hookPosition.y === 0.5;
+
+    if (hookInWater && !wasProperlyReset) {
+      console.log(
+        "🎣 Hook still in water after genuine cast - will schedule new reaction",
+      );
       this.gameState = "hook_cast";
       this.fishReactionDelay = 3000 + Math.random() * 6000; // 3-9 segundos para nova tentativa
       this.fishReactionStartTime = Date.now();
@@ -1300,8 +1370,10 @@ class ModularWaterEffect {
         `🎣 Fish will try again in ${(this.fishReactionDelay / 1000).toFixed(1)}s since hook is still in water`,
       );
     } else {
-      // Se não, voltar ao estado idle
+      // Se não, voltar ao estado idle e garantir reset completo
+      console.log("🔄 Complete reset - hook removed from water");
       this.gameState = "idle";
+      this.hookPosition = { x: 0.5, y: 0.5 }; // Garantir reset da posição
       this.fishReactionStartTime = 0;
       this.fishReactionDelay = 0;
     }
@@ -1389,7 +1461,7 @@ class ModularWaterEffect {
 
   // Método para desenhar overlay da boca do peixe (APENAS ADMIN)
   drawFishMouthOverlay() {
-    // VERIFICAÇÃO: Círculo rosa da boca visível APENAS para admin
+    // VERIFICAÇÃO: Círculo rosa da boca vis��vel APENAS para admin
     if (!this.isAdmin) {
       // Se não é admin, apenas desenhar texto "Fisgado!" se necessário
       if (this.showFisgadoText) {
@@ -1539,13 +1611,6 @@ class ModularWaterEffect {
     const showExclamationValue =
       this.gameState === "fish_hooked" && this.exclamationTime > 0 ? 1.0 : 0.0;
 
-    // Log apenas quando muda de estado
-    if (this.gameState === "fish_hooked" && Math.random() < 0.02) {
-      console.log(
-        `🔔 EXCLAMATION - Time remaining: ${this.exclamationTime}ms, showing: ${showExclamationValue > 0}`,
-      );
-    }
-
     this.gl.uniform1f(this.uniforms.showExclamation, showExclamationValue);
     this.gl.uniform1f(this.uniforms.fishTimeOffset, this.fishTimeOffset);
 
@@ -1620,6 +1685,25 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
   const [progress, setProgress] = useState(0); // Progresso de captura (0-100)
   const [gameTime, setGameTime] = useState(8000); // 8 segundos para capturar
   const [isHolding, setIsHolding] = useState(false);
+  const [fishInBar, setFishInBar] = useState(false); // Para efeitos visuais
+  const [progressGain, setProgressGain] = useState(false); // Para animação de ganho
+  const [isLowTime, setIsLowTime] = useState(false); // Para efeitos de tempo baixo
+  const [gameResult, setGameResult] = useState<
+    "playing" | "success" | "failure"
+  >("playing");
+
+  // Refs para acessar valores atuais dentro do interval
+  const fishPositionRef = useRef(fishPosition);
+  const barPositionRef = useRef(barPosition);
+
+  // Atualizar refs quando estados mudarem
+  useEffect(() => {
+    fishPositionRef.current = fishPosition;
+  }, [fishPosition]);
+
+  useEffect(() => {
+    barPositionRef.current = barPosition;
+  }, [barPosition]);
 
   const barSize = 20; // Tamanho da barra em %
   const fishSize = 8; // Tamanho do peixe em %
@@ -1629,10 +1713,12 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
       // Movimento aleatório do peixe
       setFishPosition((prev) => {
         const change = (Math.random() - 0.5) * 8;
-        return Math.max(
+        const newPos = Math.max(
           fishSize / 2,
           Math.min(100 - fishSize / 2, prev + change),
         );
+        fishPositionRef.current = newPos;
+        return newPos;
       });
 
       // Movimento da barra (cai por gravidade ou sobe se pressionado)
@@ -1643,14 +1729,21 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
         } else {
           newPos = Math.min(100, prev + 2); // Desce por gravidade
         }
+        barPositionRef.current = newPos;
         return newPos;
       });
 
       // Verificar se o peixe está na barra
       setProgress((prev) => {
-        const fishInBar =
-          Math.abs(fishPosition - barPosition) < (barSize + fishSize) / 2;
-        if (fishInBar) {
+        const fishIsInBar =
+          Math.abs(fishPositionRef.current - barPositionRef.current) <
+          (barSize + fishSize) / 2;
+
+        setFishInBar(fishIsInBar);
+
+        if (fishIsInBar) {
+          setProgressGain(true);
+          setTimeout(() => setProgressGain(false), 200);
           return Math.min(100, prev + 2); // Progresso aumenta
         } else {
           return Math.max(0, prev - 1); // Progresso diminui
@@ -1660,6 +1753,7 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
       // Diminuir tempo
       setGameTime((prev) => {
         const newTime = prev - 50;
+        setIsLowTime(newTime < 3000); // Tempo baixo nos últimos 3 segundos
         if (newTime <= 0) {
           onComplete(false); // Tempo esgotado
         }
@@ -1668,13 +1762,21 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
     }, 50);
 
     return () => clearInterval(gameInterval);
-  }, [fishPosition, barPosition, isHolding, onComplete]);
+  }, [isHolding, onComplete, barSize, fishSize]);
 
   useEffect(() => {
     if (progress >= 100) {
-      onComplete(true); // Sucesso!
+      setGameResult("success");
+      setTimeout(() => onComplete(true), 1500); // Delay para mostrar animação
     }
   }, [progress, onComplete]);
+
+  // Atualizar resultado para failure quando tempo acabar
+  useEffect(() => {
+    if (gameTime <= 0 && gameResult === "playing") {
+      setGameResult("failure");
+    }
+  }, [gameTime, gameResult]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -1706,115 +1808,421 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
   }, []);
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        width: "100%",
-        height: "100%",
-        backgroundColor: "rgba(0, 0, 0, 0.8)",
-        zIndex: 60,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      <div
-        style={{
-          background: "white",
-          borderRadius: "12px",
-          padding: "20px",
-          width: "300px",
-          height: "400px",
-          position: "relative",
-        }}
+    <AnimatePresence>
+      <motion.div
+        className="fixed inset-0 bg-black/50 backdrop-blur-md z-[9999] flex items-center justify-center p-4"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.3 }}
       >
-        <h3 style={{ textAlign: "center", margin: "0 0 20px 0" }}>
-          Minigame de Pesca
-        </h3>
-
-        {/* Barra de progresso */}
-        <div
-          style={{
-            width: "100%",
-            height: "20px",
-            backgroundColor: "#ddd",
-            borderRadius: "10px",
-            marginBottom: "20px",
-            overflow: "hidden",
+        <motion.div
+          className="bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl border border-gray-100 w-full max-w-md mx-auto"
+          initial={{ scale: 0.8, opacity: 0, y: 50 }}
+          animate={{ scale: 1, opacity: 1, y: 0 }}
+          exit={{ scale: 0.8, opacity: 0, y: 50 }}
+          transition={{
+            type: "spring",
+            stiffness: 300,
+            damping: 30,
+            duration: 0.5,
           }}
         >
-          <div
-            style={{
-              width: `${progress}%`,
-              height: "100%",
-              backgroundColor: progress > 50 ? "#4CAF50" : "#FF9800",
-              transition: "width 0.1s",
-            }}
-          />
-        </div>
-
-        {/* Timer */}
-        <div style={{ textAlign: "center", marginBottom: "20px" }}>
-          Tempo: {Math.ceil(gameTime / 1000)}s
-        </div>
-
-        {/* Área do jogo */}
-        <div
-          style={{
-            width: "60px",
-            height: "250px",
-            backgroundColor: "#87CEEB",
-            border: "3px solid #4682B4",
-            borderRadius: "8px",
-            margin: "0 auto",
-            position: "relative",
-            overflow: "hidden",
-          }}
-        >
-          {/* Peixe */}
-          <div
-            style={{
-              position: "absolute",
-              left: "50%",
-              top: `${fishPosition}%`,
-              transform: "translateX(-50%) translateY(-50%)",
-              width: "40px",
-              height: "20px",
-              backgroundColor: "#FF6B35",
-              borderRadius: "10px",
-              border: "2px solid #D84315",
-            }}
-          >
-            🐟
+          {/* Header */}
+          <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-t-3xl">
+            <h2 className="text-2xl font-bold text-center">
+              🎣 Minigame de Pesca
+            </h2>
+            <p className="text-blue-100 text-center text-sm mt-2">
+              Mantenha o peixe na área verde!
+            </p>
           </div>
 
-          {/* Barra do jogador */}
-          <div
-            style={{
-              position: "absolute",
-              left: "50%",
-              top: `${barPosition}%`,
-              transform: "translateX(-50%) translateY(-50%)",
-              width: "50px",
-              height: `${barSize}%`,
-              backgroundColor: isHolding ? "#4CAF50" : "#8BC34A",
-              border: "2px solid #388E3C",
-              borderRadius: "5px",
-            }}
-          />
-        </div>
+          <div className="p-6 space-y-6">
+            {/* Status Bar */}
+            <motion.div
+              className={`flex items-center justify-between rounded-2xl p-4 transition-all duration-300 ${
+                fishInBar
+                  ? "bg-green-50 border-2 border-green-200"
+                  : isLowTime
+                    ? "bg-red-50 border-2 border-red-200"
+                    : "bg-gray-50"
+              }`}
+              animate={fishInBar ? { scale: [1, 1.02, 1] } : {}}
+              transition={{ duration: 0.3, repeat: fishInBar ? Infinity : 0 }}
+            >
+              <div className="flex items-center space-x-2">
+                <motion.div
+                  className={`w-3 h-3 rounded-full ${
+                    fishInBar
+                      ? "bg-gradient-to-r from-green-400 to-emerald-500"
+                      : "bg-gradient-to-r from-blue-400 to-purple-500"
+                  }`}
+                  animate={
+                    fishInBar
+                      ? { scale: [1, 1.3, 1] }
+                      : { opacity: [1, 0.5, 1] }
+                  }
+                  transition={{ duration: 0.5, repeat: Infinity }}
+                ></motion.div>
+                <span
+                  className={`text-sm font-medium ${
+                    fishInBar ? "text-green-700" : "text-gray-700"
+                  }`}
+                >
+                  {fishInBar ? "Capturando!" : "Progresso"}
+                </span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <motion.span
+                  className="text-2xl"
+                  animate={isLowTime ? { rotate: [-5, 5, -5] } : {}}
+                  transition={{
+                    duration: 0.3,
+                    repeat: isLowTime ? Infinity : 0,
+                  }}
+                >
+                  {isLowTime ? "🚨" : "⏱️"}
+                </motion.span>
+                <motion.span
+                  className={`text-lg font-bold ${
+                    isLowTime ? "text-red-500" : "text-gray-700"
+                  }`}
+                  animate={isLowTime ? { scale: [1, 1.1, 1] } : {}}
+                  transition={{
+                    duration: 0.5,
+                    repeat: isLowTime ? Infinity : 0,
+                  }}
+                >
+                  {Math.ceil(gameTime / 1000)}s
+                </motion.span>
+              </div>
+            </motion.div>
 
-        <div
-          style={{ textAlign: "center", marginTop: "20px", fontSize: "14px" }}
-        >
-          Segure ESPAÇO ou clique para subir a barra verde.
-          <br />
-          Mantenha o peixe na barra!
-        </div>
-      </div>
-    </div>
+            {/* Progress Bar */}
+            <div className="space-y-2">
+              <div className="flex justify-between text-xs font-medium text-gray-600">
+                <motion.span
+                  animate={
+                    progressGain
+                      ? {
+                          scale: [1, 1.1, 1],
+                          color: ["#374151", "#10b981", "#374151"],
+                        }
+                      : {}
+                  }
+                  transition={{ duration: 0.3 }}
+                >
+                  Captura
+                </motion.span>
+                <motion.span
+                  animate={progressGain ? { scale: [1, 1.2, 1] } : {}}
+                  transition={{ duration: 0.3 }}
+                  className={progress > 75 ? "text-green-600 font-bold" : ""}
+                >
+                  {Math.round(progress)}%
+                </motion.span>
+              </div>
+              <div className="relative w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+                <motion.div
+                  className={`h-full transition-all duration-300 ease-out rounded-full relative ${
+                    progress > 75
+                      ? "bg-gradient-to-r from-green-500 to-emerald-600"
+                      : progress > 50
+                        ? "bg-gradient-to-r from-yellow-400 to-orange-500"
+                        : progress > 25
+                          ? "bg-gradient-to-r from-orange-400 to-red-500"
+                          : "bg-gradient-to-r from-red-500 to-pink-600"
+                  }`}
+                  style={{ width: `${progress}%` }}
+                  animate={
+                    progressGain
+                      ? {
+                          boxShadow: [
+                            "0 0 0 rgba(16, 185, 129, 0)",
+                            "0 0 20px rgba(16, 185, 129, 0.8)",
+                            "0 0 0 rgba(16, 185, 129, 0)",
+                          ],
+                        }
+                      : {}
+                  }
+                  transition={{ duration: 0.4 }}
+                >
+                  <div className="h-full w-full bg-white/30 animate-pulse"></div>
+                  {/* Sparkle effect */}
+                  {progressGain && (
+                    <motion.div
+                      className="absolute right-0 top-0 w-2 h-2 bg-white rounded-full"
+                      initial={{ scale: 0, x: 0 }}
+                      animate={{ scale: [0, 1, 0], x: [0, 10, 20] }}
+                      transition={{ duration: 0.6 }}
+                    />
+                  )}
+                </motion.div>
+                {/* Progress milestone markers */}
+                {[25, 50, 75].map((milestone) => (
+                  <div
+                    key={milestone}
+                    className={`absolute top-0 w-px h-full bg-white/50 ${
+                      progress >= milestone ? "opacity-100" : "opacity-30"
+                    }`}
+                    style={{ left: `${milestone}%` }}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Game Area */}
+            <div className="flex justify-center">
+              <div className="relative w-20 h-80 bg-gradient-to-b from-blue-200 via-blue-300 to-blue-500 rounded-2xl border-4 border-blue-600 shadow-inner overflow-hidden">
+                {/* Water Animation */}
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/10 to-white/20 animate-pulse"></div>
+
+                {/* Peixe */}
+                <motion.div
+                  className="absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+                  style={{ top: `${fishPosition}%` }}
+                  animate={
+                    fishInBar
+                      ? {
+                          scale: [1, 1.1, 1],
+                          rotate: [0, -5, 5, 0],
+                        }
+                      : {}
+                  }
+                  transition={{
+                    duration: 0.5,
+                    repeat: fishInBar ? Infinity : 0,
+                  }}
+                >
+                  <div className="relative">
+                    <motion.div
+                      className={`w-12 h-6 rounded-full border-2 shadow-lg flex items-center justify-center ${
+                        fishInBar
+                          ? "bg-gradient-to-r from-yellow-400 to-orange-500 border-yellow-600"
+                          : "bg-gradient-to-r from-orange-400 to-red-500 border-orange-600"
+                      }`}
+                      animate={
+                        fishInBar
+                          ? {
+                              boxShadow: [
+                                "0 0 0 rgba(251, 191, 36, 0)",
+                                "0 0 15px rgba(251, 191, 36, 0.8)",
+                                "0 0 0 rgba(251, 191, 36, 0)",
+                              ],
+                            }
+                          : {}
+                      }
+                      transition={{
+                        duration: 0.6,
+                        repeat: fishInBar ? Infinity : 0,
+                      }}
+                    >
+                      <span className="text-sm">🐟</span>
+                    </motion.div>
+
+                    {/* Bubble effects */}
+                    <motion.div
+                      className="absolute -top-2 -right-1 w-2 h-2 bg-white/60 rounded-full"
+                      animate={{ y: [-2, -8, -2], opacity: [0.6, 0, 0.6] }}
+                      transition={{ duration: 1.5, repeat: Infinity }}
+                    />
+                    <motion.div
+                      className="absolute -top-1 -left-2 w-1.5 h-1.5 bg-white/40 rounded-full"
+                      animate={{ y: [-1, -6, -1], opacity: [0.4, 0, 0.4] }}
+                      transition={{
+                        duration: 1.8,
+                        repeat: Infinity,
+                        delay: 0.3,
+                      }}
+                    />
+
+                    {/* Success particles */}
+                    {fishInBar && (
+                      <>
+                        {[...Array(3)].map((_, i) => (
+                          <motion.div
+                            key={i}
+                            className="absolute w-1 h-1 bg-yellow-400 rounded-full"
+                            style={{
+                              top: "50%",
+                              left: "50%",
+                            }}
+                            initial={{ scale: 0, x: 0, y: 0 }}
+                            animate={{
+                              scale: [0, 1, 0],
+                              x: [0, (Math.random() - 0.5) * 20],
+                              y: [0, (Math.random() - 0.5) * 20],
+                            }}
+                            transition={{
+                              duration: 0.8,
+                              repeat: Infinity,
+                              delay: i * 0.2,
+                            }}
+                          />
+                        ))}
+                      </>
+                    )}
+                  </div>
+                </motion.div>
+
+                {/* Barra do jogador */}
+                <motion.div
+                  className={`absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-xl border-3 shadow-lg transition-all duration-100 ${
+                    fishInBar
+                      ? "bg-gradient-to-r from-green-400 to-emerald-500 border-green-600 shadow-green-300/50"
+                      : isHolding
+                        ? "bg-gradient-to-r from-green-300 to-emerald-400 border-green-500 shadow-green-300/40"
+                        : "bg-gradient-to-r from-emerald-300 to-green-400 border-emerald-500 shadow-emerald-300/30"
+                  }`}
+                  style={{
+                    top: `${barPosition}%`,
+                    width: "52px",
+                    height: `${barSize}%`,
+                    minHeight: "24px",
+                  }}
+                  animate={
+                    fishInBar
+                      ? {
+                          boxShadow: [
+                            "0 0 0 rgba(34, 197, 94, 0)",
+                            "0 0 20px rgba(34, 197, 94, 0.9)",
+                            "0 0 0 rgba(34, 197, 94, 0)",
+                          ],
+                        }
+                      : {}
+                  }
+                  transition={{
+                    duration: 0.5,
+                    repeat: fishInBar ? Infinity : 0,
+                  }}
+                >
+                  <div className="h-full w-full bg-white/30 rounded-lg relative overflow-hidden">
+                    {/* Energy bar effect */}
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent"
+                      animate={isHolding ? { x: [-100, 100] } : {}}
+                      transition={{
+                        duration: 0.8,
+                        repeat: isHolding ? Infinity : 0,
+                      }}
+                    />
+                  </div>
+                </motion.div>
+
+                {/* Depth lines */}
+                {[20, 40, 60, 80].map((depth) => (
+                  <div
+                    key={depth}
+                    className="absolute left-0 right-0 h-px bg-white/20"
+                    style={{ top: `${depth}%` }}
+                  ></div>
+                ))}
+              </div>
+            </div>
+
+            {/* Controls */}
+            <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-4 text-center space-y-2">
+              <div className="flex items-center justify-center space-x-2">
+                <div
+                  className={`px-3 py-1 rounded-full text-xs font-medium ${
+                    isHolding
+                      ? "bg-green-500 text-white shadow-lg"
+                      : "bg-gray-200 text-gray-600"
+                  }`}
+                >
+                  {isHolding ? "⬆️ SUBINDO" : "⬇️ DESCENDO"}
+                </div>
+              </div>
+              <p className="text-sm text-gray-600">
+                <span className="font-semibold">ESPAÇO</span> ou{" "}
+                <span className="font-semibold">CLIQUE</span> para subir a barra
+              </p>
+            </div>
+          </div>
+
+          {/* Success/Failure Overlay */}
+          <AnimatePresence>
+            {gameResult !== "playing" && (
+              <motion.div
+                className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm rounded-3xl"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                <motion.div
+                  className={`text-center p-6 rounded-2xl ${
+                    gameResult === "success"
+                      ? "bg-green-500 text-white"
+                      : "bg-red-500 text-white"
+                  }`}
+                  initial={{ scale: 0, rotate: -180 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 400,
+                    damping: 15,
+                    delay: 0.2,
+                  }}
+                >
+                  <motion.div
+                    className="text-4xl mb-2"
+                    animate={{
+                      scale: [1, 1.2, 1],
+                      rotate: [0, 10, -10, 0],
+                    }}
+                    transition={{
+                      duration: 0.8,
+                      repeat: Infinity,
+                      repeatType: "reverse",
+                    }}
+                  >
+                    {gameResult === "success" ? "🎉" : "😞"}
+                  </motion.div>
+                  <h3 className="text-xl font-bold mb-1">
+                    {gameResult === "success"
+                      ? "Peixe Capturado!"
+                      : "Peixe Escapou!"}
+                  </h3>
+                  <p className="text-sm opacity-90">
+                    {gameResult === "success"
+                      ? "Parabéns! Você conseguiu!"
+                      : "Tente novamente da próxima vez!"}
+                  </p>
+
+                  {/* Celebration particles for success */}
+                  {gameResult === "success" && (
+                    <>
+                      {[...Array(8)].map((_, i) => (
+                        <motion.div
+                          key={i}
+                          className="absolute w-2 h-2 bg-yellow-300 rounded-full"
+                          style={{
+                            top: "50%",
+                            left: "50%",
+                          }}
+                          initial={{ scale: 0, x: 0, y: 0 }}
+                          animate={{
+                            scale: [0, 1, 0],
+                            x: [0, Math.cos((i / 8) * Math.PI * 2) * 60],
+                            y: [0, Math.sin((i / 8) * Math.PI * 2) * 60],
+                          }}
+                          transition={{
+                            duration: 1.5,
+                            repeat: Infinity,
+                            delay: i * 0.1,
+                          }}
+                        />
+                      ))}
+                    </>
+                  )}
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
   );
 };
 
@@ -1837,10 +2245,24 @@ export const FishingScreenModular: React.FC = () => {
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
 
   const [showMinigame, setShowMinigame] = useState(false);
+
+  useEffect(() => {
+    console.log("🎮 showMinigame state changed:", showMinigame);
+  }, [showMinigame]);
+
+  // Helper function para redefinir o callback onGameStart
+  const redefineGameStartCallback = () => {
+    if (waterEffectRef.current) {
+      waterEffectRef.current.onGameStart = () => {
+        console.log("🎮 Triggering minigame - setShowMinigame(true)");
+        setShowMinigame(true);
+      };
+    }
+  };
   const [fishingSettings, setFishingSettings] =
     useState<FishingSettings | null>(null);
   const [isUpdatingSettings, setIsUpdatingSettings] = useState(false);
-  const [editMode, setEditMode] = useState(false); // Modo de edição da área da água
+  const [editMode, setEditMode] = useState(false); // Modo de edição da ��rea da água
   const [isShiftPressed, setIsShiftPressed] = useState(false);
 
   const isAdmin = user?.isAdmin || false;
@@ -1862,9 +2284,8 @@ export const FishingScreenModular: React.FC = () => {
     const timer = setTimeout(() => {
       try {
         const waterEffect = new ModularWaterEffect(waterArea, isAdmin);
-        waterEffect.onGameStart = () => {
-          setShowMinigame(true);
-        };
+        waterEffectRef.current = waterEffect;
+        redefineGameStartCallback();
 
         // NOVA LÓGICA: Clique em QUALQUER LUGAR da tela durante mordida
         globalClickHandler = (e: MouseEvent) => {
@@ -1901,8 +2322,6 @@ export const FishingScreenModular: React.FC = () => {
             img.src = fishingSettings.backgroundImageUrl;
           }
         }
-
-        waterEffectRef.current = waterEffect;
       } catch (error) {
         console.error("Error initializing ModularWaterEffect:", error);
       }
@@ -2265,6 +2684,8 @@ export const FishingScreenModular: React.FC = () => {
             // Resetar posição do anzol para indicar que foi recolhido
             waterEffectRef.current.hookPosition = { x: 0.5, y: 0.5 };
             waterEffectRef.current.resetFishingGame();
+            // Redefinir callback onGameStart
+            redefineGameStartCallback();
           }
         }}
       />
@@ -2338,7 +2759,7 @@ export const FishingScreenModular: React.FC = () => {
               borderRadius: "5px",
             }}
           >
-            �� <strong>Reposicionar área:</strong> Segure{" "}
+            ��� <strong>Reposicionar área:</strong> Segure{" "}
             <kbd
               style={{
                 background: "#e0e0e0",
@@ -2598,6 +3019,8 @@ export const FishingScreenModular: React.FC = () => {
             // Sucesso ou falha, apenas fecha o minigame
             if (waterEffectRef.current) {
               waterEffectRef.current.resetFishingGame();
+              // IMPORTANTE: Redefinir o callback onGameStart após o reset
+              redefineGameStartCallback();
             }
           }}
         />
@@ -2636,7 +3059,7 @@ export const FishingScreenModular: React.FC = () => {
             <p
               style={{ color: "#666", marginBottom: "30px", fontSize: "16px" }}
             >
-              Parabéns! Você conseguiu fisgar um peixe na área da água.
+              Parab��ns! Você conseguiu fisgar um peixe na área da água.
             </p>
 
             <div

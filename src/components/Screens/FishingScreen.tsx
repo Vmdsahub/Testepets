@@ -11,6 +11,9 @@ import { FishingRod } from "../Game/FishingRod";
 // WebGL Water Effect Class - With 60% coverage mask
 class WaterEffect {
   constructor() {
+    // Inicializar activeTimers PRIMEIRO para evitar undefined
+    this.activeTimers = [];
+
     this.canvas = document.getElementById("waterCanvas");
 
     if (!this.canvas) {
@@ -245,7 +248,7 @@ class WaterEffect {
                 // Clamp UV para evitar problemas de renderização
                 fishUV = clamp(fishUV, 0.0, 1.0);
 
-                // Verifica se est�� na área do peixe e na área da água
+                // Verifica se est���� na área do peixe e na área da água
                 if (fishUV.x >= 0.0 && fishUV.x <= 1.0 && fishUV.y >= 0.0 && fishUV.y <= 1.0 && coords.y > 0.4) {
                     vec4 fishColor = texture2D(u_fishTexture, fishUV);
                     if (fishColor.a > 0.1) {
@@ -267,7 +270,7 @@ class WaterEffect {
                 // Este movimento será calculado no JavaScript e passado para o shader
                 // O shader apenas interpola entre as posições calculadas pelo sistema de steering
 
-                // Posição natural será sobrescrita pelo sistema JavaScript
+                // Posiç��o natural será sobrescrita pelo sistema JavaScript
                 float naturalFishX = 0.5;
                 float naturalFishY = 0.7;
 
@@ -326,7 +329,7 @@ class WaterEffect {
                 // Adiciona um leve tint azulado para simular água
                 waterColor = mix(waterColor, waterColor * vec3(0.9, 0.95, 1.1), 0.3 * waterMask);
                 
-                // Adiciona ondulação da superfície
+                // Adiciona ondulaç��o da superfície
                 float surfaceWave = createWaves(uv, u_time) * 0.1 * waterMask + 0.9;
                 waterColor *= surfaceWave;
                 
@@ -727,6 +730,16 @@ class WaterEffect {
       "https://cdn.builder.io/api/v1/image/assets%2Fae8512d3d0df4d1f8f1504a06406c6ba%2F62141810443b4226b05ad6c4f3dcd94e?format=webp&width=800";
   }
 
+  // Verificar se o anzol está dentro da área de água
+  isHookInWater() {
+    const hookX = this.hookPosition.x;
+    const hookY = this.hookPosition.y;
+
+    // FishingScreen usa sistema simples: 60% da tela é água (waterLevel = 0.6)
+    // No sistema original, y > 0.6 significa água
+    return hookY > 0.6;
+  }
+
   // Métodos do jogo de pesca
   startFishingGame(hookX, hookY) {
     console.log("Starting fishing game at", hookX, hookY);
@@ -818,7 +831,7 @@ class WaterEffect {
       y: this.fishPosition.y + directionY * this.wanderDistance,
     };
 
-    // Atualizar ângulo de wandering com variação ultra suave
+    // Atualizar ��ngulo de wandering com variação ultra suave
     this.wanderAngle +=
       (Math.random() - 0.5) * this.wanderJitter * deltaTime * 0.0005; // Ultra suave para reduzir oscilações
 
@@ -971,19 +984,31 @@ class WaterEffect {
       }
 
       if (elapsedTime >= this.fishReactionDelay) {
+        // VERIFICAÇÃO: Anzol deve estar na água para peixe reagir
+        if (!this.isHookInWater()) {
+          console.log("🎣 Hook is not in water - fish will not react");
+          this.resetFishingGame(); // Reset se anzol não estiver na água
+          return;
+        }
+
         // Usar posição atual do sistema de steering behaviors
         const currentFishX = this.fishPosition.x;
         const currentFishY = this.fishPosition.y;
 
         // Mudar estado para reação - o sistema de steering behaviors cuidará do movimento
         this.gameState = "fish_reacting";
+        console.log(
+          `🎣 Fish reacting! Hook at (${this.hookPosition.x.toFixed(3)}, ${this.hookPosition.y.toFixed(3)}) - Hook in water: ${this.isHookInWater()}`,
+        );
 
         // Começar movimento suave após breve pausa
-        setTimeout(() => {
+        const reactionTimer = setTimeout(() => {
           if (this.gameState === "fish_reacting") {
             this.gameState = "fish_moving";
           }
         }, 500);
+        if (!this.activeTimers) this.activeTimers = [];
+        this.activeTimers.push(reactionTimer);
 
         // Debug: verificar se posição JS bate com shader
         console.log(
@@ -1043,6 +1068,15 @@ class WaterEffect {
       this.gameState === "fish_reacting" ||
       this.gameState === "fish_moving"
     ) {
+      // VERIFICAÇÃO CONTÍNUA: Se anzol saiu da água durante movimento, resetar
+      if (!this.isHookInWater()) {
+        console.log(
+          "🎣 Hook removed from water during fish movement - resetting",
+        );
+        this.resetFishingGame();
+        return;
+      }
+
       // Verificar se o peixe chegou próximo ao anzol usando posição do steering system
       const dx = this.hookPosition.x - this.fishPosition.x;
       const dy = this.hookPosition.y - this.fishPosition.y;
@@ -1061,15 +1095,26 @@ class WaterEffect {
           );
         }
       } else {
+        // VERIFICAÇÃO: Anzol deve estar na água para peixe ser fisgado
+        if (!this.isHookInWater()) {
+          console.log(
+            "🎣 Fish reached hook position but hook is not in water - resetting",
+          );
+          this.resetFishingGame();
+          return;
+        }
+
         // Peixe chegou ao anzol
         this.gameState = "fish_hooked";
         this.exclamationTime = 1000; // mostrar exclamação por 1 segundo
         this.exclamationStartTime = Date.now();
         this.canClickExclamation = true;
-        console.log("Fish hooked! Starting exclamation timer.");
+        console.log(
+          `🎣 Fish hooked! Hook at (${this.hookPosition.x.toFixed(3)}, ${this.hookPosition.y.toFixed(3)}) - Hook in water: ${this.isHookInWater()} - Starting exclamation timer.`,
+        );
 
         // Timer de 1 segundo - se não clicar, voltar ao movimento natural
-        setTimeout(() => {
+        const hookedTimer = setTimeout(() => {
           if (this.gameState === "fish_hooked" && this.canClickExclamation) {
             console.log(
               "Player didn't click exclamation in time - fish returns to natural movement",
@@ -1077,8 +1122,19 @@ class WaterEffect {
             this.resetFishingGame();
           }
         }, 1000);
+        if (!this.activeTimers) this.activeTimers = [];
+        this.activeTimers.push(hookedTimer);
       }
     } else if (this.gameState === "fish_hooked") {
+      // VERIFICAÇÃO CONTÍNUA: Se anzol saiu da água durante fish_hooked, resetar imediatamente
+      if (!this.isHookInWater()) {
+        console.log(
+          "🎣 Hook removed from water while fish hooked - resetting immediately",
+        );
+        this.resetFishingGame();
+        return;
+      }
+
       if (this.exclamationTime > 0) {
         this.exclamationTime -= 16;
 
@@ -1092,6 +1148,17 @@ class WaterEffect {
   }
 
   resetFishingGame() {
+    // Limpar todos os timers ativos para evitar comportamentos persistentes
+    if (this.activeTimers) {
+      this.activeTimers.forEach((timer) => clearTimeout(timer));
+      this.activeTimers = [];
+      console.log("🧹 Cleared all active timers");
+    } else {
+      // Inicializar se não existe
+      this.activeTimers = [];
+      console.log("🧹 Initialized activeTimers array");
+    }
+
     // Se o peixe estava em estado direcionado, ajustar fishTime para continuar da posição atual
     if (
       this.gameState === "fish_moving" ||
@@ -1127,11 +1194,20 @@ class WaterEffect {
     }
 
     // Verificar se o anzol ainda está na água para permitir novo interesse
-    const hookInWater =
-      this.hookPosition.x !== 0.5 || this.hookPosition.y !== 0.5;
+    const hookInWater = this.isHookInWater();
+    console.log(
+      `🔄 RESET DEBUG - Hook position: (${this.hookPosition.x.toFixed(3)}, ${this.hookPosition.y.toFixed(3)}) - isHookInWater: ${hookInWater}`,
+    );
 
-    if (hookInWater) {
-      // Se o anzol ainda estiver na água, voltar ao estado hook_cast para nova tentativa
+    // CORREÇÃO: Só reagir novamente se o anzol foi genuinamente lançado pela vara
+    // e não apenas está na posição de água por acaso
+    const wasProperlyReset =
+      this.hookPosition.x === 0.5 && this.hookPosition.y === 0.5;
+
+    if (hookInWater && !wasProperlyReset) {
+      console.log(
+        "🎣 Hook still in water after genuine cast - will schedule new reaction",
+      );
       this.gameState = "hook_cast";
       this.fishReactionDelay = 3000 + Math.random() * 6000; // 3-9 segundos para nova tentativa
       this.fishReactionStartTime = Date.now();
@@ -1139,9 +1215,10 @@ class WaterEffect {
         `🎣 Fish will try again in ${(this.fishReactionDelay / 1000).toFixed(1)}s since hook is still in water`,
       );
     } else {
-      // Se não, voltar ao estado idle e resetar posição do anzol
+      // Se não, voltar ao estado idle e garantir reset completo
+      console.log("🔄 Complete reset - hook removed from water");
       this.gameState = "idle";
-      this.hookPosition = { x: 0.5, y: 0.5 };
+      this.hookPosition = { x: 0.5, y: 0.5 }; // Garantir reset da posição
       this.fishReactionStartTime = 0;
       this.fishReactionDelay = 0;
     }
