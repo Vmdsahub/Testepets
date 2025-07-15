@@ -1677,6 +1677,13 @@ export const FishingScreen: React.FC = () => {
 
       {/* Fishing Rod Component */}
       <FishingRod
+        waterArea={{
+          x: 0,
+          y: 0.6, // 60% da altura da tela (waterLevel original)
+          width: 1,
+          height: 0.4, // 40% restante da altura
+          shape: "rectangle",
+        }}
         onHookCast={(x, y) => {
           // Converter coordenadas de pixel para UV (0-1)
           const uvX = x / window.innerWidth;
