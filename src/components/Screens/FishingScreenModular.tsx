@@ -970,7 +970,7 @@ class ModularWaterEffect {
       }
 
       // Aplicar força de direção suavemente à velocidade
-      const acceleration = 0.00004; // Aceleração mais responsiva
+      const acceleration = 0.00002; // Aceleração mais suave e lenta
       this.fishVelocity.x += targetDirection.x * acceleration;
       this.fishVelocity.y += targetDirection.y * acceleration;
 
