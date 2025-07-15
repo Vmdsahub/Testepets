@@ -363,6 +363,7 @@ class FishingSystem {
         castSpeed: 0.012 + i * 0.001,
         castDelay: i * 30,
         inWater: false,
+        wasInWater: false,
         reelProgress: 0,
         settled: false,
         settledX: 0,
