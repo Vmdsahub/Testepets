@@ -1156,6 +1156,13 @@ class ModularWaterEffect {
     if (this.gameState === "hook_cast") {
       const elapsedTime = Date.now() - this.fishReactionStartTime;
       if (elapsedTime >= this.fishReactionDelay) {
+        // VERIFICAÇÃO: Anzol deve estar na água para peixe reagir
+        if (!this.isHookInWater()) {
+          console.log("🎣 Hook is not in water - fish will not react");
+          this.resetFishingGame(); // Reset se anzol não estiver na água
+          return;
+        }
+
         // Capturar posição atual e começar reação
         this.gameState = "fish_reacting";
         console.log(
