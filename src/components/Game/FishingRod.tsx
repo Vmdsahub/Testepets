@@ -290,6 +290,7 @@ class FishingSystem {
   private castLine(x: number, y: number) {
     this.isLineOut = true;
     this.castStartTime = Date.now();
+    this.hookCastCallbackCalled = false; // Resetar para novo lançamento
 
     // Calcular força baseada no tempo de carregamento
     const chargeTime = Date.now() - this.chargeStartTime;
