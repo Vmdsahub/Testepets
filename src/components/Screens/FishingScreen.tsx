@@ -43,7 +43,7 @@ class WaterEffect {
     this.fishTime = 0;
 
     // Sistema de Steering Behaviors para movimento orgânico
-    this.fishPosition = { x: 0.5, y: 0.7 }; // Posição atual
+    this.fishPosition = { x: 0.5, y: 0.7 }; // Posiç��o atual
     this.fishVelocity = { x: 0, y: 0 }; // Velocidade atual
     this.fishAcceleration = { x: 0, y: 0 }; // Aceleração
     this.wanderTarget = { x: 0.6, y: 0.8 }; // Alvo de wandering
@@ -335,13 +335,13 @@ class WaterEffect {
                 
                                                                                                 // Adicionar exclamação com imagem fornecida
                 if (u_showExclamation > 0.0 && u_gameState >= 4.0) { // fish_hooked
-                    vec2 exclamationPos = vec2(fishX, fishY - 0.08); // Acima do peixe
+                                        vec2 exclamationPos = vec2(fishX, fishY - 0.04); // Acima do peixe
 
                     // Pulsação da exclamação para chamar atenção
-                    float pulse = 0.9 + 0.1 * sin(u_time * 8.0);
+                    float pulse = 0.95 + 0.05 * sin(u_time * 8.0);
 
-                    // Tamanho da exclamação
-                    vec2 exclamationSize = vec2(0.08, 0.12) * pulse;
+                    // Tamanho da exclamação (menor)
+                    vec2 exclamationSize = vec2(0.03, 0.05) * pulse;
 
                     // Calcular UV da exclamação
                     vec2 exclamationUV = (uv - exclamationPos + exclamationSize * 0.5) / exclamationSize;
@@ -351,14 +351,14 @@ class WaterEffect {
                         // Simular a imagem de exclamação amarela fornecida
                         vec2 localPos = exclamationUV * 2.0 - 1.0; // Converter para -1 a 1
 
-                        // Corpo da exclamação (parte comprida)
-                        float bodyWidth = 0.3;
-                        float bodyHeight = 1.4;
-                        bool inBody = abs(localPos.x) < bodyWidth && localPos.y > -0.6 && localPos.y < 0.8;
+                        // Corpo da exclamação (parte comprida) - ajustado
+                        float bodyWidth = 0.25;
+                        float bodyHeight = 1.0;
+                        bool inBody = abs(localPos.x) < bodyWidth && localPos.y > -0.4 && localPos.y < 0.6;
 
-                        // Ponto da exclamação (parte pequena embaixo)
-                        float dotSize = 0.35;
-                        bool inDot = length(localPos - vec2(0.0, -1.2)) < dotSize;
+                        // Ponto da exclamação (parte pequena embaixo) - ajustado
+                        float dotSize = 0.25;
+                        bool inDot = length(localPos - vec2(0.0, -0.8)) < dotSize;
 
                         if (inBody || inDot) {
                             // Cor amarela/dourada da exclamação
@@ -1133,7 +1133,7 @@ class WaterEffect {
   }
 
   adjustFishTimeToPosition(targetX, targetY) {
-    // Calcular qual fishTime resultaria na posiç��o desejada
+    // Calcular qual fishTime resultaria na posição desejada
     // Usar busca iterativa refinada em três fases para maior precisão
 
     let bestOffset = 0;
