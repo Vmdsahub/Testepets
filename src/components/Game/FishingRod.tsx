@@ -41,6 +41,7 @@ class FishingSystem {
     castSpeed: number;
     castDelay: number;
     inWater: boolean;
+    wasInWater: boolean; // Para detectar quando acabou de entrar na água
     reelProgress: number;
     settled: boolean;
     settledX: number;
