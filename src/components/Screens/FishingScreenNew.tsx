@@ -103,8 +103,11 @@ export const FishingScreenNew: React.FC = () => {
       const hookX = hook.x / window.innerWidth;
       const hookY = hook.y / window.innerHeight;
 
+      // Offset da boca em coordenadas normalizadas (30 pixels = raio da elipse)
+      const mouthOffsetX = 30 / window.innerWidth; // Converter 30px para coordenadas normalizadas
+
       // Posição alvo do centro do peixe (anzol + offset da boca)
-      const targetCenterX = hookX + 0.03; // Boca fica 0.03 à ESQUERDA do centro
+      const targetCenterX = hookX + mouthOffsetX; // Boca fica à ESQUERDA do centro
       const targetCenterY = hookY; // Boca no mesmo Y do centro
 
       // Distância do centro atual para a posição alvo
