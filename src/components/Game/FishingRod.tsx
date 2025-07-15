@@ -835,7 +835,14 @@ export const FishingRod: React.FC<FishingRodProps> = ({
         fishingSystemRef.current.destroy();
       }
     };
-  }, []);
+  }, [onHookCast, onLineReeled]);
+
+  // UseEffect separado para atualizar waterArea quando ela mudar
+  useEffect(() => {
+    if (fishingSystemRef.current) {
+      fishingSystemRef.current.updateWaterArea(waterArea);
+    }
+  }, [waterArea]);
 
   return (
     <canvas
