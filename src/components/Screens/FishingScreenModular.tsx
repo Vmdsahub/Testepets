@@ -340,12 +340,27 @@ class ModularWaterEffect {
 
         // === SISTEMA DE ROTAÇÃO NATURAL ===
 
-                                                                                // === ORIENTAÇÃO NATURAL DO PEIXE ===
+                                                                                        // === ORIENTAÇÃO ESTILO EVO FISH ===
 
-        // Calcular direção do movimento principal (componente dominante)
-        float velocityX = cos(waveTime * 0.4) * 0.4 * swimSpeed * areaW * 0.35;
-        velocityX += cos(waveTime * 1.2) * 1.2 * swimSpeed * areaW * 0.08;
-        velocityX += cos(waveTime * 0.08) * 0.08 * swimSpeed * areaW * 0.2;
+        // Calcular direção baseada no movimento de trajetória principal
+        float velocityX = 0.0;
+
+        // Derivada da trajetória curva principal
+        for(int i = 0; i < 3; i++) {
+            float frequency = 0.3 + float(i) * 0.15;
+            float amplitude = 0.25 - float(i) * 0.08;
+            velocityX += cos(t * frequency + float(i)) * frequency * amplitude * targetDirectionX * swimSpeed;
+        }
+
+        // Adicionar componente de deriva
+        velocityX += cos(t * 0.05) * 0.05 * swimSpeed * 0.4;
+        velocityX += -sin(t * 0.03) * 0.03 * swimSpeed * 0.2;
+
+        // Adicionar variação de cauda
+        velocityX += cos(t * 2.5) * 2.5 * swimSpeed * 0.06;
+
+        // Aplicar variação de velocidade
+        velocityX *= speedVariation;
 
         float fishAngle = 0.0;
 
