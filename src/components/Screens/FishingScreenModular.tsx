@@ -1288,6 +1288,22 @@ class ModularWaterEffect {
     ctx.fillStyle = "#fff";
     ctx.font = "16px Arial";
     ctx.fillText("BOCA", mouthX - 20, mouthY - 40);
+
+    // Desenhar texto "Fisgado!" se necessário
+    if (this.showFisgadoText) {
+      ctx.fillStyle = "#FFD700";
+      ctx.font = "bold 24px Arial";
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 2;
+
+      const text = "Fisgado!";
+      const textMetrics = ctx.measureText(text);
+      const textX = fishPixelX - textMetrics.width / 2;
+      const textY = fishPixelY - 60;
+
+      ctx.strokeText(text, textX, textY);
+      ctx.fillText(text, textX, textY);
+    }
   }
 
   render() {
