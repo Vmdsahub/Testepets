@@ -500,14 +500,14 @@ class ModularWaterEffect {
             vibrationOffset.y = cos(u_time * 47.0) * vibrationIntensity;
           }
 
-          // Posição da exclamação (ligeiramente acima do peixe, mas seguindo vibração)
-          vec2 exclamationPos = vec2(fishX + vibrationOffset.x, fishY + vibrationOffset.y - 0.06);
+                    // Posição da exclamação (ligeiramente acima do peixe, mas seguindo vibração)
+          vec2 exclamationPos = vec2(fishX + vibrationOffset.x, fishY + vibrationOffset.y - 0.04);
 
           // Pulsação suave para chamar atenção
-          float pulse = 0.9 + 0.1 * sin(u_time * 8.0);
+          float pulse = 0.95 + 0.05 * sin(u_time * 8.0);
 
-          // Tamanho da exclamação
-          vec2 exclamationSize = vec2(0.08, 0.12) * pulse;
+          // Tamanho da exclamação (menor)
+          vec2 exclamationSize = vec2(0.03, 0.05) * pulse;
 
           // Calcular UV da exclamação
           vec2 exclamationUV = (uv - exclamationPos + exclamationSize * 0.5) / exclamationSize;
@@ -518,14 +518,14 @@ class ModularWaterEffect {
             // Criar forma de exclamação baseada na imagem
             vec2 localPos = exclamationUV * 2.0 - 1.0; // Converter para -1 a 1
 
-            // Corpo da exclamação (parte comprida)
-            float bodyWidth = 0.3;
-            float bodyHeight = 1.4;
-            bool inBody = abs(localPos.x) < bodyWidth && localPos.y > -0.6 && localPos.y < 0.8;
+            // Corpo da exclamação (parte comprida) - ajustado
+            float bodyWidth = 0.25;
+            float bodyHeight = 1.0;
+            bool inBody = abs(localPos.x) < bodyWidth && localPos.y > -0.4 && localPos.y < 0.6;
 
-            // Ponto da exclamação (parte pequena embaixo)
-            float dotSize = 0.35;
-            bool inDot = length(localPos - vec2(0.0, -1.2)) < dotSize;
+            // Ponto da exclamação (parte pequena embaixo) - ajustado
+            float dotSize = 0.25;
+            bool inDot = length(localPos - vec2(0.0, -0.8)) < dotSize;
 
             if (inBody || inDot) {
               // Cor amarela/dourada da exclamação
