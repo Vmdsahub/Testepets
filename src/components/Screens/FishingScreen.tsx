@@ -727,6 +727,16 @@ class WaterEffect {
       "https://cdn.builder.io/api/v1/image/assets%2Fae8512d3d0df4d1f8f1504a06406c6ba%2F62141810443b4226b05ad6c4f3dcd94e?format=webp&width=800";
   }
 
+  // Verificar se o anzol está dentro da área de água
+  isHookInWater() {
+    const hookX = this.hookPosition.x;
+    const hookY = this.hookPosition.y;
+
+    // FishingScreen usa sistema simples: 60% da tela é água (waterLevel = 0.6)
+    // No sistema original, y > 0.6 significa água
+    return hookY > 0.6;
+  }
+
   // Métodos do jogo de pesca
   startFishingGame(hookX, hookY) {
     console.log("Starting fishing game at", hookX, hookY);
