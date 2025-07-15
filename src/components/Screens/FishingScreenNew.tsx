@@ -99,12 +99,16 @@ export const FishingScreenNew: React.FC = () => {
         targetY: baseY,
       }));
     } else if (fish.state === "moving") {
-      // Movimento em direção ao anzol
-      const dx = hook.x / window.innerWidth - fish.x;
-      const dy = hook.y / window.innerHeight - fish.y;
+      // Movimento em direção ao anzol - mover a boca do peixe para o anzol
+      const fishMouthX = fish.x + 0.03; // Boca fica 30px à direita do centro (em coordenadas normalizadas)
+      const fishMouthY = fish.y; // Boca fica no centro vertical
+
+      const dx = hook.x / window.innerWidth - fishMouthX;
+      const dy = hook.y / window.innerHeight - fishMouthY;
       const distance = Math.sqrt(dx * dx + dy * dy);
 
-      if (distance > 0.01) {
+      if (distance > 0.008) {
+        // Distância menor para colisão mais precisa
         const moveX = (dx / distance) * fish.speed;
         const moveY = (dy / distance) * fish.speed;
 
@@ -114,7 +118,7 @@ export const FishingScreenNew: React.FC = () => {
           y: prev.y + moveY,
         }));
       } else {
-        // Chegou ao anzol
+        // Boca chegou ao anzol
         setFish((prev) => ({ ...prev, state: "hooked" }));
         setShowFishingModal(true);
       }
@@ -130,23 +134,30 @@ export const FishingScreenNew: React.FC = () => {
     // Verificar se o anzol caiu na área da água
     const isInWater = isPointInWaterArea(x, y);
     if (isInWater) {
-      // Iniciar reação do peixe após delay aleatório
-      const reactionDelay = 2000 + Math.random() * 5000; // 2-7 segundos
+      // Verificar se o peixe também está na água
+      const fishPixelX = fish.x * window.innerWidth;
+      const fishPixelY = fish.y * window.innerHeight;
+      const isFishInWater = isPointInWaterArea(fishPixelX, fishPixelY);
 
-      setTimeout(() => {
-        setFish((prev) => ({
-          ...prev,
-          state: "reacting",
-        }));
+      if (isFishInWater) {
+        // Iniciar reação do peixe após delay aleatório
+        const reactionDelay = 2000 + Math.random() * 5000; // 2-7 segundos
 
-        // Após breve reação, começar movimento
         setTimeout(() => {
           setFish((prev) => ({
             ...prev,
-            state: "moving",
+            state: "reacting",
           }));
-        }, 1000);
-      }, reactionDelay);
+
+          // Após breve reação, começar movimento
+          setTimeout(() => {
+            setFish((prev) => ({
+              ...prev,
+              state: "moving",
+            }));
+          }, 1000);
+        }, reactionDelay);
+      }
     }
   };
 
@@ -234,12 +245,28 @@ export const FishingScreenNew: React.FC = () => {
     ctx.ellipse(fishPixelX, fishPixelY, 30, 20, 0, 0, 2 * Math.PI);
     ctx.fill();
 
-    // Cauda do peixe
+    // Cauda do peixe (à esquerda)
     ctx.beginPath();
     ctx.moveTo(fishPixelX - 25, fishPixelY);
     ctx.lineTo(fishPixelX - 45, fishPixelY - 15);
     ctx.lineTo(fishPixelX - 45, fishPixelY + 15);
     ctx.closePath();
+    ctx.fill();
+
+    // Boca do peixe (à direita) - indicador visual
+    ctx.fillStyle = fish.state === "moving" ? "#ff0000" : "#333";
+    ctx.beginPath();
+    ctx.arc(fishPixelX + 30, fishPixelY, 3, 0, 2 * Math.PI);
+    ctx.fill();
+
+    // Olho do peixe
+    ctx.fillStyle = "#fff";
+    ctx.beginPath();
+    ctx.arc(fishPixelX + 10, fishPixelY - 5, 4, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.fillStyle = "#000";
+    ctx.beginPath();
+    ctx.arc(fishPixelX + 12, fishPixelY - 5, 2, 0, 2 * Math.PI);
     ctx.fill();
 
     // 3. Área da água (acima do peixe)
