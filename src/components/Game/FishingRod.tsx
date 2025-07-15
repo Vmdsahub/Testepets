@@ -184,7 +184,7 @@ class FishingSystem {
           relX >= x && relX <= x + width && relY >= y && relY <= y + height
         );
 
-      case "circle":
+      case "circle": {
         const centerX = x + width / 2;
         const centerY = y + height / 2;
         const radius = Math.min(width, height) / 2;
@@ -192,8 +192,9 @@ class FishingSystem {
           (relX - centerX) ** 2 + (relY - centerY) ** 2,
         );
         return distance <= radius;
+      }
 
-      case "triangle":
+      case "triangle": {
         // Triângulo: topo centro, base esquerda, base direita
         const tx1 = x + width / 2; // Topo centro
         const ty1 = y;
@@ -217,6 +218,7 @@ class FishingSystem {
         );
 
         return Math.abs(area - (area1 + area2 + area3)) < 0.001;
+      }
 
       default:
         return false;
@@ -636,7 +638,7 @@ class FishingSystem {
       // Flip vertical da imagem
       this.ctx.scale(1, -1);
 
-      // Desenhar a imagem da vara com orientação correta
+      // Desenhar a imagem da vara com orientaç��o correta
       const rodImageLength = 128; // Comprimento definido para 128px
       const rodImageWidth = 120; // Largura definida para 120px
       this.ctx.drawImage(
