@@ -361,7 +361,7 @@ class ModularWaterEffect {
         float mainRadius = min(areaW, areaH) * 0.4;
         float mainAngle = t * 0.8; // Circular mais rápido
 
-        // Posição base do movimento circular
+        // Posi��ão base do movimento circular
         float circleX = cos(mainAngle) * mainRadius;
         float circleY = sin(mainAngle) * mainRadius * 0.7; // Elipse
 
@@ -1776,7 +1776,7 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
     if (gameTime <= 0 && gameResult === "playing") {
       setGameResult("failure");
     }
-  }, [gameTime, gameResult]);
+  }, [gameTime]); // Remover gameResult das dependências para evitar loop
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
