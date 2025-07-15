@@ -189,7 +189,7 @@ class ModularWaterEffect {
         return gradient * u_distortionAmount;
       }
 
-      // Simulação de cáusticas (mantida original)
+      // Simulação de c��usticas (mantida original)
       float calculateCaustics(vec2 uv, float time) {
         vec2 causticsUV = uv * 15.0;
         float caustic1 = abs(sin(causticsUV.x + time * 2.0));
@@ -975,7 +975,7 @@ class ModularWaterEffect {
           Math.pow(this.fishCurrentPosition.y - this.hookPosition.y, 2),
       );
 
-      if (distance < 0.05) {
+      if (distance < 0.03) {
         // Chegou próximo ao anzol
         this.gameState = "fish_hooked";
         this.exclamationTime = 1000;
@@ -1319,7 +1319,7 @@ export const FishingScreenModular: React.FC = () => {
     return () => clearTimeout(timer);
   }, [fishingSettings]);
 
-  // Atualizar área da água no effect
+  // Atualizar ��rea da água no effect
   useEffect(() => {
     if (waterEffectRef.current) {
       waterEffectRef.current.updateWaterArea(waterArea);
@@ -1959,7 +1959,7 @@ export const FishingScreenModular: React.FC = () => {
           <div style={{ fontSize: "12px", color: "#666", marginTop: "10px" }}>
             {isShiftPressed
               ? "🎯 Shift ativo - arraste a área para reposicionar"
-              : "����️ Segure Shift e arraste a área tracejada para reposicionar"}
+              : "��️ Segure Shift e arraste a área tracejada para reposicionar"}
           </div>
         </div>
       )}
