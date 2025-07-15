@@ -1217,23 +1217,23 @@ class ModularWaterEffect {
     // Tamanho do peixe no shader: 0.08 width, 0.06 height
     const fishSizePixelX = 0.08 * overlayCanvas.width;
 
-    // A direção determina onde fica a boca:
-    // fishDirection > 0 = direita, boca fica à esquerda da imagem
-    // fishDirection < 0 = esquerda, boca fica à direita da imagem (peixe virado)
+    // Lógica correta baseada no shader:
+    // fishDirection > 0 = nada para direita, imagem flipada (PI), boca fica à DIREITA
+    // fishDirection < 0 = nada para esquerda, imagem normal (0), boca fica à ESQUERDA
     let mouthOffsetX;
     if (this.fishDirection > 0) {
-      mouthOffsetX = -fishSizePixelX / 2; // Boca à esquerda quando peixe nada para direita
+      mouthOffsetX = fishSizePixelX / 2; // Boca à direita quando peixe nada para direita (flipado)
     } else {
-      mouthOffsetX = fishSizePixelX / 2; // Boca à direita quando peixe nada para esquerda (virado)
+      mouthOffsetX = -fishSizePixelX / 2; // Boca à esquerda quando peixe nada para esquerda (normal)
     }
 
     const mouthX = fishPixelX + mouthOffsetX;
     const mouthY = fishPixelY;
 
-    // Desenhar CÍRCULO ROSA MENOR na posição da boca
+    // Desenhar CÍRCULO ROSA AINDA MENOR na posição da boca
     ctx.fillStyle = "rgba(255, 0, 255, 0.8)";
     ctx.beginPath();
-    ctx.arc(mouthX, mouthY, 15, 0, 2 * Math.PI); // Diminuído de 30 para 15
+    ctx.arc(mouthX, mouthY, 10, 0, 2 * Math.PI); // Diminuído de 15 para 10
     ctx.fill();
 
     // Borda do círculo
