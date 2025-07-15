@@ -798,6 +798,10 @@ class FishingSystem {
     this.render();
   }
 
+  public updateWaterArea(newWaterArea?: WaterArea) {
+    this.waterArea = newWaterArea;
+  }
+
   public destroy() {
     // Cleanup se necessário
   }
