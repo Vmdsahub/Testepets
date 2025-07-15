@@ -312,35 +312,29 @@ class ModularWaterEffect {
 
         // === SISTEMA DE ROTAÇÃO NATURAL ===
 
-                        // === ORIENTAÇÃO BASEADA NA DIREÇÃO REAL DO MOVIMENTO ===
+                                // === ORIENTAÇÃO CORRETA BASEADA NA VELOCIDADE ===
 
-        // Calcular direção baseada na trajetória da lemniscata
-        float currentPhase = time * moveSpeed;
-        float futurePhase = (time + 1.0) * moveSpeed; // Olhar 1 segundo à frente
+        // Calcular velocidade atual (derivação)
+        float dt = 0.1; // Delta time pequeno
+        float currentAngle = time * moveSpeed;
+        float futureAngle = (time + dt) * moveSpeed;
 
-        // Posição atual e futura na lemniscata
-        float currentCos = cos(currentPhase);
-        float currentSin = sin(currentPhase);
-        float currentDenom = 1.0 + currentSin * currentSin;
-        float currentX = centerX + a * currentCos / currentDenom;
+        // Posição atual e futura
+        float currentX = centerX + cos(currentAngle) * radius;
+        float futureX = centerX + cos(futureAngle) * radius;
 
-        float futureCos = cos(futurePhase);
-        float futureSin = sin(futurePhase);
-        float futureDenom = 1.0 + futureSin * futureSin;
-        float futureX = centerX + a * futureCos / futureDenom;
-
-        // Determinar direção com base no movimento da trajetória
-        float direction = futureX - currentX;
+        // Velocidade X (direção do movimento)
+        float velocityX = futureX - currentX;
 
         float fishAngle = 0.0;
 
-        // Usar limiar maior para evitar oscilações
-        if (direction > 0.015) {
-            fishAngle = 0.0; // Direita
-        } else if (direction < -0.015) {
-            fishAngle = 3.14159; // Esquerda
+        // Orientação baseada na velocidade real
+        if (velocityX > 0.002) {
+            fishAngle = 0.0; // Movendo para direita -> apontar direita
+        } else if (velocityX < -0.002) {
+            fishAngle = 3.14159; // Movendo para esquerda -> apontar esquerda
         }
-        // Entre -0.015 e 0.015: mantém orientação anterior
+        // Zona neutra mantém orientação anterior
 
         float fishX, fishY;
         if (u_gameState >= 2.0) {
