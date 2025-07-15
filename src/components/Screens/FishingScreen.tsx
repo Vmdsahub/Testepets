@@ -713,6 +713,7 @@ class WaterEffect {
     console.log("Starting fishing game at", hookX, hookY);
     this.gameState = "hook_cast";
     this.hookPosition = { x: hookX, y: hookY };
+    this.canClickExclamation = false;
 
     // Gerar tempo de rea��ão aleatório entre 4-12 segundos
     this.fishReactionDelay = 4000 + Math.random() * 8000;
