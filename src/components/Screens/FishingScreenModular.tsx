@@ -1622,8 +1622,17 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
   const [isHolding, setIsHolding] = useState(false);
 
   // Refs para acessar valores atuais dentro do interval
-  const fishPositionRef = useRef(50);
-  const barPositionRef = useRef(50);
+  const fishPositionRef = useRef(fishPosition);
+  const barPositionRef = useRef(barPosition);
+
+  // Atualizar refs quando estados mudarem
+  useEffect(() => {
+    fishPositionRef.current = fishPosition;
+  }, [fishPosition]);
+
+  useEffect(() => {
+    barPositionRef.current = barPosition;
+  }, [barPosition]);
 
   const barSize = 20; // Tamanho da barra em %
   const fishSize = 8; // Tamanho do peixe em %
