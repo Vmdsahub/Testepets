@@ -924,7 +924,7 @@ class ModularWaterEffect {
     if (!this.gl || !this.canvas) return;
 
     this.time += 0.016 * this.animationSpeed; // Animação da água
-    this.fishTime += 0.032; // Peixe independente, movimento 2x mais rápido
+    this.fishTime += 0.016; // Peixe na mesma velocidade da água para evitar teleporte
 
     this.updateFishingGame();
 
