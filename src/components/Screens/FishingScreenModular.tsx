@@ -1795,6 +1795,9 @@ export const FishingScreenModular: React.FC = () => {
 
   // Initialize water effect
   useEffect(() => {
+    // Definir referência para o listener no escopo do useEffect
+    let globalClickHandler: ((e: MouseEvent) => void) | null = null;
+
     const timer = setTimeout(() => {
       try {
         const waterEffect = new ModularWaterEffect(waterArea, isAdmin);
