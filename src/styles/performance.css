@@ -82,13 +82,14 @@
 /* Canvas rendering optimizations - uncapped FPS */
 .hardware-canvas {
   image-rendering: -webkit-optimize-contrast;
+  image-rendering: -moz-crisp-edges;
   image-rendering: optimize-contrast;
   image-rendering: optimizeSpeed;
   transform: translate3d(0, 0, 0);
   will-change: transform;
   backface-visibility: hidden;
   /* No refresh rate limits - allow unlimited FPS */
-  /* Removido pixelated e crisp-edges que causavam grid no espaço */
+  /* Mantido crisp-edges para performance da nave, removido apenas pixelated */
 }
 
 /* Otimizações para scroll performance */
@@ -111,7 +112,7 @@
   isolation: isolate;
 }
 
-/* Transi��ões ultra suaves para navegação entre páginas */
+/* Transições ultra suaves para navegação entre páginas */
 .smooth-page-transition {
   transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
   will-change: transform, opacity, filter;
