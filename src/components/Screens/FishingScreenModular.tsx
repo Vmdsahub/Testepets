@@ -283,27 +283,17 @@ class ModularWaterEffect {
             fishBehavior = 0.0; // ESTADO: Nadando livre (30%)
         }
 
-        // === MOVIMENTO BASE: TRAJETÓRIA ORGÂNICA ===
+                // === MOVIMENTO CONTÍNUO SIMPLES ===
 
-                                        float moveSpeed = 0.0504; // Velocidade dobrada (0.0252 * 2)
+        float moveSpeed = 0.025; // Velocidade mais consistente
 
-        // Trajetória principal: Lemniscata (símbolo do infinito) suave
-        float mainPhase = time * moveSpeed;
+        // Trajetória circular contínua - sem início nem fim
+        float angle = time * moveSpeed;
+        float radius = min(areaW, areaH) * 0.3;
 
-        // Parâmetros da lemniscata
-        float a = min(areaW, areaH) * 0.25; // Raio baseado na menor dimensão
-
-        float cosPhase = cos(mainPhase);
-        float sinPhase = sin(mainPhase);
-        float denominator = 1.0 + sinPhase * sinPhase;
-
-        // Coordenadas da lemniscata
-        float lemnX = a * cosPhase / denominator;
-        float lemnY = a * sinPhase * cosPhase / denominator;
-
-        // Posição base
-        float baseX = centerX + lemnX;
-        float baseY = centerY + lemnY;
+        // Posição base em círculo perfeito
+        float baseX = centerX + cos(angle) * radius;
+        float baseY = centerY + sin(angle) * radius * 0.7; // Elíptico para ficar mais natural
 
         // === MODIFICAÇÕES POR ESTADO ===
 
