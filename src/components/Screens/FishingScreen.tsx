@@ -1060,6 +1060,15 @@ class WaterEffect {
       this.gameState === "fish_reacting" ||
       this.gameState === "fish_moving"
     ) {
+      // VERIFICAÇÃO CONTÍNUA: Se anzol saiu da água durante movimento, resetar
+      if (!this.isHookInWater()) {
+        console.log(
+          "🎣 Hook removed from water during fish movement - resetting",
+        );
+        this.resetFishingGame();
+        return;
+      }
+
       // Verificar se o peixe chegou próximo ao anzol usando posição do steering system
       const dx = this.hookPosition.x - this.fishPosition.x;
       const dy = this.hookPosition.y - this.fishPosition.y;
