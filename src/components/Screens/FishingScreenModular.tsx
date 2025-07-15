@@ -284,42 +284,36 @@ class ModularWaterEffect {
             fishBehavior = 0.0; // ESTADO: Nadando livre (30%)
         }
 
-                                                        // === MOVIMENTO ESTILO EVO FISH - NATAÇÃO ORGÂNICA ===
+                                                                // === MOVIMENTO EVO FISH - VELÓCIDÃO E DINÂMICA ===
 
-        // Parâmetros do movimento natural
-        float swimSpeed = 0.012;
+        float swimSpeed = 0.05; // Velocidade mais rápida como Evo Fish
         float t = time * swimSpeed;
 
-        // Sistema de direção mutável (como peixes reais que mudam direção gradualmente)
-        float directionChangeSpeed = 0.008;
-        float targetDirectionX = sin(t * directionChangeSpeed) * 0.7 + cos(t * directionChangeSpeed * 0.6) * 0.3;
-        float targetDirectionY = cos(t * directionChangeSpeed * 0.8) * 0.6 + sin(t * directionChangeSpeed * 0.4) * 0.4;
+        // Movimento circular principal mais rápido e dinâmico
+        float mainRadius = min(areaW, areaH) * 0.4;
+        float mainAngle = t * 0.8; // Circular mais rápido
 
-        // Curvas suaves de trajetória (característico de peixes em jogos como Evo Fish)
-        float pathCurveX = 0.0;
-        float pathCurveY = 0.0;
+        // Posição base do movimento circular
+        float circleX = cos(mainAngle) * mainRadius;
+        float circleY = sin(mainAngle) * mainRadius * 0.7; // Elipse
 
-        // Criar trajetória curva baseada na direção
-        for(int i = 0; i < 3; i++) {
-            float frequency = 0.3 + float(i) * 0.15;
-            float amplitude = 0.25 - float(i) * 0.08;
-            pathCurveX += sin(t * frequency + float(i)) * amplitude * targetDirectionX;
-            pathCurveY += cos(t * frequency * 0.7 + float(i) * 2.0) * amplitude * targetDirectionY;
-        }
+        // Variações de trajetória (como Evo Fish - movimentos imprevisíveis)
+        float variation1X = sin(t * 1.5) * areaW * 0.15;
+        float variation1Y = cos(t * 1.2) * areaH * 0.12;
 
-        // Movimento de deriva lenta (exploração natural)
-        float driftX = sin(t * 0.05) * 0.4 + cos(t * 0.03) * 0.2;
-        float driftY = cos(t * 0.04) * 0.3 + sin(t * 0.025) * 0.25;
+        float variation2X = cos(t * 0.6 + 2.0) * areaW * 0.2;
+        float variation2Y = sin(t * 0.7 + 1.5) * areaH * 0.18;
 
-        // Ondulação corporal sutil (movimento da cauda)
-        float tailWave = sin(t * 2.5) * 0.06;
+        // Movimento de "busca" rápido (característico do Evo Fish)
+        float searchX = sin(t * 2.2) * areaW * 0.1;
+        float searchY = cos(t * 1.8) * areaH * 0.08;
 
-        // Pausas ocasionais e acelerações (comportamento natural)
-        float speedVariation = (sin(t * 0.1) * 0.3 + 0.7); // Varia entre 0.4 e 1.0
+        // Acelerações súbitas (como quando peixes vêem comida)
+        float burstSpeed = 1.0 + sin(t * 0.3) * 0.4; // Varia de 0.6x a 1.4x
 
-        // Combinar movimentos com escala apropriada
-        float baseX = centerX + (pathCurveX + driftX + tailWave) * areaW * 0.35 * speedVariation;
-        float baseY = centerY + (pathCurveY + driftY) * areaH * 0.3 * speedVariation;
+        // Combinar todos os movimentos
+        float baseX = centerX + (circleX + variation1X + variation2X + searchX) * burstSpeed;
+        float baseY = centerY + (circleY + variation1Y + variation2Y + searchY) * burstSpeed;
 
                         // Suavização para evitar teleporte entre padrões
         float transitionSmooth = 0.95; // Suavização forte
