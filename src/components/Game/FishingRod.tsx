@@ -302,23 +302,33 @@ class FishingSystem {
     const dirY = y - startY;
     const distance = Math.sqrt(dirX * dirX + dirY * dirY);
 
-    // Aplicar força e limite máximo
-    const maxDistancePixels =
-      Math.min(window.innerWidth, window.innerHeight) * this.maxDistance;
-    const actualDistance = Math.min(
-      distance * this.chargePower,
-      maxDistancePixels,
-    );
+    // Para lances dentro da área de água, usar posição exata do clique
+    // Para lances fora da área, aplicar limites tradicionais
+    const isTargetInWaterArea = this.isPointInWaterArea(x, y);
 
-    // Calcular posição final
-    if (distance > 0) {
-      const normalizedX = dirX / distance;
-      const normalizedY = dirY / distance;
-      this.targetX = startX + normalizedX * actualDistance;
-      this.targetY = startY + normalizedY * actualDistance;
+    if (isTargetInWaterArea) {
+      // Se o alvo está na área de água, ir exatamente para lá
+      this.targetX = x;
+      this.targetY = y;
     } else {
-      this.targetX = startX;
-      this.targetY = startY + actualDistance;
+      // Para alvos fora da área, usar sistema original com limites
+      const maxDistancePixels =
+        Math.min(window.innerWidth, window.innerHeight) * this.maxDistance;
+      const actualDistance = Math.min(
+        distance * this.chargePower,
+        maxDistancePixels,
+      );
+
+      // Calcular posição final
+      if (distance > 0) {
+        const normalizedX = dirX / distance;
+        const normalizedY = dirY / distance;
+        this.targetX = startX + normalizedX * actualDistance;
+        this.targetY = startY + normalizedY * actualDistance;
+      } else {
+        this.targetX = startX;
+        this.targetY = startY + actualDistance;
+      }
     }
 
     // Pontos de controle para o arco do lançamento
