@@ -62,7 +62,10 @@ class WaterEffect {
     this.fishReactionDelay = 0;
     this.originalFishMovement = { moveX: 0, moveY: 0 };
     this.exclamationTime = 0;
+    this.exclamationStartTime = 0;
+    this.canClickExclamation = false;
     this.onGameStart = null; // Callback para abrir modal
+    this.onExclamationClick = null; // Callback para clique na exclamação
     this.fishTimeOffset = 0; // Offset para sincronizar movimento natural com posição atual
     this.transitionBackToNaturalTime = 0; // Tempo desde que voltou para movimento natural
     this.transitionBackToNaturalDuration = 2000; // 2 segundos para suavizar retorno (debug)
@@ -270,15 +273,9 @@ class WaterEffect {
 
                 // O movimento real é calculado no sistema de steering behaviors em JavaScript
 
-                                if (u_gameState >= 2.0) { // fish_reacting, fish_moving, fish_hooked
-                    // Usar posição alvo quando o peixe está reagindo/se movendo
-                    fishX = u_fishTargetPosition.x;
-                    fishY = u_fishTargetPosition.y;
-                } else {
-                    // Usar posição do sistema de steering behaviors
-                    fishX = u_fishPosition.x;
-                    fishY = u_fishPosition.y;
-                }
+                                                // Sempre usar posição do sistema de steering behaviors para movimento suave
+                fishX = u_fishPosition.x;
+                fishY = u_fishPosition.y;
 
                 // Cria máscara de água (60% da tela de baixo para cima)
                                 float waterLine = 0.4; // Linha da água aos 40% (deixando 60% de baixo com efeito)
@@ -336,23 +333,26 @@ class WaterEffect {
                 // Mistura entre imagem original e efeito de água
                 vec3 finalColor = mix(originalColor.rgb, waterColor, waterMask);
                 
-                                // Adicionar exclamação amarela se necessário
+                                                // Adicionar exclamação amarela se necessário
                 if (u_showExclamation > 0.0 && u_gameState >= 4.0) { // fish_hooked
                     vec2 exclamationPos = vec2(fishX, fishY - 0.08); // Acima do peixe
                     float distToExclamation = distance(uv, exclamationPos);
 
-                    // Desenhar círculo amarelo para exclamação
-                    if (distToExclamation < 0.02) {
-                        finalColor = mix(finalColor, vec3(1.0, 1.0, 0.0), 0.8);
+                    // Pulsação da exclamação para chamar atenção
+                    float pulse = 0.8 + 0.2 * sin(u_time * 8.0);
+
+                    // Desenhar círculo amarelo para exclamação com pulsação
+                    if (distToExclamation < 0.025 * pulse) {
+                        finalColor = mix(finalColor, vec3(1.0, 1.0, 0.0), 0.9);
                     }
 
                     // Desenhar "!" no centro
-                    vec2 localUV = (uv - exclamationPos) / 0.02;
-                    if (abs(localUV.x) < 0.2 && localUV.y > -0.5 && localUV.y < 0.2) {
-                        finalColor = mix(finalColor, vec3(0.0, 0.0, 0.0), 0.9);
+                    vec2 localUV = (uv - exclamationPos) / (0.025 * pulse);
+                    if (abs(localUV.x) < 0.15 && localUV.y > -0.4 && localUV.y < 0.2) {
+                        finalColor = mix(finalColor, vec3(0.0, 0.0, 0.0), 0.95);
                     }
-                    if (abs(localUV.x) < 0.2 && localUV.y > 0.4 && localUV.y < 0.7) {
-                        finalColor = mix(finalColor, vec3(0.0, 0.0, 0.0), 0.9);
+                    if (abs(localUV.x) < 0.15 && localUV.y > 0.35 && localUV.y < 0.5) {
+                        finalColor = mix(finalColor, vec3(0.0, 0.0, 0.0), 0.95);
                     }
                 }
 
@@ -707,6 +707,7 @@ class WaterEffect {
     console.log("Starting fishing game at", hookX, hookY);
     this.gameState = "hook_cast";
     this.hookPosition = { x: hookX, y: hookY };
+    this.canClickExclamation = false;
 
     // Gerar tempo de rea��ão aleatório entre 4-12 segundos
     this.fishReactionDelay = 4000 + Math.random() * 8000;
@@ -717,12 +718,29 @@ class WaterEffect {
     );
   }
 
+  // Método para lidar com clique na exclamação
+  handleExclamationClick() {
+    if (this.gameState === "fish_hooked" && this.canClickExclamation) {
+      console.log("Player clicked exclamation! Opening modal.");
+      this.canClickExclamation = false;
+      if (this.onGameStart) {
+        this.onGameStart();
+      }
+      return true;
+    }
+    return false;
+  }
+
   // Sistema de Steering Behaviors
   updateSteeringBehaviors(deltaTime) {
     if (this.gameState === "idle" || this.gameState === "hook_cast") {
       // Comportamento de wandering natural
       this.wander(deltaTime);
-    } else if (this.gameState === "fish_moving") {
+    } else if (
+      this.gameState === "fish_reacting" ||
+      this.gameState === "fish_moving" ||
+      this.gameState === "fish_hooked"
+    ) {
       // Comportamento de seek/arrive em direção ao anzol
       this.seek(this.hookPosition, deltaTime);
     }
@@ -932,9 +950,15 @@ class WaterEffect {
         const currentFishX = this.fishPosition.x;
         const currentFishY = this.fishPosition.y;
 
-        // Definir a posição atual como ponto de partida
-        this.fishTargetPosition = { x: currentFishX, y: currentFishY };
+        // Mudar estado para reação - o sistema de steering behaviors cuidará do movimento
         this.gameState = "fish_reacting";
+
+        // Começar movimento suave após breve pausa
+        setTimeout(() => {
+          if (this.gameState === "fish_reacting") {
+            this.gameState = "fish_moving";
+          }
+        }, 500);
 
         // Debug: verificar se posição JS bate com shader
         console.log(
@@ -994,42 +1018,50 @@ class WaterEffect {
       this.gameState === "fish_reacting" ||
       this.gameState === "fish_moving"
     ) {
-      // Mover peixe em direção ao anzol
-      const speed = 0.0003; // velocidade do movimento (reduzida para ser mais realista)
-      const dx = this.hookPosition.x - this.fishTargetPosition.x;
-      const dy = this.hookPosition.y - this.fishTargetPosition.y;
+      // Verificar se o peixe chegou próximo ao anzol usando posição do steering system
+      const dx = this.hookPosition.x - this.fishPosition.x;
+      const dy = this.hookPosition.y - this.fishPosition.y;
       const distance = Math.sqrt(dx * dx + dy * dy);
 
-      if (distance > 0.01) {
-        // ainda não chegou ao anzol
-        this.gameState = "fish_moving";
-        const oldX = this.fishTargetPosition.x;
-        const oldY = this.fishTargetPosition.y;
-        this.fishTargetPosition.x += (dx / distance) * speed;
-        this.fishTargetPosition.y += (dy / distance) * speed;
+      if (distance > 0.03) {
+        // ainda não chegou ao anzol, manter movimento
+        if (this.gameState === "fish_reacting") {
+          this.gameState = "fish_moving";
+        }
 
         // Log de debug a cada 100 frames (~1.6s)
         if (Math.random() < 0.01) {
           console.log(
-            `🐟 MOVING - From (${oldX.toFixed(3)}, ${oldY.toFixed(3)}) to (${this.fishTargetPosition.x.toFixed(3)}, ${this.fishTargetPosition.y.toFixed(3)}), distance: ${distance.toFixed(3)}`,
+            `🐟 MOVING - Fish at (${this.fishPosition.x.toFixed(3)}, ${this.fishPosition.y.toFixed(3)}), hook at (${this.hookPosition.x.toFixed(3)}, ${this.hookPosition.y.toFixed(3)}), distance: ${distance.toFixed(3)}`,
           );
         }
       } else {
         // Peixe chegou ao anzol
         this.gameState = "fish_hooked";
         this.exclamationTime = 1000; // mostrar exclamação por 1 segundo
+        this.exclamationStartTime = Date.now();
+        this.canClickExclamation = true;
         console.log("Fish hooked! Starting exclamation timer.");
 
-        // Agendar abertura do modal após 1 segundo
+        // Timer de 1 segundo - se não clicar, voltar ao movimento natural
         setTimeout(() => {
-          if (this.onGameStart) {
-            this.onGameStart();
+          if (this.gameState === "fish_hooked" && this.canClickExclamation) {
+            console.log(
+              "Player didn't click exclamation in time - fish returns to natural movement",
+            );
+            this.resetFishingGame();
           }
         }, 1000);
       }
     } else if (this.gameState === "fish_hooked") {
       if (this.exclamationTime > 0) {
         this.exclamationTime -= 16;
+
+        // Se passou 1 segundo, desabilitar clique
+        const elapsedTime = Date.now() - this.exclamationStartTime;
+        if (elapsedTime >= 1000) {
+          this.canClickExclamation = false;
+        }
       }
     }
   }
@@ -1437,6 +1469,39 @@ export const FishingScreen: React.FC = () => {
           console.log("Opening fishing game modal");
           setShowFishingModal(true);
         };
+
+        // Adicionar listener para cliques na exclamação
+        const handleCanvasClick = (e: MouseEvent) => {
+          if (
+            waterEffect.gameState === "fish_hooked" &&
+            waterEffect.canClickExclamation
+          ) {
+            const rect = (e.target as HTMLElement).getBoundingClientRect();
+            const x = (e.clientX - rect.left) / rect.width;
+            const y = (e.clientY - rect.top) / rect.height;
+
+            // Posição da exclamação (acima do peixe)
+            const fishX = waterEffect.fishPosition.x;
+            const fishY = waterEffect.fishPosition.y;
+            const exclamationX = fishX;
+            const exclamationY = fishY - 0.08;
+
+            // Verificar se clicou na área da exclamação
+            const distance = Math.sqrt(
+              Math.pow(x - exclamationX, 2) + Math.pow(y - exclamationY, 2),
+            );
+
+            if (distance <= 0.05) {
+              // Área clicável da exclamação
+              waterEffect.handleExclamationClick();
+            }
+          }
+        };
+
+        const canvas = document.getElementById("waterCanvas");
+        if (canvas) {
+          canvas.addEventListener("click", handleCanvasClick);
+        }
 
         // Apply settings from database if available
         if (fishingSettings) {
