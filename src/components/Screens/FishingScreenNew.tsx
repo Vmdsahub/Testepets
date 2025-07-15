@@ -127,7 +127,7 @@ export const FishingScreenNew: React.FC = () => {
           x: prev.x + moveX,
           y: prev.y + moveY,
         }));
-            } else {
+      } else {
         // Posicionar exatamente para que a boca toque o anzol
         setFish((prev) => ({
           ...prev,
@@ -148,7 +148,6 @@ export const FishingScreenNew: React.FC = () => {
         x: hookX + mouthOffsetX, // Força posição exata
         y: hookY,
       }));
-    }
     }
   };
 
