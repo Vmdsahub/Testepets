@@ -1755,7 +1755,7 @@ export const FishingScreenModular: React.FC = () => {
         };
 
         // NOVA LÓGICA: Clique em QUALQUER LUGAR da tela durante mordida
-        const handleCanvasClick = (e: MouseEvent) => {
+        const handleGlobalClick = (e: MouseEvent) => {
           if (
             waterEffect.gameState === "fish_hooked" &&
             waterEffect.canClickExclamation
@@ -2243,7 +2243,7 @@ export const FishingScreenModular: React.FC = () => {
               borderRadius: "5px",
             }}
           >
-            💡 <strong>Reposicionar área:</strong> Segure{" "}
+            �� <strong>Reposicionar área:</strong> Segure{" "}
             <kbd
               style={{
                 background: "#e0e0e0",
