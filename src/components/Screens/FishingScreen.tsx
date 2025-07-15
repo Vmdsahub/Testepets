@@ -339,23 +339,26 @@ class WaterEffect {
                 // Mistura entre imagem original e efeito de água
                 vec3 finalColor = mix(originalColor.rgb, waterColor, waterMask);
                 
-                                // Adicionar exclamação amarela se necessário
+                                                // Adicionar exclamação amarela se necessário
                 if (u_showExclamation > 0.0 && u_gameState >= 4.0) { // fish_hooked
                     vec2 exclamationPos = vec2(fishX, fishY - 0.08); // Acima do peixe
                     float distToExclamation = distance(uv, exclamationPos);
 
-                    // Desenhar círculo amarelo para exclamação
-                    if (distToExclamation < 0.02) {
-                        finalColor = mix(finalColor, vec3(1.0, 1.0, 0.0), 0.8);
+                    // Pulsação da exclamação para chamar atenção
+                    float pulse = 0.8 + 0.2 * sin(u_time * 8.0);
+
+                    // Desenhar círculo amarelo para exclamação com pulsação
+                    if (distToExclamation < 0.025 * pulse) {
+                        finalColor = mix(finalColor, vec3(1.0, 1.0, 0.0), 0.9);
                     }
 
                     // Desenhar "!" no centro
-                    vec2 localUV = (uv - exclamationPos) / 0.02;
-                    if (abs(localUV.x) < 0.2 && localUV.y > -0.5 && localUV.y < 0.2) {
-                        finalColor = mix(finalColor, vec3(0.0, 0.0, 0.0), 0.9);
+                    vec2 localUV = (uv - exclamationPos) / (0.025 * pulse);
+                    if (abs(localUV.x) < 0.15 && localUV.y > -0.4 && localUV.y < 0.2) {
+                        finalColor = mix(finalColor, vec3(0.0, 0.0, 0.0), 0.95);
                     }
-                    if (abs(localUV.x) < 0.2 && localUV.y > 0.4 && localUV.y < 0.7) {
-                        finalColor = mix(finalColor, vec3(0.0, 0.0, 0.0), 0.9);
+                    if (abs(localUV.x) < 0.15 && localUV.y > 0.35 && localUV.y < 0.5) {
+                        finalColor = mix(finalColor, vec3(0.0, 0.0, 0.0), 0.95);
                     }
                 }
 
@@ -1869,7 +1872,7 @@ export const FishingScreen: React.FC = () => {
             }}
           >
             <h2 style={{ marginTop: 0, color: "#333", fontSize: "24px" }}>
-              ���� Peixe Fisgado!
+              🎣 Peixe Fisgado!
             </h2>
             <p
               style={{ color: "#666", marginBottom: "30px", fontSize: "16px" }}
