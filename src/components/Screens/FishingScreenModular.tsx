@@ -630,7 +630,7 @@ class ModularWaterEffect {
       "u_fishDirection",
     );
 
-    // Novos uniforms para ��rea modular
+    // Novos uniforms para ����rea modular
     this.uniforms.waterArea = this.gl.getUniformLocation(
       this.program,
       "u_waterArea",
@@ -1745,9 +1745,17 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
 
   useEffect(() => {
     if (progress >= 100) {
-      onComplete(true); // Sucesso!
+      setGameResult("success");
+      setTimeout(() => onComplete(true), 1500); // Delay para mostrar animação
     }
   }, [progress, onComplete]);
+
+  // Atualizar resultado para failure quando tempo acabar
+  useEffect(() => {
+    if (gameTime <= 0 && gameResult === "playing") {
+      setGameResult("failure");
+    }
+  }, [gameTime, gameResult]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
