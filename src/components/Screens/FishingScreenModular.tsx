@@ -1455,6 +1455,215 @@ class ModularWaterEffect {
   }
 }
 
+// Componente do Minigame de Pesca estilo Stardew Valley
+interface FishingMinigameProps {
+  onComplete: (success: boolean) => void;
+}
+
+const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
+  const [fishPosition, setFishPosition] = useState(50); // Posição do peixe (0-100)
+  const [barPosition, setBarPosition] = useState(50); // Posição da barra do jogador (0-100)
+  const [progress, setProgress] = useState(0); // Progresso de captura (0-100)
+  const [gameTime, setGameTime] = useState(8000); // 8 segundos para capturar
+  const [isHolding, setIsHolding] = useState(false);
+
+  const barSize = 20; // Tamanho da barra em %
+  const fishSize = 8; // Tamanho do peixe em %
+
+  useEffect(() => {
+    const gameInterval = setInterval(() => {
+      // Movimento aleatório do peixe
+      setFishPosition((prev) => {
+        const change = (Math.random() - 0.5) * 8;
+        return Math.max(
+          fishSize / 2,
+          Math.min(100 - fishSize / 2, prev + change),
+        );
+      });
+
+      // Movimento da barra (cai por gravidade ou sobe se pressionado)
+      setBarPosition((prev) => {
+        let newPos = prev;
+        if (isHolding) {
+          newPos = Math.max(0, prev - 3); // Sobe
+        } else {
+          newPos = Math.min(100, prev + 2); // Desce por gravidade
+        }
+        return newPos;
+      });
+
+      // Verificar se o peixe está na barra
+      setProgress((prev) => {
+        const fishInBar =
+          Math.abs(fishPosition - barPosition) < (barSize + fishSize) / 2;
+        if (fishInBar) {
+          return Math.min(100, prev + 2); // Progresso aumenta
+        } else {
+          return Math.max(0, prev - 1); // Progresso diminui
+        }
+      });
+
+      // Diminuir tempo
+      setGameTime((prev) => {
+        const newTime = prev - 50;
+        if (newTime <= 0) {
+          onComplete(false); // Tempo esgotado
+        }
+        return newTime;
+      });
+    }, 50);
+
+    return () => clearInterval(gameInterval);
+  }, [fishPosition, barPosition, isHolding, onComplete]);
+
+  useEffect(() => {
+    if (progress >= 100) {
+      onComplete(true); // Sucesso!
+    }
+  }, [progress, onComplete]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.code === "Space") {
+        setIsHolding(true);
+      }
+    };
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.code === "Space") {
+        setIsHolding(false);
+      }
+    };
+
+    const handleMouseDown = () => setIsHolding(true);
+    const handleMouseUp = () => setIsHolding(false);
+
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+    window.addEventListener("mousedown", handleMouseDown);
+    window.addEventListener("mouseup", handleMouseUp);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+      window.removeEventListener("mousedown", handleMouseDown);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, []);
+
+  return (
+    <div
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        width: "100%",
+        height: "100%",
+        backgroundColor: "rgba(0, 0, 0, 0.8)",
+        zIndex: 60,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <div
+        style={{
+          background: "white",
+          borderRadius: "12px",
+          padding: "20px",
+          width: "300px",
+          height: "400px",
+          position: "relative",
+        }}
+      >
+        <h3 style={{ textAlign: "center", margin: "0 0 20px 0" }}>
+          Minigame de Pesca
+        </h3>
+
+        {/* Barra de progresso */}
+        <div
+          style={{
+            width: "100%",
+            height: "20px",
+            backgroundColor: "#ddd",
+            borderRadius: "10px",
+            marginBottom: "20px",
+            overflow: "hidden",
+          }}
+        >
+          <div
+            style={{
+              width: `${progress}%`,
+              height: "100%",
+              backgroundColor: progress > 50 ? "#4CAF50" : "#FF9800",
+              transition: "width 0.1s",
+            }}
+          />
+        </div>
+
+        {/* Timer */}
+        <div style={{ textAlign: "center", marginBottom: "20px" }}>
+          Tempo: {Math.ceil(gameTime / 1000)}s
+        </div>
+
+        {/* Área do jogo */}
+        <div
+          style={{
+            width: "60px",
+            height: "250px",
+            backgroundColor: "#87CEEB",
+            border: "3px solid #4682B4",
+            borderRadius: "8px",
+            margin: "0 auto",
+            position: "relative",
+            overflow: "hidden",
+          }}
+        >
+          {/* Peixe */}
+          <div
+            style={{
+              position: "absolute",
+              left: "50%",
+              top: `${fishPosition}%`,
+              transform: "translateX(-50%) translateY(-50%)",
+              width: "40px",
+              height: "20px",
+              backgroundColor: "#FF6B35",
+              borderRadius: "10px",
+              border: "2px solid #D84315",
+            }}
+          >
+            🐟
+          </div>
+
+          {/* Barra do jogador */}
+          <div
+            style={{
+              position: "absolute",
+              left: "50%",
+              top: `${barPosition}%`,
+              transform: "translateX(-50%) translateY(-50%)",
+              width: "50px",
+              height: `${barSize}%`,
+              backgroundColor: isHolding ? "#4CAF50" : "#8BC34A",
+              border: "2px solid #388E3C",
+              borderRadius: "5px",
+            }}
+          />
+        </div>
+
+        <div
+          style={{ textAlign: "center", marginTop: "20px", fontSize: "14px" }}
+        >
+          Segure ESPAÇO ou clique para subir a barra verde.
+          <br />
+          Mantenha o peixe na barra!
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export const FishingScreenModular: React.FC = () => {
   const { setCurrentScreen } = useGameStore();
   const { user } = useAuthStore();
@@ -2141,7 +2350,7 @@ export const FishingScreenModular: React.FC = () => {
               onChange={(e) => {
                 const newShape = e.target.value as WaterArea["shape"];
                 setWaterArea((prev) => {
-                  // Se for c��rculo, igualar largura e altura
+                  // Se for círculo, igualar largura e altura
                   if (newShape === "circle") {
                     const size = Math.min(prev.width, prev.height);
                     return {
