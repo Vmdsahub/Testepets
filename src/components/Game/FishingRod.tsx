@@ -1,9 +1,18 @@
 import React, { useEffect, useRef } from "react";
 
+interface WaterArea {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  shape: "rectangle" | "circle" | "triangle";
+}
+
 interface FishingRodProps {
   className?: string;
   onHookCast?: (x: number, y: number) => void;
   onLineReeled?: () => void;
+  waterArea?: WaterArea;
 }
 
 // Classe do sistema de pesca baseada no simulador fornecido
@@ -46,6 +55,7 @@ class FishingSystem {
   private castStartTime = 0;
   private onHookCast?: (x: number, y: number) => void;
   private onLineReeled?: () => void;
+  private waterArea?: WaterArea;
 
   // Sistema de força de lançamento
   private isCharging = false;
@@ -66,10 +76,12 @@ class FishingSystem {
     canvas: HTMLCanvasElement,
     onHookCast?: (x: number, y: number) => void,
     onLineReeled?: () => void,
+    waterArea?: WaterArea,
   ) {
     this.canvas = canvas;
     this.onHookCast = onHookCast;
     this.onLineReeled = onLineReeled;
+    this.waterArea = waterArea;
     const context = canvas.getContext("2d");
     if (!context) {
       throw new Error("Não foi possível obter o contexto 2D do canvas");
@@ -124,7 +136,10 @@ class FishingSystem {
 
     window.addEventListener("mouseup", (e) => {
       if (this.isCharging && !this.isLineOut) {
-        this.castLine(e.clientX, e.clientY);
+        // Verificar se o clique está dentro da área de água antes de lançar
+        if (this.isPointInWaterArea(e.clientX, e.clientY)) {
+          this.castLine(e.clientX, e.clientY);
+        }
         this.isCharging = false;
       }
     });
