@@ -11,6 +11,9 @@ import { FishingRod } from "../Game/FishingRod";
 // WebGL Water Effect Class - With 60% coverage mask
 class WaterEffect {
   constructor() {
+    // Inicializar activeTimers PRIMEIRO para evitar undefined
+    this.activeTimers = [];
+
     this.canvas = document.getElementById("waterCanvas");
 
     if (!this.canvas) {
