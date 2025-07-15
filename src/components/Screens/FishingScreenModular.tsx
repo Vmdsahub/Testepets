@@ -947,14 +947,16 @@ class ModularWaterEffect {
         }, 1000);
       }
     } else if (this.gameState === "fish_hooked") {
-      if (this.exclamationTime > 0) {
-        this.exclamationTime -= 16;
+      // Usar tempo real em vez de contador de frames
+      const elapsedTime = Date.now() - this.exclamationStartTime;
 
-        // Se passou 1 segundo, desabilitar clique
-        const elapsedTime = Date.now() - this.exclamationStartTime;
-        if (elapsedTime >= 1000) {
-          this.canClickExclamation = false;
-        }
+      if (elapsedTime < 1000) {
+        // Ainda dentro do período de 1 segundo
+        this.exclamationTime = 1000 - elapsedTime; // Valor restante
+      } else {
+        // Passou 1 segundo
+        this.exclamationTime = 0;
+        this.canClickExclamation = false;
       }
     }
   }
