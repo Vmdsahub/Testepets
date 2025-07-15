@@ -325,64 +325,12 @@ class ModularWaterEffect {
 
         // === SISTEMA DE ROTAÇÃO NATURAL ===
 
-                                                                        // === ORIENTAÇÃO PRECISA BASEADA NA DERIVADA MATEMÁTICA ===
+                                                                                // === ORIENTAÇÃO NATURAL DO PEIXE ===
 
-        // Calcular derivada matemática real dos padrões de movimento
-        float currentAngle = time * moveSpeed;
-        float velocityX = 0.0;
-
-        if (currentPattern < 1.0) {
-            // Padrão 1: Ondas harmônicas - derivadas
-            float deriv1 = cos(currentAngle * 0.3) * 0.3 * moveSpeed * areaW * 0.48;
-            float deriv2 = -sin(currentAngle * 0.17) * 0.17 * moveSpeed * areaW * 0.25;
-            velocityX = deriv1 + deriv2;
-
-        } else if (currentPattern < 2.0) {
-            // Padrão 2: Rosácea - derivada complexa
-            float r = min(areaW, areaH) * 0.45;
-            float k = 5.0;
-            float angleRose = currentAngle * 0.4;
-            float roseRadius = r * sin(k * angleRose);
-            float roseRadiusDerivative = r * cos(k * angleRose) * k * 0.4 * moveSpeed;
-            float rosePart1 = roseRadiusDerivative * cos(angleRose);
-            float rosePart2 = roseRadius * (-sin(angleRose)) * 0.4 * moveSpeed;
-            float sinDerivative = cos(currentAngle * 0.08) * 0.08 * moveSpeed * areaW * 0.2;
-            velocityX = rosePart1 + rosePart2 + sinDerivative;
-
-        } else if (currentPattern < 3.0) {
-            // Padrão 3: Infinity "8" - derivada de sin(angle * 0.5)
-            float scale = min(areaW, areaH) * 0.4;
-            float derivInfinity = cos(currentAngle * 0.5) * 0.5 * moveSpeed * scale;
-            float derivOrbital = -sin(currentAngle * 0.1) * 0.1 * moveSpeed * areaW * 0.15;
-            velocityX = derivInfinity + derivOrbital;
-
-        } else if (currentPattern < 4.0) {
-            // Padrão 4: Espiral - derivada complexa de radius variável
-            float radiusDerivative = cos(currentAngle * 0.1) * 0.1 * moveSpeed * 0.5 * min(areaW, areaH) * 0.4;
-            float spiralAngle = currentAngle * 0.6;
-            float currentRadius = (sin(currentAngle * 0.1) * 0.5 + 0.5) * min(areaW, areaH) * 0.4;
-            float spiralDerivative = radiusDerivative * cos(spiralAngle) + currentRadius * (-sin(spiralAngle)) * 0.6 * moveSpeed;
-            float driftDerivative = cos(currentAngle * 0.05) * 0.05 * moveSpeed * areaW * 0.2;
-            velocityX = spiralDerivative + driftDerivative;
-
-        } else if (currentPattern < 5.0) {
-            // Padrão 5: Losango - derivada de função complexa
-            float t = currentAngle * 0.4;
-            float cosT = cos(t);
-            float sinT = sin(t);
-            float diamondDerivative = (cosT >= 0.0 ? cosT : -cosT) + (sinT >= 0.0 ? sinT : -sinT);
-            float angleDerivative = (-sinT) * diamondDerivative + (cosT >= 0.0 ? cosT : -cosT) * (cosT >= 0.0 ? 1.0 : -1.0) * (-sinT);
-            float mainDerivative = angleDerivative * 0.4 * moveSpeed * areaW * 0.35;
-            float waveDerivative = cos(currentAngle * 0.25) * 0.25 * moveSpeed * areaW * 0.1;
-            velocityX = mainDerivative + waveDerivative;
-
-        } else {
-            // Padrão 6: Drunk walk aprimorado - derivadas das ondas
-            float deriv1 = cos(currentAngle * 0.13) * 0.13 * moveSpeed * areaW * 0.35;
-            float deriv2 = -sin(currentAngle * 0.29) * 0.29 * moveSpeed * areaW * 0.28;
-            float deriv3 = cos(currentAngle * 0.41) * 0.41 * moveSpeed * areaW * 0.15;
-            velocityX = deriv1 + deriv2 + deriv3;
-        }
+        // Calcular direção do movimento principal (componente dominante)
+        float velocityX = cos(waveTime * 0.4) * 0.4 * swimSpeed * areaW * 0.35;
+        velocityX += cos(waveTime * 1.2) * 1.2 * swimSpeed * areaW * 0.08;
+        velocityX += cos(waveTime * 0.08) * 0.08 * swimSpeed * areaW * 0.2;
 
         float fishAngle = 0.0;
 
