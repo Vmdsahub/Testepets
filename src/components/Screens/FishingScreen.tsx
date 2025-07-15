@@ -1364,7 +1364,7 @@ class WaterEffect {
     const xWave3 = Math.cos(mainCycle * 1.3 + 2.5) * 0.08;
     const baseX = 0.5 + (xWave1 + xWave2 + xWave3);
 
-    // Movimento em Y com flutuaç����o suave
+    // Movimento em Y com flutuaç��o suave
     const yWave1 = Math.cos(mainCycle * 0.8) * 0.18;
     const yWave2 = Math.sin(mainCycle * 1.1 + 0.8) * 0.08;
     const yWave3 = Math.cos(mainCycle * 0.6 + 1.5) * 0.05;
@@ -1587,6 +1587,11 @@ export const FishingScreen: React.FC = () => {
   });
 
   const isAdmin = user?.isAdmin || false;
+
+  // Debug: monitorar mudanças no showFishingModal
+  useEffect(() => {
+    console.log("📺 showFishingModal changed to:", showFishingModal);
+  }, [showFishingModal]);
 
   // Load fishing settings
   useEffect(() => {
