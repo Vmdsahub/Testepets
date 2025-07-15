@@ -343,21 +343,35 @@ class ModularWaterEffect {
 
         // === SISTEMA DE ROTAÇÃO NATURAL ===
 
-                // === ROTAÇÃO ULTRA ESTÁVEL - SEM BALANÇAR ===
+                        // === ORIENTAÇÃO BASEADA NA DIREÇÃO REAL DO MOVIMENTO ===
 
-        // Ciclo muito lento para mudar de lado apenas ocasionalmente
-        float orientationCycle = sin(time * 0.003) * 0.5 + 0.5; // Ciclo de 5+ minutos
+        // Calcular direção baseada na trajetória da lemniscata
+        float currentPhase = time * moveSpeed;
+        float futurePhase = (time + 1.0) * moveSpeed; // Olhar 1 segundo à frente
+
+        // Posição atual e futura na lemniscata
+        float currentCos = cos(currentPhase);
+        float currentSin = sin(currentPhase);
+        float currentDenom = 1.0 + currentSin * currentSin;
+        float currentX = centerX + a * currentCos / currentDenom;
+
+        float futureCos = cos(futurePhase);
+        float futureSin = sin(futurePhase);
+        float futureDenom = 1.0 + futureSin * futureSin;
+        float futureX = centerX + a * futureCos / futureDenom;
+
+        // Determinar direção com base no movimento da trajetória
+        float direction = futureX - currentX;
 
         float fishAngle = 0.0;
 
-        // Mudar de lado apenas em momentos muito raros
-        if (orientationCycle > 0.9) {
-            fishAngle = 3.14159; // Esquerda apenas 10% do tempo
-        } else {
-            fishAngle = 0.0; // Direita 90% do tempo
+        // Usar limiar maior para evitar oscilações
+        if (direction > 0.015) {
+            fishAngle = 0.0; // Direita
+        } else if (direction < -0.015) {
+            fishAngle = 3.14159; // Esquerda
         }
-
-        // ZERO movimentos adicionais - orientação completamente fixa
+        // Entre -0.015 e 0.015: mantém orientação anterior
 
         float fishX, fishY;
         if (u_gameState >= 2.0) {
