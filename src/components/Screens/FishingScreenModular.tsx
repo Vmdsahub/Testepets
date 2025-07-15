@@ -1808,24 +1808,64 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
 
           <div className="p-6 space-y-6">
             {/* Status Bar */}
-            <div className="flex items-center justify-between bg-gray-50 rounded-2xl p-4">
+            <motion.div
+              className={`flex items-center justify-between rounded-2xl p-4 transition-all duration-300 ${
+                fishInBar
+                  ? "bg-green-50 border-2 border-green-200"
+                  : isLowTime
+                    ? "bg-red-50 border-2 border-red-200"
+                    : "bg-gray-50"
+              }`}
+              animate={fishInBar ? { scale: [1, 1.02, 1] } : {}}
+              transition={{ duration: 0.3, repeat: fishInBar ? Infinity : 0 }}
+            >
               <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-gradient-to-r from-green-400 to-blue-500 rounded-full animate-pulse"></div>
-                <span className="text-sm font-medium text-gray-700">
-                  Progresso
-                </span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <span className="text-2xl">⏱️</span>
+                <motion.div
+                  className={`w-3 h-3 rounded-full ${
+                    fishInBar
+                      ? "bg-gradient-to-r from-green-400 to-emerald-500"
+                      : "bg-gradient-to-r from-blue-400 to-purple-500"
+                  }`}
+                  animate={
+                    fishInBar
+                      ? { scale: [1, 1.3, 1] }
+                      : { opacity: [1, 0.5, 1] }
+                  }
+                  transition={{ duration: 0.5, repeat: Infinity }}
+                ></motion.div>
                 <span
-                  className={`text-lg font-bold ${
-                    gameTime < 3000 ? "text-red-500" : "text-gray-700"
+                  className={`text-sm font-medium ${
+                    fishInBar ? "text-green-700" : "text-gray-700"
                   }`}
                 >
-                  {Math.ceil(gameTime / 1000)}s
+                  {fishInBar ? "Capturando!" : "Progresso"}
                 </span>
               </div>
-            </div>
+              <div className="flex items-center space-x-2">
+                <motion.span
+                  className="text-2xl"
+                  animate={isLowTime ? { rotate: [-5, 5, -5] } : {}}
+                  transition={{
+                    duration: 0.3,
+                    repeat: isLowTime ? Infinity : 0,
+                  }}
+                >
+                  {isLowTime ? "🚨" : "⏱️"}
+                </motion.span>
+                <motion.span
+                  className={`text-lg font-bold ${
+                    isLowTime ? "text-red-500" : "text-gray-700"
+                  }`}
+                  animate={isLowTime ? { scale: [1, 1.1, 1] } : {}}
+                  transition={{
+                    duration: 0.5,
+                    repeat: isLowTime ? Infinity : 0,
+                  }}
+                >
+                  {Math.ceil(gameTime / 1000)}s
+                </motion.span>
+              </div>
+            </motion.div>
 
             {/* Progress Bar */}
             <div className="space-y-2">
