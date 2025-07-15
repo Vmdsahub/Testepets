@@ -22,6 +22,7 @@ class ModularWaterEffect {
   constructor(waterArea, isAdmin = false) {
     this.canvas = document.getElementById("waterCanvas");
     this.waterArea = waterArea;
+    this.isAdmin = isAdmin;
 
     if (!this.canvas) {
       console.warn("Canvas element not found");
