@@ -1232,18 +1232,18 @@ class ModularWaterEffect {
         Math.abs(horizontalComponent) > 0.0001 ||
         Math.abs(verticalComponent) > 0.0001
       ) {
-        // Calcular ângulo total da velocidade
-        // Sistema de coordenadas: Y positivo = para baixo, atan2 natural
-        let targetAngle = Math.atan2(
-          verticalComponent, // Y natural: positivo = para baixo, negativo = para cima
-          Math.abs(horizontalComponent),
-        );
+        // Cálculo SIMPLES: apenas velocidade vertical importa para inclinação
+        // Velocidade Y positiva = nadando para baixo = ângulo positivo
+        // Velocidade Y negativa = nadando para cima = ângulo negativo
+        const maxTiltAngle = Math.PI / 6; // 30 graus máximo
+        const velocityScale = 1000; // Escala para converter velocidade em ângulo
 
-        // Limitar o ângulo para rotações naturais (máximo 25 graus para cima/baixo)
-        const maxRotation = Math.PI / 7; // ~25 graus para movimento mais natural
+        let targetAngle = verticalComponent * velocityScale;
+
+        // Limitar o ângulo
         targetAngle = Math.max(
-          -maxRotation,
-          Math.min(maxRotation, targetAngle),
+          -maxTiltAngle,
+          Math.min(maxTiltAngle, targetAngle),
         );
 
         // Aplicar suavização para evitar mudanças bruscas
@@ -1526,7 +1526,7 @@ class ModularWaterEffect {
 
     // IMPORTANTE: Preservar backup do callback
     if (this.onGameStartBackup && !this.onGameStart) {
-      console.log("�� Restoring callback from backup after reset");
+      console.log("��� Restoring callback from backup after reset");
       this.onGameStart = this.onGameStartBackup;
     }
 
