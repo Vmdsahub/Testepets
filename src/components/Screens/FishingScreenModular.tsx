@@ -329,7 +329,7 @@ class ModularWaterEffect {
 
         float time = u_fishTime;
 
-        // Área da água
+        // Área da ��gua
         float areaX = u_waterArea.x;
         float areaY = u_waterArea.y;
         float areaW = u_waterArea.z;
@@ -511,7 +511,7 @@ class ModularWaterEffect {
 
           // Verificar se está na área da exclamação
           if (exclamationUV.x >= 0.0 && exclamationUV.x <= 1.0 && exclamationUV.y >= 0.0 && exclamationUV.y <= 1.0) {
-            // Simular a imagem de exclamaç��o amarela fornecida
+            // Simular a imagem de exclamação amarela fornecida
             // Criar forma de exclamação baseada na imagem
             vec2 localPos = exclamationUV * 2.0 - 1.0; // Converter para -1 a 1
 
@@ -1309,6 +1309,11 @@ class ModularWaterEffect {
   }
 
   resetFishingGame() {
+    // Limpar todos os timers ativos para evitar comportamentos persistentes
+    this.activeTimers.forEach((timer) => clearTimeout(timer));
+    this.activeTimers = [];
+    console.log("🧹 Cleared all active timers");
+
     if (
       this.gameState === "fish_moving" ||
       this.gameState === "fish_reacting" ||
