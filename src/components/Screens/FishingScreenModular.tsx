@@ -967,7 +967,7 @@ class ModularWaterEffect {
         y: this.fishDesiredDirection.y + avoidanceForce.y,
       };
 
-      // Normalizar direção
+      // Normalizar dire��ão
       const magnitude = Math.sqrt(
         targetDirection.x * targetDirection.x +
           targetDirection.y * targetDirection.y,
@@ -1242,7 +1242,7 @@ class ModularWaterEffect {
     }
 
     const mouthX =
-      fishPixelX + mouthOffsetX + (this.fishDirection > 0 ? 3 : -3); // +3px para direita ou -3px para esquerda (6px mais próximo da boca)
+      fishPixelX + mouthOffsetX + (this.fishDirection > 0 ? -3 : 3); // -3px para direita ou +3px para esquerda (mais 6px próximo da boca)
     const mouthY = fishPixelY + 2; // +2px para baixo
 
     // Desenhar CÍRCULO ROSA MUITO PEQUENO na posição da boca
