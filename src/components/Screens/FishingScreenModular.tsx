@@ -388,13 +388,14 @@ class ModularWaterEffect {
 
         float fishAngle = 0.0;
 
-                // Sistema de orientação muito responsivo
+                        // DEBUG ORIENTAÇÃO:
+        // velocityX > 0 = DIREITA -> fishAngle = 0 -> shader faz flip (fishAngle < 1.5)
+        // velocityX < 0 = ESQUERDA -> fishAngle = PI -> shader sem flip (fishAngle > 1.5)
         if (velocityX > 0.001) {
-            fishAngle = 0.0; // Velocidade POSITIVA = movendo pra DIREITA
+            fishAngle = 0.0; // MOVENDO PRA DIREITA
         } else if (velocityX < -0.001) {
-            fishAngle = 3.14159; // Velocidade NEGATIVA = movendo pra ESQUERDA
+            fishAngle = 3.14159; // MOVENDO PRA ESQUERDA
         }
-        // Limiar muito baixo para detectar qualquer movimento
 
         float fishX, fishY;
         if (u_gameState >= 2.0) {
