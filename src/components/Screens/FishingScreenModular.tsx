@@ -1058,7 +1058,7 @@ class ModularWaterEffect {
     return steeringForce;
   }
 
-  // Método para mudança gradual de direção
+  // Método para mudança gradual de dire��ão
   updateDesiredDirection() {
     const currentTime = Date.now();
 
@@ -1255,10 +1255,9 @@ class ModularWaterEffect {
       } else {
         // Quando não há movimento, gradualmente retornar para posiç��o horizontal
         if (this.fishAngle !== undefined) {
-          this.fishAngle *= 0.95; // Retorno mais suave para 0
-          if (Math.abs(this.fishAngle) < 0.005) {
-            // Threshold menor para parada mais rápida
-            this.fishAngle = 0;
+          this.fishAngle *= 0.8; // Retorno mais rápido para 0
+          if (Math.abs(this.fishAngle) < 0.01) {
+            this.fishAngle = 0; // Parada mais rápida
           }
         } else {
           this.fishAngle = 0;
