@@ -435,7 +435,7 @@ class ModularWaterEffect {
 
         float fishAngle = 0.0;
 
-                                        // === ORIENTA��ÃO DO PEIXE BASEADA NA DIREÇÃO CALCULADA ===
+                                        // === ORIENTAÇÃO DO PEIXE BASEADA NA DIREÇÃO CALCULADA ===
         if (u_fishDirection > 0.0) {
             fishAngle = 3.14159; // Direita (PI para flip correto)
         } else {
@@ -1159,16 +1159,7 @@ class ModularWaterEffect {
           "🎣 Fish hooked! Starting exclamation timer and vibration.",
         );
 
-        // Timer de 1 segundo - se não clicar, peixe vai embora
-        setTimeout(() => {
-          if (this.gameState === "fish_hooked" && this.canClickExclamation) {
-            console.log(
-              "Player didn't click exclamation in time - fish swims away",
-            );
-            this.isVibrating = false;
-            this.resetFishingGame();
-          }
-        }, 1000);
+        // Timer automático será gerenciado no updateFishingGame()
       }
     } else if (this.gameState === "fish_hooked") {
       // Usar tempo real em vez de contador de frames
