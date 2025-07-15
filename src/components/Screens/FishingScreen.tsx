@@ -66,7 +66,7 @@ class WaterEffect {
     this.canClickExclamation = false;
     this.onGameStart = null; // Callback para abrir modal
     this.onExclamationClick = null; // Callback para clique na exclamação
-    this.fishTimeOffset = 0; // Offset para sincronizar movimento natural com posição atual
+    this.fishTimeOffset = 0; // Offset para sincronizar movimento natural com posiç��o atual
     this.transitionBackToNaturalTime = 0; // Tempo desde que voltou para movimento natural
     this.transitionBackToNaturalDuration = 2000; // 2 segundos para suavizar retorno (debug)
     this.transitionStartPosition = { x: 0.5, y: 0.65 }; // Posição onde o peixe estava quando iniciou a transição
@@ -333,26 +333,51 @@ class WaterEffect {
                 // Mistura entre imagem original e efeito de água
                 vec3 finalColor = mix(originalColor.rgb, waterColor, waterMask);
                 
-                                                // Adicionar exclamação amarela se necessário
+                                                                                                // Adicionar exclamação com imagem fornecida
                 if (u_showExclamation > 0.0 && u_gameState >= 4.0) { // fish_hooked
-                    vec2 exclamationPos = vec2(fishX, fishY - 0.08); // Acima do peixe
-                    float distToExclamation = distance(uv, exclamationPos);
+                                                                                // Posição da exclamação (10px para esquerda do centro do peixe)
+                    float leftOffset = 10.0 / u_resolution.x; // Converter 10px para coordenadas UV
+                    vec2 exclamationPos = vec2(fishX - leftOffset, fishY);
 
                     // Pulsação da exclamação para chamar atenção
-                    float pulse = 0.8 + 0.2 * sin(u_time * 8.0);
+                    float pulse = 0.98 + 0.02 * sin(u_time * 8.0);
 
-                    // Desenhar círculo amarelo para exclamação com pulsação
-                    if (distToExclamation < 0.025 * pulse) {
-                        finalColor = mix(finalColor, vec3(1.0, 1.0, 0.0), 0.9);
-                    }
+                                        // Tamanho da exclamação (82% maior que o original)
+                    vec2 exclamationSize = vec2(0.015, 0.025) * 1.82 * pulse;
 
-                    // Desenhar "!" no centro
-                    vec2 localUV = (uv - exclamationPos) / (0.025 * pulse);
-                    if (abs(localUV.x) < 0.15 && localUV.y > -0.4 && localUV.y < 0.2) {
-                        finalColor = mix(finalColor, vec3(0.0, 0.0, 0.0), 0.95);
-                    }
-                    if (abs(localUV.x) < 0.15 && localUV.y > 0.35 && localUV.y < 0.5) {
-                        finalColor = mix(finalColor, vec3(0.0, 0.0, 0.0), 0.95);
+                    // Calcular UV da exclamação
+                    vec2 exclamationUV = (uv - exclamationPos + exclamationSize * 0.5) / exclamationSize;
+
+                    // Verificar se está na área da exclamação
+                    if (exclamationUV.x >= 0.0 && exclamationUV.x <= 1.0 && exclamationUV.y >= 0.0 && exclamationUV.y <= 1.0) {
+                        // Simular a imagem de exclamação amarela fornecida
+                        vec2 localPos = exclamationUV * 2.0 - 1.0; // Converter para -1 a 1
+
+                        // Corpo da exclamação (parte comprida) - corrigido para orientação correta
+                        float bodyWidth = 0.2;
+                        bool inBody = abs(localPos.x) < bodyWidth && localPos.y > -0.8 && localPos.y < 0.4;
+
+                        // Ponto da exclamação (parte pequena embaixo) - corrigido
+                        float dotSize = 0.2;
+                        bool inDot = length(localPos - vec2(0.0, 0.7)) < dotSize;
+
+                        if (inBody || inDot) {
+                            // Cor amarela/dourada da exclamação
+                            vec3 exclamationColor = vec3(1.0, 0.85, 0.0);
+
+                            // Adicionar sombra sutil
+                            vec2 shadowOffset = vec2(0.1, 0.1);
+                            vec2 shadowPos = localPos - shadowOffset;
+                            bool inShadowBody = abs(shadowPos.x) < bodyWidth && shadowPos.y > -0.6 && shadowPos.y < 0.8;
+                            bool inShadowDot = length(shadowPos - vec2(0.0, -1.2)) < dotSize;
+
+                            if (inShadowBody || inShadowDot) {
+                                finalColor = mix(finalColor, vec3(0.0, 0.0, 0.0), 0.3);
+                            }
+
+                            // Aplicar cor da exclamação
+                            finalColor = mix(finalColor, exclamationColor, 1.0);
+                        }
                     }
                 }
 
@@ -1094,17 +1119,33 @@ class WaterEffect {
       // NÃO ajustar fishTimeOffset - deixar o movimento natural continuar normalmente
       // A transição será feita pela interpolação no shader
       console.log(
-        `🐟 RESET DEBUG - Deixando fishTimeOffset como: ${this.fishTimeOffset.toFixed(4)} (não alterado)`,
+        `���� RESET DEBUG - Deixando fishTimeOffset como: ${this.fishTimeOffset.toFixed(4)} (não alterado)`,
       );
 
       // Salvar a posição atual para garantir continuidade
       this.originalFishMovement = { moveX: currentX, moveY: currentY };
     }
 
-    this.gameState = "idle";
-    this.hookPosition = { x: 0.5, y: 0.5 };
-    this.fishReactionStartTime = 0;
-    this.fishReactionDelay = 0;
+    // Verificar se o anzol ainda está na água para permitir novo interesse
+    const hookInWater =
+      this.hookPosition.x !== 0.5 || this.hookPosition.y !== 0.5;
+
+    if (hookInWater) {
+      // Se o anzol ainda estiver na água, voltar ao estado hook_cast para nova tentativa
+      this.gameState = "hook_cast";
+      this.fishReactionDelay = 3000 + Math.random() * 6000; // 3-9 segundos para nova tentativa
+      this.fishReactionStartTime = Date.now();
+      console.log(
+        `🎣 Fish will try again in ${(this.fishReactionDelay / 1000).toFixed(1)}s since hook is still in water`,
+      );
+    } else {
+      // Se não, voltar ao estado idle e resetar posição do anzol
+      this.gameState = "idle";
+      this.hookPosition = { x: 0.5, y: 0.5 };
+      this.fishReactionStartTime = 0;
+      this.fishReactionDelay = 0;
+    }
+
     this.exclamationTime = 0;
   }
 
@@ -1221,7 +1262,7 @@ class WaterEffect {
     const xWave3 = Math.cos(mainCycle * 1.3 + 2.5) * 0.08;
     const baseX = 0.5 + (xWave1 + xWave2 + xWave3);
 
-    // Movimento em Y com flutuação suave
+    // Movimento em Y com flutuaç��o suave
     const yWave1 = Math.cos(mainCycle * 0.8) * 0.18;
     const yWave2 = Math.sin(mainCycle * 1.1 + 0.8) * 0.08;
     const yWave3 = Math.cos(mainCycle * 0.6 + 1.5) * 0.05;
@@ -1695,8 +1736,10 @@ export const FishingScreen: React.FC = () => {
           }
         }}
         onLineReeled={() => {
-          console.log("Line reeled in - resetting fishing game");
+          console.log("Line reeled in - completely resetting fishing game");
           if (waterEffectRef.current) {
+            // Resetar posição do anzol para indicar que foi recolhido
+            waterEffectRef.current.hookPosition = { x: 0.5, y: 0.5 };
             waterEffectRef.current.resetFishingGame();
           }
         }}

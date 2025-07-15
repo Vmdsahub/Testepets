@@ -272,7 +272,7 @@ class ModularWaterEffect {
         float totalShadowAlpha = 0.0;
         vec3 totalShadowColor = vec3(0.0);
 
-        // 4 sombras ligeiramente deslocadas para criar dispersão
+        // 4 sombras ligeiramente deslocadas para criar dispers��o
         for(int i = 0; i < 4; i++) {
             float angle = float(i) * 1.57; // 90 graus entre cada sombra
             vec2 disperseOffset = vec2(cos(angle), sin(angle)) * 0.003; // Dispersão mínima
@@ -285,7 +285,7 @@ class ModularWaterEffect {
                 shadowUV.x = 1.0 - shadowUV.x;
             }
 
-            // Verificar se está na área válida
+            // Verificar se está na área v��lida
             if (shadowUV.x >= 0.0 && shadowUV.x <= 1.0 && shadowUV.y >= 0.0 && shadowUV.y <= 1.0 && isInWaterArea(coords)) {
                 vec4 shadowTexture = texture2D(u_fishTexture, shadowUV);
                 if (shadowTexture.a > 0.05) {
@@ -490,53 +490,52 @@ class ModularWaterEffect {
           gl_FragColor = originalColor;
         }
         
-                                // Adicionar exclamação moderna e bonita se necessário
+                                                                // Adicionar exclamação com imagem fornecida
         if (u_showExclamation > 0.0 && u_gameState >= 4.0) {
-          // Vibração quando fisgado - mesma que o peixe
-          vec2 vibrationOffset = vec2(0.0, 0.0);
-          if (u_gameState >= 4.0) {
-            float vibrationIntensity = 0.003;
-            vibrationOffset.x = sin(u_time * 50.0) * vibrationIntensity;
-            vibrationOffset.y = cos(u_time * 47.0) * vibrationIntensity;
-          }
-
-          // Posição da exclamação (ligeiramente acima do peixe, mas seguindo vibração)
-          vec2 exclamationPos = vec2(fishX + vibrationOffset.x, fishY + vibrationOffset.y - 0.04);
+                    // Posição da exclamação (10px para esquerda do centro do peixe, sem vibração)
+          float leftOffset = 10.0 / u_resolution.x; // Converter 10px para coordenadas UV
+          vec2 exclamationPos = vec2(fishX - leftOffset, fishY);
 
           // Pulsação suave para chamar atenção
-          float pulse = 0.9 + 0.1 * sin(u_time * 8.0);
+          float pulse = 0.98 + 0.02 * sin(u_time * 8.0);
 
-          // Desenhar "!" moderno e bonito
-          vec2 localUV = (uv - exclamationPos) * 80.0; // Escala menor para ficar mais delicado
+                    // Tamanho da exclamação (82% maior que o original)
+          vec2 exclamationSize = vec2(0.015, 0.025) * 1.82 * pulse;
 
-          // Sombra sutil do "!"
-          vec2 shadowUV = localUV + vec2(1.5, 1.5);
-          if (abs(shadowUV.x) < 1.2 && shadowUV.y > -3.5 && shadowUV.y < 2.5) {
-            gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(0.0, 0.0, 0.0), 0.15);
-          }
-          if (abs(shadowUV.x) < 1.2 && shadowUV.y > 3.5 && shadowUV.y < 5.0) {
-            gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(0.0, 0.0, 0.0), 0.15);
-          }
+          // Calcular UV da exclamação
+          vec2 exclamationUV = (uv - exclamationPos + exclamationSize * 0.5) / exclamationSize;
 
-          // Corpo principal do "!" com gradiente dourado
-          if (abs(localUV.x) < 1.0 && localUV.y > -3.0 && localUV.y < 2.0) {
-            float gradient = (localUV.y + 3.0) / 5.0;
-            vec3 goldColor = mix(vec3(1.0, 0.8, 0.0), vec3(1.0, 1.0, 0.4), gradient);
-            gl_FragColor.rgb = mix(gl_FragColor.rgb, goldColor * pulse, 1.0);
-          }
+          // Verificar se está na área da exclamação
+          if (exclamationUV.x >= 0.0 && exclamationUV.x <= 1.0 && exclamationUV.y >= 0.0 && exclamationUV.y <= 1.0) {
+            // Simular a imagem de exclamação amarela fornecida
+            // Criar forma de exclamação baseada na imagem
+            vec2 localPos = exclamationUV * 2.0 - 1.0; // Converter para -1 a 1
 
-          // Ponto do "!"
-          if (abs(localUV.x) < 1.0 && localUV.y > 3.0 && localUV.y < 4.5) {
-            vec3 goldColor = vec3(1.0, 0.9, 0.2);
-            gl_FragColor.rgb = mix(gl_FragColor.rgb, goldColor * pulse, 1.0);
-          }
+            // Corpo da exclamação (parte comprida) - corrigido para orientação correta
+            float bodyWidth = 0.2;
+            bool inBody = abs(localPos.x) < bodyWidth && localPos.y > -0.8 && localPos.y < 0.4;
 
-          // Brilho/glow ao redor
-          float dist = length(localUV);
-          if (dist < 8.0 && dist > 6.0) {
-            float glowIntensity = 1.0 - (dist - 6.0) / 2.0;
-            vec3 glowColor = vec3(1.0, 1.0, 0.6);
-            gl_FragColor.rgb = mix(gl_FragColor.rgb, glowColor, glowIntensity * 0.2 * pulse);
+            // Ponto da exclamação (parte pequena embaixo) - corrigido
+            float dotSize = 0.2;
+            bool inDot = length(localPos - vec2(0.0, 0.7)) < dotSize;
+
+            if (inBody || inDot) {
+              // Cor amarela/dourada da exclamação
+              vec3 exclamationColor = vec3(1.0, 0.85, 0.0);
+
+              // Adicionar sombra sutil
+              vec2 shadowOffset = vec2(0.1, 0.1);
+              vec2 shadowPos = localPos - shadowOffset;
+              bool inShadowBody = abs(shadowPos.x) < bodyWidth && shadowPos.y > -0.6 && shadowPos.y < 0.8;
+              bool inShadowDot = length(shadowPos - vec2(0.0, -1.2)) < dotSize;
+
+              if (inShadowBody || inShadowDot) {
+                gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(0.0, 0.0, 0.0), 0.3);
+              }
+
+              // Aplicar cor da exclamação
+              gl_FragColor.rgb = mix(gl_FragColor.rgb, exclamationColor, 1.0);
+            }
           }
         }
       }
@@ -1226,17 +1225,29 @@ class ModularWaterEffect {
       this.transitionBackToNaturalTime = Date.now();
     }
 
-    // Voltar ao estado idle para permitir novo interesse no anzol
-    this.gameState = "idle";
-    this.fishReactionStartTime = 0;
-    this.fishReactionDelay = 0;
+    // Verificar se o anzol ainda está na água para permitir novo interesse
+    const hookInWater =
+      this.hookPosition.x !== 0.5 || this.hookPosition.y !== 0.5;
+
+    if (hookInWater) {
+      // Se o anzol ainda estiver na água, voltar ao estado hook_cast para nova tentativa
+      this.gameState = "hook_cast";
+      this.fishReactionDelay = 3000 + Math.random() * 6000; // 3-9 segundos para nova tentativa
+      this.fishReactionStartTime = Date.now();
+      console.log(
+        `🎣 Fish will try again in ${(this.fishReactionDelay / 1000).toFixed(1)}s since hook is still in water`,
+      );
+    } else {
+      // Se não, voltar ao estado idle
+      this.gameState = "idle";
+      this.fishReactionStartTime = 0;
+      this.fishReactionDelay = 0;
+    }
+
     this.exclamationTime = 0;
     this.isVibrating = false;
     this.showFisgadoText = false;
     this.canClickExclamation = false;
-
-    // Manter a posição do anzol para o peixe poder se interessar novamente
-    // this.hookPosition = { x: 0.5, y: 0.5 }; // Comentado para manter anzol ativo
   }
 
   updateBackgroundFromImage(image) {
@@ -2154,7 +2165,10 @@ export const FishingScreenModular: React.FC = () => {
           }
         }}
         onLineReeled={() => {
+          console.log("Line reeled in - completely resetting fishing game");
           if (waterEffectRef.current) {
+            // Resetar posição do anzol para indicar que foi recolhido
+            waterEffectRef.current.hookPosition = { x: 0.5, y: 0.5 };
             waterEffectRef.current.resetFishingGame();
           }
         }}
