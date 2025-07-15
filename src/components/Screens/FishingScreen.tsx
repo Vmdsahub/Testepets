@@ -870,7 +870,7 @@ class WaterEffect {
     const seekForce = 0.3; // Reduzir intensidade do seek
     this.seekWithForce(this.wanderTarget, deltaTime, seekForce);
 
-    // Adicionar for��a de separação das bordas
+    // Adicionar for��a de separaç��o das bordas
     this.separate(deltaTime);
 
     // Adicionar pequena força de flutuação para movimento orgânico
@@ -2206,12 +2206,22 @@ export const FishingScreen: React.FC = () => {
             >
               <button
                 onClick={() => {
+                  console.log("🔄 Closing modal and resetting game...");
                   setShowFishingModal(false);
                   if (waterEffectRef.current) {
+                    console.log("🔄 Resetting fishing game...");
                     waterEffectRef.current.resetFishingGame();
+
+                    // IMPORTANTE: Reconfigurar callback após reset
+                    console.log("🔄 Reconfiguring onGameStart callback...");
+                    waterEffectRef.current.onGameStart = () => {
+                      console.log(
+                        "🎮 onGameStart callback called (after reset) - opening fishing modal!",
+                      );
+                      setShowFishingModal(true);
+                    };
                   }
                   console.log("Starting fishing mini-game...");
-                  // Aqui você pode adicionar a lógica do mini-jogo
                 }}
                 style={{
                   background: "#4A90E2",
@@ -2228,9 +2238,22 @@ export const FishingScreen: React.FC = () => {
 
               <button
                 onClick={() => {
+                  console.log("🚫 Canceling fishing game...");
                   setShowFishingModal(false);
                   if (waterEffectRef.current) {
+                    console.log("🚫 Resetting fishing game after cancel...");
                     waterEffectRef.current.resetFishingGame();
+
+                    // IMPORTANTE: Reconfigurar callback após reset
+                    console.log(
+                      "🚫 Reconfiguring onGameStart callback after cancel...",
+                    );
+                    waterEffectRef.current.onGameStart = () => {
+                      console.log(
+                        "🎮 onGameStart callback called (after cancel) - opening fishing modal!",
+                      );
+                      setShowFishingModal(true);
+                    };
                   }
                 }}
                 style={{
