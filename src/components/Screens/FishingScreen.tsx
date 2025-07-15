@@ -2141,6 +2141,7 @@ export const FishingScreen: React.FC = () => {
         "📺 Modal render check - showFishingModal:",
         showFishingModal,
       )}
+      {showFishingModal && console.log("📺 MODAL IS BEING RENDERED!")}
       {showFishingModal && (
         <div
           style={{
