@@ -808,7 +808,7 @@ class WaterEffect {
       this.seek(this.hookPosition, deltaTime);
     }
 
-    // Aplicar física: velocidade += aceleração
+    // Aplicar f��sica: velocidade += aceleração
     this.fishVelocity.x += this.fishAcceleration.x * deltaTime;
     this.fishVelocity.y += this.fishAcceleration.y * deltaTime;
 
@@ -2225,13 +2225,7 @@ export const FishingScreen: React.FC = () => {
                     waterEffectRef.current.resetFishingGame();
 
                     // IMPORTANTE: Reconfigurar callback após reset
-                    console.log("🔄 Reconfiguring onGameStart callback...");
-                    waterEffectRef.current.onGameStart = () => {
-                      console.log(
-                        "🎮 onGameStart callback called (after reset) - opening fishing modal!",
-                      );
-                      setShowFishingModal(true);
-                    };
+                    reconfigureCallbacks();
                   }
                   console.log("Starting fishing mini-game...");
                 }}
@@ -2257,15 +2251,7 @@ export const FishingScreen: React.FC = () => {
                     waterEffectRef.current.resetFishingGame();
 
                     // IMPORTANTE: Reconfigurar callback após reset
-                    console.log(
-                      "🚫 Reconfiguring onGameStart callback after cancel...",
-                    );
-                    waterEffectRef.current.onGameStart = () => {
-                      console.log(
-                        "🎮 onGameStart callback called (after cancel) - opening fishing modal!",
-                      );
-                      setShowFishingModal(true);
-                    };
+                    reconfigureCallbacks();
                   }
                 }}
                 style={{
