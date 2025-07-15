@@ -13,6 +13,7 @@ interface FishingRodProps {
   onHookCast?: (x: number, y: number) => void;
   onLineReeled?: () => void;
   waterArea?: WaterArea;
+  isFishBiting?: () => boolean; // Nova prop para verificar se peixe está mordendo
 }
 
 // Classe do sistema de pesca baseada no simulador fornecido
@@ -57,6 +58,7 @@ class FishingSystem {
   private onHookCast?: (x: number, y: number) => void;
   private onLineReeled?: () => void;
   private waterArea?: WaterArea;
+  private isFishBiting?: () => boolean;
   private hookCastCallbackCalled = false;
 
   // Sistema de força de lançamento
@@ -79,11 +81,13 @@ class FishingSystem {
     onHookCast?: (x: number, y: number) => void,
     onLineReeled?: () => void,
     waterArea?: WaterArea,
+    isFishBiting?: () => boolean,
   ) {
     this.canvas = canvas;
     this.onHookCast = onHookCast;
     this.onLineReeled = onLineReeled;
     this.waterArea = waterArea;
+    this.isFishBiting = isFishBiting;
     const context = canvas.getContext("2d");
     if (!context) {
       throw new Error("Não foi possível obter o contexto 2D do canvas");
@@ -132,6 +136,13 @@ class FishingSystem {
         this.isCharging = true;
         this.chargeStartTime = Date.now();
       } else {
+        // AJUSTE: Se peixe está mordendo, NÃO recolher - deixar minigame ativar
+        if (this.isFishBiting && this.isFishBiting()) {
+          console.log(
+            "🎣 Fish is biting - ignoring reel in to allow minigame activation",
+          );
+          return; // Não recolher durante mordida
+        }
         this.reelIn();
       }
     });
@@ -835,6 +846,7 @@ export const FishingRod: React.FC<FishingRodProps> = ({
   onHookCast,
   onLineReeled,
   waterArea,
+  isFishBiting,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fishingSystemRef = useRef<FishingSystem | null>(null);
@@ -847,6 +859,7 @@ export const FishingRod: React.FC<FishingRodProps> = ({
           onHookCast,
           onLineReeled,
           waterArea,
+          isFishBiting,
         );
       } catch (error) {
         console.error("Erro ao inicializar sistema de pesca:", error);
@@ -858,7 +871,7 @@ export const FishingRod: React.FC<FishingRodProps> = ({
         fishingSystemRef.current.destroy();
       }
     };
-  }, [onHookCast, onLineReeled]);
+  }, [onHookCast, onLineReeled, isFishBiting]);
 
   // UseEffect separado para atualizar waterArea quando ela mudar
   useEffect(() => {

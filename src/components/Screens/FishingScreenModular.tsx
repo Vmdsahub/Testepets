@@ -19,9 +19,10 @@ interface WaterArea {
 
 // WebGL Water Effect Class Modular - NOVO: Movimento aleat���rio livre com rotação 360° baseado na área definida
 class ModularWaterEffect {
-  constructor(waterArea) {
+  constructor(waterArea, isAdmin = false) {
     this.canvas = document.getElementById("waterCanvas");
     this.waterArea = waterArea;
+    this.isAdmin = isAdmin;
 
     if (!this.canvas) {
       console.warn("Canvas element not found");
@@ -427,7 +428,7 @@ class ModularWaterEffect {
         velocityX += cos(t * 1.5) * 1.5 * swimSpeed * areaW * 0.15;
         velocityX += -sin(t * 0.6 + 2.0) * 0.6 * swimSpeed * areaW * 0.2;
 
-        // Movimento de busca rápido
+        // Movimento de busca r��pido
         velocityX += cos(t * 2.2) * 2.2 * swimSpeed * areaW * 0.1;
 
         // Aplicar aceleração
@@ -461,7 +462,7 @@ class ModularWaterEffect {
         float waterMask = inWater ? 1.0 : 0.0;
         
         if (inWater) {
-          // Aplicar efeitos de água apenas dentro da ��rea
+          // Aplicar efeitos de água apenas dentro da ����rea
           vec2 refraction = calculateRefraction(uv, u_time) * waterMask;
           vec2 distortedUV = uv + refraction;
           
@@ -891,6 +892,61 @@ class ModularWaterEffect {
     this.fishReactionStartTime = Date.now();
   }
 
+  // Verificar se o anzol está dentro da área de água
+  isHookInWater() {
+    const hookX = this.hookPosition.x;
+    const hookY = this.hookPosition.y;
+
+    // Verificar se está dentro da área de água definida
+    const { x, y, width, height, shape } = this.waterArea;
+
+    switch (shape) {
+      case "rectangle":
+        return (
+          hookX >= x && hookX <= x + width && hookY >= y && hookY <= y + height
+        );
+
+      case "circle": {
+        const centerX = x + width / 2;
+        const centerY = y + height / 2;
+        const radius = Math.min(width, height) / 2;
+        const distance = Math.sqrt(
+          (hookX - centerX) ** 2 + (hookY - centerY) ** 2,
+        );
+        return distance <= radius;
+      }
+
+      case "triangle": {
+        // Triângulo: topo centro, base esquerda, base direita
+        const tx1 = x + width / 2; // Topo centro
+        const ty1 = y;
+        const tx2 = x; // Base esquerda
+        const ty2 = y + height;
+        const tx3 = x + width; // Base direita
+        const ty3 = y + height;
+
+        // Algoritmo de área para verificar se ponto está dentro do triângulo
+        const area = Math.abs(
+          (tx2 - tx1) * (ty3 - ty1) - (tx3 - tx1) * (ty2 - ty1),
+        );
+        const area1 = Math.abs(
+          (hookX - tx2) * (ty3 - ty2) - (tx3 - tx2) * (hookY - ty2),
+        );
+        const area2 = Math.abs(
+          (tx1 - hookX) * (hookY - ty1) - (hookX - tx1) * (ty1 - hookY),
+        );
+        const area3 = Math.abs(
+          (tx2 - tx1) * (hookY - ty1) - (hookX - tx1) * (ty2 - ty1),
+        );
+
+        return Math.abs(area - (area1 + area2 + area3)) < 0.001;
+      }
+
+      default:
+        return false;
+    }
+  }
+
   // Método para movimento orgânico - evitar bordas naturalmente
   avoidBorders() {
     const detectionMargin = 0.08; // Detectar bordas com antecedência
@@ -1155,6 +1211,13 @@ class ModularWaterEffect {
     if (this.gameState === "hook_cast") {
       const elapsedTime = Date.now() - this.fishReactionStartTime;
       if (elapsedTime >= this.fishReactionDelay) {
+        // VERIFICAÇÃO: Anzol deve estar na água para peixe reagir
+        if (!this.isHookInWater()) {
+          console.log("🎣 Hook is not in water - fish will not react");
+          this.resetFishingGame(); // Reset se anzol não estiver na água
+          return;
+        }
+
         // Capturar posição atual e começar reação
         this.gameState = "fish_reacting";
         console.log(
@@ -1226,8 +1289,7 @@ class ModularWaterEffect {
     }
 
     // Verificar se o anzol ainda está na água para permitir novo interesse
-    const hookInWater =
-      this.hookPosition.x !== 0.5 || this.hookPosition.y !== 0.5;
+    const hookInWater = this.isHookInWater();
 
     if (hookInWater) {
       // Se o anzol ainda estiver na água, voltar ao estado hook_cast para nova tentativa
@@ -1287,8 +1349,55 @@ class ModularWaterEffect {
     );
   }
 
-  // Método para desenhar overlay da boca do peixe
+  // Método para desenhar apenas texto "Fisgado!" sem círculo da boca
+  drawFisgadoTextOnly() {
+    const overlayCanvas = document.getElementById("fishMouthOverlay");
+    if (!overlayCanvas) return;
+
+    const ctx = overlayCanvas.getContext("2d");
+    if (!ctx) return;
+
+    // Ajustar tamanho do overlay
+    overlayCanvas.width = window.innerWidth;
+    overlayCanvas.height = window.innerHeight;
+
+    // Limpar canvas
+    ctx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+
+    // Usar a MESMA posição do peixe que o shader usa
+    const fishUvX = this.fishCurrentPosition.x;
+    const fishUvY = this.fishCurrentPosition.y;
+
+    // Converter para pixels
+    const fishPixelX = fishUvX * overlayCanvas.width;
+    const fishPixelY = fishUvY * overlayCanvas.height;
+
+    // Desenhar apenas texto "Fisgado!"
+    ctx.fillStyle = "#FFD700";
+    ctx.font = "bold 24px Arial";
+    ctx.strokeStyle = "#000";
+    ctx.lineWidth = 2;
+
+    const text = "Fisgado!";
+    const textMetrics = ctx.measureText(text);
+    const textX = fishPixelX - textMetrics.width / 2;
+    const textY = fishPixelY - 60;
+
+    ctx.strokeText(text, textX, textY);
+    ctx.fillText(text, textX, textY);
+  }
+
+  // Método para desenhar overlay da boca do peixe (APENAS ADMIN)
   drawFishMouthOverlay() {
+    // VERIFICAÇÃO: Círculo rosa da boca visível APENAS para admin
+    if (!this.isAdmin) {
+      // Se não é admin, apenas desenhar texto "Fisgado!" se necessário
+      if (this.showFisgadoText) {
+        this.drawFisgadoTextOnly();
+      }
+      return;
+    }
+
     const overlayCanvas = document.getElementById("fishMouthOverlay");
     if (!overlayCanvas) return;
 
@@ -1726,7 +1835,7 @@ export const FishingScreenModular: React.FC = () => {
 
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-  const [showFishingModal, setShowFishingModal] = useState(false);
+
   const [showMinigame, setShowMinigame] = useState(false);
   const [fishingSettings, setFishingSettings] =
     useState<FishingSettings | null>(null);
@@ -1747,59 +1856,32 @@ export const FishingScreenModular: React.FC = () => {
 
   // Initialize water effect
   useEffect(() => {
+    // Definir referência para o listener no escopo do useEffect
+    let globalClickHandler: ((e: MouseEvent) => void) | null = null;
+
     const timer = setTimeout(() => {
       try {
-        const waterEffect = new ModularWaterEffect(waterArea);
+        const waterEffect = new ModularWaterEffect(waterArea, isAdmin);
         waterEffect.onGameStart = () => {
           setShowMinigame(true);
         };
 
-        // Adicionar listener para cliques na exclamação
-        const handleCanvasClick = (e: MouseEvent) => {
+        // NOVA LÓGICA: Clique em QUALQUER LUGAR da tela durante mordida
+        globalClickHandler = (e: MouseEvent) => {
           if (
             waterEffect.gameState === "fish_hooked" &&
             waterEffect.canClickExclamation
           ) {
-            const rect = (e.target as HTMLElement).getBoundingClientRect();
-            const x = (e.clientX - rect.left) / rect.width;
-            const y = (e.clientY - rect.top) / rect.height;
-
-            // Posição da exclamação (acima do peixe)
-            // Usar posição natural do peixe baseada no tempo
-            const time = waterEffect.fishTime * 0.5;
-            const areaX = waterEffect.waterArea.x;
-            const areaY = waterEffect.waterArea.y;
-            const areaW = waterEffect.waterArea.width;
-            const areaH = waterEffect.waterArea.height;
-
-            // Calcular posição do peixe (baseado no shader)
-            const centerX = areaX + areaW / 2;
-            const centerY = areaY + areaH / 2;
-            const mainRadius = Math.min(areaW, areaH) * 0.35;
-            const mainAngle = time * 0.8;
-            const circleX = Math.cos(mainAngle) * mainRadius;
-            const circleY = Math.sin(mainAngle) * mainRadius * 0.7;
-
-            const fishX = centerX + circleX * 0.01; // Conversão aproximada para coordenadas UV
-            const fishY = centerY + circleY * 0.01;
-            const exclamationX = fishX;
-            const exclamationY = fishY - 0.08;
-
-            // Verificar se clicou na área da exclamação
-            const distance = Math.sqrt(
-              Math.pow(x - exclamationX, 2) + Math.pow(y - exclamationY, 2),
+            console.log(
+              "🎣 Player clicked anywhere during fish bite - triggering minigame!",
             );
-
-            if (distance <= 0.05) {
-              // Área clic��vel da exclamação
-              waterEffect.handleExclamationClick();
-            }
+            waterEffect.handleExclamationClick();
           }
         };
 
-        const canvas = document.getElementById("waterCanvas");
-        if (canvas) {
-          canvas.addEventListener("click", handleCanvasClick);
+        // Adicionar listener GLOBAL para qualquer clique na tela
+        if (globalClickHandler) {
+          document.addEventListener("click", globalClickHandler);
         }
 
         if (fishingSettings) {
@@ -1826,7 +1908,13 @@ export const FishingScreenModular: React.FC = () => {
       }
     }, 100);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      // Remover listener global quando componente for desmontado
+      if (globalClickHandler) {
+        document.removeEventListener("click", globalClickHandler);
+      }
+    };
   }, [fishingSettings]);
 
   // Atualizar área da água no effect
@@ -2153,6 +2241,13 @@ export const FishingScreenModular: React.FC = () => {
       {/* Fishing Rod Component */}
       <FishingRod
         waterArea={waterArea}
+        isFishBiting={() => {
+          // Verificar se peixe está mordendo (fish_hooked + canClickExclamation)
+          return (
+            waterEffectRef.current?.gameState === "fish_hooked" &&
+            waterEffectRef.current?.canClickExclamation === true
+          );
+        }}
         onHookCast={(x, y) => {
           // Verificar se o clique está dentro da área de água antes de iniciar o jogo
           if (isPointInWaterArea(x, y)) {
@@ -2243,7 +2338,7 @@ export const FishingScreenModular: React.FC = () => {
               borderRadius: "5px",
             }}
           >
-            💡 <strong>Reposicionar área:</strong> Segure{" "}
+            �� <strong>Reposicionar área:</strong> Segure{" "}
             <kbd
               style={{
                 background: "#e0e0e0",
@@ -2500,9 +2595,7 @@ export const FishingScreenModular: React.FC = () => {
         <FishingMinigame
           onComplete={(success) => {
             setShowMinigame(false);
-            if (success) {
-              setShowFishingModal(true);
-            }
+            // Sucesso ou falha, apenas fecha o minigame
             if (waterEffectRef.current) {
               waterEffectRef.current.resetFishingGame();
             }
@@ -2510,8 +2603,8 @@ export const FishingScreenModular: React.FC = () => {
         />
       )}
 
-      {/* Modal de Jogo de Pesca */}
-      {showFishingModal && (
+      {/* Modal removido - showFishingModal */}
+      {false && (
         <div
           style={{
             position: "fixed",
