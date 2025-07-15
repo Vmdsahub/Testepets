@@ -1705,6 +1705,7 @@ class ModularWaterEffect {
       this.transitionStartPosition.y,
     );
     this.gl.uniform1f(this.uniforms.fishDirection, this.fishDirection);
+    this.gl.uniform1f(this.uniforms.fishAngle, this.fishAngle);
 
     // Novos uniforms para área modular
     this.gl.uniform4f(
