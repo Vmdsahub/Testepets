@@ -245,10 +245,10 @@ class ModularWaterEffect {
         // fishAngle = 0 (direita): usar imagem normal
         // Y sempre inalterado - nunca inverte verticalmente
 
-                                        // === RENDERIZAR SOMBRA SUAVE DO PEIXE ===
+                                                // === RENDERIZAR SOMBRA SUAVE DO PEIXE ===
 
         // Offset da sombra (ligeiramente para baixo e direita)
-        vec2 shadowOffset = vec2(0.015, 0.025);
+        vec2 shadowOffset = vec2(0.012, 0.02);
         vec2 shadowPos = fishPos + shadowOffset;
         vec2 shadowUV = (coords - shadowPos + fishSize * 0.5) / fishSize;
 
@@ -259,17 +259,15 @@ class ModularWaterEffect {
 
         // Renderizar sombra se estiver na área válida
         if (shadowUV.x >= 0.0 && shadowUV.x <= 1.0 && shadowUV.y >= 0.0 && shadowUV.y <= 1.0 && isInWaterArea(coords)) {
-            vec4 shadowColor = texture2D(u_fishTexture, shadowUV);
-            if (shadowColor.a > 0.1) {
-                // Sombra escura e suave
-                vec3 shadowTint = vec3(0.2, 0.3, 0.4) * 0.4; // Tom azulado escuro
-                float shadowAlpha = shadowColor.a * 0.6; // Sombra mais transparente
+            vec4 shadowTexture = texture2D(u_fishTexture, shadowUV);
+            if (shadowTexture.a > 0.1) {
+                // Manter o formato exato da imagem do peixe
+                // Escurecer a imagem original para criar sombra natural
+                vec3 shadowColor = shadowTexture.rgb * 0.15; // Muito escuro
+                float shadowAlpha = shadowTexture.a * 0.5; // Usar alpha original da texture
 
-                // Suavizar bordas da sombra
-                float shadowSoftness = 1.0 - smoothstep(0.1, 0.9, distance(shadowUV, vec2(0.5, 0.5)) * 2.0);
-                shadowAlpha *= shadowSoftness;
-
-                bgColor = mix(bgColor, vec4(shadowTint, 1.0), shadowAlpha);
+                // Misturar sombra mantendo o formato original
+                bgColor = mix(bgColor, vec4(shadowColor, 1.0), shadowAlpha);
             }
         }
 
@@ -1671,7 +1669,7 @@ export const FishingScreenModular: React.FC = () => {
               fontSize: "0.9rem",
             }}
           >
-            ��REA DA ÁGUA
+            ÁREA DA ÁGUA
           </div>
 
           <div style={{ marginBottom: "10px" }}>
