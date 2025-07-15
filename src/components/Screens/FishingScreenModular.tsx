@@ -931,7 +931,7 @@ class ModularWaterEffect {
       shouldChangeDirection = true;
     }
 
-    // Se está perto de uma borda, forçar mudança de direção imediata
+    // Se est�� perto de uma borda, forçar mudança de direção imediata
     if (shouldChangeDirection) {
       // Escolher nova direção que aponte para longe das bordas próximas
       let newAngle;
@@ -1774,7 +1774,7 @@ export const FishingScreenModular: React.FC = () => {
 
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-  const [showFishingModal, setShowFishingModal] = useState(false);
+
   const [showMinigame, setShowMinigame] = useState(false);
   const [fishingSettings, setFishingSettings] =
     useState<FishingSettings | null>(null);
