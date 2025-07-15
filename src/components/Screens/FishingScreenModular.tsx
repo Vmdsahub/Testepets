@@ -1819,7 +1819,9 @@ export const FishingScreenModular: React.FC = () => {
         };
 
         // Adicionar listener GLOBAL para qualquer clique na tela
-        document.addEventListener("click", handleGlobalClick);
+        if (globalClickHandler) {
+          document.addEventListener("click", globalClickHandler);
+        }
 
         if (fishingSettings) {
           waterEffect.waveIntensity = fishingSettings.waveIntensity;
