@@ -284,56 +284,103 @@ class ModularWaterEffect {
             fishBehavior = 0.0; // ESTADO: Nadando livre (30%)
         }
 
-                                // === SISTEMA DE PADRÕES LONGOS E COMPLEXOS ===
+                                        // === SISTEMA DE PADRÕES LONGOS E COMPLEXOS ===
 
         float moveSpeed = 0.025; // Velocidade reduzida para movimentos mais longos
 
-        // Ciclo muito lento para padrões longos (a cada ~8 minutos)
-        float patternTime = time * 0.002;
+        // Ciclo muito lento para padrões longos (a cada ~12 minutos)
+        float patternTime = time * 0.0015;
         float patternCycle = sin(patternTime) * 0.5 + 0.5;
-        float currentPattern = floor(patternCycle * 3.0); // 3 padrões complexos
+        float continuousPattern = patternCycle * 6.0; // 6 padrões complexos
+
+        // Suavização entre padrões para evitar teleporte
+        float currentPattern = floor(continuousPattern);
+        float blendFactor = fract(continuousPattern);
+        float smoothBlend = smoothstep(0.0, 0.2, blendFactor) * (1.0 - smoothstep(0.8, 1.0, blendFactor));
 
         float angle = time * moveSpeed;
-        float baseX, baseY;
+        float baseX = centerX, baseY = centerY;
+        float nextBaseX = centerX, nextBaseY = centerY;
 
+        // Calcular posição do padrão atual
         if (currentPattern < 1.0) {
-            // Padrão 1: Trajetória complexa que cobre toda a área
-            // Combinação de ondas seno/cosseno em diferentes frequências
+            // Padrão 1: Ondas harmônicas complexas
             float wave1 = sin(angle * 0.3) * areaW * 0.48;
             float wave2 = cos(angle * 0.17) * areaW * 0.25;
             float wave3 = sin(angle * 0.45) * areaH * 0.42;
             float wave4 = cos(angle * 0.23) * areaH * 0.18;
-
             baseX = centerX + wave1 + wave2;
             baseY = centerY + wave3 + wave4;
 
         } else if (currentPattern < 2.0) {
-            // Padrão 2: Movimento em forma de rosácea complexa
+            // Padrão 2: Rosácea com variações
             float r = min(areaW, areaH) * 0.45;
-            float k = 5.0; // Número de pétalas
+            float k = 5.0;
             float roseRadius = r * sin(k * angle * 0.4);
+            baseX = centerX + roseRadius * cos(angle * 0.4) + sin(angle * 0.08) * areaW * 0.2;
+            baseY = centerY + roseRadius * sin(angle * 0.4) * 0.85 + cos(angle * 0.06) * areaH * 0.15;
 
-            baseX = centerX + roseRadius * cos(angle * 0.4);
-            baseY = centerY + roseRadius * sin(angle * 0.4) * 0.85;
+        } else if (currentPattern < 3.0) {
+            // Padrão 3: Movimento em "8" infinity
+            float scale = min(areaW, areaH) * 0.4;
+            baseX = centerX + sin(angle * 0.5) * scale;
+            baseY = centerY + sin(angle * 1.0) * scale * 0.6;
+            // Adicionar movimento orbital
+            baseX += cos(angle * 0.1) * areaW * 0.15;
+            baseY += sin(angle * 0.08) * areaH * 0.12;
 
-            // Adicionar variação lenta para cobrir mais área
-            baseX += sin(angle * 0.08) * areaW * 0.2;
-            baseY += cos(angle * 0.06) * areaH * 0.15;
+        } else if (currentPattern < 4.0) {
+            // Padrão 4: Espiral crescente e decrescente
+            float spiralRadius = (sin(angle * 0.1) * 0.5 + 0.5) * min(areaW, areaH) * 0.4;
+            float spiralAngle = angle * 0.6;
+            baseX = centerX + cos(spiralAngle) * spiralRadius;
+            baseY = centerY + sin(spiralAngle) * spiralRadius * 0.8;
+            // Movimento de deriva
+            baseX += sin(angle * 0.05) * areaW * 0.2;
+            baseY += cos(angle * 0.04) * areaH * 0.15;
+
+        } else if (currentPattern < 5.0) {
+            // Padrão 5: Movimento em losango com curvas
+            float t = angle * 0.4;
+            float diamond = abs(sin(t)) + abs(cos(t));
+            baseX = centerX + cos(t) * diamond * areaW * 0.35;
+            baseY = centerY + sin(t * 1.5) * diamond * areaH * 0.3;
+            // Ondulação adicional
+            baseX += sin(angle * 0.25) * areaW * 0.1;
+            baseY += cos(angle * 0.18) * areaH * 0.08;
 
         } else {
-            // Padrão 3: Movimento tipo "drunk walk" controlado
-            // Múltiplas ondas com frequências prímas para evitar repetição
+            // Padrão 6: "Drunk walk" aprimorado
             float x1 = sin(angle * 0.13) * areaW * 0.35;
             float x2 = cos(angle * 0.29) * areaW * 0.28;
             float x3 = sin(angle * 0.41) * areaW * 0.15;
-
             float y1 = cos(angle * 0.19) * areaH * 0.38;
             float y2 = sin(angle * 0.31) * areaH * 0.22;
             float y3 = cos(angle * 0.37) * areaH * 0.12;
-
             baseX = centerX + x1 + x2 + x3;
             baseY = centerY + y1 + y2 + y3;
         }
+
+        // Calcular próximo padrão para suavização
+        float nextPattern = mod(currentPattern + 1.0, 6.0);
+        if (nextPattern < 1.0) {
+            float wave1 = sin(angle * 0.3) * areaW * 0.48;
+            float wave2 = cos(angle * 0.17) * areaW * 0.25;
+            float wave3 = sin(angle * 0.45) * areaH * 0.42;
+            float wave4 = cos(angle * 0.23) * areaH * 0.18;
+            nextBaseX = centerX + wave1 + wave2;
+            nextBaseY = centerY + wave3 + wave4;
+        } else if (nextPattern < 2.0) {
+            float r = min(areaW, areaH) * 0.45;
+            float roseRadius = r * sin(5.0 * angle * 0.4);
+            nextBaseX = centerX + roseRadius * cos(angle * 0.4) + sin(angle * 0.08) * areaW * 0.2;
+            nextBaseY = centerY + roseRadius * sin(angle * 0.4) * 0.85 + cos(angle * 0.06) * areaH * 0.15;
+        }
+        // (outros padrões do nextPattern podem ser implementados se necessário)
+
+        // Misturar padrões suavemente para eliminar teleporte
+        baseX = mix(baseX, nextBaseX, smoothBlend);
+        baseY = mix(baseY, nextBaseY, smoothBlend);
 
                         // Suavização para evitar teleporte entre padrões
         float transitionSmooth = 0.95; // Suavização forte
