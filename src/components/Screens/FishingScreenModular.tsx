@@ -1577,13 +1577,6 @@ class ModularWaterEffect {
     const showExclamationValue =
       this.gameState === "fish_hooked" && this.exclamationTime > 0 ? 1.0 : 0.0;
 
-    // Log apenas quando muda de estado
-    if (this.gameState === "fish_hooked" && Math.random() < 0.02) {
-      console.log(
-        `🔔 EXCLAMATION - Time remaining: ${this.exclamationTime}ms, showing: ${showExclamationValue > 0}`,
-      );
-    }
-
     this.gl.uniform1f(this.uniforms.showExclamation, showExclamationValue);
     this.gl.uniform1f(this.uniforms.fishTimeOffset, this.fishTimeOffset);
 
