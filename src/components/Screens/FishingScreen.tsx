@@ -1734,8 +1734,10 @@ export const FishingScreen: React.FC = () => {
           }
         }}
         onLineReeled={() => {
-          console.log("Line reeled in - resetting fishing game");
+          console.log("Line reeled in - completely resetting fishing game");
           if (waterEffectRef.current) {
+            // Resetar posição do anzol para indicar que foi recolhido
+            waterEffectRef.current.hookPosition = { x: 0.5, y: 0.5 };
             waterEffectRef.current.resetFishingGame();
           }
         }}
