@@ -1274,14 +1274,22 @@ class ModularWaterEffect {
         ? (this.fishAngle * 180) / Math.PI
         : 0;
       const verticalVel = this.fishVelocity.y.toFixed(6);
-      const movementDirection =
-        this.fishVelocity.y > 0
-          ? "PARA BAIXO"
-          : this.fishVelocity.y < 0
-            ? "PARA CIMA"
+      const horizontalDir = this.fishDirection > 0 ? "DIREITA" : "ESQUERDA";
+      const verticalDir =
+        this.fishVelocity.y > 0.0002
+          ? "BAIXO"
+          : this.fishVelocity.y < -0.0002
+            ? "CIMA"
             : "PARADO";
+      const expectedTilt =
+        this.fishVelocity.y > 0
+          ? "para baixo"
+          : this.fishVelocity.y < 0
+            ? "para cima"
+            : "horizontal";
+
       console.log(
-        `🐟 ROTAÇÃO DEBUG - VelY: ${verticalVel}, Direção: ${movementDirection}, Ângulo: ${angleDegrees.toFixed(1)}°, Dir: ${this.fishDirection > 0 ? "RIGHT" : "LEFT"}`,
+        `🐟 DEBUG PEIXE - Lado: ${horizontalDir}, Movimento: ${verticalDir}, Inclinação esperada: ${expectedTilt}, Ângulo: ${angleDegrees.toFixed(1)}°`,
       );
     }
   }
@@ -1420,7 +1428,7 @@ class ModularWaterEffect {
           `🎣 Fish hooked! Hook at (${this.hookPosition.x.toFixed(3)}, ${this.hookPosition.y.toFixed(3)}) - Hook in water: ${this.isHookInWater()} - Starting exclamation timer.`,
         );
 
-        // Timer automático será gerenciado no updateFishingGame()
+        // Timer automático ser�� gerenciado no updateFishingGame()
       }
     } else if (this.gameState === "fish_hooked") {
       // VERIFICAÇÃO CONTÍNUA: Se anzol saiu da água durante fish_hooked, resetar imediatamente
