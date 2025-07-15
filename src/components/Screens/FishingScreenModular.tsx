@@ -1754,7 +1754,7 @@ export const FishingScreenModular: React.FC = () => {
           setShowMinigame(true);
         };
 
-        // Adicionar listener para cliques na exclamação
+        // NOVA LÓGICA: Clique em QUALQUER LUGAR da tela durante mordida
         const handleCanvasClick = (e: MouseEvent) => {
           if (
             waterEffect.gameState === "fish_hooked" &&
