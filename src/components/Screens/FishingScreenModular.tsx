@@ -316,16 +316,16 @@ class ModularWaterEffect {
 
         // === SISTEMA DE ROTAÇÃO NATURAL ===
 
-                                // === ORIENTAÇÃO CORRETA BASEADA NA VELOCIDADE ===
+                                        // === ORIENTAÇÃO CORRETA BASEADA NA VELOCIDADE ===
 
         // Calcular velocidade atual (derivação)
-        float dt = 0.1; // Delta time pequeno
+        float dt = 0.05; // Delta time menor para mais precisão
         float currentAngle = time * moveSpeed;
         float futureAngle = (time + dt) * moveSpeed;
 
         // Posição atual e futura
-        float currentX = centerX + cos(currentAngle) * radius;
-        float futureX = centerX + cos(futureAngle) * radius;
+        float currentX = centerX + cos(currentAngle) * radiusX;
+        float futureX = centerX + cos(futureAngle) * radiusX;
 
         // Velocidade X (direção do movimento)
         float velocityX = futureX - currentX;
@@ -362,7 +362,7 @@ class ModularWaterEffect {
         float waterMask = inWater ? 1.0 : 0.0;
         
         if (inWater) {
-          // Aplicar efeitos de água apenas dentro da ��rea
+          // Aplicar efeitos de água apenas dentro da ����rea
           vec2 refraction = calculateRefraction(uv, u_time) * waterMask;
           vec2 distortedUV = uv + refraction;
           
