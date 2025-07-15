@@ -1251,12 +1251,12 @@ class ModularWaterEffect {
           this.fishAngle = targetAngle;
         } else {
           // Suavização balanceada: responsíva mas suave
-          const smoothingFactor = 0.2; // Balanceado para responsividade natural
+          const smoothingFactor = 0.3; // Mais responsívo para rotação visível
           this.fishAngle =
             this.fishAngle + (targetAngle - this.fishAngle) * smoothingFactor;
         }
       } else {
-        // Quando não há movimento, gradualmente retornar para posição horizontal
+        // Quando não há movimento, gradualmente retornar para posiç��o horizontal
         if (this.fishAngle !== undefined) {
           this.fishAngle *= 0.95; // Retorno mais suave para 0
           if (Math.abs(this.fishAngle) < 0.005) {
@@ -3179,7 +3179,7 @@ export const FishingScreenModular: React.FC = () => {
           <div style={{ fontSize: "12px", color: "#666", marginTop: "10px" }}>
             {isShiftPressed
               ? "🎯 Shift ativo - arraste a área para reposicionar"
-              : "����️ Segure Shift e arraste a área tracejada para reposicionar"}
+              : "��️ Segure Shift e arraste a área tracejada para reposicionar"}
           </div>
         </div>
       )}
