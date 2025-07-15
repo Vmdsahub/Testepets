@@ -1227,11 +1227,8 @@ class ModularWaterEffect {
       const horizontalComponent = this.fishVelocity.x;
       const verticalComponent = this.fishVelocity.y;
 
-      // Calcular o ângulo completo baseado na velocidade
-      if (
-        Math.abs(horizontalComponent) > 0.0001 ||
-        Math.abs(verticalComponent) > 0.0001
-      ) {
+      // Calcular rotação baseada na velocidade vertical
+      if (Math.abs(verticalComponent) > 0.0002) {
         // Cálculo SIMPLES: apenas velocidade vertical importa para inclinação
         // Velocidade Y positiva = nadando para baixo = ângulo positivo
         // Velocidade Y negativa = nadando para cima = ângulo negativo
@@ -1246,14 +1243,14 @@ class ModularWaterEffect {
           Math.min(maxTiltAngle, targetAngle),
         );
 
-        // Aplicar suavização para evitar mudanças bruscas
-        if (this.fishAngle === undefined) {
-          this.fishAngle = targetAngle;
+        // Aplicar suavização simples e responsíva
+        if (this.fishAngle === undefined || this.fishAngle === 0) {
+          this.fishAngle = targetAngle * 0.2; // Começar com 20% do ângulo
         } else {
-          // Suavização balanceada: responsíva mas suave
-          const smoothingFactor = 0.3; // Mais responsívo para rotação visível
+          // Interpolação linear direta
+          const lerpSpeed = 0.08; // Suavização leve
           this.fishAngle =
-            this.fishAngle + (targetAngle - this.fishAngle) * smoothingFactor;
+            this.fishAngle + (targetAngle - this.fishAngle) * lerpSpeed;
         }
       } else {
         // Quando não há movimento, gradualmente retornar para posiç��o horizontal
@@ -1526,7 +1523,7 @@ class ModularWaterEffect {
 
     // IMPORTANTE: Preservar backup do callback
     if (this.onGameStartBackup && !this.onGameStart) {
-      console.log("��� Restoring callback from backup after reset");
+      console.log("�� Restoring callback from backup after reset");
       this.onGameStart = this.onGameStartBackup;
     }
 
