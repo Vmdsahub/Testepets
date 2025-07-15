@@ -497,7 +497,7 @@ class ModularWaterEffect {
         
                                                                 // Adicionar exclamação com imagem fornecida
         if (u_showExclamation > 0.0 && u_gameState >= 4.0) {
-                    // Posição da exclamação (10px para esquerda do centro do peixe, sem vibração)
+                    // Posição da exclamaç��o (10px para esquerda do centro do peixe, sem vibração)
           float leftOffset = 10.0 / u_resolution.x; // Converter 10px para coordenadas UV
           vec2 exclamationPos = vec2(fishX - leftOffset, fishY);
 
@@ -1266,7 +1266,7 @@ class ModularWaterEffect {
       this.gameState === "fish_reacting" ||
       this.gameState === "fish_moving"
     ) {
-      // VERIFICA��ÃO CONTÍNUA: Se anzol saiu da água durante movimento, resetar
+      // VERIFICAÇÃO CONTÍNUA: Se anzol saiu da água durante movimento, resetar
       if (!this.isHookInWater()) {
         console.log(
           "🎣 Hook removed from water during fish movement - resetting",
@@ -1335,15 +1335,21 @@ class ModularWaterEffect {
   }
 
   resetFishingGame() {
-    // Limpar todos os timers ativos para evitar comportamentos persistentes
-    if (this.activeTimers) {
-      this.activeTimers.forEach((timer) => clearTimeout(timer));
-      this.activeTimers = [];
-      console.log("🧹 Cleared all active timers");
+    // IMPORTANTE: NÃO limpar timers se o minigame está sendo ativado
+    if (this.showFisgadoText) {
+      console.log("⚠️ Skipping timer cleanup - minigame is starting!");
+      // Não limpar timers quando "Fisgado!" está sendo mostrado
     } else {
-      // Inicializar se não existe
-      this.activeTimers = [];
-      console.log("🧹 Initialized activeTimers array");
+      // Limpar todos os timers ativos para evitar comportamentos persistentes
+      if (this.activeTimers) {
+        this.activeTimers.forEach((timer) => clearTimeout(timer));
+        this.activeTimers = [];
+        console.log("🧹 Cleared all active timers");
+      } else {
+        // Inicializar se não existe
+        this.activeTimers = [];
+        console.log("🧹 Initialized activeTimers array");
+      }
     }
 
     if (
@@ -1535,7 +1541,7 @@ class ModularWaterEffect {
     ctx.font = "16px Arial";
     ctx.fillText("BOCA", mouthX - 20, mouthY - 40);
 
-    // Desenhar texto "Fisgado!" se necess��rio
+    // Desenhar texto "Fisgado!" se necessário
     if (this.showFisgadoText) {
       ctx.fillStyle = "#FFD700";
       ctx.font = "bold 24px Arial";
