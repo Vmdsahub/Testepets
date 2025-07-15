@@ -245,7 +245,7 @@ class WaterEffect {
                 // Clamp UV para evitar problemas de renderização
                 fishUV = clamp(fishUV, 0.0, 1.0);
 
-                // Verifica se est�� na área do peixe e na área da água
+                // Verifica se est���� na área do peixe e na área da água
                 if (fishUV.x >= 0.0 && fishUV.x <= 1.0 && fishUV.y >= 0.0 && fishUV.y <= 1.0 && coords.y > 0.4) {
                     vec4 fishColor = texture2D(u_fishTexture, fishUV);
                     if (fishColor.a > 0.1) {
@@ -267,7 +267,7 @@ class WaterEffect {
                 // Este movimento será calculado no JavaScript e passado para o shader
                 // O shader apenas interpola entre as posições calculadas pelo sistema de steering
 
-                // Posição natural será sobrescrita pelo sistema JavaScript
+                // Posiç��o natural será sobrescrita pelo sistema JavaScript
                 float naturalFishX = 0.5;
                 float naturalFishY = 0.7;
 
@@ -1114,6 +1114,15 @@ class WaterEffect {
         }, 1000);
       }
     } else if (this.gameState === "fish_hooked") {
+      // VERIFICAÇÃO CONTÍNUA: Se anzol saiu da água durante fish_hooked, resetar imediatamente
+      if (!this.isHookInWater()) {
+        console.log(
+          "🎣 Hook removed from water while fish hooked - resetting immediately",
+        );
+        this.resetFishingGame();
+        return;
+      }
+
       if (this.exclamationTime > 0) {
         this.exclamationTime -= 16;
 
