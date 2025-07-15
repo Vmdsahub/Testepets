@@ -1219,7 +1219,7 @@ class ModularWaterEffect {
     // Log de debug ocasional
     if (Math.random() < 0.005) {
       console.log(
-        `🐟 ORGANIC - Pos: (${this.fishCurrentPosition.x.toFixed(3)}, ${this.fishCurrentPosition.y.toFixed(3)}), Vel: (${this.fishVelocity.x.toFixed(4)}, ${this.fishVelocity.y.toFixed(4)}), Angle: ${((this.fishAngle * 180) / Math.PI).toFixed(1)}°, Dir: ${this.fishDirection > 0 ? "RIGHT" : "LEFT"}`,
+        `🐟 ORGANIC - Pos: (${this.fishCurrentPosition.x.toFixed(3)}, ${this.fishCurrentPosition.y.toFixed(3)}), Vel: (${this.fishVelocity.x.toFixed(4)}, ${this.fishVelocity.y.toFixed(4)}), Dir: ${this.fishDirection > 0 ? "RIGHT" : "LEFT"}, Tilt: ${((this.fishAngle * 180) / Math.PI).toFixed(1)}°`,
       );
     }
   }
@@ -1304,7 +1304,7 @@ class ModularWaterEffect {
           return;
         }
 
-        // Capturar posição atual e começar reação
+        // Capturar posiç��o atual e começar reação
         this.gameState = "fish_reacting";
         console.log(
           `🎣 Fish reacting! Hook at (${this.hookPosition.x.toFixed(3)}, ${this.hookPosition.y.toFixed(3)}) - Fish at (${this.fishCurrentPosition.x.toFixed(3)}, ${this.fishCurrentPosition.y.toFixed(3)}) - Hook in water: ${this.isHookInWater()}`,
