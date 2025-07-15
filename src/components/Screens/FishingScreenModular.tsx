@@ -32,7 +32,7 @@ class ModularWaterEffect {
       this.canvas.getContext("webgl2") || this.canvas.getContext("webgl");
 
     if (!this.gl) {
-      console.warn("WebGL n��o é suportado neste navegador");
+      console.warn("WebGL não é suportado neste navegador");
       return;
     }
 
@@ -901,7 +901,7 @@ class ModularWaterEffect {
       this.gameState === "fish_reacting" ||
       this.gameState === "fish_moving"
     ) {
-      // Interpolar suavemente em direção ao anzol
+      // Interpolar suavemente em dire��ão ao anzol
       this.fishTargetPosition = {
         x: this.hookPosition.x,
         y: this.hookPosition.y,
@@ -939,6 +939,13 @@ class ModularWaterEffect {
     // Calcular direção baseada na velocidade horizontal
     if (Math.abs(this.fishVelocity.x) > 0.0001) {
       this.fishDirection = this.fishVelocity.x > 0 ? 1 : -1;
+    } else if (this.gameState === "idle" || this.gameState === "hook_cast") {
+      // Para movimento natural, calcular direção baseada na mudança da posição natural
+      const currentNatural = this.calculateNaturalFishPosition();
+      const deltaX = currentNatural.x - this.lastNaturalPosition.x;
+      if (Math.abs(deltaX) > 0.001) {
+        this.fishDirection = deltaX > 0 ? 1 : -1;
+      }
     }
 
     // Log de debug ocasional
