@@ -1813,26 +1813,6 @@ export const FishingScreenModular: React.FC = () => {
             );
             waterEffect.handleExclamationClick();
             const centerX = areaX + areaW / 2;
-            const centerY = areaY + areaH / 2;
-            const mainRadius = Math.min(areaW, areaH) * 0.35;
-            const mainAngle = time * 0.8;
-            const circleX = Math.cos(mainAngle) * mainRadius;
-            const circleY = Math.sin(mainAngle) * mainRadius * 0.7;
-
-            const fishX = centerX + circleX * 0.01; // Conversão aproximada para coordenadas UV
-            const fishY = centerY + circleY * 0.01;
-            const exclamationX = fishX;
-            const exclamationY = fishY - 0.08;
-
-            // Verificar se clicou na área da exclamação
-            const distance = Math.sqrt(
-              Math.pow(x - exclamationX, 2) + Math.pow(y - exclamationY, 2),
-            );
-
-            if (distance <= 0.05) {
-              // Área clic��vel da exclamação
-              waterEffect.handleExclamationClick();
-            }
           }
         };
 
