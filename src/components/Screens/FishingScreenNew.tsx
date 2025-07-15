@@ -300,7 +300,7 @@ export const FishingScreenNew: React.FC = () => {
       ctx.fillStyle = "white";
       ctx.font = "14px monospace";
 
-      const fishMouthX = fish.x + 0.03;
+      const fishMouthX = fish.x - 0.03; // Boca à ESQUERDA do centro
       const fishMouthY = fish.y;
 
       ctx.fillText(
