@@ -221,7 +221,7 @@ class WaterEffect {
                                 vec2 fishPos = vec2(fishX, fishY);
                 vec2 fishSize = vec2(0.08, 0.06); // Diminuído de 0.15x0.12 para 0.08x0.06
 
-                                                                                                                                                                                                                                                // ROTAÇ��O BASEADA NA VELOCIDADE DO STEERING SYSTEM
+                                                                                                                                                                                                                                                // ROTAÇÃO BASEADA NA VELOCIDADE DO STEERING SYSTEM
 
                 // Usar velocidade calculada pelo sistema de steering behaviors
                 float velocityX = u_fishVelocity.x;
@@ -1646,7 +1646,7 @@ export const FishingScreen: React.FC = () => {
 
             console.log("Distance from exclamation:", distance.toFixed(3));
 
-            // Aumentar área clic��vel para 0.1 (era 0.05)
+            // Aumentar área clicável para 0.1 (era 0.05)
             if (distance <= 0.1) {
               console.log("Player clicked exclamation! Showing Fisgado text.");
               waterEffect.handleExclamationClick();
@@ -2055,6 +2055,43 @@ export const FishingScreen: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Debug Info - Mostrar estado do jogo */}
+      <div
+        style={{
+          position: "fixed",
+          bottom: "20px",
+          left: "20px",
+          zIndex: 30,
+          background: "rgba(0, 0, 0, 0.8)",
+          color: "white",
+          padding: "10px",
+          borderRadius: "8px",
+          fontSize: "12px",
+          fontFamily: "monospace",
+        }}
+      >
+        <div>Game State: {waterEffectRef.current?.gameState || "unknown"}</div>
+        <div>
+          Can Click:{" "}
+          {waterEffectRef.current?.canClickExclamation ? "YES" : "NO"}
+        </div>
+        <div>
+          Fish Position: (
+          {(waterEffectRef.current?.fishPosition.x || 0).toFixed(3)},{" "}
+          {(waterEffectRef.current?.fishPosition.y || 0).toFixed(3)})
+        </div>
+        <div>
+          Hook Position: (
+          {(waterEffectRef.current?.hookPosition.x || 0).toFixed(3)},{" "}
+          {(waterEffectRef.current?.hookPosition.y || 0).toFixed(3)})
+        </div>
+        {waterEffectRef.current?.gameState === "fish_hooked" && (
+          <div style={{ color: "yellow", fontWeight: "bold" }}>
+            🎣 CLICK TO CATCH!
+          </div>
+        )}
+      </div>
 
       {/* Info */}
       <div
