@@ -296,10 +296,18 @@ class ModularWaterEffect {
             float angle = float(i) * 1.57; // 90 graus entre cada sombra
             vec2 disperseOffset = vec2(cos(angle), sin(angle)) * 0.003; // Dispersão mínima
 
-            vec2 shadowPos = fishPos + shadowOffset + disperseOffset;
-            vec2 shadowUV = (coords - shadowPos + fishSize * 0.5) / fishSize;
+                        vec2 shadowPos = fishPos + shadowOffset + disperseOffset;
+            vec2 shadowLocalUV = (coords - shadowPos + fishSize * 0.5) / fishSize;
 
-            // Aplicar orientação à sombra
+            // Aplicar a mesma rotação diagonal na sombra
+            vec2 shadowCenteredUV = shadowLocalUV - 0.5;
+            vec2 shadowRotatedUV = vec2(
+                shadowCenteredUV.x * cosAngle - shadowCenteredUV.y * sinAngle,
+                shadowCenteredUV.x * sinAngle + shadowCenteredUV.y * cosAngle
+            );
+            vec2 shadowUV = shadowRotatedUV + 0.5;
+
+            // Aplicar flip horizontal da sombra
             if (fishAngle > 1.5) {
                 shadowUV.x = 1.0 - shadowUV.x;
             }
@@ -1758,7 +1766,7 @@ class ModularWaterEffect {
     this.gl.uniform1f(this.uniforms.showExclamation, showExclamationValue);
     this.gl.uniform1f(this.uniforms.fishTimeOffset, this.fishTimeOffset);
 
-    // Calcular suavizaç��o de transição
+    // Calcular suavização de transição
     let transitionSmoothing = 0.0;
     if (this.transitionBackToNaturalTime > 0) {
       const elapsedTime = Date.now() - this.transitionBackToNaturalTime;
@@ -2345,7 +2353,7 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
                   </h3>
                   <p className="text-sm opacity-90">
                     {gameResult === "success"
-                      ? "Parabéns! Você conseguiu!"
+                      ? "Parabéns! Voc�� conseguiu!"
                       : "Tente novamente da próxima vez!"}
                   </p>
 
@@ -2975,7 +2983,7 @@ export const FishingScreenModular: React.FC = () => {
                 marginBottom: "5px",
               }}
             >
-              Distorç���o:{" "}
+              Distorç��o:{" "}
               {(fishingSettings?.distortionAmount || 0.3).toFixed(2)}
             </label>
             <input
