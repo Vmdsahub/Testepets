@@ -199,7 +199,7 @@ class ModularWaterEffect {
         return (wave1 + wave2 + wave3 + wave4 + wave5 + noise1 + noise2 + noise3) * u_waveIntensity;
       }
 
-      // Fun��ão para calcular a refração (mantida original)
+      // Fun����ão para calcular a refração (mantida original)
       vec2 calculateRefraction(vec2 uv, float time) {
         float waveHeight = createWaves(uv, time);
         vec2 epsilon = vec2(0.01, 0.0);
@@ -471,7 +471,7 @@ class ModularWaterEffect {
                                 // Imagem original com peixe
         vec4 originalColor = getColorWithFish(uv, fishX, fishY, fishAngle);
         
-        // Verificar se está na área da água
+        // Verificar se está na ��rea da água
         bool inWater = isInWaterArea(uv);
         float waterMask = inWater ? 1.0 : 0.0;
         
@@ -1194,10 +1194,14 @@ class ModularWaterEffect {
 
     if (velocityMagnitude > 0.0001) {
       // Calcular ângulo real baseado na velocidade (atan2 da direção)
+      // atan2(y, x) retorna ângulo em radianos de -PI a PI
       this.fishAngle = Math.atan2(this.fishVelocity.y, this.fishVelocity.x);
 
       // Manter fishDirection para compatibilidade (principalmente horizontal)
       this.fishDirection = this.fishVelocity.x > 0 ? 1 : -1;
+    } else if (this.fishAngle === undefined) {
+      // Inicializar ângulo se ainda não foi definido
+      this.fishAngle = 0; // Apontando para a direita por padrão
     }
 
     // Log de debug ocasional
