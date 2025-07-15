@@ -165,6 +165,64 @@ class FishingSystem {
     return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
   }
 
+  // Verificar se um ponto (em pixels) está dentro da área de água configurada
+  private isPointInWaterArea(pixelX: number, pixelY: number): boolean {
+    // Se não há área configurada, usar detecção original (60% da altura)
+    if (!this.waterArea) {
+      return pixelY > window.innerHeight * this.waterLevel;
+    }
+
+    // Converter pixels para coordenadas relativas (0-1)
+    const relX = pixelX / window.innerWidth;
+    const relY = pixelY / window.innerHeight;
+
+    const { x, y, width, height, shape } = this.waterArea;
+
+    switch (shape) {
+      case "rectangle":
+        return (
+          relX >= x && relX <= x + width && relY >= y && relY <= y + height
+        );
+
+      case "circle":
+        const centerX = x + width / 2;
+        const centerY = y + height / 2;
+        const radius = Math.min(width, height) / 2;
+        const distance = Math.sqrt(
+          (relX - centerX) ** 2 + (relY - centerY) ** 2,
+        );
+        return distance <= radius;
+
+      case "triangle":
+        // Triângulo: topo centro, base esquerda, base direita
+        const tx1 = x + width / 2; // Topo centro
+        const ty1 = y;
+        const tx2 = x; // Base esquerda
+        const ty2 = y + height;
+        const tx3 = x + width; // Base direita
+        const ty3 = y + height;
+
+        // Algoritmo de área para verificar se ponto está dentro do triângulo
+        const area = Math.abs(
+          (tx2 - tx1) * (ty3 - ty1) - (tx3 - tx1) * (ty2 - ty1),
+        );
+        const area1 = Math.abs(
+          (relX - tx2) * (ty3 - ty2) - (tx3 - tx2) * (relY - ty2),
+        );
+        const area2 = Math.abs(
+          (tx1 - relX) * (relY - ty1) - (relX - tx1) * (ty1 - relY),
+        );
+        const area3 = Math.abs(
+          (tx2 - tx1) * (relY - ty1) - (relX - tx1) * (ty2 - ty1),
+        );
+
+        return Math.abs(area - (area1 + area2 + area3)) < 0.001;
+
+      default:
+        return false;
+    }
+  }
+
   private castLine(x: number, y: number) {
     this.isLineOut = true;
     this.castStartTime = Date.now();
