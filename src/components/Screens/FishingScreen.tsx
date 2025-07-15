@@ -333,26 +333,50 @@ class WaterEffect {
                 // Mistura entre imagem original e efeito de água
                 vec3 finalColor = mix(originalColor.rgb, waterColor, waterMask);
                 
-                                                // Adicionar exclamação amarela se necessário
+                                                                                                // Adicionar exclamação com imagem fornecida
                 if (u_showExclamation > 0.0 && u_gameState >= 4.0) { // fish_hooked
                     vec2 exclamationPos = vec2(fishX, fishY - 0.08); // Acima do peixe
-                    float distToExclamation = distance(uv, exclamationPos);
 
                     // Pulsação da exclamação para chamar atenção
-                    float pulse = 0.8 + 0.2 * sin(u_time * 8.0);
+                    float pulse = 0.9 + 0.1 * sin(u_time * 8.0);
 
-                    // Desenhar círculo amarelo para exclamação com pulsação
-                    if (distToExclamation < 0.025 * pulse) {
-                        finalColor = mix(finalColor, vec3(1.0, 1.0, 0.0), 0.9);
-                    }
+                    // Tamanho da exclamação
+                    vec2 exclamationSize = vec2(0.08, 0.12) * pulse;
 
-                    // Desenhar "!" no centro
-                    vec2 localUV = (uv - exclamationPos) / (0.025 * pulse);
-                    if (abs(localUV.x) < 0.15 && localUV.y > -0.4 && localUV.y < 0.2) {
-                        finalColor = mix(finalColor, vec3(0.0, 0.0, 0.0), 0.95);
-                    }
-                    if (abs(localUV.x) < 0.15 && localUV.y > 0.35 && localUV.y < 0.5) {
-                        finalColor = mix(finalColor, vec3(0.0, 0.0, 0.0), 0.95);
+                    // Calcular UV da exclamação
+                    vec2 exclamationUV = (uv - exclamationPos + exclamationSize * 0.5) / exclamationSize;
+
+                    // Verificar se está na área da exclamação
+                    if (exclamationUV.x >= 0.0 && exclamationUV.x <= 1.0 && exclamationUV.y >= 0.0 && exclamationUV.y <= 1.0) {
+                        // Simular a imagem de exclamação amarela fornecida
+                        vec2 localPos = exclamationUV * 2.0 - 1.0; // Converter para -1 a 1
+
+                        // Corpo da exclamação (parte comprida)
+                        float bodyWidth = 0.3;
+                        float bodyHeight = 1.4;
+                        bool inBody = abs(localPos.x) < bodyWidth && localPos.y > -0.6 && localPos.y < 0.8;
+
+                        // Ponto da exclamação (parte pequena embaixo)
+                        float dotSize = 0.35;
+                        bool inDot = length(localPos - vec2(0.0, -1.2)) < dotSize;
+
+                        if (inBody || inDot) {
+                            // Cor amarela/dourada da exclamação
+                            vec3 exclamationColor = vec3(1.0, 0.85, 0.0);
+
+                            // Adicionar sombra sutil
+                            vec2 shadowOffset = vec2(0.1, 0.1);
+                            vec2 shadowPos = localPos - shadowOffset;
+                            bool inShadowBody = abs(shadowPos.x) < bodyWidth && shadowPos.y > -0.6 && shadowPos.y < 0.8;
+                            bool inShadowDot = length(shadowPos - vec2(0.0, -1.2)) < dotSize;
+
+                            if (inShadowBody || inShadowDot) {
+                                finalColor = mix(finalColor, vec3(0.0, 0.0, 0.0), 0.3);
+                            }
+
+                            // Aplicar cor da exclamação
+                            finalColor = mix(finalColor, exclamationColor, 1.0);
+                        }
                     }
                 }
 
@@ -1109,7 +1133,7 @@ class WaterEffect {
   }
 
   adjustFishTimeToPosition(targetX, targetY) {
-    // Calcular qual fishTime resultaria na posição desejada
+    // Calcular qual fishTime resultaria na posiç��o desejada
     // Usar busca iterativa refinada em três fases para maior precisão
 
     let bestOffset = 0;
