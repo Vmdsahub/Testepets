@@ -1224,9 +1224,26 @@ class ModularWaterEffect {
         if (!this.activeTimers) this.activeTimers = [];
         this.activeTimers.push(fisgadoTimer);
       } else {
-        console.log("❌ onGameStart callback is null! This should not happen!");
-        // Fallback: tentar reconfigurar callback
-        console.log("🔄 Attempting to reconfigure callback...");
+        console.log("❌ onGameStart callback is null! Attempting recovery...");
+
+        // Tentar restaurar do backup
+        if (this.onGameStartBackup) {
+          console.log("🔄 Restoring callback from backup");
+          this.onGameStart = this.onGameStartBackup;
+
+          const fisgadoTimer = setTimeout(() => {
+            this.showFisgadoText = false;
+            console.log("🎮 Opening minigame with restored callback...");
+            this.onGameStart();
+          }, 600);
+
+          if (!this.activeTimers) this.activeTimers = [];
+          this.activeTimers.push(fisgadoTimer);
+        } else {
+          console.log(
+            "❌ No backup callback available! Minigame cannot start.",
+          );
+        }
       }
 
       return true;
