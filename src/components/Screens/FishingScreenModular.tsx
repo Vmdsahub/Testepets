@@ -21,6 +21,9 @@ interface WaterArea {
 // WebGL Water Effect Class Modular - NOVO: Movimento aleat���rio livre com rotação 360° baseado na área definida
 class ModularWaterEffect {
   constructor(waterArea, isAdmin = false) {
+    // Inicializar activeTimers PRIMEIRO para evitar undefined
+    this.activeTimers = [];
+
     this.canvas = document.getElementById("waterCanvas");
     this.waterArea = waterArea;
     this.isAdmin = isAdmin;
