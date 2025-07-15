@@ -1028,12 +1028,17 @@ class WaterEffect {
         // Peixe chegou ao anzol
         this.gameState = "fish_hooked";
         this.exclamationTime = 1000; // mostrar exclamação por 1 segundo
+        this.exclamationStartTime = Date.now();
+        this.canClickExclamation = true;
         console.log("Fish hooked! Starting exclamation timer.");
 
-        // Agendar abertura do modal após 1 segundo
+        // Timer de 1 segundo - se não clicar, voltar ao movimento natural
         setTimeout(() => {
-          if (this.onGameStart) {
-            this.onGameStart();
+          if (this.gameState === "fish_hooked" && this.canClickExclamation) {
+            console.log(
+              "Player didn't click exclamation in time - fish returns to natural movement",
+            );
+            this.resetFishingGame();
           }
         }, 1000);
       }
