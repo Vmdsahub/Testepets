@@ -1271,9 +1271,9 @@ class ModularWaterEffect {
       this.fishAngle = 0;
     }
 
-    // Log de debug temporário para investigação da rotação
-    if (Math.random() < 0.01) {
-      // 1% para debug sem poluir console
+    // Log de debug ocasional
+    if (Math.random() < 0.002) {
+      // 0.2% para debug mínimo
       const angleDegrees = this.fishAngle
         ? (this.fishAngle * 180) / Math.PI
         : 0;
