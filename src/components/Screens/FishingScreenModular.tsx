@@ -451,15 +451,14 @@ class ModularWaterEffect {
             fishAngle = 0.0; // Esquerda (0 para sem flip)
         }
 
-        // ADICIONAR: Rotação adicional baseada no ângulo para diagonais
-        // Apenas ajustar a rotação sem quebrar o sistema existente
-        float diagonalRotation = u_fishAngle;
+                // ADICIONAR: Pequeno ajuste diagonal sem quebrar o sistema
+        float diagonalTilt = u_fishAngle * 0.3; // Apenas 30% da rotação para ser sutil
 
-        // Aplicar rotação diagonal mantendo o flip horizontal original
+        // Aplicar inclinação diagonal mantendo o sistema original
         if (u_fishDirection > 0.0) {
-            fishAngle = 3.14159 + diagonalRotation; // Direita + rotação diagonal
+            fishAngle = 3.14159 - diagonalTilt; // Direita com inclinação
         } else {
-            fishAngle = -diagonalRotation; // Esquerda + rotação diagonal
+            fishAngle = diagonalTilt; // Esquerda com inclinação
         }
 
                                 // Usar posição calculada pelo JavaScript com vibração
@@ -1468,7 +1467,7 @@ class ModularWaterEffect {
 
     // IMPORTANTE: Preservar backup do callback
     if (this.onGameStartBackup && !this.onGameStart) {
-      console.log("🔄 Restoring callback from backup after reset");
+      console.log("�� Restoring callback from backup after reset");
       this.onGameStart = this.onGameStartBackup;
     }
 
