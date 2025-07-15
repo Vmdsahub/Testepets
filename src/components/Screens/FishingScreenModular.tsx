@@ -1198,7 +1198,7 @@ class ModularWaterEffect {
     // Log de debug ocasional
     if (Math.random() < 0.005) {
       console.log(
-        `🐟 ORGANIC - Pos: (${this.fishCurrentPosition.x.toFixed(3)}, ${this.fishCurrentPosition.y.toFixed(3)}), Vel: (${this.fishVelocity.x.toFixed(4)}, ${this.fishVelocity.y.toFixed(4)}), Dir: ${this.fishDirection > 0 ? "RIGHT" : "LEFT"}`,
+        `🐟 ORGANIC - Pos: (${this.fishCurrentPosition.x.toFixed(3)}, ${this.fishCurrentPosition.y.toFixed(3)}), Vel: (${this.fishVelocity.x.toFixed(4)}, ${this.fishVelocity.y.toFixed(4)}), Angle: ${((this.fishAngle * 180) / Math.PI).toFixed(1)}°, Dir: ${this.fishDirection > 0 ? "RIGHT" : "LEFT"}`,
       );
     }
   }
