@@ -431,17 +431,9 @@ class ModularWaterEffect {
             fishAngle = 0.0; // MOVENDO PRA ESQUERDA -> apontar ESQUERDA (0 para sem flip)
         }
 
-                // Sempre usar movimento natural para evitar teleportação
-        float fishX, fishY;
-        if (u_transitionSmoothing > 0.0) {
-          float progress = 1.0 - u_transitionSmoothing;
-          float easeProgress = 1.0 - pow(1.0 - progress, 3.0);
-          fishX = mix(u_transitionStartPosition.x, naturalFishX, easeProgress);
-          fishY = mix(u_transitionStartPosition.y, naturalFishY, easeProgress);
-        } else {
-          fishX = naturalFishX;
-          fishY = naturalFishY;
-        }
+                        // Usar posição calculada pelo JavaScript
+        float fishX = u_fishTargetPosition.x;
+        float fishY = u_fishTargetPosition.y;
         
                                 // Imagem original com peixe
         vec4 originalColor = getColorWithFish(uv, fishX, fishY, fishAngle);
