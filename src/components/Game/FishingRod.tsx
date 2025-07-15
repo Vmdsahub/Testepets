@@ -602,6 +602,16 @@ class FishingSystem {
                 point.settled = true;
                 point.settledX = point.x;
                 point.settledY = point.y;
+
+                // Se for o último ponto (anzol) e ainda não chamou callback
+                if (
+                  i === this.linePoints.length - 1 &&
+                  !this.hookCastCallbackCalled &&
+                  this.onHookCast
+                ) {
+                  this.hookCastCallbackCalled = true;
+                  this.onHookCast(point.x, point.y); // Usar posição real final
+                }
               }
 
               // Adicionar oscilação suave na água
@@ -614,7 +624,7 @@ class FishingSystem {
       }
     }
 
-    // Aplicar restrições de distância
+    // Aplicar restri��ões de distância
     for (let iteration = 0; iteration < 3; iteration++) {
       for (let i = 0; i < this.linePoints.length - 1; i++) {
         const pointA = this.linePoints[i];
