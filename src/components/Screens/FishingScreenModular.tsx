@@ -1354,7 +1354,7 @@ class ModularWaterEffect {
       this.fishReactionDelay = 3000 + Math.random() * 6000; // 3-9 segundos para nova tentativa
       this.fishReactionStartTime = Date.now();
       console.log(
-        `��� Fish will try again in ${(this.fishReactionDelay / 1000).toFixed(1)}s since hook is still in water`,
+        `🎣 Fish will try again in ${(this.fishReactionDelay / 1000).toFixed(1)}s since hook is still in water`,
       );
     } else {
       // Se não, voltar ao estado idle e garantir reset completo
@@ -2233,6 +2233,10 @@ export const FishingScreenModular: React.FC = () => {
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
 
   const [showMinigame, setShowMinigame] = useState(false);
+
+  useEffect(() => {
+    console.log("🎮 showMinigame state changed:", showMinigame);
+  }, [showMinigame]);
   const [fishingSettings, setFishingSettings] =
     useState<FishingSettings | null>(null);
   const [isUpdatingSettings, setIsUpdatingSettings] = useState(false);
