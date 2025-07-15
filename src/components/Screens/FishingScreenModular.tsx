@@ -892,6 +892,61 @@ class ModularWaterEffect {
     this.fishReactionStartTime = Date.now();
   }
 
+  // Verificar se o anzol está dentro da área de água
+  isHookInWater() {
+    const hookX = this.hookPosition.x;
+    const hookY = this.hookPosition.y;
+
+    // Verificar se está dentro da área de água definida
+    const { x, y, width, height, shape } = this.waterArea;
+
+    switch (shape) {
+      case "rectangle":
+        return (
+          hookX >= x && hookX <= x + width && hookY >= y && hookY <= y + height
+        );
+
+      case "circle": {
+        const centerX = x + width / 2;
+        const centerY = y + height / 2;
+        const radius = Math.min(width, height) / 2;
+        const distance = Math.sqrt(
+          (hookX - centerX) ** 2 + (hookY - centerY) ** 2,
+        );
+        return distance <= radius;
+      }
+
+      case "triangle": {
+        // Triângulo: topo centro, base esquerda, base direita
+        const tx1 = x + width / 2; // Topo centro
+        const ty1 = y;
+        const tx2 = x; // Base esquerda
+        const ty2 = y + height;
+        const tx3 = x + width; // Base direita
+        const ty3 = y + height;
+
+        // Algoritmo de área para verificar se ponto está dentro do triângulo
+        const area = Math.abs(
+          (tx2 - tx1) * (ty3 - ty1) - (tx3 - tx1) * (ty2 - ty1),
+        );
+        const area1 = Math.abs(
+          (hookX - tx2) * (ty3 - ty2) - (tx3 - tx2) * (hookY - ty2),
+        );
+        const area2 = Math.abs(
+          (tx1 - hookX) * (hookY - ty1) - (hookX - tx1) * (ty1 - hookY),
+        );
+        const area3 = Math.abs(
+          (tx2 - tx1) * (hookY - ty1) - (hookX - tx1) * (ty2 - ty1),
+        );
+
+        return Math.abs(area - (area1 + area2 + area3)) < 0.001;
+      }
+
+      default:
+        return false;
+    }
+  }
+
   // Método para movimento orgânico - evitar bordas naturalmente
   avoidBorders() {
     const detectionMargin = 0.08; // Detectar bordas com antecedência
