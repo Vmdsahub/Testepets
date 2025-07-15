@@ -478,27 +478,29 @@ class ModularWaterEffect {
           gl_FragColor = originalColor;
         }
         
-                // Adicionar exclamação se necessário
+                        // Adicionar exclamação amarela simples se necessário
         if (u_showExclamation > 0.0 && u_gameState >= 4.0) {
-          vec2 exclamationPos = vec2(fishX, fishY - 0.08);
-          float distToExclamation = distance(uv, exclamationPos);
+          // Vibração quando fisgado
+          vec2 vibrationOffset = vec2(0.0, 0.0);
+          if (u_gameState >= 4.0) {
+            float vibrationIntensity = 0.003;
+            vibrationOffset.x = sin(u_time * 50.0) * vibrationIntensity;
+            vibrationOffset.y = cos(u_time * 47.0) * vibrationIntensity;
+          }
 
-          // Pulsação para chamar atenção
-          float pulse = 0.8 + 0.2 * sin(u_time * 8.0);
-          float exclamationSize = 0.025 * pulse;
+          vec2 exclamationPos = vec2(fishX + vibrationOffset.x, fishY + vibrationOffset.y);
 
-          // Círculo amarelo de fundo
-          if (distToExclamation < exclamationSize) {
+          // Desenhar "!" amarelo simples sobre o peixe
+          vec2 localUV = (uv - exclamationPos) * 40.0; // Escala maior para texto
+
+          // Corpo do "!"
+          if (abs(localUV.x) < 0.8 && localUV.y > -2.0 && localUV.y < 1.5) {
             gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(1.0, 1.0, 0.0), 0.9);
           }
 
-          // Desenhar "!" no centro
-          vec2 localUV = (uv - exclamationPos) / exclamationSize;
-          if (abs(localUV.x) < 0.15 && localUV.y > -0.4 && localUV.y < 0.2) {
-            gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(0.0, 0.0, 0.0), 0.95);
-          }
-          if (abs(localUV.x) < 0.15 && localUV.y > 0.35 && localUV.y < 0.5) {
-            gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(0.0, 0.0, 0.0), 0.95);
+          // Ponto do "!"
+          if (abs(localUV.x) < 0.8 && localUV.y > 2.0 && localUV.y < 3.0) {
+            gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(1.0, 1.0, 0.0), 0.9);
           }
         }
       }
