@@ -950,51 +950,19 @@ class ModularWaterEffect {
   }
 
   updateFishingGame() {
+    // Atualizar posição do peixe a cada frame
+    this.updateFishPosition();
+
     if (this.gameState === "hook_cast") {
       const elapsedTime = Date.now() - this.fishReactionStartTime;
       if (elapsedTime >= this.fishReactionDelay) {
-        // Usar sistema de movimento aleatório independente
-        const time = this.fishTime * 0.5; // Velocidade independente e constante
-
-        // Parâmetros da área da água
-        const areaX = this.waterArea.x;
-        const areaY = this.waterArea.y;
-        const areaW = this.waterArea.width;
-        const areaH = this.waterArea.height;
-
-        // Área interior com margens
-        const margin = 0.05;
-        const innerX = areaX + areaW * margin;
-        const innerY = areaY + areaH * margin;
-        const innerW = areaW * (1.0 - margin * 2.0);
-        const innerH = areaH * (1.0 - margin * 2.0);
-
-        // Ruído base para direção geral
-        const noiseX1 =
-          Math.sin(time * 0.7 + 123.45) * Math.cos(time * 0.5 + 67.89);
-        const noiseY1 =
-          Math.cos(time * 0.6 + 234.56) * Math.sin(time * 0.8 + 78.9);
-
-        // Ruído de alta frequência
-        const noiseX2 = Math.sin(time * 2.3 + 345.67) * 0.3;
-        const noiseY2 = Math.cos(time * 1.9 + 456.78) * 0.3;
-
-        // Ruído de baixa frequência
-        const noiseX3 = Math.sin(time * 0.2 + 567.89) * 0.8;
-        const noiseY3 = Math.cos(time * 0.15 + 678.9) * 0.8;
-
-        // Combinar ruídos
-        const moveX = (noiseX1 + noiseX2 + noiseX3) / 3.0;
-        const moveY = (noiseY1 + noiseY2 + noiseY3) / 3.0;
-
-        // Posição dentro da área interior
-        const currentFishX = innerX + innerW * 0.5 + moveX * innerW * 0.4;
-        const currentFishY = innerY + innerH * 0.5 + moveY * innerH * 0.4;
-
-        // Não fazer nada aqui - deixar o movimento natural do peixe continuar
+        // Capturar posição atual e começar reação
         this.gameState = "fish_reacting";
+        console.log(
+          `🎣 Fish reacting! Current position: (${this.fishCurrentPosition.x.toFixed(3)}, ${this.fishCurrentPosition.y.toFixed(3)})`,
+        );
 
-        // Começar movimento após breve pausa
+        // Começar movimento ap��s breve pausa
         setTimeout(() => {
           if (this.gameState === "fish_reacting") {
             this.gameState = "fish_moving";
@@ -1005,32 +973,19 @@ class ModularWaterEffect {
       this.gameState === "fish_reacting" ||
       this.gameState === "fish_moving"
     ) {
-      // Verificar se o peixe chegou próximo ao anzol usando timer
-      const timeSinceReaction =
-        Date.now() - this.fishReactionStartTime - this.fishReactionDelay;
-      const timeToReachHook = 4000; // 4 segundos para chegar ao anzol
+      // Verificar se chegou próximo ao anzol
+      const distance = Math.sqrt(
+        Math.pow(this.fishCurrentPosition.x - this.hookPosition.x, 2) +
+          Math.pow(this.fishCurrentPosition.y - this.hookPosition.y, 2),
+      );
 
-      if (timeSinceReaction > 0 && timeSinceReaction <= timeToReachHook) {
-        // Ainda se movendo em direção ao anzol
-        if (this.gameState === "fish_reacting") {
-          this.gameState = "fish_moving";
-        }
-
-        // Log de debug ocasional
-        if (Math.random() < 0.01) {
-          console.log(
-            `🐟 MOVING - Time since reaction: ${(timeSinceReaction / 1000).toFixed(1)}s / ${(timeToReachHook / 1000).toFixed(1)}s`,
-          );
-        }
-      } else if (timeSinceReaction > timeToReachHook) {
+      if (distance < 0.05) {
+        // Chegou próximo ao anzol
         this.gameState = "fish_hooked";
         this.exclamationTime = 1000;
         this.exclamationStartTime = Date.now();
         this.canClickExclamation = true;
         console.log("🎣 Fish hooked! Starting exclamation timer.");
-        console.log(
-          `🔔 Exclamation setup - gameState: ${this.gameState}, exclamationTime: ${this.exclamationTime}, canClick: ${this.canClickExclamation}`,
-        );
 
         // Timer de 1 segundo - se não clicar, voltar ao movimento natural
         setTimeout(() => {
@@ -1048,7 +1003,7 @@ class ModularWaterEffect {
 
       if (elapsedTime < 1000) {
         // Ainda dentro do período de 1 segundo
-        this.exclamationTime = 1000 - elapsedTime; // Valor restante
+        this.exclamationTime = 1000 - elapsedTime;
       } else {
         // Passou 1 segundo
         this.exclamationTime = 0;
