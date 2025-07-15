@@ -366,8 +366,29 @@ class ModularWaterEffect {
                         // Suavização para evitar teleporte entre padrões
         float transitionSmooth = 0.95; // Suavização forte
 
-        float naturalFishX = baseX;
+                float naturalFishX = baseX;
         float naturalFishY = baseY;
+
+        // === SISTEMA DE MOVIMENTO EM DIREÇÃO AO ANZOL ===
+        if (u_gameState >= 2.0 && u_gameState <= 4.0) { // fish_reacting, fish_moving, fish_hooked
+          // Interpolar suavemente entre movimento natural e posição do anzol
+          float attractionStrength = 0.0;
+
+          if (u_gameState >= 2.0 && u_gameState < 3.0) { // fish_reacting
+            attractionStrength = 0.1; // Começar devagar
+          } else if (u_gameState >= 3.0 && u_gameState < 4.0) { // fish_moving
+            attractionStrength = 0.3; // Aumentar atração
+          } else if (u_gameState >= 4.0) { // fish_hooked
+            attractionStrength = 0.8; // Muito próximo ao anzol
+          }
+
+          // Movimento suave em direção ao anzol
+          float targetX = u_hookPosition.x;
+          float targetY = u_hookPosition.y;
+
+          naturalFishX = mix(naturalFishX, targetX, attractionStrength);
+          naturalFishY = mix(naturalFishY, targetY, attractionStrength);
+        }
 
         // Pequena variação orgânica sutil
         naturalFishX += sin(time * 0.006) * areaW * 0.008;
