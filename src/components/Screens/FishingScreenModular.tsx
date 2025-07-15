@@ -1241,8 +1241,9 @@ class ModularWaterEffect {
       mouthOffsetX = -(fishSizePixelX / 2) + 10; // Boca à esquerda + 10px mais próximo da ponta
     }
 
-    const mouthX = fishPixelX + mouthOffsetX;
-    const mouthY = fishPixelY;
+    const mouthX =
+      fishPixelX + mouthOffsetX + (this.fishDirection > 0 ? 3 : -3); // +3px para direita ou -3px para esquerda
+    const mouthY = fishPixelY + 2; // +2px para baixo
 
     // Desenhar CÍRCULO ROSA MUITO PEQUENO na posição da boca
     ctx.fillStyle = "rgba(255, 0, 255, 0.8)";
