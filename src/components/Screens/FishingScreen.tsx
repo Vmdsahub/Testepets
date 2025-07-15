@@ -1045,6 +1045,12 @@ class WaterEffect {
     } else if (this.gameState === "fish_hooked") {
       if (this.exclamationTime > 0) {
         this.exclamationTime -= 16;
+
+        // Se passou 1 segundo, desabilitar clique
+        const elapsedTime = Date.now() - this.exclamationStartTime;
+        if (elapsedTime >= 1000) {
+          this.canClickExclamation = false;
+        }
       }
     }
   }
@@ -1863,7 +1869,7 @@ export const FishingScreen: React.FC = () => {
             }}
           >
             <h2 style={{ marginTop: 0, color: "#333", fontSize: "24px" }}>
-              🎣 Peixe Fisgado!
+              ���� Peixe Fisgado!
             </h2>
             <p
               style={{ color: "#666", marginBottom: "30px", fontSize: "16px" }}
