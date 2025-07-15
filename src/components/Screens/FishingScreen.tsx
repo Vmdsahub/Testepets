@@ -879,7 +879,7 @@ class WaterEffect {
       }
     }
 
-    // Calcular for��a de steering
+    // Calcular força de steering
     const steer = {
       x: desired.x - this.fishVelocity.x,
       y: desired.y - this.fishVelocity.y,
@@ -1007,6 +1007,7 @@ class WaterEffect {
             this.gameState = "fish_moving";
           }
         }, 500);
+        if (!this.activeTimers) this.activeTimers = [];
         this.activeTimers.push(reactionTimer);
 
         // Debug: verificar se posição JS bate com shader
