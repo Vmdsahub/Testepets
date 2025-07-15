@@ -724,6 +724,19 @@ class WaterEffect {
     );
   }
 
+  // Método para lidar com clique na exclamação
+  handleExclamationClick() {
+    if (this.gameState === "fish_hooked" && this.canClickExclamation) {
+      console.log("Player clicked exclamation! Opening modal.");
+      this.canClickExclamation = false;
+      if (this.onGameStart) {
+        this.onGameStart();
+      }
+      return true;
+    }
+    return false;
+  }
+
   // Sistema de Steering Behaviors
   updateSteeringBehaviors(deltaTime) {
     if (this.gameState === "idle" || this.gameState === "hook_cast") {
