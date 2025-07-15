@@ -1019,24 +1019,21 @@ class WaterEffect {
       this.gameState === "fish_reacting" ||
       this.gameState === "fish_moving"
     ) {
-      // Mover peixe em direção ao anzol
-      const speed = 0.0003; // velocidade do movimento (reduzida para ser mais realista)
-      const dx = this.hookPosition.x - this.fishTargetPosition.x;
-      const dy = this.hookPosition.y - this.fishTargetPosition.y;
+      // Verificar se o peixe chegou próximo ao anzol usando posição do steering system
+      const dx = this.hookPosition.x - this.fishPosition.x;
+      const dy = this.hookPosition.y - this.fishPosition.y;
       const distance = Math.sqrt(dx * dx + dy * dy);
 
-      if (distance > 0.01) {
-        // ainda não chegou ao anzol
-        this.gameState = "fish_moving";
-        const oldX = this.fishTargetPosition.x;
-        const oldY = this.fishTargetPosition.y;
-        this.fishTargetPosition.x += (dx / distance) * speed;
-        this.fishTargetPosition.y += (dy / distance) * speed;
+      if (distance > 0.03) {
+        // ainda não chegou ao anzol, manter movimento
+        if (this.gameState === "fish_reacting") {
+          this.gameState = "fish_moving";
+        }
 
         // Log de debug a cada 100 frames (~1.6s)
         if (Math.random() < 0.01) {
           console.log(
-            `🐟 MOVING - From (${oldX.toFixed(3)}, ${oldY.toFixed(3)}) to (${this.fishTargetPosition.x.toFixed(3)}, ${this.fishTargetPosition.y.toFixed(3)}), distance: ${distance.toFixed(3)}`,
+            `🐟 MOVING - Fish at (${this.fishPosition.x.toFixed(3)}, ${this.fishPosition.y.toFixed(3)}), hook at (${this.hookPosition.x.toFixed(3)}, ${this.hookPosition.y.toFixed(3)}), distance: ${distance.toFixed(3)}`,
           );
         }
       } else {
