@@ -163,7 +163,7 @@ class WaterEffect {
                 return 130.0 * dot(m, g);
             }
 
-            // Função para criar ondas realistas
+            // Funç��o para criar ondas realistas
             float createWaves(vec2 uv, float time) {
                 // Ondas balanceadas em múltiplas direções
                 float wave1 = sin(uv.x * 6.0 + time * 1.5) * 0.1;
@@ -800,7 +800,7 @@ class WaterEffect {
       this.gameState === "fish_moving" ||
       this.gameState === "fish_hooked"
     ) {
-      // Comportamento de seek/arrive em direção ao anzol
+      // Comportamento de seek/arrive em dire��ão ao anzol
       this.seek(this.hookPosition, deltaTime);
     }
 
@@ -866,7 +866,7 @@ class WaterEffect {
     const seekForce = 0.3; // Reduzir intensidade do seek
     this.seekWithForce(this.wanderTarget, deltaTime, seekForce);
 
-    // Adicionar força de separação das bordas
+    // Adicionar for��a de separação das bordas
     this.separate(deltaTime);
 
     // Adicionar pequena força de flutuação para movimento orgânico
@@ -1574,6 +1574,13 @@ export const FishingScreen: React.FC = () => {
     useState<FishingSettings | null>(null);
   const [isUpdatingSettings, setIsUpdatingSettings] = useState(false);
   const [showFishingModal, setShowFishingModal] = useState(false);
+  const [debugInfo, setDebugInfo] = useState({
+    gameState: "idle",
+    canClick: false,
+    fishPos: { x: 0, y: 0 },
+    hookPos: { x: 0, y: 0 },
+    timeLeft: 0,
+  });
 
   const isAdmin = user?.isAdmin || false;
 
@@ -1691,6 +1698,28 @@ export const FishingScreen: React.FC = () => {
         }
 
         waterEffectRef.current = waterEffect;
+
+        // Atualizar debug info periodicamente
+        const debugInterval = setInterval(() => {
+          if (waterEffect) {
+            setDebugInfo({
+              gameState: waterEffect.gameState,
+              canClick: waterEffect.canClickExclamation,
+              fishPos: waterEffect.fishPosition,
+              hookPos: waterEffect.hookPosition,
+              timeLeft:
+                waterEffect.gameState === "fish_hooked"
+                  ? Math.max(
+                      0,
+                      3 -
+                        (Date.now() - waterEffect.exclamationStartTime) / 1000,
+                    )
+                  : 0,
+            });
+          }
+        }, 100); // Atualizar a cada 100ms
+
+        return () => clearInterval(debugInterval);
       } catch (error) {
         console.error("Error initializing WaterEffect:", error);
       }
