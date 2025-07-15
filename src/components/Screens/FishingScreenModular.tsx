@@ -388,13 +388,12 @@ class ModularWaterEffect {
 
         float fishAngle = 0.0;
 
-                        // DEBUG ORIENTAÇÃO:
-        // velocityX > 0 = DIREITA -> fishAngle = 0 -> shader faz flip (fishAngle < 1.5)
-        // velocityX < 0 = ESQUERDA -> fishAngle = PI -> shader sem flip (fishAngle > 1.5)
+                                // CORRETO: Inverter a lógica de orientação do peixe
+        // O problema estava na interpretação de qual é direita/esquerda
         if (velocityX > 0.001) {
-            fishAngle = 0.0; // MOVENDO PRA DIREITA
+            fishAngle = 3.14159; // MOVENDO PRA DIREITA -> apontar DIREITA (PI para flip correto)
         } else if (velocityX < -0.001) {
-            fishAngle = 3.14159; // MOVENDO PRA ESQUERDA
+            fishAngle = 0.0; // MOVENDO PRA ESQUERDA -> apontar ESQUERDA (0 para sem flip)
         }
 
         float fishX, fishY;
