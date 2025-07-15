@@ -1656,7 +1656,8 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
       // Verificar se o peixe está na barra
       setProgress((prev) => {
         const fishInBar =
-          Math.abs(fishPosition - barPosition) < (barSize + fishSize) / 2;
+          Math.abs(fishPositionRef.current - barPositionRef.current) <
+          (barSize + fishSize) / 2;
         if (fishInBar) {
           return Math.min(100, prev + 2); // Progresso aumenta
         } else {
