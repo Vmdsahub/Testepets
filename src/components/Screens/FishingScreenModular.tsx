@@ -284,45 +284,55 @@ class ModularWaterEffect {
             fishBehavior = 0.0; // ESTADO: Nadando livre (30%)
         }
 
-                        // === SISTEMA DE MÚLTIPLOS PADRÕES DE MOVIMENTO ===
+                                // === SISTEMA DE PADRÕES LONGOS E COMPLEXOS ===
 
-        float moveSpeed = 0.0375;
+        float moveSpeed = 0.025; // Velocidade reduzida para movimentos mais longos
 
-        // Ciclo lento para alternar entre padrões (a cada ~2 minutos)
-        float patternCycle = sin(time * 0.008) * 0.5 + 0.5;
-        float currentPattern = floor(patternCycle * 4.0); // 4 padrões diferentes
+        // Ciclo muito lento para padrões longos (a cada ~8 minutos)
+        float patternTime = time * 0.002;
+        float patternCycle = sin(patternTime) * 0.5 + 0.5;
+        float currentPattern = floor(patternCycle * 3.0); // 3 padrões complexos
 
         float angle = time * moveSpeed;
         float baseX, baseY;
 
         if (currentPattern < 1.0) {
-            // Padrão 1: Círculo completo
-            float radiusX = areaW * 0.4;
-            float radiusY = areaH * 0.35;
-            baseX = centerX + cos(angle) * radiusX;
-            baseY = centerY + sin(angle) * radiusY;
+            // Padrão 1: Trajetória complexa que cobre toda a área
+            // Combinação de ondas seno/cosseno em diferentes frequências
+            float wave1 = sin(angle * 0.3) * areaW * 0.48;
+            float wave2 = cos(angle * 0.17) * areaW * 0.25;
+            float wave3 = sin(angle * 0.45) * areaH * 0.42;
+            float wave4 = cos(angle * 0.23) * areaH * 0.18;
+
+            baseX = centerX + wave1 + wave2;
+            baseY = centerY + wave3 + wave4;
 
         } else if (currentPattern < 2.0) {
-            // Padrão 2: Figura-8 (lemniscata)
-            float scale = min(areaW, areaH) * 0.3;
-            float sinAngle = sin(angle);
-            float cosAngle = cos(angle);
-            float denominator = 1.0 + sinAngle * sinAngle;
-            baseX = centerX + scale * cosAngle / denominator;
-            baseY = centerY + scale * sinAngle * cosAngle / denominator;
+            // Padrão 2: Movimento em forma de rosácea complexa
+            float r = min(areaW, areaH) * 0.45;
+            float k = 5.0; // Número de pétalas
+            float roseRadius = r * sin(k * angle * 0.4);
 
-        } else if (currentPattern < 3.0) {
-            // Padrão 3: Movimento em zigue-zague horizontal
-            float zigzagX = sin(angle * 0.5) * areaW * 0.4;
-            float zigzagY = sin(angle * 2.0) * areaH * 0.15;
-            baseX = centerX + zigzagX;
-            baseY = centerY + zigzagY;
+            baseX = centerX + roseRadius * cos(angle * 0.4);
+            baseY = centerY + roseRadius * sin(angle * 0.4) * 0.85;
+
+            // Adicionar variação lenta para cobrir mais área
+            baseX += sin(angle * 0.08) * areaW * 0.2;
+            baseY += cos(angle * 0.06) * areaH * 0.15;
 
         } else {
-            // Padrão 4: Espiral que vai do centro para as bordas
-            float spiralRadius = (sin(angle * 0.1) * 0.5 + 0.5) * min(areaW, areaH) * 0.4;
-            baseX = centerX + cos(angle * 2.0) * spiralRadius;
-            baseY = centerY + sin(angle * 2.0) * spiralRadius * 0.8;
+            // Padrão 3: Movimento tipo "drunk walk" controlado
+            // Múltiplas ondas com frequências prímas para evitar repetição
+            float x1 = sin(angle * 0.13) * areaW * 0.35;
+            float x2 = cos(angle * 0.29) * areaW * 0.28;
+            float x3 = sin(angle * 0.41) * areaW * 0.15;
+
+            float y1 = cos(angle * 0.19) * areaH * 0.38;
+            float y2 = sin(angle * 0.31) * areaH * 0.22;
+            float y3 = cos(angle * 0.37) * areaH * 0.12;
+
+            baseX = centerX + x1 + x2 + x3;
+            baseY = centerY + y1 + y2 + y3;
         }
 
                 // Posição natural simples sem modificações
