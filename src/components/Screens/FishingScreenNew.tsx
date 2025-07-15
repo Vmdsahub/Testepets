@@ -421,7 +421,17 @@ export const FishingScreenNew: React.FC = () => {
       />
 
       {/* Fishing Rod Component */}
-      <FishingRod onHookCast={handleHookCast} onLineReeled={handleLineReeled} />
+      <FishingRod
+        waterArea={{
+          x: waterArea.x / window.innerWidth,
+          y: waterArea.y / window.innerHeight,
+          width: waterArea.width / window.innerWidth,
+          height: waterArea.height / window.innerHeight,
+          shape: waterArea.shape,
+        }}
+        onHookCast={handleHookCast}
+        onLineReeled={handleLineReeled}
+      />
 
       {/* Back Button */}
       <button
