@@ -2542,8 +2542,8 @@ export const FishingScreenModular: React.FC = () => {
         />
       )}
 
-      {/* Modal de Jogo de Pesca */}
-      {showFishingModal && (
+      {/* Modal removido - showFishingModal */}
+      {false && (
         <div
           style={{
             position: "fixed",
