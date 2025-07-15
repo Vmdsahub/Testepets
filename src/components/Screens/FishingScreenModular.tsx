@@ -139,7 +139,8 @@ class ModularWaterEffect {
             uniform float u_fishTimeOffset;
       uniform float u_transitionSmoothing;
       uniform vec2 u_transitionStartPosition;
-      uniform float u_fishDirection; // 1.0 = direita, -1.0 = esquerda
+            uniform float u_fishDirection; // 1.0 = direita, -1.0 = esquerda (compatibilidade)
+      uniform float u_fishAngle; // Ângulo real do peixe em radianos
       
             // Uniforms para área da água modular
       uniform vec4 u_waterArea; // x, y, width, height (0-1)
