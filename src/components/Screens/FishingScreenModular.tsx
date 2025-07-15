@@ -452,7 +452,7 @@ class ModularWaterEffect {
         float fishX = u_fishTargetPosition.x;
         float fishY = u_fishTargetPosition.y;
 
-        // Aplicar vibração no shader se necessário (sincronizada)
+        // Aplicar vibração no shader se necess��rio (sincronizada)
         if (u_gameState >= 4.0) {
           float vibrationIntensity = 0.003;
           fishX += sin(u_time * 50.0) * vibrationIntensity;
@@ -1173,7 +1173,17 @@ class ModularWaterEffect {
     }
 
     // Calcular direção do peixe baseada na velocidade
-    if (Math.abs(this.fishVelocity.x) > 0.0001) {
+    // Atualizar direção e ângulo baseados na velocidade
+    const velocityMagnitude = Math.sqrt(
+      this.fishVelocity.x * this.fishVelocity.x +
+        this.fishVelocity.y * this.fishVelocity.y,
+    );
+
+    if (velocityMagnitude > 0.0001) {
+      // Calcular ângulo real baseado na velocidade (atan2 da direção)
+      this.fishAngle = Math.atan2(this.fishVelocity.y, this.fishVelocity.x);
+
+      // Manter fishDirection para compatibilidade (principalmente horizontal)
       this.fishDirection = this.fishVelocity.x > 0 ? 1 : -1;
     }
 
@@ -1952,7 +1962,7 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
                     repeat: isLowTime ? Infinity : 0,
                   }}
                 >
-                  {isLowTime ? "🚨" : "⏱️"}
+                  {isLowTime ? "���" : "⏱️"}
                 </motion.span>
                 <motion.span
                   className={`text-lg font-bold ${
