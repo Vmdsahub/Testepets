@@ -1249,6 +1249,11 @@ class WaterEffect {
     }
 
     this.exclamationTime = 0;
+
+    // IMPORTANTE: Após resetar, callbacks podem precisar ser reconfigurados externamente
+    console.log(
+      "⚠️ resetFishingGame completed - callbacks may need reconfiguration",
+    );
   }
 
   adjustFishTimeToPosition(targetX, targetY) {
