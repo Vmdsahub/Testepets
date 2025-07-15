@@ -295,34 +295,13 @@ class ModularWaterEffect {
         float baseX = centerX + cos(angle) * radius;
         float baseY = centerY + sin(angle) * radius * 0.7; // Elíptico para ficar mais natural
 
-        // === MODIFICAÇÕES POR ESTADO ===
-
+                // Posição natural simples sem modificações
         float naturalFishX = baseX;
         float naturalFishY = baseY;
 
-                // === MOVIMENTO SIMPLIFICADO - SEM OSCILAÇÕES EXCESSIVAS ===
-
-        // Apenas um movimento suave adicional baseado no estado
-        if (fishBehavior < 0.5) { // NADANDO LIVRE
-            // Movimento suave e controlado
-            float explorePhase = time * 0.015; // Muito mais lento
-            naturalFishX += sin(explorePhase) * areaW * 0.03; // Amplitude reduzida
-            naturalFishY += cos(explorePhase * 0.7) * areaH * 0.02;
-
-        } else if (fishBehavior < 1.5) { // EXPLORANDO
-            // Movimento muito sutil
-            float searchPhase = time * 0.008;
-            naturalFishX += sin(searchPhase) * areaW * 0.015;
-            naturalFishY += cos(searchPhase * 0.8) * areaH * 0.01;
-
-        } else { // DESCANSANDO
-            // Praticamente estático
-            float restPhase = time * 0.003;
-            naturalFishX += sin(restPhase) * areaW * 0.005;
-            naturalFishY += cos(restPhase) * areaH * 0.003;
-        }
-
-        // NENHUM movimento corporal adicional - eliminar tudo que causa wiggle
+        // Pequena variação suave apenas
+        naturalFishX += sin(time * 0.008) * areaW * 0.01;
+        naturalFishY += cos(time * 0.006) * areaH * 0.008;
 
         // === DELIMITAÇÃO DA ÁREA ===
 
