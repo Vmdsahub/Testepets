@@ -1273,6 +1273,16 @@ class ModularWaterEffect {
         // Timer automático será gerenciado no updateFishingGame()
       }
     } else if (this.gameState === "fish_hooked") {
+      // VERIFICAÇÃO CONTÍNUA: Se anzol saiu da água durante fish_hooked, resetar imediatamente
+      if (!this.isHookInWater()) {
+        console.log(
+          "🎣 Hook removed from water while fish hooked - resetting immediately",
+        );
+        this.isVibrating = false;
+        this.resetFishingGame();
+        return;
+      }
+
       // Usar tempo real em vez de contador de frames
       const elapsedTime = Date.now() - this.exclamationStartTime;
 
