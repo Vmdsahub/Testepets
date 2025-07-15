@@ -237,12 +237,12 @@ class ModularWaterEffect {
                 // Lógica de orientação simplificada
         vec2 fishUV = localUV;
 
-                // Lógica corrigida: quando fishAngle = 0 (direita), imagem normal
-        // quando fishAngle = PI (esquerda), fazer flip
-        if (fishAngle < 1.5) {
-            fishUV.x = 1.0 - fishUV.x; // Flip para fishAngle = 0 (direita)
+                        // Lógica CORRETA: nada pra direita = aponta pra direita, nada pra esquerda = aponta pra esquerda
+        // fishAngle = 0 significa nadando pra direita, fishAngle = PI significa nadando pra esquerda
+        if (fishAngle > 1.5) {
+            fishUV.x = 1.0 - fishUV.x; // Flip quando nada pra esquerda (fishAngle = PI)
         }
-        // fishAngle > 1.5 (esquerda): usar imagem normal sem flip
+        // fishAngle = 0 (direita): usar imagem normal
         // Y sempre inalterado - nunca inverte verticalmente
 
                                 if (fishUV.x >= 0.0 && fishUV.x <= 1.0 && fishUV.y >= 0.0 && fishUV.y <= 1.0 && isInWaterArea(coords)) {
