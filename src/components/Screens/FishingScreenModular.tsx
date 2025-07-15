@@ -929,7 +929,7 @@ class ModularWaterEffect {
         const tx3 = x + width; // Base direita
         const ty3 = y + height;
 
-        // Algoritmo de área para verificar se ponto está dentro do triângulo
+        // Algoritmo de ��rea para verificar se ponto está dentro do triângulo
         const area = Math.abs(
           (tx2 - tx1) * (ty3 - ty1) - (tx3 - tx1) * (ty2 - ty1),
         );
@@ -2679,6 +2679,11 @@ export const FishingScreenModular: React.FC = () => {
             // Resetar posição do anzol para indicar que foi recolhido
             waterEffectRef.current.hookPosition = { x: 0.5, y: 0.5 };
             waterEffectRef.current.resetFishingGame();
+            // Redefinir callback onGameStart
+            waterEffectRef.current.onGameStart = () => {
+              console.log("🎮 Triggering minigame - setShowMinigame(true)");
+              setShowMinigame(true);
+            };
           }
         }}
       />
