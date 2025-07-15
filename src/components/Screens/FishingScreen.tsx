@@ -163,7 +163,7 @@ class WaterEffect {
                 return 130.0 * dot(m, g);
             }
 
-            // Função para criar ondas realistas
+            // Funç��o para criar ondas realistas
             float createWaves(vec2 uv, float time) {
                 // Ondas balanceadas em múltiplas direções
                 float wave1 = sin(uv.x * 6.0 + time * 1.5) * 0.1;
@@ -276,7 +276,7 @@ class WaterEffect {
 
                 // O movimento real é calculado no sistema de steering behaviors em JavaScript
 
-                                                // Sempre usar posição do sistema de steering behaviors para movimento suave
+                                                // Sempre usar posi��ão do sistema de steering behaviors para movimento suave
                 fishX = u_fishPosition.x;
                 fishY = u_fishPosition.y;
 
@@ -336,17 +336,26 @@ class WaterEffect {
                 // Mistura entre imagem original e efeito de água
                 vec3 finalColor = mix(originalColor.rgb, waterColor, waterMask);
                 
-                                                                                                // Adicionar exclamação com imagem fornecida
+                                                                                                                                                                                                // Adicionar exclamação com imagem fornecida
                 if (u_showExclamation > 0.0 && u_gameState >= 4.0) { // fish_hooked
                                                                                 // Posição da exclamação (10px para esquerda do centro do peixe)
                     float leftOffset = 10.0 / u_resolution.x; // Converter 10px para coordenadas UV
                     vec2 exclamationPos = vec2(fishX - leftOffset, fishY);
 
-                    // Pulsação da exclamação para chamar atenção
-                    float pulse = 0.98 + 0.02 * sin(u_time * 8.0);
+                    // Pulsação da exclamação para chamar atenção (mais intensa)
+                    float pulse = 0.9 + 0.1 * sin(u_time * 10.0);
 
-                                        // Tamanho da exclamação (82% maior que o original)
-                    vec2 exclamationSize = vec2(0.015, 0.025) * 1.82 * pulse;
+                                        // Tamanho da exclamação (maior e mais visível)
+                    vec2 exclamationSize = vec2(0.02, 0.035) * 2.0 * pulse;
+
+                    // Primeiro, desenhar halo/brilho para destacar a área clicável
+                    float haloRadius = 0.1; // Raio do halo (igual à área clicável)
+                    float distanceFromCenter = length(uv - exclamationPos);
+                    if (distanceFromCenter <= haloRadius) {
+                        float haloIntensity = (1.0 - distanceFromCenter / haloRadius) * 0.3;
+                        vec3 haloColor = vec3(1.0, 1.0, 0.0); // Amarelo
+                        finalColor = mix(finalColor, haloColor, haloIntensity * sin(u_time * 8.0) * 0.5 + 0.5);
+                    }
 
                     // Calcular UV da exclamação
                     vec2 exclamationUV = (uv - exclamationPos + exclamationSize * 0.5) / exclamationSize;
@@ -357,16 +366,16 @@ class WaterEffect {
                         vec2 localPos = exclamationUV * 2.0 - 1.0; // Converter para -1 a 1
 
                         // Corpo da exclamação (parte comprida) - corrigido para orientação correta
-                        float bodyWidth = 0.2;
+                        float bodyWidth = 0.25;
                         bool inBody = abs(localPos.x) < bodyWidth && localPos.y > -0.8 && localPos.y < 0.4;
 
                         // Ponto da exclamação (parte pequena embaixo) - corrigido
-                        float dotSize = 0.2;
+                        float dotSize = 0.25;
                         bool inDot = length(localPos - vec2(0.0, 0.7)) < dotSize;
 
                         if (inBody || inDot) {
-                            // Cor amarela/dourada da exclamação
-                            vec3 exclamationColor = vec3(1.0, 0.85, 0.0);
+                            // Cor amarela/dourada da exclamação (mais brilhante)
+                            vec3 exclamationColor = vec3(1.0, 0.9, 0.0);
 
                             // Adicionar sombra sutil
                             vec2 shadowOffset = vec2(0.1, 0.1);
@@ -378,7 +387,8 @@ class WaterEffect {
                                 finalColor = mix(finalColor, vec3(0.0, 0.0, 0.0), 0.3);
                             }
 
-                            // Aplicar cor da exclamação
+                            // Aplicar cor da exclamação com brilho adicional
+                            exclamationColor *= 1.2; // Mais brilhante
                             finalColor = mix(finalColor, exclamationColor, 1.0);
                         }
                     }
@@ -758,11 +768,26 @@ class WaterEffect {
 
   // Método para lidar com clique na exclamação
   handleExclamationClick() {
+    console.log(
+      "handleExclamationClick called - gameState:",
+      this.gameState,
+      "canClickExclamation:",
+      this.canClickExclamation,
+    );
     if (this.gameState === "fish_hooked" && this.canClickExclamation) {
-      console.log("Player clicked exclamation! Opening modal.");
+      console.log("Player clicked exclamation! Showing Fisgado text.");
       this.canClickExclamation = false;
+      // Limpar timers para evitar reset automático
+      if (this.activeTimers) {
+        this.activeTimers.forEach((timer) => clearTimeout(timer));
+        this.activeTimers = [];
+      }
       if (this.onGameStart) {
+        console.log("🎮 Calling onGameStart callback now...");
         this.onGameStart();
+        console.log("🎮 onGameStart callback finished");
+      } else {
+        console.log("❌ onGameStart callback is null or undefined!");
       }
       return true;
     }
@@ -779,11 +804,11 @@ class WaterEffect {
       this.gameState === "fish_moving" ||
       this.gameState === "fish_hooked"
     ) {
-      // Comportamento de seek/arrive em direção ao anzol
+      // Comportamento de seek/arrive em dire��ão ao anzol
       this.seek(this.hookPosition, deltaTime);
     }
 
-    // Aplicar física: velocidade += aceleração
+    // Aplicar f��sica: velocidade += aceleração
     this.fishVelocity.x += this.fishAcceleration.x * deltaTime;
     this.fishVelocity.y += this.fishAcceleration.y * deltaTime;
 
@@ -845,7 +870,7 @@ class WaterEffect {
     const seekForce = 0.3; // Reduzir intensidade do seek
     this.seekWithForce(this.wanderTarget, deltaTime, seekForce);
 
-    // Adicionar força de separação das bordas
+    // Adicionar for��a de separação das bordas
     this.separate(deltaTime);
 
     // Adicionar pequena força de flutuação para movimento orgânico
@@ -1018,7 +1043,7 @@ class WaterEffect {
           `🐟 REACTION DEBUG - Fish position (JS calc): (${currentFishX.toFixed(3)}, ${currentFishY.toFixed(3)})`,
         );
         console.log(
-          `🐟 REACTION DEBUG - fishTime: ${this.fishTime.toFixed(2)}, fishTimeOffset: ${this.fishTimeOffset.toFixed(4)}`,
+          `���� REACTION DEBUG - fishTime: ${this.fishTime.toFixed(2)}, fishTimeOffset: ${this.fishTimeOffset.toFixed(4)}`,
         );
         // Verificar se há transição ativa que pode afetar a posição
         let transitionSmoothing = 0.0;
@@ -1106,14 +1131,14 @@ class WaterEffect {
 
         // Peixe chegou ao anzol
         this.gameState = "fish_hooked";
-        this.exclamationTime = 1000; // mostrar exclamação por 1 segundo
+        this.exclamationTime = 3000; // mostrar exclamação por 3 segundos (aumentado)
         this.exclamationStartTime = Date.now();
         this.canClickExclamation = true;
         console.log(
           `🎣 Fish hooked! Hook at (${this.hookPosition.x.toFixed(3)}, ${this.hookPosition.y.toFixed(3)}) - Hook in water: ${this.isHookInWater()} - Starting exclamation timer.`,
         );
 
-        // Timer de 1 segundo - se não clicar, voltar ao movimento natural
+        // Timer de 3 segundos - se não clicar, voltar ao movimento natural
         const hookedTimer = setTimeout(() => {
           if (this.gameState === "fish_hooked" && this.canClickExclamation) {
             console.log(
@@ -1121,7 +1146,7 @@ class WaterEffect {
             );
             this.resetFishingGame();
           }
-        }, 1000);
+        }, 3000);
         if (!this.activeTimers) this.activeTimers = [];
         this.activeTimers.push(hookedTimer);
       }
@@ -1138,9 +1163,9 @@ class WaterEffect {
       if (this.exclamationTime > 0) {
         this.exclamationTime -= 16;
 
-        // Se passou 1 segundo, desabilitar clique
+        // Se passou 3 segundos, desabilitar clique
         const elapsedTime = Date.now() - this.exclamationStartTime;
-        if (elapsedTime >= 1000) {
+        if (elapsedTime >= 3000) {
           this.canClickExclamation = false;
         }
       }
@@ -1224,6 +1249,11 @@ class WaterEffect {
     }
 
     this.exclamationTime = 0;
+
+    // IMPORTANTE: Após resetar, callbacks podem precisar ser reconfigurados externamente
+    console.log(
+      "⚠️ resetFishingGame completed - callbacks may need reconfiguration",
+    );
   }
 
   adjustFishTimeToPosition(targetX, targetY) {
@@ -1546,6 +1576,7 @@ class WaterEffect {
 }
 
 export const FishingScreen: React.FC = () => {
+  console.log("🏏 FishingScreen component rendering...");
   const { setCurrentScreen } = useGameStore();
   const { user } = useAuthStore();
   const waterEffectRef = useRef<WaterEffect | null>(null);
@@ -1553,8 +1584,32 @@ export const FishingScreen: React.FC = () => {
     useState<FishingSettings | null>(null);
   const [isUpdatingSettings, setIsUpdatingSettings] = useState(false);
   const [showFishingModal, setShowFishingModal] = useState(false);
+  const [debugInfo, setDebugInfo] = useState({
+    gameState: "idle",
+    canClick: false,
+    fishPos: { x: 0, y: 0 },
+    hookPos: { x: 0, y: 0 },
+    timeLeft: 0,
+  });
 
   const isAdmin = user?.isAdmin || false;
+
+  // Função auxiliar para reconfigurar callbacks
+  const reconfigureCallbacks = () => {
+    if (waterEffectRef.current) {
+      console.log("🔧 Reconfiguring WaterEffect callbacks...");
+      waterEffectRef.current.onGameStart = () => {
+        console.log("🎮 onGameStart callback called - opening fishing modal!");
+        setShowFishingModal(true);
+      };
+      console.log("🔧 Callbacks reconfigured successfully");
+    }
+  };
+
+  // Debug: monitorar mudanças no showFishingModal
+  useEffect(() => {
+    console.log("📺 showFishingModal changed to:", showFishingModal);
+  }, [showFishingModal]);
 
   // Load fishing settings
   useEffect(() => {
@@ -1584,12 +1639,28 @@ export const FishingScreen: React.FC = () => {
 
         // Configurar callback para abrir modal
         waterEffect.onGameStart = () => {
-          console.log("Opening fishing game modal");
+          console.log(
+            "🎮 onGameStart callback called - opening fishing modal!",
+          );
+          console.log("🎮 Current showFishingModal state:", showFishingModal);
+          console.log("🎮 Calling setShowFishingModal(true)");
           setShowFishingModal(true);
+          console.log(
+            "🎮 setShowFishingModal(true) called - should trigger re-render",
+          );
+
+          // Força uma nova verificação imediata
+          setTimeout(() => {
+            console.log("🎮 Timeout check - modal should be visible now");
+          }, 100);
         };
 
         // Adicionar listener para cliques na exclamação
         const handleCanvasClick = (e: MouseEvent) => {
+          console.log(
+            "Player clicked anywhere during fish bite - triggering minigame",
+          );
+
           if (
             waterEffect.gameState === "fish_hooked" &&
             waterEffect.canClickExclamation
@@ -1598,21 +1669,18 @@ export const FishingScreen: React.FC = () => {
             const x = (e.clientX - rect.left) / rect.width;
             const y = (e.clientY - rect.top) / rect.height;
 
-            // Posição da exclamação (acima do peixe)
-            const fishX = waterEffect.fishPosition.x;
-            const fishY = waterEffect.fishPosition.y;
-            const exclamationX = fishX;
-            const exclamationY = fishY - 0.08;
+            console.log("Click detected at:", x.toFixed(3), y.toFixed(3));
+            console.log("Fish is hooked - ANY click triggers minigame!");
 
-            // Verificar se clicou na área da exclamação
-            const distance = Math.sqrt(
-              Math.pow(x - exclamationX, 2) + Math.pow(y - exclamationY, 2),
+            // Quando peixe está mordendo, QUALQUER clique na tela ativa o minigame
+            waterEffect.handleExclamationClick();
+          } else {
+            console.log(
+              "Fish not hooked or can't click - gameState:",
+              waterEffect.gameState,
+              "canClick:",
+              waterEffect.canClickExclamation,
             );
-
-            if (distance <= 0.05) {
-              // Área clicável da exclamação
-              waterEffect.handleExclamationClick();
-            }
           }
         };
 
@@ -1641,6 +1709,28 @@ export const FishingScreen: React.FC = () => {
         }
 
         waterEffectRef.current = waterEffect;
+
+        // Atualizar debug info periodicamente
+        const debugInterval = setInterval(() => {
+          if (waterEffect) {
+            setDebugInfo({
+              gameState: waterEffect.gameState,
+              canClick: waterEffect.canClickExclamation,
+              fishPos: waterEffect.fishPosition,
+              hookPos: waterEffect.hookPosition,
+              timeLeft:
+                waterEffect.gameState === "fish_hooked"
+                  ? Math.max(
+                      0,
+                      3 -
+                        (Date.now() - waterEffect.exclamationStartTime) / 1000,
+                    )
+                  : 0,
+            });
+          }
+        }, 100); // Atualizar a cada 100ms
+
+        return () => clearInterval(debugInterval);
       } catch (error) {
         console.error("Error initializing WaterEffect:", error);
       }
@@ -1802,6 +1892,16 @@ export const FishingScreen: React.FC = () => {
           height: 0.4, // 40% restante da altura
           shape: "rectangle",
         }}
+        isFishBiting={() => {
+          // Função para verificar se o peixe está mordendo
+          if (waterEffectRef.current) {
+            return (
+              waterEffectRef.current.gameState === "fish_hooked" &&
+              waterEffectRef.current.canClickExclamation
+            );
+          }
+          return false;
+        }}
         onHookCast={(x, y) => {
           // Converter coordenadas de pixel para UV (0-1)
           const uvX = x / window.innerWidth;
@@ -1844,6 +1944,29 @@ export const FishingScreen: React.FC = () => {
       >
         <ArrowLeft size={16} />
         Voltar
+      </button>
+
+      {/* Debug Button */}
+      <button
+        onClick={() => {
+          console.log("🔴 DEBUG: Forcing modal to open!");
+          setShowFishingModal(true);
+        }}
+        style={{
+          position: "fixed",
+          top: "60px",
+          left: "20px",
+          zIndex: 30,
+          background: "rgba(255, 0, 0, 0.9)",
+          border: "1px solid #e5e5e5",
+          borderRadius: "8px",
+          padding: "10px",
+          cursor: "pointer",
+          fontSize: "12px",
+          color: "white",
+        }}
+      >
+        TEST MODAL
       </button>
 
       {/* Admin Controls */}
@@ -1996,6 +2119,47 @@ export const FishingScreen: React.FC = () => {
         </div>
       )}
 
+      {/* Debug Info - Mostrar estado do jogo */}
+      <div
+        style={{
+          position: "fixed",
+          bottom: "20px",
+          left: "20px",
+          zIndex: 30,
+          background: "rgba(0, 0, 0, 0.8)",
+          color: "white",
+          padding: "10px",
+          borderRadius: "8px",
+          fontSize: "12px",
+          fontFamily: "monospace",
+        }}
+      >
+        <div>Game State: {debugInfo.gameState}</div>
+        <div>Can Click: {debugInfo.canClick ? "YES" : "NO"}</div>
+        <div>Show Modal: {showFishingModal ? "YES" : "NO"}</div>
+        <div>
+          Fish Position: ({debugInfo.fishPos.x.toFixed(3)},{" "}
+          {debugInfo.fishPos.y.toFixed(3)})
+        </div>
+        <div>
+          Hook Position: ({debugInfo.hookPos.x.toFixed(3)},{" "}
+          {debugInfo.hookPos.y.toFixed(3)})
+        </div>
+        {debugInfo.gameState === "fish_hooked" && (
+          <div>
+            <div style={{ color: "yellow", fontWeight: "bold" }}>
+              🎣 CLICK TO CATCH!
+            </div>
+            <div style={{ color: "orange" }}>
+              Time left: {debugInfo.timeLeft.toFixed(1)}s
+            </div>
+            <div style={{ color: "lime", fontSize: "10px" }}>
+              Click anywhere near the fish!
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* Info */}
       <div
         style={{
@@ -2013,6 +2177,11 @@ export const FishingScreen: React.FC = () => {
       </div>
 
       {/* Modal de Jogo de Pesca */}
+      {console.log(
+        "📺 Modal render check - showFishingModal:",
+        showFishingModal,
+      )}
+      {showFishingModal && console.log("📺 MODAL IS BEING RENDERED!")}
       {showFishingModal && (
         <div
           style={{
@@ -2054,12 +2223,16 @@ export const FishingScreen: React.FC = () => {
             >
               <button
                 onClick={() => {
+                  console.log("🔄 Closing modal and resetting game...");
                   setShowFishingModal(false);
                   if (waterEffectRef.current) {
+                    console.log("🔄 Resetting fishing game...");
                     waterEffectRef.current.resetFishingGame();
+
+                    // IMPORTANTE: Reconfigurar callback após reset
+                    reconfigureCallbacks();
                   }
                   console.log("Starting fishing mini-game...");
-                  // Aqui você pode adicionar a lógica do mini-jogo
                 }}
                 style={{
                   background: "#4A90E2",
@@ -2076,9 +2249,14 @@ export const FishingScreen: React.FC = () => {
 
               <button
                 onClick={() => {
+                  console.log("🚫 Canceling fishing game...");
                   setShowFishingModal(false);
                   if (waterEffectRef.current) {
+                    console.log("🚫 Resetting fishing game after cancel...");
                     waterEffectRef.current.resetFishingGame();
+
+                    // IMPORTANTE: Reconfigurar callback após reset
+                    reconfigureCallbacks();
                   }
                 }}
                 style={{

@@ -63,7 +63,8 @@ class ModularWaterEffect {
     this.fishTargetPosition = { x: 0.5, y: 0.65 };
     this.fishCurrentPosition = { x: 0.5, y: 0.65 }; // Posição atual real do peixe
     this.fishVelocity = { x: 0, y: 0 }; // Velocidade atual do peixe
-    this.fishDirection = 1; // 1 = direita, -1 = esquerda
+    this.fishDirection = 1; // 1 = direita, -1 = esquerda (mantido para compatibilidade)
+    this.fishAngle = 0; // Ângulo real do peixe em radianos (0 = direita, PI = esquerda)
 
     // Sistema de movimento orgânico
     this.fishDesiredDirection = { x: 1, y: 0 }; // Direção desejada
@@ -77,6 +78,7 @@ class ModularWaterEffect {
     this.exclamationStartTime = 0;
     this.canClickExclamation = false;
     this.onGameStart = null;
+    this.onGameStartBackup = null; // Backup do callback
     this.onExclamationClick = null;
     this.fishTimeOffset = 0;
     this.transitionBackToNaturalTime = 0;
@@ -137,7 +139,8 @@ class ModularWaterEffect {
             uniform float u_fishTimeOffset;
       uniform float u_transitionSmoothing;
       uniform vec2 u_transitionStartPosition;
-      uniform float u_fishDirection; // 1.0 = direita, -1.0 = esquerda
+            uniform float u_fishDirection; // 1.0 = direita, -1.0 = esquerda (compatibilidade)
+      uniform float u_fishAngle; // Ângulo real do peixe em radianos
       
             // Uniforms para área da água modular
       uniform vec4 u_waterArea; // x, y, width, height (0-1)
@@ -361,7 +364,7 @@ class ModularWaterEffect {
         float mainRadius = min(areaW, areaH) * 0.4;
         float mainAngle = t * 0.8; // Circular mais rápido
 
-        // Posição base do movimento circular
+        // Posi����ão base do movimento circular
         float circleX = cos(mainAngle) * mainRadius;
         float circleY = sin(mainAngle) * mainRadius * 0.7; // Elipse
 
@@ -440,11 +443,22 @@ class ModularWaterEffect {
 
         float fishAngle = 0.0;
 
-                                        // === ORIENTAÇÃO DO PEIXE BASEADA NA DIREÇÃO CALCULADA ===
+                                                                                                                                                                // === ORIENTAÇÃO DO PEIXE BASEADA NA DIREÇÃO CALCULADA ===
+        // Manter sistema original funcionando
         if (u_fishDirection > 0.0) {
             fishAngle = 3.14159; // Direita (PI para flip correto)
         } else {
             fishAngle = 0.0; // Esquerda (0 para sem flip)
+        }
+
+                // ADICIONAR: Pequeno ajuste diagonal sem quebrar o sistema
+        float diagonalTilt = u_fishAngle * 0.3; // Apenas 30% da rotação para ser sutil
+
+        // Aplicar inclinação diagonal mantendo o sistema original
+        if (u_fishDirection > 0.0) {
+            fishAngle = 3.14159 - diagonalTilt; // Direita com inclinação
+        } else {
+            fishAngle = diagonalTilt; // Esquerda com inclinação
         }
 
                                 // Usar posição calculada pelo JavaScript com vibração
@@ -497,7 +511,7 @@ class ModularWaterEffect {
         
                                                                 // Adicionar exclamação com imagem fornecida
         if (u_showExclamation > 0.0 && u_gameState >= 4.0) {
-                    // Posição da exclamação (10px para esquerda do centro do peixe, sem vibração)
+                    // Posição da exclamação (10px para esquerda do centro do peixe, sem vibra��ão)
           float leftOffset = 10.0 / u_resolution.x; // Converter 10px para coordenadas UV
           vec2 exclamationPos = vec2(fishX - leftOffset, fishY);
 
@@ -628,6 +642,10 @@ class ModularWaterEffect {
     this.uniforms.fishDirection = this.gl.getUniformLocation(
       this.program,
       "u_fishDirection",
+    );
+    this.uniforms.fishAngle = this.gl.getUniformLocation(
+      this.program,
+      "u_fishAngle",
     );
 
     // Novos uniforms para ��rea modular
@@ -995,7 +1013,7 @@ class ModularWaterEffect {
       // Escolher nova direção que aponte para longe das bordas próximas
       let newAngle;
 
-      // Calcular direção ideal: para o centro, mas com variação
+      // Calcular direç��o ideal: para o centro, mas com variação
       const directionToCenter = Math.atan2(
         centerY - this.fishCurrentPosition.y,
         centerX - this.fishCurrentPosition.x,
@@ -1100,7 +1118,7 @@ class ModularWaterEffect {
       this.gameState === "fish_reacting" ||
       this.gameState === "fish_moving"
     ) {
-      // === MOVIMENTO EM DIREÇÃO AO ANZOL ===
+      // === MOVIMENTO EM DIREÇ��O AO ANZOL ===
       const dx = this.hookPosition.x - this.fishCurrentPosition.x;
       const dy = this.hookPosition.y - this.fishCurrentPosition.y;
       const distance = Math.sqrt(dx * dx + dy * dy);
@@ -1172,14 +1190,36 @@ class ModularWaterEffect {
     }
 
     // Calcular direção do peixe baseada na velocidade
-    if (Math.abs(this.fishVelocity.x) > 0.0001) {
+    // Atualizar direção e ângulo baseados na velocidade
+    const velocityMagnitude = Math.sqrt(
+      this.fishVelocity.x * this.fishVelocity.x +
+        this.fishVelocity.y * this.fishVelocity.y,
+    );
+
+    if (velocityMagnitude > 0.0001) {
+      // Manter sistema original para direção horizontal
       this.fishDirection = this.fishVelocity.x > 0 ? 1 : -1;
+
+      // ADICIONAR: Calcular apenas o ângulo vertical para ajuste diagonal
+      // Limitar a apenas um pequeno ajuste vertical, não mudar completamente
+      const verticalComponent = this.fishVelocity.y;
+      const horizontalComponent = Math.abs(this.fishVelocity.x);
+
+      // Calcular um pequeno ângulo de inclinação baseado na proporção vertical
+      if (horizontalComponent > 0.0001) {
+        this.fishAngle =
+          Math.atan(verticalComponent / horizontalComponent) * 0.5; // Reduzir intensidade
+      } else {
+        this.fishAngle = 0;
+      }
+    } else if (this.fishAngle === undefined) {
+      this.fishAngle = 0;
     }
 
     // Log de debug ocasional
     if (Math.random() < 0.005) {
       console.log(
-        `🐟 ORGANIC - Pos: (${this.fishCurrentPosition.x.toFixed(3)}, ${this.fishCurrentPosition.y.toFixed(3)}), Vel: (${this.fishVelocity.x.toFixed(4)}, ${this.fishVelocity.y.toFixed(4)}), Dir: ${this.fishDirection > 0 ? "RIGHT" : "LEFT"}`,
+        `🐟 ORGANIC - Pos: (${this.fishCurrentPosition.x.toFixed(3)}, ${this.fishCurrentPosition.y.toFixed(3)}), Vel: (${this.fishVelocity.x.toFixed(4)}, ${this.fishVelocity.y.toFixed(4)}), Dir: ${this.fishDirection > 0 ? "RIGHT" : "LEFT"}, Tilt: ${((this.fishAngle * 180) / Math.PI).toFixed(1)}°`,
       );
     }
   }
@@ -1201,22 +1241,49 @@ class ModularWaterEffect {
       this.showFisgadoText = true;
       this.fisgadoTextStartTime = Date.now();
 
-      // Após 0.6s, abrir minigame
-      const fisgadoTimer = setTimeout(() => {
-        this.showFisgadoText = false;
-        console.log(
-          "🎮 About to call onGameStart - callback exists:",
-          !!this.onGameStart,
-        );
-        if (this.onGameStart) {
-          console.log("🎮 Calling onGameStart callback...");
-          this.onGameStart();
+      // CORRIGIDO: Chamar onGameStart imediatamente para evitar perda de callback
+      console.log(
+        "🎮 About to call onGameStart - callback exists:",
+        !!this.onGameStart,
+      );
+
+      // Salvar referência do callback antes de qualquer coisa
+      const savedCallback = this.onGameStart;
+
+      if (savedCallback) {
+        console.log("🎮 Calling onGameStart callback immediately!");
+
+        // Após 600ms, esconder texto e abrir minigame
+        const fisgadoTimer = setTimeout(() => {
+          this.showFisgadoText = false;
+          console.log("🎮 Opening minigame now...");
+          savedCallback(); // Usar callback salvo
+        }, 600);
+
+        if (!this.activeTimers) this.activeTimers = [];
+        this.activeTimers.push(fisgadoTimer);
+      } else {
+        console.log("❌ onGameStart callback is null! Attempting recovery...");
+
+        // Tentar restaurar do backup
+        if (this.onGameStartBackup) {
+          console.log("🔄 Restoring callback from backup");
+          this.onGameStart = this.onGameStartBackup;
+
+          const fisgadoTimer = setTimeout(() => {
+            this.showFisgadoText = false;
+            console.log("🎮 Opening minigame with restored callback...");
+            this.onGameStart();
+          }, 600);
+
+          if (!this.activeTimers) this.activeTimers = [];
+          this.activeTimers.push(fisgadoTimer);
         } else {
-          console.log("❌ onGameStart callback is null!");
+          console.log(
+            "❌ No backup callback available! Minigame cannot start.",
+          );
         }
-      }, 600);
-      if (!this.activeTimers) this.activeTimers = [];
-      this.activeTimers.push(fisgadoTimer);
+      }
 
       return true;
     }
@@ -1237,7 +1304,7 @@ class ModularWaterEffect {
           return;
         }
 
-        // Capturar posição atual e começar reação
+        // Capturar posiç��o atual e começar reação
         this.gameState = "fish_reacting";
         console.log(
           `🎣 Fish reacting! Hook at (${this.hookPosition.x.toFixed(3)}, ${this.hookPosition.y.toFixed(3)}) - Fish at (${this.fishCurrentPosition.x.toFixed(3)}, ${this.fishCurrentPosition.y.toFixed(3)}) - Hook in water: ${this.isHookInWater()}`,
@@ -1325,15 +1392,30 @@ class ModularWaterEffect {
   }
 
   resetFishingGame() {
-    // Limpar todos os timers ativos para evitar comportamentos persistentes
-    if (this.activeTimers) {
-      this.activeTimers.forEach((timer) => clearTimeout(timer));
-      this.activeTimers = [];
-      console.log("🧹 Cleared all active timers");
+    // IMPORTANTE: NÃO limpar timers se o minigame está sendo ativado
+    console.log(
+      "🔄 resetFishingGame called - showFisgadoText:",
+      this.showFisgadoText,
+      "onGameStart:",
+      !!this.onGameStart,
+      "backup:",
+      !!this.onGameStartBackup,
+    );
+
+    if (this.showFisgadoText) {
+      console.log("⚠️ Skipping timer cleanup - minigame is starting!");
+      // Não limpar timers quando "Fisgado!" está sendo mostrado
     } else {
-      // Inicializar se não existe
-      this.activeTimers = [];
-      console.log("🧹 Initialized activeTimers array");
+      // Limpar todos os timers ativos para evitar comportamentos persistentes
+      if (this.activeTimers) {
+        this.activeTimers.forEach((timer) => clearTimeout(timer));
+        this.activeTimers = [];
+        console.log("🧹 Cleared all active timers");
+      } else {
+        // Inicializar se não existe
+        this.activeTimers = [];
+        console.log("🧹 Initialized activeTimers array");
+      }
     }
 
     if (
@@ -1382,6 +1464,19 @@ class ModularWaterEffect {
     this.isVibrating = false;
     this.showFisgadoText = false;
     this.canClickExclamation = false;
+
+    // IMPORTANTE: Preservar backup do callback
+    if (this.onGameStartBackup && !this.onGameStart) {
+      console.log("�� Restoring callback from backup after reset");
+      this.onGameStart = this.onGameStartBackup;
+    }
+
+    console.log(
+      "⚠️ resetFishingGame completed - callback state:",
+      !!this.onGameStart,
+      "backup:",
+      !!this.onGameStartBackup,
+    );
   }
 
   updateBackgroundFromImage(image) {
@@ -1631,6 +1726,7 @@ class ModularWaterEffect {
       this.transitionStartPosition.y,
     );
     this.gl.uniform1f(this.uniforms.fishDirection, this.fishDirection);
+    this.gl.uniform1f(this.uniforms.fishAngle, this.fishAngle);
 
     // Novos uniforms para área modular
     this.gl.uniform4f(
@@ -1734,16 +1830,15 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
       });
 
       // Verificar se o peixe está na barra
+      const fishIsInBar =
+        Math.abs(fishPositionRef.current - barPositionRef.current) <
+        (barSize + fishSize) / 2;
+
+      setFishInBar(fishIsInBar);
+
       setProgress((prev) => {
-        const fishIsInBar =
-          Math.abs(fishPositionRef.current - barPositionRef.current) <
-          (barSize + fishSize) / 2;
-
-        setFishInBar(fishIsInBar);
-
         if (fishIsInBar) {
           setProgressGain(true);
-          setTimeout(() => setProgressGain(false), 200);
           return Math.min(100, prev + 2); // Progresso aumenta
         } else {
           return Math.max(0, prev - 1); // Progresso diminui
@@ -1753,12 +1848,14 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
       // Diminuir tempo
       setGameTime((prev) => {
         const newTime = prev - 50;
-        setIsLowTime(newTime < 3000); // Tempo baixo nos últimos 3 segundos
         if (newTime <= 0) {
           onComplete(false); // Tempo esgotado
         }
         return newTime;
       });
+
+      // Atualizar isLowTime separadamente usando um useEffect
+      // (será criado após o useEffect do gameInterval)
     }, 50);
 
     return () => clearInterval(gameInterval);
@@ -1771,12 +1868,25 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
     }
   }, [progress, onComplete]);
 
+  // Atualizar isLowTime baseado no gameTime
+  useEffect(() => {
+    setIsLowTime(gameTime < 3000);
+  }, [gameTime]);
+
+  // Gerenciar progressGain com timeout
+  useEffect(() => {
+    if (progressGain) {
+      const timer = setTimeout(() => setProgressGain(false), 200);
+      return () => clearTimeout(timer);
+    }
+  }, [progressGain]);
+
   // Atualizar resultado para failure quando tempo acabar
   useEffect(() => {
     if (gameTime <= 0 && gameResult === "playing") {
       setGameResult("failure");
     }
-  }, [gameTime, gameResult]);
+  }, [gameTime]); // Remover gameResult das dependências para evitar loop
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -2253,10 +2363,14 @@ export const FishingScreenModular: React.FC = () => {
   // Helper function para redefinir o callback onGameStart
   const redefineGameStartCallback = () => {
     if (waterEffectRef.current) {
-      waterEffectRef.current.onGameStart = () => {
+      const callback = () => {
         console.log("🎮 Triggering minigame - setShowMinigame(true)");
         setShowMinigame(true);
       };
+
+      waterEffectRef.current.onGameStart = callback;
+      waterEffectRef.current.onGameStartBackup = callback; // Salvar backup
+      console.log("🔄 Callback defined and backed up");
     }
   };
   const [fishingSettings, setFishingSettings] =
