@@ -1288,6 +1288,44 @@ class ModularWaterEffect {
     );
   }
 
+  // Método para desenhar apenas texto "Fisgado!" sem círculo da boca
+  drawFisgadoTextOnly() {
+    const overlayCanvas = document.getElementById("fishMouthOverlay");
+    if (!overlayCanvas) return;
+
+    const ctx = overlayCanvas.getContext("2d");
+    if (!ctx) return;
+
+    // Ajustar tamanho do overlay
+    overlayCanvas.width = window.innerWidth;
+    overlayCanvas.height = window.innerHeight;
+
+    // Limpar canvas
+    ctx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+
+    // Usar a MESMA posição do peixe que o shader usa
+    const fishUvX = this.fishCurrentPosition.x;
+    const fishUvY = this.fishCurrentPosition.y;
+
+    // Converter para pixels
+    const fishPixelX = fishUvX * overlayCanvas.width;
+    const fishPixelY = fishUvY * overlayCanvas.height;
+
+    // Desenhar apenas texto "Fisgado!"
+    ctx.fillStyle = "#FFD700";
+    ctx.font = "bold 24px Arial";
+    ctx.strokeStyle = "#000";
+    ctx.lineWidth = 2;
+
+    const text = "Fisgado!";
+    const textMetrics = ctx.measureText(text);
+    const textX = fishPixelX - textMetrics.width / 2;
+    const textY = fishPixelY - 60;
+
+    ctx.strokeText(text, textX, textY);
+    ctx.fillText(text, textX, textY);
+  }
+
   // Método para desenhar overlay da boca do peixe (APENAS ADMIN)
   drawFishMouthOverlay() {
     // VERIFICAÇÃO: Círculo rosa da boca visível APENAS para admin
