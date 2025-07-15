@@ -902,8 +902,13 @@ class ModularWaterEffect {
         y: this.hookPosition.y,
       };
     } else if (this.gameState === "fish_hooked") {
-      // Manter próximo ao anzol
+      // Ficar EXATAMENTE no anzol (sem movimento)
       this.fishTargetPosition = {
+        x: this.hookPosition.x,
+        y: this.hookPosition.y,
+      };
+      // Força posição atual para o anzol também
+      this.fishCurrentPosition = {
         x: this.hookPosition.x,
         y: this.hookPosition.y,
       };
