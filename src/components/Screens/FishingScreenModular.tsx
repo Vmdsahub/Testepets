@@ -237,12 +237,12 @@ class ModularWaterEffect {
                 // Lógica de orientação simplificada
         vec2 fishUV = localUV;
 
-                                // TESTE: Inverter lógica para ver se textura está ao contrário
+                                        // Lógica original do shader: não mexer
         // fishAngle = 0 (direita), fishAngle = PI (esquerda)
-        if (fishAngle < 1.5) {
-            fishUV.x = 1.0 - fishUV.x; // Flip quando fishAngle = 0 (direita)
+        if (fishAngle > 1.5) {
+            fishUV.x = 1.0 - fishUV.x; // Flip quando fishAngle = PI (esquerda)
         }
-        // fishAngle = PI (esquerda): usar imagem normal
+        // fishAngle = 0 (direita): usar imagem normal
         // Y sempre inalterado - nunca inverte verticalmente
 
                                 if (fishUV.x >= 0.0 && fishUV.x <= 1.0 && fishUV.y >= 0.0 && fishUV.y <= 1.0 && isInWaterArea(coords)) {
