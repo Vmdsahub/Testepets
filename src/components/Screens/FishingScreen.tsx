@@ -1601,6 +1601,10 @@ export const FishingScreen: React.FC = () => {
 
         // Adicionar listener para cliques na exclamação
         const handleCanvasClick = (e: MouseEvent) => {
+          console.log(
+            "Player clicked anywhere during fish bite - triggering minigame",
+          );
+
           if (
             waterEffect.gameState === "fish_hooked" &&
             waterEffect.canClickExclamation
@@ -1609,21 +1613,46 @@ export const FishingScreen: React.FC = () => {
             const x = (e.clientX - rect.left) / rect.width;
             const y = (e.clientY - rect.top) / rect.height;
 
-            // Posição da exclamação (acima do peixe)
+            console.log("Click detected at:", x.toFixed(3), y.toFixed(3));
+
+            // Posição da exclamação (10px para esquerda do peixe)
             const fishX = waterEffect.fishPosition.x;
             const fishY = waterEffect.fishPosition.y;
-            const exclamationX = fishX;
-            const exclamationY = fishY - 0.08;
+            const leftOffset = 10.0 / window.innerWidth; // Converter 10px para coordenadas UV
+            const exclamationX = fishX - leftOffset;
+            const exclamationY = fishY;
 
-            // Verificar se clicou na área da exclamação
+            console.log("Fish position:", fishX.toFixed(3), fishY.toFixed(3));
+            console.log(
+              "Exclamation position:",
+              exclamationX.toFixed(3),
+              exclamationY.toFixed(3),
+            );
+
+            // Verificar se clicou na área da exclamação (aumentar área clicável)
             const distance = Math.sqrt(
               Math.pow(x - exclamationX, 2) + Math.pow(y - exclamationY, 2),
             );
 
-            if (distance <= 0.05) {
-              // Área clicável da exclamação
+            console.log("Distance from exclamation:", distance.toFixed(3));
+
+            // Aumentar área clicável para 0.1 (era 0.05)
+            if (distance <= 0.1) {
+              console.log("Player clicked exclamation! Showing Fisgado text.");
               waterEffect.handleExclamationClick();
+            } else {
+              console.log(
+                "Click outside exclamation area, distance too large:",
+                distance.toFixed(3),
+              );
             }
+          } else {
+            console.log(
+              "Fish not hooked or can't click - gameState:",
+              waterEffect.gameState,
+              "canClick:",
+              waterEffect.canClickExclamation,
+            );
           }
         };
 
