@@ -988,9 +988,9 @@ class ModularWaterEffect {
         this.fishVelocity.y = (this.fishVelocity.y / currentSpeed) * maxSpeed;
       }
 
-      // Aplicar damping natural
-      this.fishVelocity.x *= 0.99;
-      this.fishVelocity.y *= 0.99;
+      // Aplicar damping natural (mais suave)
+      this.fishVelocity.x *= 0.985;
+      this.fishVelocity.y *= 0.985;
     } else if (
       this.gameState === "fish_reacting" ||
       this.gameState === "fish_moving"
