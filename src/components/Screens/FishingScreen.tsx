@@ -1191,10 +1191,14 @@ class WaterEffect {
       `🔄 RESET DEBUG - Hook position: (${this.hookPosition.x.toFixed(3)}, ${this.hookPosition.y.toFixed(3)}) - isHookInWater: ${hookInWater}`,
     );
 
-    if (hookInWater) {
-      // PROBLEMA: Este é o LOOP INFINITO! Peixe volta para hook_cast constantemente
+    // CORREÇÃO: Só reagir novamente se o anzol foi genuinamente lançado pela vara
+    // e não apenas está na posiç��o de água por acaso
+    const wasProperlyReset =
+      this.hookPosition.x === 0.5 && this.hookPosition.y === 0.5;
+
+    if (hookInWater && !wasProperlyReset) {
       console.log(
-        "⚠️  LOOP DETECTED: Hook considered in water, scheduling new reaction",
+        "🎣 Hook still in water after genuine cast - will schedule new reaction",
       );
       this.gameState = "hook_cast";
       this.fishReactionDelay = 3000 + Math.random() * 6000; // 3-9 segundos para nova tentativa
