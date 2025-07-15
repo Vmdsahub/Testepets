@@ -1201,7 +1201,7 @@ class ModularWaterEffect {
       this.showFisgadoText = true;
       this.fisgadoTextStartTime = Date.now();
 
-      // Ap��s 0.6s, abrir minigame
+      // Após 0.6s, abrir minigame
       const fisgadoTimer = setTimeout(() => {
         this.showFisgadoText = false;
         console.log(
@@ -1759,11 +1759,8 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
         return newTime;
       });
 
-      // Atualizar isLowTime separadamente
-      setGameTime((prev) => {
-        setIsLowTime(prev < 3000); // Tempo baixo nos últimos 3 segundos
-        return prev;
-      });
+      // Atualizar isLowTime separadamente usando um useEffect
+      // (será criado após o useEffect do gameInterval)
     }, 50);
 
     return () => clearInterval(gameInterval);
