@@ -272,7 +272,7 @@ class ModularWaterEffect {
         float totalShadowAlpha = 0.0;
         vec3 totalShadowColor = vec3(0.0);
 
-        // 4 sombras ligeiramente deslocadas para criar dispersão
+        // 4 sombras ligeiramente deslocadas para criar dispers��o
         for(int i = 0; i < 4; i++) {
             float angle = float(i) * 1.57; // 90 graus entre cada sombra
             vec2 disperseOffset = vec2(cos(angle), sin(angle)) * 0.003; // Dispersão mínima
@@ -500,14 +500,14 @@ class ModularWaterEffect {
             vibrationOffset.y = cos(u_time * 47.0) * vibrationIntensity;
           }
 
-                    // Posição da exclamação (ligeiramente acima do peixe, mas seguindo vibração)
-          vec2 exclamationPos = vec2(fishX + vibrationOffset.x, fishY + vibrationOffset.y - 0.04);
+                              // Posição da exclamação (no centro do peixe)
+          vec2 exclamationPos = vec2(fishX + vibrationOffset.x, fishY + vibrationOffset.y);
 
           // Pulsação suave para chamar atenção
-          float pulse = 0.95 + 0.05 * sin(u_time * 8.0);
+          float pulse = 0.98 + 0.02 * sin(u_time * 8.0);
 
-          // Tamanho da exclamação (menor)
-          vec2 exclamationSize = vec2(0.03, 0.05) * pulse;
+          // Tamanho da exclamação (ainda menor)
+          vec2 exclamationSize = vec2(0.015, 0.025) * pulse;
 
           // Calcular UV da exclamação
           vec2 exclamationUV = (uv - exclamationPos + exclamationSize * 0.5) / exclamationSize;
@@ -518,14 +518,13 @@ class ModularWaterEffect {
             // Criar forma de exclamação baseada na imagem
             vec2 localPos = exclamationUV * 2.0 - 1.0; // Converter para -1 a 1
 
-            // Corpo da exclamação (parte comprida) - ajustado
-            float bodyWidth = 0.25;
-            float bodyHeight = 1.0;
-            bool inBody = abs(localPos.x) < bodyWidth && localPos.y > -0.4 && localPos.y < 0.6;
+            // Corpo da exclamação (parte comprida) - corrigido para orientação correta
+            float bodyWidth = 0.2;
+            bool inBody = abs(localPos.x) < bodyWidth && localPos.y > -0.8 && localPos.y < 0.4;
 
-            // Ponto da exclamação (parte pequena embaixo) - ajustado
-            float dotSize = 0.25;
-            bool inDot = length(localPos - vec2(0.0, -0.8)) < dotSize;
+            // Ponto da exclamação (parte pequena embaixo) - corrigido
+            float dotSize = 0.2;
+            bool inDot = length(localPos - vec2(0.0, 0.7)) < dotSize;
 
             if (inBody || inDot) {
               // Cor amarela/dourada da exclamação
