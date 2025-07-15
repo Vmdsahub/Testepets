@@ -1192,7 +1192,7 @@ class WaterEffect {
     );
 
     // CORREÇÃO: Só reagir novamente se o anzol foi genuinamente lançado pela vara
-    // e não apenas está na posiç��o de água por acaso
+    // e não apenas está na posição de água por acaso
     const wasProperlyReset =
       this.hookPosition.x === 0.5 && this.hookPosition.y === 0.5;
 
@@ -1207,9 +1207,10 @@ class WaterEffect {
         `🎣 Fish will try again in ${(this.fishReactionDelay / 1000).toFixed(1)}s since hook is still in water`,
       );
     } else {
-      // Se não, voltar ao estado idle e resetar posição do anzol
+      // Se não, voltar ao estado idle e garantir reset completo
+      console.log("🔄 Complete reset - hook removed from water");
       this.gameState = "idle";
-      this.hookPosition = { x: 0.5, y: 0.5 };
+      this.hookPosition = { x: 0.5, y: 0.5 }; // Garantir reset da posição
       this.fishReactionStartTime = 0;
       this.fishReactionDelay = 0;
     }
