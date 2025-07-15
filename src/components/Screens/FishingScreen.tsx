@@ -66,7 +66,7 @@ class WaterEffect {
     this.canClickExclamation = false;
     this.onGameStart = null; // Callback para abrir modal
     this.onExclamationClick = null; // Callback para clique na exclamação
-    this.fishTimeOffset = 0; // Offset para sincronizar movimento natural com posição atual
+    this.fishTimeOffset = 0; // Offset para sincronizar movimento natural com posiç��o atual
     this.transitionBackToNaturalTime = 0; // Tempo desde que voltou para movimento natural
     this.transitionBackToNaturalDuration = 2000; // 2 segundos para suavizar retorno (debug)
     this.transitionStartPosition = { x: 0.5, y: 0.65 }; // Posição onde o peixe estava quando iniciou a transição
@@ -342,8 +342,8 @@ class WaterEffect {
                     // Pulsação da exclamação para chamar atenção
                     float pulse = 0.98 + 0.02 * sin(u_time * 8.0);
 
-                    // Tamanho da exclamação (40% maior)
-                    vec2 exclamationSize = vec2(0.015, 0.025) * 1.4 * pulse;
+                                        // Tamanho da exclamação (82% maior que o original)
+                    vec2 exclamationSize = vec2(0.015, 0.025) * 1.82 * pulse;
 
                     // Calcular UV da exclamação
                     vec2 exclamationUV = (uv - exclamationPos + exclamationSize * 0.5) / exclamationSize;
