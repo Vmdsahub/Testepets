@@ -783,7 +783,11 @@ class WaterEffect {
         this.activeTimers = [];
       }
       if (this.onGameStart) {
+        console.log("🎮 Calling onGameStart callback now...");
         this.onGameStart();
+        console.log("🎮 onGameStart callback finished");
+      } else {
+        console.log("❌ onGameStart callback is null or undefined!");
       }
       return true;
     }
@@ -1612,8 +1616,15 @@ export const FishingScreen: React.FC = () => {
 
         // Configurar callback para abrir modal
         waterEffect.onGameStart = () => {
-          console.log("Opening fishing game modal");
+          console.log(
+            "🎮 onGameStart callback called - opening fishing modal!",
+          );
+          console.log(
+            "🎮 Before setState - showFishingModal:",
+            showFishingModal,
+          );
           setShowFishingModal(true);
+          console.log("🎮 setShowFishingModal(true) called");
         };
 
         // Adicionar listener para cliques na exclamação
