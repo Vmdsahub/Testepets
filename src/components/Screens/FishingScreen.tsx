@@ -2085,6 +2085,7 @@ export const FishingScreen: React.FC = () => {
       >
         <div>Game State: {debugInfo.gameState}</div>
         <div>Can Click: {debugInfo.canClick ? "YES" : "NO"}</div>
+        <div>Show Modal: {showFishingModal ? "YES" : "NO"}</div>
         <div>
           Fish Position: ({debugInfo.fishPos.x.toFixed(3)},{" "}
           {debugInfo.fishPos.y.toFixed(3)})
