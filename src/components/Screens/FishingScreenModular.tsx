@@ -139,7 +139,7 @@ class ModularWaterEffect {
       uniform vec2 u_transitionStartPosition;
       uniform float u_fishDirection; // 1.0 = direita, -1.0 = esquerda
       
-            // Uniforms para área da água modular
+            // Uniforms para área da ��gua modular
       uniform vec4 u_waterArea; // x, y, width, height (0-1)
       uniform float u_waterShape; // 0=rectangle, 1=circle, 2=triangle
       
@@ -1870,12 +1870,30 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
             {/* Progress Bar */}
             <div className="space-y-2">
               <div className="flex justify-between text-xs font-medium text-gray-600">
-                <span>Captura</span>
-                <span>{Math.round(progress)}%</span>
+                <motion.span
+                  animate={
+                    progressGain
+                      ? {
+                          scale: [1, 1.1, 1],
+                          color: ["#374151", "#10b981", "#374151"],
+                        }
+                      : {}
+                  }
+                  transition={{ duration: 0.3 }}
+                >
+                  Captura
+                </motion.span>
+                <motion.span
+                  animate={progressGain ? { scale: [1, 1.2, 1] } : {}}
+                  transition={{ duration: 0.3 }}
+                  className={progress > 75 ? "text-green-600 font-bold" : ""}
+                >
+                  {Math.round(progress)}%
+                </motion.span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
-                <div
-                  className={`h-full transition-all duration-300 ease-out rounded-full ${
+              <div className="relative w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+                <motion.div
+                  className={`h-full transition-all duration-300 ease-out rounded-full relative ${
                     progress > 75
                       ? "bg-gradient-to-r from-green-500 to-emerald-600"
                       : progress > 50
@@ -1885,9 +1903,40 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
                           : "bg-gradient-to-r from-red-500 to-pink-600"
                   }`}
                   style={{ width: `${progress}%` }}
+                  animate={
+                    progressGain
+                      ? {
+                          boxShadow: [
+                            "0 0 0 rgba(16, 185, 129, 0)",
+                            "0 0 20px rgba(16, 185, 129, 0.8)",
+                            "0 0 0 rgba(16, 185, 129, 0)",
+                          ],
+                        }
+                      : {}
+                  }
+                  transition={{ duration: 0.4 }}
                 >
-                  <div className="h-full w-full bg-white/20 animate-pulse"></div>
-                </div>
+                  <div className="h-full w-full bg-white/30 animate-pulse"></div>
+                  {/* Sparkle effect */}
+                  {progressGain && (
+                    <motion.div
+                      className="absolute right-0 top-0 w-2 h-2 bg-white rounded-full"
+                      initial={{ scale: 0, x: 0 }}
+                      animate={{ scale: [0, 1, 0], x: [0, 10, 20] }}
+                      transition={{ duration: 0.6 }}
+                    />
+                  )}
+                </motion.div>
+                {/* Progress milestone markers */}
+                {[25, 50, 75].map((milestone) => (
+                  <div
+                    key={milestone}
+                    className={`absolute top-0 w-px h-full bg-white/50 ${
+                      progress >= milestone ? "opacity-100" : "opacity-30"
+                    }`}
+                    style={{ left: `${milestone}%` }}
+                  />
+                ))}
               </div>
             </div>
 
