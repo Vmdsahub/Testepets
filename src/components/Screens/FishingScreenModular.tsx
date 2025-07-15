@@ -1711,10 +1711,15 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
 
       // Verificar se o peixe está na barra
       setProgress((prev) => {
-        const fishInBar =
+        const fishIsInBar =
           Math.abs(fishPositionRef.current - barPositionRef.current) <
           (barSize + fishSize) / 2;
-        if (fishInBar) {
+
+        setFishInBar(fishIsInBar);
+
+        if (fishIsInBar) {
+          setProgressGain(true);
+          setTimeout(() => setProgressGain(false), 200);
           return Math.min(100, prev + 2); // Progresso aumenta
         } else {
           return Math.max(0, prev - 1); // Progresso diminui
@@ -1724,6 +1729,7 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
       // Diminuir tempo
       setGameTime((prev) => {
         const newTime = prev - 50;
+        setIsLowTime(newTime < 3000); // Tempo baixo nos últimos 3 segundos
         if (newTime <= 0) {
           onComplete(false); // Tempo esgotado
         }
@@ -2369,7 +2375,7 @@ export const FishingScreenModular: React.FC = () => {
         }}
       />
 
-      {/* Overlay para mostrar posi��ão da boca do peixe */}
+      {/* Overlay para mostrar posição da boca do peixe */}
       <canvas
         id="fishMouthOverlay"
         style={{
