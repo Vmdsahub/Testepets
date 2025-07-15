@@ -1047,7 +1047,7 @@ class ModularWaterEffect {
       const distance = Math.sqrt(dx * dx + dy * dy);
 
       if (distance > 0) {
-        const moveSpeed = 0.001; // Velocidade moderada
+        const moveSpeed = 0.0003; // Velocidade mais lenta e curiosa
         this.fishVelocity.x = (dx / distance) * moveSpeed;
         this.fishVelocity.y = (dy / distance) * moveSpeed;
       }
