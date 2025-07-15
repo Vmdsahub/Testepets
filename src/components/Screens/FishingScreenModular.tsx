@@ -1019,20 +1019,26 @@ class ModularWaterEffect {
       this.fishVelocity.x = 0;
       this.fishVelocity.y = 0;
 
-      // Calcular posição do centro do peixe para que a boca fique no anzol
-      const fishSize = 0.08; // Tamanho do peixe (width)
+      // Calcular posição do centro do peixe para que a boca fique EXATAMENTE no anzol
+      // Usar mesma lógica do drawFishMouthOverlay para consistência
+      const fishSizePixelX = 0.08; // Tamanho do peixe no shader
+
+      // Lógica idêntica ao drawFishMouthOverlay
       let mouthOffsetX;
       if (this.fishDirection > 0) {
-        // Peixe nada para direita (flipado), boca à direita
-        mouthOffsetX = fishSize / 2;
+        mouthOffsetX = fishSizePixelX / 2 - 10 / window.innerWidth; // Converter 10px para UV
       } else {
-        // Peixe nada para esquerda (normal), boca à esquerda
-        mouthOffsetX = -fishSize / 2;
+        mouthOffsetX = -(fishSizePixelX / 2) + 10 / window.innerWidth; // Converter 10px para UV
       }
 
-      // Posicionar centro do peixe para que boca fique no anzol
-      this.fishCurrentPosition.x = this.hookPosition.x - mouthOffsetX;
-      this.fishCurrentPosition.y = this.hookPosition.y;
+      // Adicionar offset adicional do drawFishMouthOverlay
+      const additionalOffsetX =
+        (this.fishDirection > 0 ? -7 : 7) / window.innerWidth; // Converter -7px/+7px para UV
+
+      // Posicionar centro do peixe para que boca fique EXATAMENTE no anzol
+      this.fishCurrentPosition.x =
+        this.hookPosition.x - mouthOffsetX - additionalOffsetX;
+      this.fishCurrentPosition.y = this.hookPosition.y - 2 / window.innerHeight; // Converter 2px para UV (offset Y da boca)
     }
 
     // Atualizar posição
