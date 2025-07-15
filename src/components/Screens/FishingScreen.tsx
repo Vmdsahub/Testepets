@@ -870,7 +870,7 @@ class WaterEffect {
     const seekForce = 0.3; // Reduzir intensidade do seek
     this.seekWithForce(this.wanderTarget, deltaTime, seekForce);
 
-    // Adicionar for��a de separaç��o das bordas
+    // Adicionar for��a de separação das bordas
     this.separate(deltaTime);
 
     // Adicionar pequena força de flutuação para movimento orgânico
@@ -1588,6 +1588,18 @@ export const FishingScreen: React.FC = () => {
   });
 
   const isAdmin = user?.isAdmin || false;
+
+  // Função auxiliar para reconfigurar callbacks
+  const reconfigureCallbacks = () => {
+    if (waterEffectRef.current) {
+      console.log("🔧 Reconfiguring WaterEffect callbacks...");
+      waterEffectRef.current.onGameStart = () => {
+        console.log("🎮 onGameStart callback called - opening fishing modal!");
+        setShowFishingModal(true);
+      };
+      console.log("🔧 Callbacks reconfigured successfully");
+    }
+  };
 
   // Debug: monitorar mudanças no showFishingModal
   useEffect(() => {
