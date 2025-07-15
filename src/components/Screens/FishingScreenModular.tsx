@@ -60,7 +60,10 @@ class ModularWaterEffect {
     this.fishReactionDelay = 0;
     this.originalFishMovement = { moveX: 0, moveY: 0 };
     this.exclamationTime = 0;
+    this.exclamationStartTime = 0;
+    this.canClickExclamation = false;
     this.onGameStart = null;
+    this.onExclamationClick = null;
     this.fishTimeOffset = 0;
     this.transitionBackToNaturalTime = 0;
     this.transitionBackToNaturalDuration = 2000;
