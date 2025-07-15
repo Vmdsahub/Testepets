@@ -344,10 +344,8 @@ class FishingSystem {
 
     const controlY = Math.min(startY, this.targetY) - arcHeight;
 
-    // Chamar callback se fornecido
-    if (this.onHookCast) {
-      this.onHookCast(this.targetX, this.targetY);
-    }
+    // Callback será chamado quando anzol atingir posição final
+    // Não chamar aqui pois posição final pode ser diferente após física
 
     // Inicializar segmentos da linha gradualmente
     this.linePoints = [];
