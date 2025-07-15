@@ -1122,6 +1122,7 @@ class WaterEffect {
             this.resetFishingGame();
           }
         }, 1000);
+        if (!this.activeTimers) this.activeTimers = [];
         this.activeTimers.push(hookedTimer);
       }
     } else if (this.gameState === "fish_hooked") {
