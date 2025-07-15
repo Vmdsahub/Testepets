@@ -221,7 +221,7 @@ class WaterEffect {
                                 vec2 fishPos = vec2(fishX, fishY);
                 vec2 fishSize = vec2(0.08, 0.06); // Diminuído de 0.15x0.12 para 0.08x0.06
 
-                                                                                                                                                                                                                                                // ROTAÇÃO BASEADA NA VELOCIDADE DO STEERING SYSTEM
+                                                                                                                                                                                                                                                // ROTAÇ��O BASEADA NA VELOCIDADE DO STEERING SYSTEM
 
                 // Usar velocidade calculada pelo sistema de steering behaviors
                 float velocityX = u_fishVelocity.x;
@@ -336,17 +336,26 @@ class WaterEffect {
                 // Mistura entre imagem original e efeito de água
                 vec3 finalColor = mix(originalColor.rgb, waterColor, waterMask);
                 
-                                                                                                // Adicionar exclamação com imagem fornecida
+                                                                                                                                                                                                // Adicionar exclamação com imagem fornecida
                 if (u_showExclamation > 0.0 && u_gameState >= 4.0) { // fish_hooked
                                                                                 // Posição da exclamação (10px para esquerda do centro do peixe)
                     float leftOffset = 10.0 / u_resolution.x; // Converter 10px para coordenadas UV
                     vec2 exclamationPos = vec2(fishX - leftOffset, fishY);
 
-                    // Pulsação da exclamação para chamar atenção
-                    float pulse = 0.98 + 0.02 * sin(u_time * 8.0);
+                    // Pulsação da exclamação para chamar atenção (mais intensa)
+                    float pulse = 0.9 + 0.1 * sin(u_time * 10.0);
 
-                                        // Tamanho da exclamação (82% maior que o original)
-                    vec2 exclamationSize = vec2(0.015, 0.025) * 1.82 * pulse;
+                                        // Tamanho da exclamação (maior e mais visível)
+                    vec2 exclamationSize = vec2(0.02, 0.035) * 2.0 * pulse;
+
+                    // Primeiro, desenhar halo/brilho para destacar a área clicável
+                    float haloRadius = 0.1; // Raio do halo (igual à área clicável)
+                    float distanceFromCenter = length(uv - exclamationPos);
+                    if (distanceFromCenter <= haloRadius) {
+                        float haloIntensity = (1.0 - distanceFromCenter / haloRadius) * 0.3;
+                        vec3 haloColor = vec3(1.0, 1.0, 0.0); // Amarelo
+                        finalColor = mix(finalColor, haloColor, haloIntensity * sin(u_time * 8.0) * 0.5 + 0.5);
+                    }
 
                     // Calcular UV da exclamação
                     vec2 exclamationUV = (uv - exclamationPos + exclamationSize * 0.5) / exclamationSize;
@@ -357,16 +366,16 @@ class WaterEffect {
                         vec2 localPos = exclamationUV * 2.0 - 1.0; // Converter para -1 a 1
 
                         // Corpo da exclamação (parte comprida) - corrigido para orientação correta
-                        float bodyWidth = 0.2;
+                        float bodyWidth = 0.25;
                         bool inBody = abs(localPos.x) < bodyWidth && localPos.y > -0.8 && localPos.y < 0.4;
 
                         // Ponto da exclamação (parte pequena embaixo) - corrigido
-                        float dotSize = 0.2;
+                        float dotSize = 0.25;
                         bool inDot = length(localPos - vec2(0.0, 0.7)) < dotSize;
 
                         if (inBody || inDot) {
-                            // Cor amarela/dourada da exclamação
-                            vec3 exclamationColor = vec3(1.0, 0.85, 0.0);
+                            // Cor amarela/dourada da exclamação (mais brilhante)
+                            vec3 exclamationColor = vec3(1.0, 0.9, 0.0);
 
                             // Adicionar sombra sutil
                             vec2 shadowOffset = vec2(0.1, 0.1);
@@ -378,7 +387,8 @@ class WaterEffect {
                                 finalColor = mix(finalColor, vec3(0.0, 0.0, 0.0), 0.3);
                             }
 
-                            // Aplicar cor da exclamação
+                            // Aplicar cor da exclamação com brilho adicional
+                            exclamationColor *= 1.2; // Mais brilhante
                             finalColor = mix(finalColor, exclamationColor, 1.0);
                         }
                     }
@@ -1636,7 +1646,7 @@ export const FishingScreen: React.FC = () => {
 
             console.log("Distance from exclamation:", distance.toFixed(3));
 
-            // Aumentar área clicável para 0.1 (era 0.05)
+            // Aumentar área clic��vel para 0.1 (era 0.05)
             if (distance <= 0.1) {
               console.log("Player clicked exclamation! Showing Fisgado text.");
               waterEffect.handleExclamationClick();
