@@ -2250,6 +2250,16 @@ export const FishingScreenModular: React.FC = () => {
   useEffect(() => {
     console.log("🎮 showMinigame state changed:", showMinigame);
   }, [showMinigame]);
+
+  // Helper function para redefinir o callback onGameStart
+  const redefineGameStartCallback = () => {
+    if (waterEffectRef.current) {
+      waterEffectRef.current.onGameStart = () => {
+        console.log("🎮 Triggering minigame - setShowMinigame(true)");
+        setShowMinigame(true);
+      };
+    }
+  };
   const [fishingSettings, setFishingSettings] =
     useState<FishingSettings | null>(null);
   const [isUpdatingSettings, setIsUpdatingSettings] = useState(false);
