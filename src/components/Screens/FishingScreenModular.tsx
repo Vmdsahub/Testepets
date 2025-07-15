@@ -1668,7 +1668,7 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
     }, 50);
 
     return () => clearInterval(gameInterval);
-  }, [fishPosition, barPosition, isHolding, onComplete]);
+  }, [isHolding, onComplete]);
 
   useEffect(() => {
     if (progress >= 100) {
