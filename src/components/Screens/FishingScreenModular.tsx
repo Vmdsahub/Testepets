@@ -932,7 +932,7 @@ class ModularWaterEffect {
         // Log de debug ocasional
         if (Math.random() < 0.01) {
           console.log(
-            `🐟 MOVING - Time since reaction: ${(timeSinceReaction / 1000).toFixed(1)}s / ${(timeToReachHook / 1000).toFixed(1)}s`,
+            `�� MOVING - Time since reaction: ${(timeSinceReaction / 1000).toFixed(1)}s / ${(timeToReachHook / 1000).toFixed(1)}s`,
           );
         }
       } else if (timeSinceReaction > timeToReachHook) {
@@ -1096,10 +1096,10 @@ class ModularWaterEffect {
     const showExclamationValue =
       this.gameState === "fish_hooked" && this.exclamationTime > 0 ? 1.0 : 0.0;
 
-    // Log temporário para debug
-    if (this.gameState === "fish_hooked") {
+    // Log apenas quando muda de estado
+    if (this.gameState === "fish_hooked" && Math.random() < 0.02) {
       console.log(
-        `🔔 EXCLAMATION DEBUG - gameState: ${this.gameState}, exclamationTime: ${this.exclamationTime}, showValue: ${showExclamationValue}`,
+        `🔔 EXCLAMATION - Time remaining: ${this.exclamationTime}ms, showing: ${showExclamationValue > 0}`,
       );
     }
 
