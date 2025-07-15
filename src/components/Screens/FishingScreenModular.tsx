@@ -425,12 +425,11 @@ class ModularWaterEffect {
 
         float fishAngle = 0.0;
 
-                                // CORRETO: Inverter a lógica de orientação do peixe
-        // O problema estava na interpretação de qual é direita/esquerda
-        if (velocityX > 0.001) {
-            fishAngle = 3.14159; // MOVENDO PRA DIREITA -> apontar DIREITA (PI para flip correto)
-        } else if (velocityX < -0.001) {
-            fishAngle = 0.0; // MOVENDO PRA ESQUERDA -> apontar ESQUERDA (0 para sem flip)
+                                        // === ORIENTAÇÃO DO PEIXE BASEADA NA DIREÇÃO CALCULADA ===
+        if (u_fishDirection > 0.0) {
+            fishAngle = 3.14159; // Direita (PI para flip correto)
+        } else {
+            fishAngle = 0.0; // Esquerda (0 para sem flip)
         }
 
                         // Usar posição calculada pelo JavaScript
