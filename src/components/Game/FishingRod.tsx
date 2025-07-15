@@ -332,7 +332,7 @@ class FishingSystem {
         maxDistancePixels,
       );
 
-      // Calcular posição final
+      // Calcular posiç��o final
       if (distance > 0) {
         const normalizedX = dirX / distance;
         const normalizedY = dirY / distance;
@@ -846,6 +846,7 @@ export const FishingRod: React.FC<FishingRodProps> = ({
   onHookCast,
   onLineReeled,
   waterArea,
+  isFishBiting,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fishingSystemRef = useRef<FishingSystem | null>(null);
