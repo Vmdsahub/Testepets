@@ -1039,7 +1039,7 @@ class WaterEffect {
           `🐟 REACTION DEBUG - Fish position (JS calc): (${currentFishX.toFixed(3)}, ${currentFishY.toFixed(3)})`,
         );
         console.log(
-          `🐟 REACTION DEBUG - fishTime: ${this.fishTime.toFixed(2)}, fishTimeOffset: ${this.fishTimeOffset.toFixed(4)}`,
+          `���� REACTION DEBUG - fishTime: ${this.fishTime.toFixed(2)}, fishTimeOffset: ${this.fishTimeOffset.toFixed(4)}`,
         );
         // Verificar se há transição ativa que pode afetar a posição
         let transitionSmoothing = 0.0;
@@ -1631,38 +1631,10 @@ export const FishingScreen: React.FC = () => {
             const y = (e.clientY - rect.top) / rect.height;
 
             console.log("Click detected at:", x.toFixed(3), y.toFixed(3));
+            console.log("Fish is hooked - ANY click triggers minigame!");
 
-            // Posição da exclamação (10px para esquerda do peixe)
-            const fishX = waterEffect.fishPosition.x;
-            const fishY = waterEffect.fishPosition.y;
-            const leftOffset = 10.0 / window.innerWidth; // Converter 10px para coordenadas UV
-            const exclamationX = fishX - leftOffset;
-            const exclamationY = fishY;
-
-            console.log("Fish position:", fishX.toFixed(3), fishY.toFixed(3));
-            console.log(
-              "Exclamation position:",
-              exclamationX.toFixed(3),
-              exclamationY.toFixed(3),
-            );
-
-            // Verificar se clicou na área da exclamação (aumentar área clicável)
-            const distance = Math.sqrt(
-              Math.pow(x - exclamationX, 2) + Math.pow(y - exclamationY, 2),
-            );
-
-            console.log("Distance from exclamation:", distance.toFixed(3));
-
-            // Aumentar área clicável para 0.1 (era 0.05)
-            if (distance <= 0.1) {
-              console.log("Player clicked exclamation! Showing Fisgado text.");
-              waterEffect.handleExclamationClick();
-            } else {
-              console.log(
-                "Click outside exclamation area, distance too large:",
-                distance.toFixed(3),
-              );
-            }
+            // Quando peixe está mordendo, QUALQUER clique na tela ativa o minigame
+            waterEffect.handleExclamationClick();
           } else {
             console.log(
               "Fish not hooked or can't click - gameState:",
