@@ -257,19 +257,30 @@ class ModularWaterEffect {
         vec2 fishPos = vec2(fishX, fishY);
         vec2 fishSize = vec2(0.08, 0.06);
 
-                                                                                // SISTEMA ULTRA SIMPLES: Flip horizontal apenas quando necessário
+                                                                                        // SISTEMA COM ROTAÇÃO DIAGONAL: Aplicar rotação real nas coordenadas UV
         vec2 localUV = (coords - fishPos + fishSize * 0.5) / fishSize;
 
-                // Lógica de orientação simplificada
-        vec2 fishUV = localUV;
+        // Converter para coordenadas centradas (-0.5 a 0.5)
+        vec2 centeredUV = localUV - 0.5;
 
-                                        // Lógica original do shader: não mexer
-        // fishAngle = 0 (direita), fishAngle = PI (esquerda)
+        // Aplicar rotação diagonal do u_fishAngle (valor do JavaScript)
+        float rotationAngle = u_fishAngle; // Ângulo de rotação diagonal
+        float cosAngle = cos(rotationAngle);
+        float sinAngle = sin(rotationAngle);
+
+        // Matrix de rotação 2D
+        vec2 rotatedUV = vec2(
+            centeredUV.x * cosAngle - centeredUV.y * sinAngle,
+            centeredUV.x * sinAngle + centeredUV.y * cosAngle
+        );
+
+        // Voltar para coordenadas 0-1
+        vec2 fishUV = rotatedUV + 0.5;
+
+        // Aplicar flip horizontal baseado na direção (fishAngle contém informação de flip)
         if (fishAngle > 1.5) {
-            fishUV.x = 1.0 - fishUV.x; // Flip quando fishAngle = PI (esquerda)
+            fishUV.x = 1.0 - fishUV.x; // Flip quando nada para direita
         }
-        // fishAngle = 0 (direita): usar imagem normal
-        // Y sempre inalterado - nunca inverte verticalmente
 
                                                         // === RENDERIZAR SOMBRA SUAVE E DISPERSA DO PEIXE ===
 
@@ -1747,7 +1758,7 @@ class ModularWaterEffect {
     this.gl.uniform1f(this.uniforms.showExclamation, showExclamationValue);
     this.gl.uniform1f(this.uniforms.fishTimeOffset, this.fishTimeOffset);
 
-    // Calcular suavização de transição
+    // Calcular suavizaç��o de transição
     let transitionSmoothing = 0.0;
     if (this.transitionBackToNaturalTime > 0) {
       const elapsedTime = Date.now() - this.transitionBackToNaturalTime;
@@ -2964,7 +2975,7 @@ export const FishingScreenModular: React.FC = () => {
                 marginBottom: "5px",
               }}
             >
-              Distorç��o:{" "}
+              Distorç���o:{" "}
               {(fishingSettings?.distortionAmount || 0.3).toFixed(2)}
             </label>
             <input
