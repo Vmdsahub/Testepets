@@ -1020,7 +1020,7 @@ class ModularWaterEffect {
   updateDesiredDirection() {
     const currentTime = Date.now();
 
-    // Verificar se é hora de mudar direção
+    // Verificar se �� hora de mudar direção
     if (currentTime - this.directionChangeTime > this.directionChangeCooldown) {
       // Gerar nova direção favorecendo movimento horizontal
       let angle;
@@ -1228,7 +1228,7 @@ class ModularWaterEffect {
           `🎣 Fish reacting! Hook at (${this.hookPosition.x.toFixed(3)}, ${this.hookPosition.y.toFixed(3)}) - Fish at (${this.fishCurrentPosition.x.toFixed(3)}, ${this.fishCurrentPosition.y.toFixed(3)}) - Hook in water: ${this.isHookInWater()}`,
         );
 
-        // Come��ar movimento ap��s breve pausa
+        // Come��ar movimento ap����s breve pausa
         const reactionTimer = setTimeout(() => {
           if (this.gameState === "fish_reacting") {
             this.gameState = "fish_moving";
@@ -1765,105 +1765,121 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
     };
   }, []);
 
-  return (
-    <div
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        width: "100%",
-        height: "100%",
-        backgroundColor: "rgba(0, 0, 0, 0.8)",
-        zIndex: 60,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      <div
-        style={{
-          background: "white",
-          borderRadius: "12px",
-          padding: "20px",
-          width: "300px",
-          height: "400px",
-          position: "relative",
-        }}
-      >
-        <h3 style={{ textAlign: "center", margin: "0 0 20px 0" }}>
-          Minigame de Pesca
-        </h3>
-
-        {/* Barra de progresso */}
-        <div
-          style={{
-            width: "100%",
-            height: "20px",
-            backgroundColor: "#ddd",
-            borderRadius: "10px",
-            marginBottom: "20px",
-            overflow: "hidden",
-          }}
-        >
-          <div
-            style={{
-              width: `${progress}%`,
-              height: "100%",
-              backgroundColor: progress > 50 ? "#4CAF50" : "#FF9800",
-              transition: "width 0.1s",
-            }}
-          />
+    return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-md z-60 flex items-center justify-center p-4">
+      <div className="bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl border border-gray-100 w-full max-w-md mx-auto">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-t-3xl">
+          <h2 className="text-2xl font-bold text-center">🎣 Minigame de Pesca</h2>
+          <p className="text-blue-100 text-center text-sm mt-2">
+            Mantenha o peixe na área verde!
+          </p>
         </div>
 
-        {/* Timer */}
-        <div style={{ textAlign: "center", marginBottom: "20px" }}>
-          Tempo: {Math.ceil(gameTime / 1000)}s
-        </div>
-
-        {/* Área do jogo */}
-        <div
-          style={{
-            width: "60px",
-            height: "250px",
-            backgroundColor: "#87CEEB",
-            border: "3px solid #4682B4",
-            borderRadius: "8px",
-            margin: "0 auto",
-            position: "relative",
-            overflow: "hidden",
-          }}
-        >
-          {/* Peixe */}
-          <div
-            style={{
-              position: "absolute",
-              left: "50%",
-              top: `${fishPosition}%`,
-              transform: "translateX(-50%) translateY(-50%)",
-              width: "40px",
-              height: "20px",
-              backgroundColor: "#FF6B35",
-              borderRadius: "10px",
-              border: "2px solid #D84315",
-            }}
-          >
-            🐟
+        <div className="p-6 space-y-6">
+          {/* Status Bar */}
+          <div className="flex items-center justify-between bg-gray-50 rounded-2xl p-4">
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 bg-gradient-to-r from-green-400 to-blue-500 rounded-full animate-pulse"></div>
+              <span className="text-sm font-medium text-gray-700">Progresso</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <span className="text-2xl">⏱️</span>
+              <span className={`text-lg font-bold ${
+                gameTime < 3000 ? 'text-red-500' : 'text-gray-700'
+              }`}>
+                {Math.ceil(gameTime / 1000)}s
+              </span>
+            </div>
           </div>
 
-          {/* Barra do jogador */}
-          <div
-            style={{
-              position: "absolute",
-              left: "50%",
-              top: `${barPosition}%`,
-              transform: "translateX(-50%) translateY(-50%)",
-              width: "50px",
-              height: `${barSize}%`,
-              backgroundColor: isHolding ? "#4CAF50" : "#8BC34A",
-              border: "2px solid #388E3C",
-              borderRadius: "5px",
-            }}
-          />
+          {/* Progress Bar */}
+          <div className="space-y-2">
+            <div className="flex justify-between text-xs font-medium text-gray-600">
+              <span>Captura</span>
+              <span>{Math.round(progress)}%</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+              <div
+                className={`h-full transition-all duration-300 ease-out rounded-full ${
+                  progress > 75 ? 'bg-gradient-to-r from-green-500 to-emerald-600' :
+                  progress > 50 ? 'bg-gradient-to-r from-yellow-400 to-orange-500' :
+                  progress > 25 ? 'bg-gradient-to-r from-orange-400 to-red-500' :
+                  'bg-gradient-to-r from-red-500 to-pink-600'
+                }`}
+                style={{ width: `${progress}%` }}
+              >
+                <div className="h-full w-full bg-white/20 animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+
+          {/* Game Area */}
+          <div className="flex justify-center">
+            <div className="relative w-20 h-80 bg-gradient-to-b from-blue-200 via-blue-300 to-blue-500 rounded-2xl border-4 border-blue-600 shadow-inner overflow-hidden">
+              {/* Water Animation */}
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/10 to-white/20 animate-pulse"></div>
+
+              {/* Peixe */}
+              <div
+                className="absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 transition-all duration-100"
+                style={{ top: `${fishPosition}%` }}
+              >
+                <div className="relative">
+                  <div className="w-12 h-6 bg-gradient-to-r from-orange-400 to-red-500 rounded-full border-2 border-orange-600 shadow-lg flex items-center justify-center">
+                    <span className="text-sm">🐟</span>
+                  </div>
+                  {/* Bubble effect */}
+                  <div className="absolute -top-2 -right-1 w-2 h-2 bg-white/60 rounded-full animate-bounce"></div>
+                </div>
+              </div>
+
+              {/* Barra do jogador */}
+              <div
+                className={`absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 transition-all duration-100 rounded-xl border-3 shadow-lg ${
+                  isHolding
+                    ? 'bg-gradient-to-r from-green-400 to-emerald-500 border-green-600 shadow-green-300/50'
+                    : 'bg-gradient-to-r from-emerald-300 to-green-400 border-emerald-500 shadow-emerald-300/30'
+                }`}
+                style={{
+                  top: `${barPosition}%`,
+                  width: '52px',
+                  height: `${barSize}%`,
+                  minHeight: '24px'
+                }}
+              >
+                <div className="h-full w-full bg-white/20 rounded-lg"></div>
+              </div>
+
+              {/* Depth lines */}
+              {[20, 40, 60, 80].map(depth => (
+                <div
+                  key={depth}
+                  className="absolute left-0 right-0 h-px bg-white/20"
+                  style={{ top: `${depth}%` }}
+                ></div>
+              ))}
+            </div>
+          </div>
+
+          {/* Controls */}
+          <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-4 text-center space-y-2">
+            <div className="flex items-center justify-center space-x-2">
+              <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+                isHolding
+                  ? 'bg-green-500 text-white shadow-lg'
+                  : 'bg-gray-200 text-gray-600'
+              }`}>
+                {isHolding ? '⬆️ SUBINDO' : '⬇️ DESCENDO'}
+              </div>
+            </div>
+            <p className="text-sm text-gray-600">
+              <span className="font-semibold">ESPAÇO</span> ou <span className="font-semibold">CLIQUE</span> para subir a barra
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
         </div>
 
         <div
