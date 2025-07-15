@@ -2258,6 +2258,7 @@ export const FishingScreenModular: React.FC = () => {
       try {
         const waterEffect = new ModularWaterEffect(waterArea, isAdmin);
         waterEffect.onGameStart = () => {
+          console.log("🎮 Triggering minigame - setShowMinigame(true)");
           setShowMinigame(true);
         };
 
