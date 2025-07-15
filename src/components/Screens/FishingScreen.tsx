@@ -71,6 +71,9 @@ class WaterEffect {
     this.transitionBackToNaturalDuration = 2000; // 2 segundos para suavizar retorno (debug)
     this.transitionStartPosition = { x: 0.5, y: 0.65 }; // Posição onde o peixe estava quando iniciou a transição
 
+    // Rastreamento de timers para limpeza adequada
+    this.activeTimers = [];
+
     this.init();
     this.render();
   }
