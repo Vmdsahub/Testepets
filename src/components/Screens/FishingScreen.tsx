@@ -1364,7 +1364,7 @@ class WaterEffect {
     const xWave3 = Math.cos(mainCycle * 1.3 + 2.5) * 0.08;
     const baseX = 0.5 + (xWave1 + xWave2 + xWave3);
 
-    // Movimento em Y com flutuaç��o suave
+    // Movimento em Y com flutuaç����o suave
     const yWave1 = Math.cos(mainCycle * 0.8) * 0.18;
     const yWave2 = Math.sin(mainCycle * 1.1 + 0.8) * 0.08;
     const yWave3 = Math.cos(mainCycle * 0.6 + 1.5) * 0.05;
@@ -1619,12 +1619,17 @@ export const FishingScreen: React.FC = () => {
           console.log(
             "🎮 onGameStart callback called - opening fishing modal!",
           );
-          console.log(
-            "🎮 Before setState - showFishingModal:",
-            showFishingModal,
-          );
+          console.log("🎮 Current showFishingModal state:", showFishingModal);
+          console.log("🎮 Calling setShowFishingModal(true)");
           setShowFishingModal(true);
-          console.log("🎮 setShowFishingModal(true) called");
+          console.log(
+            "🎮 setShowFishingModal(true) called - should trigger re-render",
+          );
+
+          // Força uma nova verificação imediata
+          setTimeout(() => {
+            console.log("🎮 Timeout check - modal should be visible now");
+          }, 100);
         };
 
         // Adicionar listener para cliques na exclamação
