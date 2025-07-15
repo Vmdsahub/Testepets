@@ -175,7 +175,7 @@ class WaterEffect {
                 float dist = length(uv - 0.5);
                 float wave5 = sin(dist * 20.0 - time * 3.0) * 0.04;
                 
-                // Ruído em direç��es opostas para balanceamento
+                // Ruído em direções opostas para balanceamento
                 float noise1 = snoise(uv * 10.0 + time * 0.5) * 0.03;
                 float noise2 = snoise(uv * 15.0 - time * 0.3) * 0.02;
                 float noise3 = snoise(uv.yx * 12.0 + time * 0.7) * 0.025;
@@ -1141,7 +1141,12 @@ class WaterEffect {
   }
 
   resetFishingGame() {
-    // Se o peixe estava em estado direcionado, ajustar fishTime para continuar da posição atual
+    // Limpar todos os timers ativos para evitar comportamentos persistentes
+    this.activeTimers.forEach((timer) => clearTimeout(timer));
+    this.activeTimers = [];
+    console.log("🧹 Cleared all active timers");
+
+    // Se o peixe estava em estado direcionado, ajustar fishTime para continuar da posiç��o atual
     if (
       this.gameState === "fish_moving" ||
       this.gameState === "fish_reacting" ||
