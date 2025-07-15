@@ -263,36 +263,44 @@ export const FishingScreenNew: React.FC = () => {
     }
 
     // 2. Peixe (atrás da água)
-    const fishPixelX = fish.x * canvas.width;
-    const fishPixelY = fish.y * canvas.height;
+    // O centro do peixe está em fish.x, fish.y
+    // A BOCA está na extremidade ESQUERDA
+    const fishCenterX = fish.x * canvas.width;
+    const fishCenterY = fish.y * canvas.height;
 
+    // Desenhar corpo do peixe (elipse)
     ctx.fillStyle = fish.state === "hooked" ? "#ff6b6b" : "#4A90E2";
     ctx.beginPath();
-    ctx.ellipse(fishPixelX, fishPixelY, 30, 20, 0, 0, 2 * Math.PI);
+    ctx.ellipse(fishCenterX, fishCenterY, 30, 20, 0, 0, 2 * Math.PI);
     ctx.fill();
 
-    // Cauda do peixe (à esquerda)
+    // BOCA DO PEIXE - extremidade esquerda (fishCenterX - 30)
+    const fishMouthX = fishCenterX - 30;
+    const fishMouthY = fishCenterY;
+
+    // Desenhar boca (pequeno círculo na extremidade esquerda)
+    ctx.fillStyle = fish.state === "moving" ? "#ff0000" : "#000";
     ctx.beginPath();
-    ctx.moveTo(fishPixelX - 25, fishPixelY);
-    ctx.lineTo(fishPixelX - 45, fishPixelY - 15);
-    ctx.lineTo(fishPixelX - 45, fishPixelY + 15);
+    ctx.arc(fishMouthX, fishMouthY, 4, 0, 2 * Math.PI);
+    ctx.fill();
+
+    // Cauda do peixe (à direita - oposto da boca)
+    ctx.fillStyle = fish.state === "hooked" ? "#ff6b6b" : "#4A90E2";
+    ctx.beginPath();
+    ctx.moveTo(fishCenterX + 25, fishCenterY);
+    ctx.lineTo(fishCenterX + 45, fishCenterY - 15);
+    ctx.lineTo(fishCenterX + 45, fishCenterY + 15);
     ctx.closePath();
     ctx.fill();
 
-    // Boca do peixe (à ESQUERDA) - indicador visual
-    ctx.fillStyle = fish.state === "moving" ? "#ff0000" : "#333";
-    ctx.beginPath();
-    ctx.arc(fishPixelX - 30, fishPixelY, 3, 0, 2 * Math.PI);
-    ctx.fill();
-
-    // Olho do peixe
+    // Olho do peixe (próximo ao centro, mas à direita da boca)
     ctx.fillStyle = "#fff";
     ctx.beginPath();
-    ctx.arc(fishPixelX + 10, fishPixelY - 5, 4, 0, 2 * Math.PI);
+    ctx.arc(fishCenterX - 10, fishCenterY - 5, 4, 0, 2 * Math.PI);
     ctx.fill();
     ctx.fillStyle = "#000";
     ctx.beginPath();
-    ctx.arc(fishPixelX + 12, fishPixelY - 5, 2, 0, 2 * Math.PI);
+    ctx.arc(fishCenterX - 8, fishCenterY - 5, 2, 0, 2 * Math.PI);
     ctx.fill();
 
     // 3. Área da água (acima do peixe)
