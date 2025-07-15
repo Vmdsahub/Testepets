@@ -216,7 +216,7 @@ class ModularWaterEffect {
         return pow(caustic1 * caustic2 * caustic3 + noise * 0.2, 2.0) * 0.3;
       }
 
-      // Verificar se ponto está dentro da ��rea da água
+      // Verificar se ponto está dentro da área da água
       bool isInWaterArea(vec2 uv) {
                 float x = u_waterArea.x;
         float y = u_waterArea.y;
@@ -516,7 +516,7 @@ class ModularWaterEffect {
             // Criar forma de exclamação baseada na imagem
             vec2 localPos = exclamationUV * 2.0 - 1.0; // Converter para -1 a 1
 
-            // Corpo da exclamação (parte comprida) - corrigido para orientação correta
+            // Corpo da exclamação (parte comprida) - corrigido para orienta��ão correta
             float bodyWidth = 0.2;
             bool inBody = abs(localPos.x) < bodyWidth && localPos.y > -0.8 && localPos.y < 0.4;
 
@@ -1236,6 +1236,7 @@ class ModularWaterEffect {
             this.gameState = "fish_moving";
           }
         }, 500);
+        if (!this.activeTimers) this.activeTimers = [];
         this.activeTimers.push(reactionTimer);
       }
     } else if (
