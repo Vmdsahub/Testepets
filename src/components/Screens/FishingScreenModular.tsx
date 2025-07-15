@@ -321,7 +321,7 @@ class ModularWaterEffect {
       void main() {
         vec2 uv = v_texCoord;
         
-                                                // === SISTEMA ORGÂNICO DE MOVIMENTO DO PEIXE - TOTALMENTE NOVO ===
+                                                // === SISTEMA ORG��NICO DE MOVIMENTO DO PEIXE - TOTALMENTE NOVO ===
 
         float time = u_fishTime;
 
@@ -483,9 +483,9 @@ class ModularWaterEffect {
           gl_FragColor = originalColor;
         }
         
-                        // Adicionar exclamação amarela simples se necessário
+                                // Adicionar exclamação moderna e bonita se necessário
         if (u_showExclamation > 0.0 && u_gameState >= 4.0) {
-          // Vibração quando fisgado
+          // Vibração quando fisgado - mesma que o peixe
           vec2 vibrationOffset = vec2(0.0, 0.0);
           if (u_gameState >= 4.0) {
             float vibrationIntensity = 0.003;
@@ -493,19 +493,43 @@ class ModularWaterEffect {
             vibrationOffset.y = cos(u_time * 47.0) * vibrationIntensity;
           }
 
-          vec2 exclamationPos = vec2(fishX + vibrationOffset.x, fishY + vibrationOffset.y);
+          // Posição da exclamação (ligeiramente acima do peixe, mas seguindo vibração)
+          vec2 exclamationPos = vec2(fishX + vibrationOffset.x, fishY + vibrationOffset.y - 0.04);
 
-          // Desenhar "!" amarelo simples sobre o peixe
-          vec2 localUV = (uv - exclamationPos) * 40.0; // Escala maior para texto
+          // Pulsação suave para chamar atenção
+          float pulse = 0.9 + 0.1 * sin(u_time * 8.0);
 
-          // Corpo do "!"
-          if (abs(localUV.x) < 0.8 && localUV.y > -2.0 && localUV.y < 1.5) {
-            gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(1.0, 1.0, 0.0), 0.9);
+          // Desenhar "!" moderno e bonito
+          vec2 localUV = (uv - exclamationPos) * 80.0; // Escala menor para ficar mais delicado
+
+          // Sombra sutil do "!"
+          vec2 shadowUV = localUV + vec2(1.5, 1.5);
+          if (abs(shadowUV.x) < 1.2 && shadowUV.y > -3.5 && shadowUV.y < 2.5) {
+            gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(0.0, 0.0, 0.0), 0.15);
+          }
+          if (abs(shadowUV.x) < 1.2 && shadowUV.y > 3.5 && shadowUV.y < 5.0) {
+            gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(0.0, 0.0, 0.0), 0.15);
+          }
+
+          // Corpo principal do "!" com gradiente dourado
+          if (abs(localUV.x) < 1.0 && localUV.y > -3.0 && localUV.y < 2.0) {
+            float gradient = (localUV.y + 3.0) / 5.0;
+            vec3 goldColor = mix(vec3(1.0, 0.8, 0.0), vec3(1.0, 1.0, 0.4), gradient);
+            gl_FragColor.rgb = mix(gl_FragColor.rgb, goldColor * pulse, 1.0);
           }
 
           // Ponto do "!"
-          if (abs(localUV.x) < 0.8 && localUV.y > 2.0 && localUV.y < 3.0) {
-            gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(1.0, 1.0, 0.0), 0.9);
+          if (abs(localUV.x) < 1.0 && localUV.y > 3.0 && localUV.y < 4.5) {
+            vec3 goldColor = vec3(1.0, 0.9, 0.2);
+            gl_FragColor.rgb = mix(gl_FragColor.rgb, goldColor * pulse, 1.0);
+          }
+
+          // Brilho/glow ao redor
+          float dist = length(localUV);
+          if (dist < 8.0 && dist > 6.0) {
+            float glowIntensity = 1.0 - (dist - 6.0) / 2.0;
+            vec3 glowColor = vec3(1.0, 1.0, 0.6);
+            gl_FragColor.rgb = mix(gl_FragColor.rgb, glowColor, glowIntensity * 0.2 * pulse);
           }
         }
       }
