@@ -99,18 +99,24 @@ export const FishingScreenNew: React.FC = () => {
         targetY: baseY,
       }));
     } else if (fish.state === "moving") {
-      // Movimento em direção ao anzol - mover a boca do peixe para o anzol
-      const fishMouthX = fish.x + 0.03; // Boca fica 30px à direita do centro (em coordenadas normalizadas)
-      const fishMouthY = fish.y; // Boca fica no centro vertical
+      // Calcular posição alvo do CENTRO do peixe para que a BOCA toque o anzol
+      const hookX = hook.x / window.innerWidth;
+      const hookY = hook.y / window.innerHeight;
 
-      const dx = hook.x / window.innerWidth - fishMouthX;
-      const dy = hook.y / window.innerHeight - fishMouthY;
+      // Posição alvo do centro do peixe (anzol - offset da boca)
+      const targetCenterX = hookX - 0.03; // Boca fica 0.03 à direita do centro
+      const targetCenterY = hookY; // Boca no mesmo Y do centro
+
+      // Distância do centro atual para a posição alvo
+      const dx = targetCenterX - fish.x;
+      const dy = targetCenterY - fish.y;
       const distance = Math.sqrt(dx * dx + dy * dy);
 
-      if (distance > 0.008) {
-        // Distância menor para colisão mais precisa
-        const moveX = (dx / distance) * fish.speed;
-        const moveY = (dy / distance) * fish.speed;
+      if (distance > 0.005) {
+        // Movimento suave sem teleporte
+        const moveSpeed = Math.min(fish.speed, distance * 0.1); // Reduzir velocidade conforme se aproxima
+        const moveX = (dx / distance) * moveSpeed;
+        const moveY = (dy / distance) * moveSpeed;
 
         setFish((prev) => ({
           ...prev,
@@ -118,8 +124,13 @@ export const FishingScreenNew: React.FC = () => {
           y: prev.y + moveY,
         }));
       } else {
-        // Boca chegou ao anzol
-        setFish((prev) => ({ ...prev, state: "hooked" }));
+        // Posicionar exatamente para que a boca toque o anzol
+        setFish((prev) => ({
+          ...prev,
+          x: targetCenterX,
+          y: targetCenterY,
+          state: "hooked",
+        }));
         setShowFishingModal(true);
       }
     }
