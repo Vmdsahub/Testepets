@@ -17,7 +17,7 @@ interface WaterArea {
   shape: "rectangle" | "circle" | "triangle";
 }
 
-// WebGL Water Effect Class Modular - NOVO: Movimento aleatório livre com rotação 360° baseado na área definida
+// WebGL Water Effect Class Modular - NOVO: Movimento aleat��rio livre com rotação 360° baseado na área definida
 class ModularWaterEffect {
   constructor(waterArea) {
     this.canvas = document.getElementById("waterCanvas");
@@ -330,15 +330,15 @@ class ModularWaterEffect {
         // Velocidade X (direção do movimento)
         float velocityX = futureX - currentX;
 
-        float fishAngle = 0.0;
+                float fishAngle = 0.0;
 
-        // Orientação baseada na velocidade real
-        if (velocityX > 0.002) {
+        // Orientação baseada na velocidade real (mais sensível)
+        if (velocityX > 0.0005) {
             fishAngle = 0.0; // Movendo para direita -> apontar direita
-        } else if (velocityX < -0.002) {
+        } else if (velocityX < -0.0005) {
             fishAngle = 3.14159; // Movendo para esquerda -> apontar esquerda
         }
-        // Zona neutra mantém orientação anterior
+        // Zona neutra menor para resposta mais rápida
 
         float fishX, fishY;
         if (u_gameState >= 2.0) {
@@ -362,7 +362,7 @@ class ModularWaterEffect {
         float waterMask = inWater ? 1.0 : 0.0;
         
         if (inWater) {
-          // Aplicar efeitos de água apenas dentro da ����rea
+          // Aplicar efeitos de água apenas dentro da ��rea
           vec2 refraction = calculateRefraction(uv, u_time) * waterMask;
           vec2 distortedUV = uv + refraction;
           
