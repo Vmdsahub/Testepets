@@ -78,6 +78,11 @@ class ModularWaterEffect {
     this.transitionBackToNaturalDuration = 2000;
     this.transitionStartPosition = { x: 0.5, y: 0.65 };
 
+    // Novos estados para melhorias
+    this.showFisgadoText = false;
+    this.fisgadoTextStartTime = 0;
+    this.isVibrating = false;
+
     this.init();
     this.render();
   }
@@ -362,7 +367,7 @@ class ModularWaterEffect {
         float variation2X = cos(t * 0.6 + 2.0) * areaW * 0.2;
         float variation2Y = sin(t * 0.7 + 1.5) * areaH * 0.18;
 
-        // Movimento de "busca" rápido (característico do Evo Fish)
+        // Movimento de "busca" rápido (caracter��stico do Evo Fish)
         float searchX = sin(t * 2.2) * areaW * 0.1;
         float searchY = cos(t * 1.8) * areaH * 0.08;
 
@@ -406,7 +411,7 @@ class ModularWaterEffect {
 
                 // === DELIMITAÇÃO DA ÁREA - EXATAMENTE NA LINHA TRACEJADA ===
 
-        // Manter dentro da área exatamente na linha tracejada
+        // Manter dentro da ��rea exatamente na linha tracejada
         float margin = 0.01; // Margem mínima apenas para evitar pixel bleeding
         naturalFishX = clamp(naturalFishX, areaX + areaW * margin, areaX + areaW * (1.0 - margin));
         naturalFishY = clamp(naturalFishY, areaY + areaH * margin, areaY + areaH * (1.0 - margin));
@@ -437,9 +442,16 @@ class ModularWaterEffect {
             fishAngle = 0.0; // Esquerda (0 para sem flip)
         }
 
-                        // Usar posição calculada pelo JavaScript
+                                // Usar posição calculada pelo JavaScript com vibração
         float fishX = u_fishTargetPosition.x;
         float fishY = u_fishTargetPosition.y;
+
+        // Aplicar vibração no shader se necessário (sincronizada)
+        if (u_gameState >= 4.0) {
+          float vibrationIntensity = 0.003;
+          fishX += sin(u_time * 50.0) * vibrationIntensity;
+          fishY += cos(u_time * 47.0) * vibrationIntensity;
+        }
         
                                 // Imagem original com peixe
         vec4 originalColor = getColorWithFish(uv, fishX, fishY, fishAngle);
@@ -478,27 +490,53 @@ class ModularWaterEffect {
           gl_FragColor = originalColor;
         }
         
-                // Adicionar exclamação se necessário
+                                // Adicionar exclamação moderna e bonita se necessário
         if (u_showExclamation > 0.0 && u_gameState >= 4.0) {
-          vec2 exclamationPos = vec2(fishX, fishY - 0.08);
-          float distToExclamation = distance(uv, exclamationPos);
-
-          // Pulsação para chamar atenção
-          float pulse = 0.8 + 0.2 * sin(u_time * 8.0);
-          float exclamationSize = 0.025 * pulse;
-
-          // Círculo amarelo de fundo
-          if (distToExclamation < exclamationSize) {
-            gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(1.0, 1.0, 0.0), 0.9);
+          // Vibração quando fisgado - mesma que o peixe
+          vec2 vibrationOffset = vec2(0.0, 0.0);
+          if (u_gameState >= 4.0) {
+            float vibrationIntensity = 0.003;
+            vibrationOffset.x = sin(u_time * 50.0) * vibrationIntensity;
+            vibrationOffset.y = cos(u_time * 47.0) * vibrationIntensity;
           }
 
-          // Desenhar "!" no centro
-          vec2 localUV = (uv - exclamationPos) / exclamationSize;
-          if (abs(localUV.x) < 0.15 && localUV.y > -0.4 && localUV.y < 0.2) {
-            gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(0.0, 0.0, 0.0), 0.95);
+          // Posição da exclamação (ligeiramente acima do peixe, mas seguindo vibração)
+          vec2 exclamationPos = vec2(fishX + vibrationOffset.x, fishY + vibrationOffset.y - 0.04);
+
+          // Pulsação suave para chamar atenção
+          float pulse = 0.9 + 0.1 * sin(u_time * 8.0);
+
+          // Desenhar "!" moderno e bonito
+          vec2 localUV = (uv - exclamationPos) * 80.0; // Escala menor para ficar mais delicado
+
+          // Sombra sutil do "!"
+          vec2 shadowUV = localUV + vec2(1.5, 1.5);
+          if (abs(shadowUV.x) < 1.2 && shadowUV.y > -3.5 && shadowUV.y < 2.5) {
+            gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(0.0, 0.0, 0.0), 0.15);
           }
-          if (abs(localUV.x) < 0.15 && localUV.y > 0.35 && localUV.y < 0.5) {
-            gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(0.0, 0.0, 0.0), 0.95);
+          if (abs(shadowUV.x) < 1.2 && shadowUV.y > 3.5 && shadowUV.y < 5.0) {
+            gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(0.0, 0.0, 0.0), 0.15);
+          }
+
+          // Corpo principal do "!" com gradiente dourado
+          if (abs(localUV.x) < 1.0 && localUV.y > -3.0 && localUV.y < 2.0) {
+            float gradient = (localUV.y + 3.0) / 5.0;
+            vec3 goldColor = mix(vec3(1.0, 0.8, 0.0), vec3(1.0, 1.0, 0.4), gradient);
+            gl_FragColor.rgb = mix(gl_FragColor.rgb, goldColor * pulse, 1.0);
+          }
+
+          // Ponto do "!"
+          if (abs(localUV.x) < 1.0 && localUV.y > 3.0 && localUV.y < 4.5) {
+            vec3 goldColor = vec3(1.0, 0.9, 0.2);
+            gl_FragColor.rgb = mix(gl_FragColor.rgb, goldColor * pulse, 1.0);
+          }
+
+          // Brilho/glow ao redor
+          float dist = length(localUV);
+          if (dist < 8.0 && dist > 6.0) {
+            float glowIntensity = 1.0 - (dist - 6.0) / 2.0;
+            vec3 glowColor = vec3(1.0, 1.0, 0.6);
+            gl_FragColor.rgb = mix(gl_FragColor.rgb, glowColor, glowIntensity * 0.2 * pulse);
           }
         }
       }
@@ -1009,7 +1047,7 @@ class ModularWaterEffect {
       const distance = Math.sqrt(dx * dx + dy * dy);
 
       if (distance > 0) {
-        const moveSpeed = 0.001; // Velocidade moderada
+        const moveSpeed = 0.0003; // Velocidade mais lenta e curiosa
         this.fishVelocity.x = (dx / distance) * moveSpeed;
         this.fishVelocity.y = (dy / distance) * moveSpeed;
       }
@@ -1019,20 +1057,36 @@ class ModularWaterEffect {
       this.fishVelocity.x = 0;
       this.fishVelocity.y = 0;
 
-      // Calcular posição do centro do peixe para que a boca fique no anzol
-      const fishSize = 0.08; // Tamanho do peixe (width)
+      // Calcular posição do centro do peixe para que a boca fique EXATAMENTE no anzol
+      // Usar mesma lógica do drawFishMouthOverlay para consistência
+      const fishSizePixelX = 0.08; // Tamanho do peixe no shader
+
+      // Lógica idêntica ao drawFishMouthOverlay
       let mouthOffsetX;
       if (this.fishDirection > 0) {
-        // Peixe nada para direita (flipado), boca à direita
-        mouthOffsetX = fishSize / 2;
+        mouthOffsetX = fishSizePixelX / 2 - 10 / window.innerWidth; // Converter 10px para UV
       } else {
-        // Peixe nada para esquerda (normal), boca à esquerda
-        mouthOffsetX = -fishSize / 2;
+        mouthOffsetX = -(fishSizePixelX / 2) + 10 / window.innerWidth; // Converter 10px para UV
       }
 
-      // Posicionar centro do peixe para que boca fique no anzol
-      this.fishCurrentPosition.x = this.hookPosition.x - mouthOffsetX;
-      this.fishCurrentPosition.y = this.hookPosition.y;
+      // Adicionar offset adicional do drawFishMouthOverlay
+      const additionalOffsetX =
+        (this.fishDirection > 0 ? -7 : 7) / window.innerWidth; // Converter -7px/+7px para UV
+
+      // Posicionar centro do peixe para que boca fique EXATAMENTE no anzol
+      let baseX = this.hookPosition.x - mouthOffsetX - additionalOffsetX;
+      let baseY = this.hookPosition.y - 2 / window.innerHeight; // Converter 2px para UV (offset Y da boca)
+
+      // Adicionar vibração se estiver vibrando
+      if (this.isVibrating) {
+        const vibrationTime = Date.now() * 0.05;
+        const vibrationIntensity = 0.003;
+        baseX += Math.sin(vibrationTime) * vibrationIntensity;
+        baseY += Math.cos(vibrationTime * 0.94) * vibrationIntensity;
+      }
+
+      this.fishCurrentPosition.x = baseX;
+      this.fishCurrentPosition.y = baseY;
     }
 
     // Atualizar posição
@@ -1074,11 +1128,22 @@ class ModularWaterEffect {
   // Método para lidar com clique na exclama��ão
   handleExclamationClick() {
     if (this.gameState === "fish_hooked" && this.canClickExclamation) {
-      console.log("Player clicked exclamation! Opening modal.");
+      console.log("Player clicked exclamation! Showing Fisgado text.");
       this.canClickExclamation = false;
-      if (this.onGameStart) {
-        this.onGameStart();
-      }
+      this.exclamationTime = 0;
+
+      // Mostrar texto "Fisgado!" por 0.6 segundos
+      this.showFisgadoText = true;
+      this.fisgadoTextStartTime = Date.now();
+
+      // Após 0.6s, abrir minigame
+      setTimeout(() => {
+        this.showFisgadoText = false;
+        if (this.onGameStart) {
+          this.onGameStart();
+        }
+      }, 600);
+
       return true;
     }
     return false;
@@ -1120,17 +1185,12 @@ class ModularWaterEffect {
         this.exclamationTime = 1000;
         this.exclamationStartTime = Date.now();
         this.canClickExclamation = true;
-        console.log("🎣 Fish hooked! Starting exclamation timer.");
+        this.isVibrating = true;
+        console.log(
+          "🎣 Fish hooked! Starting exclamation timer and vibration.",
+        );
 
-        // Timer de 1 segundo - se não clicar, voltar ao movimento natural
-        setTimeout(() => {
-          if (this.gameState === "fish_hooked" && this.canClickExclamation) {
-            console.log(
-              "Player didn't click exclamation in time - fish returns to natural movement",
-            );
-            this.resetFishingGame();
-          }
-        }, 1000);
+        // Timer automático será gerenciado no updateFishingGame()
       }
     } else if (this.gameState === "fish_hooked") {
       // Usar tempo real em vez de contador de frames
@@ -1140,9 +1200,15 @@ class ModularWaterEffect {
         // Ainda dentro do período de 1 segundo
         this.exclamationTime = 1000 - elapsedTime;
       } else {
-        // Passou 1 segundo
+        // Passou 1 segundo - peixe vai embora automaticamente
         this.exclamationTime = 0;
         this.canClickExclamation = false;
+
+        if (this.gameState === "fish_hooked") {
+          console.log("Timer expired - fish swims away automatically");
+          this.isVibrating = false;
+          this.resetFishingGame();
+        }
       }
     }
   }
@@ -1160,11 +1226,17 @@ class ModularWaterEffect {
       this.transitionBackToNaturalTime = Date.now();
     }
 
+    // Voltar ao estado idle para permitir novo interesse no anzol
     this.gameState = "idle";
-    this.hookPosition = { x: 0.5, y: 0.5 };
     this.fishReactionStartTime = 0;
     this.fishReactionDelay = 0;
     this.exclamationTime = 0;
+    this.isVibrating = false;
+    this.showFisgadoText = false;
+    this.canClickExclamation = false;
+
+    // Manter a posição do anzol para o peixe poder se interessar novamente
+    // this.hookPosition = { x: 0.5, y: 0.5 }; // Comentado para manter anzol ativo
   }
 
   updateBackgroundFromImage(image) {
@@ -1242,7 +1314,7 @@ class ModularWaterEffect {
     }
 
     const mouthX =
-      fishPixelX + mouthOffsetX + (this.fishDirection > 0 ? 9 : -9); // +9px para direita ou -9px para esquerda
+      fishPixelX + mouthOffsetX + (this.fishDirection > 0 ? -7 : 7); // -7px para direita ou +7px para esquerda (mais 4px próximo da boca)
     const mouthY = fishPixelY + 2; // +2px para baixo
 
     // Desenhar CÍRCULO ROSA MUITO PEQUENO na posição da boca
@@ -1260,6 +1332,22 @@ class ModularWaterEffect {
     ctx.fillStyle = "#fff";
     ctx.font = "16px Arial";
     ctx.fillText("BOCA", mouthX - 20, mouthY - 40);
+
+    // Desenhar texto "Fisgado!" se necessário
+    if (this.showFisgadoText) {
+      ctx.fillStyle = "#FFD700";
+      ctx.font = "bold 24px Arial";
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 2;
+
+      const text = "Fisgado!";
+      const textMetrics = ctx.measureText(text);
+      const textX = fishPixelX - textMetrics.width / 2;
+      const textY = fishPixelY - 60;
+
+      ctx.strokeText(text, textX, textY);
+      ctx.fillText(text, textX, textY);
+    }
   }
 
   render() {
@@ -1401,6 +1489,215 @@ class ModularWaterEffect {
   }
 }
 
+// Componente do Minigame de Pesca estilo Stardew Valley
+interface FishingMinigameProps {
+  onComplete: (success: boolean) => void;
+}
+
+const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
+  const [fishPosition, setFishPosition] = useState(50); // Posição do peixe (0-100)
+  const [barPosition, setBarPosition] = useState(50); // Posição da barra do jogador (0-100)
+  const [progress, setProgress] = useState(0); // Progresso de captura (0-100)
+  const [gameTime, setGameTime] = useState(8000); // 8 segundos para capturar
+  const [isHolding, setIsHolding] = useState(false);
+
+  const barSize = 20; // Tamanho da barra em %
+  const fishSize = 8; // Tamanho do peixe em %
+
+  useEffect(() => {
+    const gameInterval = setInterval(() => {
+      // Movimento aleatório do peixe
+      setFishPosition((prev) => {
+        const change = (Math.random() - 0.5) * 8;
+        return Math.max(
+          fishSize / 2,
+          Math.min(100 - fishSize / 2, prev + change),
+        );
+      });
+
+      // Movimento da barra (cai por gravidade ou sobe se pressionado)
+      setBarPosition((prev) => {
+        let newPos = prev;
+        if (isHolding) {
+          newPos = Math.max(0, prev - 3); // Sobe
+        } else {
+          newPos = Math.min(100, prev + 2); // Desce por gravidade
+        }
+        return newPos;
+      });
+
+      // Verificar se o peixe está na barra
+      setProgress((prev) => {
+        const fishInBar =
+          Math.abs(fishPosition - barPosition) < (barSize + fishSize) / 2;
+        if (fishInBar) {
+          return Math.min(100, prev + 2); // Progresso aumenta
+        } else {
+          return Math.max(0, prev - 1); // Progresso diminui
+        }
+      });
+
+      // Diminuir tempo
+      setGameTime((prev) => {
+        const newTime = prev - 50;
+        if (newTime <= 0) {
+          onComplete(false); // Tempo esgotado
+        }
+        return newTime;
+      });
+    }, 50);
+
+    return () => clearInterval(gameInterval);
+  }, [fishPosition, barPosition, isHolding, onComplete]);
+
+  useEffect(() => {
+    if (progress >= 100) {
+      onComplete(true); // Sucesso!
+    }
+  }, [progress, onComplete]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.code === "Space") {
+        setIsHolding(true);
+      }
+    };
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.code === "Space") {
+        setIsHolding(false);
+      }
+    };
+
+    const handleMouseDown = () => setIsHolding(true);
+    const handleMouseUp = () => setIsHolding(false);
+
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+    window.addEventListener("mousedown", handleMouseDown);
+    window.addEventListener("mouseup", handleMouseUp);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+      window.removeEventListener("mousedown", handleMouseDown);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, []);
+
+  return (
+    <div
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        width: "100%",
+        height: "100%",
+        backgroundColor: "rgba(0, 0, 0, 0.8)",
+        zIndex: 60,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <div
+        style={{
+          background: "white",
+          borderRadius: "12px",
+          padding: "20px",
+          width: "300px",
+          height: "400px",
+          position: "relative",
+        }}
+      >
+        <h3 style={{ textAlign: "center", margin: "0 0 20px 0" }}>
+          Minigame de Pesca
+        </h3>
+
+        {/* Barra de progresso */}
+        <div
+          style={{
+            width: "100%",
+            height: "20px",
+            backgroundColor: "#ddd",
+            borderRadius: "10px",
+            marginBottom: "20px",
+            overflow: "hidden",
+          }}
+        >
+          <div
+            style={{
+              width: `${progress}%`,
+              height: "100%",
+              backgroundColor: progress > 50 ? "#4CAF50" : "#FF9800",
+              transition: "width 0.1s",
+            }}
+          />
+        </div>
+
+        {/* Timer */}
+        <div style={{ textAlign: "center", marginBottom: "20px" }}>
+          Tempo: {Math.ceil(gameTime / 1000)}s
+        </div>
+
+        {/* Área do jogo */}
+        <div
+          style={{
+            width: "60px",
+            height: "250px",
+            backgroundColor: "#87CEEB",
+            border: "3px solid #4682B4",
+            borderRadius: "8px",
+            margin: "0 auto",
+            position: "relative",
+            overflow: "hidden",
+          }}
+        >
+          {/* Peixe */}
+          <div
+            style={{
+              position: "absolute",
+              left: "50%",
+              top: `${fishPosition}%`,
+              transform: "translateX(-50%) translateY(-50%)",
+              width: "40px",
+              height: "20px",
+              backgroundColor: "#FF6B35",
+              borderRadius: "10px",
+              border: "2px solid #D84315",
+            }}
+          >
+            🐟
+          </div>
+
+          {/* Barra do jogador */}
+          <div
+            style={{
+              position: "absolute",
+              left: "50%",
+              top: `${barPosition}%`,
+              transform: "translateX(-50%) translateY(-50%)",
+              width: "50px",
+              height: `${barSize}%`,
+              backgroundColor: isHolding ? "#4CAF50" : "#8BC34A",
+              border: "2px solid #388E3C",
+              borderRadius: "5px",
+            }}
+          />
+        </div>
+
+        <div
+          style={{ textAlign: "center", marginTop: "20px", fontSize: "14px" }}
+        >
+          Segure ESPAÇO ou clique para subir a barra verde.
+          <br />
+          Mantenha o peixe na barra!
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export const FishingScreenModular: React.FC = () => {
   const { setCurrentScreen } = useGameStore();
   const { user } = useAuthStore();
@@ -1419,6 +1716,7 @@ export const FishingScreenModular: React.FC = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [showFishingModal, setShowFishingModal] = useState(false);
+  const [showMinigame, setShowMinigame] = useState(false);
   const [fishingSettings, setFishingSettings] =
     useState<FishingSettings | null>(null);
   const [isUpdatingSettings, setIsUpdatingSettings] = useState(false);
@@ -1442,7 +1740,7 @@ export const FishingScreenModular: React.FC = () => {
       try {
         const waterEffect = new ModularWaterEffect(waterArea);
         waterEffect.onGameStart = () => {
-          setShowFishingModal(true);
+          setShowMinigame(true);
         };
 
         // Adicionar listener para cliques na exclamação
@@ -2181,6 +2479,21 @@ export const FishingScreenModular: React.FC = () => {
               : "��️ Segure Shift e arraste a área tracejada para reposicionar"}
           </div>
         </div>
+      )}
+
+      {/* Minigame de Pesca estilo Stardew Valley */}
+      {showMinigame && (
+        <FishingMinigame
+          onComplete={(success) => {
+            setShowMinigame(false);
+            if (success) {
+              setShowFishingModal(true);
+            }
+            if (waterEffectRef.current) {
+              waterEffectRef.current.resetFishingGame();
+            }
+          }}
+        />
       )}
 
       {/* Modal de Jogo de Pesca */}
