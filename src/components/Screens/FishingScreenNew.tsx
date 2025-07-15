@@ -281,6 +281,17 @@ export const FishingScreenNew: React.FC = () => {
     const fishMouthX = fishCenterX - 30;
     const fishMouthY = fishCenterY;
 
+    // CÍRCULO GRANDE PARA VERIFICAÇÃO DA POSIÇÃO DA BOCA
+    ctx.fillStyle = "rgba(255, 0, 255, 0.8)"; // Rosa brilhante
+    ctx.beginPath();
+    ctx.arc(fishMouthX, fishMouthY, 25, 0, 2 * Math.PI); // Círculo grande de 25px
+    ctx.fill();
+
+    // Borda do círculo para destaque
+    ctx.strokeStyle = "#ff00ff";
+    ctx.lineWidth = 4;
+    ctx.stroke();
+
     // Desenhar boca (pequeno círculo na extremidade esquerda)
     ctx.fillStyle = fish.state === "moving" ? "#ff0000" : "#000";
     ctx.beginPath();
