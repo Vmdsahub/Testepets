@@ -11,7 +11,7 @@ import { FishingRod } from "../Game/FishingRod";
 // Tipos para o sistema modular
 interface WaterArea {
   x: number; // Posição X relativa (0-1)
-  y: number; // Posição Y relativa (0-1)
+  y: number; // Posiç��o Y relativa (0-1)
   width: number; // Largura relativa (0-1)
   height: number; // Altura relativa (0-1)
   shape: "rectangle" | "circle" | "triangle";
@@ -224,7 +224,7 @@ class ModularWaterEffect {
         return false;
       }
 
-      // Função para obter cor com peixe (mantida original)
+      // Fun��ão para obter cor com peixe (mantida original)
             vec4 getColorWithFish(vec2 coords, float fishX, float fishY, float fishAngle) {
         vec4 bgColor = texture2D(u_backgroundTexture, coords);
         
@@ -245,7 +245,52 @@ class ModularWaterEffect {
         // fishAngle = 0 (direita): usar imagem normal
         // Y sempre inalterado - nunca inverte verticalmente
 
-                                if (fishUV.x >= 0.0 && fishUV.x <= 1.0 && fishUV.y >= 0.0 && fishUV.y <= 1.0 && isInWaterArea(coords)) {
+                                                        // === RENDERIZAR SOMBRA SUAVE E DISPERSA DO PEIXE ===
+
+        // Offset da sombra (ligeiramente para baixo e direita)
+        vec2 shadowOffset = vec2(0.008, 0.015);
+
+        // Criar múltiplas sombras dispersas para efeito suave
+        float totalShadowAlpha = 0.0;
+        vec3 totalShadowColor = vec3(0.0);
+
+        // 4 sombras ligeiramente deslocadas para criar dispersão
+        for(int i = 0; i < 4; i++) {
+            float angle = float(i) * 1.57; // 90 graus entre cada sombra
+            vec2 disperseOffset = vec2(cos(angle), sin(angle)) * 0.003; // Dispersão mínima
+
+            vec2 shadowPos = fishPos + shadowOffset + disperseOffset;
+            vec2 shadowUV = (coords - shadowPos + fishSize * 0.5) / fishSize;
+
+            // Aplicar orientação à sombra
+            if (fishAngle > 1.5) {
+                shadowUV.x = 1.0 - shadowUV.x;
+            }
+
+            // Verificar se está na área válida
+            if (shadowUV.x >= 0.0 && shadowUV.x <= 1.0 && shadowUV.y >= 0.0 && shadowUV.y <= 1.0 && isInWaterArea(coords)) {
+                vec4 shadowTexture = texture2D(u_fishTexture, shadowUV);
+                if (shadowTexture.a > 0.05) {
+                    // Sombra muito sutil e azulada
+                    vec3 shadowTint = vec3(0.3, 0.4, 0.5) * 0.25; // Tom azul muito fraco
+                    float shadowAlpha = shadowTexture.a * 0.08; // Muito transparente
+
+                    totalShadowColor += shadowTint * shadowAlpha;
+                    totalShadowAlpha += shadowAlpha;
+                }
+            }
+        }
+
+        // Aplicar sombra dispersa e sutil
+        if (totalShadowAlpha > 0.0) {
+            // Limitar intensidade máxima da sombra
+            totalShadowAlpha = min(totalShadowAlpha, 0.2);
+            bgColor = mix(bgColor, vec4(totalShadowColor / max(totalShadowAlpha, 0.01), 1.0), totalShadowAlpha);
+        }
+
+        // === RENDERIZAR PEIXE POR CIMA DA SOMBRA ===
+
+        if (fishUV.x >= 0.0 && fishUV.x <= 1.0 && fishUV.y >= 0.0 && fishUV.y <= 1.0 && isInWaterArea(coords)) {
           vec4 fishColor = texture2D(u_fishTexture, fishUV);
           if (fishColor.a > 0.1) {
             bgColor = mix(bgColor, vec4(fishColor.rgb, 1.0), fishColor.a);
@@ -284,56 +329,36 @@ class ModularWaterEffect {
             fishBehavior = 0.0; // ESTADO: Nadando livre (30%)
         }
 
-                                // === SISTEMA DE PADRÕES LONGOS E COMPLEXOS ===
+                                                                // === MOVIMENTO EVO FISH - VELÓCIDÃO E DINÂMICA ===
 
-        float moveSpeed = 0.025; // Velocidade reduzida para movimentos mais longos
+        float swimSpeed = 0.05; // Velocidade mais rápida como Evo Fish
+        float t = time * swimSpeed;
 
-        // Ciclo muito lento para padrões longos (a cada ~8 minutos)
-        float patternTime = time * 0.002;
-        float patternCycle = sin(patternTime) * 0.5 + 0.5;
-        float currentPattern = floor(patternCycle * 3.0); // 3 padrões complexos
+        // Movimento circular principal mais rápido e dinâmico
+        float mainRadius = min(areaW, areaH) * 0.4;
+        float mainAngle = t * 0.8; // Circular mais rápido
 
-        float angle = time * moveSpeed;
-        float baseX, baseY;
+        // Posição base do movimento circular
+        float circleX = cos(mainAngle) * mainRadius;
+        float circleY = sin(mainAngle) * mainRadius * 0.7; // Elipse
 
-        if (currentPattern < 1.0) {
-            // Padrão 1: Trajetória complexa que cobre toda a área
-            // Combinação de ondas seno/cosseno em diferentes frequências
-            float wave1 = sin(angle * 0.3) * areaW * 0.48;
-            float wave2 = cos(angle * 0.17) * areaW * 0.25;
-            float wave3 = sin(angle * 0.45) * areaH * 0.42;
-            float wave4 = cos(angle * 0.23) * areaH * 0.18;
+        // Variações de trajetória (como Evo Fish - movimentos imprevisíveis)
+        float variation1X = sin(t * 1.5) * areaW * 0.15;
+        float variation1Y = cos(t * 1.2) * areaH * 0.12;
 
-            baseX = centerX + wave1 + wave2;
-            baseY = centerY + wave3 + wave4;
+        float variation2X = cos(t * 0.6 + 2.0) * areaW * 0.2;
+        float variation2Y = sin(t * 0.7 + 1.5) * areaH * 0.18;
 
-        } else if (currentPattern < 2.0) {
-            // Padrão 2: Movimento em forma de rosácea complexa
-            float r = min(areaW, areaH) * 0.45;
-            float k = 5.0; // Número de pétalas
-            float roseRadius = r * sin(k * angle * 0.4);
+        // Movimento de "busca" rápido (característico do Evo Fish)
+        float searchX = sin(t * 2.2) * areaW * 0.1;
+        float searchY = cos(t * 1.8) * areaH * 0.08;
 
-            baseX = centerX + roseRadius * cos(angle * 0.4);
-            baseY = centerY + roseRadius * sin(angle * 0.4) * 0.85;
+        // Acelerações súbitas (como quando peixes vêem comida)
+        float burstSpeed = 1.0 + sin(t * 0.3) * 0.4; // Varia de 0.6x a 1.4x
 
-            // Adicionar variação lenta para cobrir mais área
-            baseX += sin(angle * 0.08) * areaW * 0.2;
-            baseY += cos(angle * 0.06) * areaH * 0.15;
-
-        } else {
-            // Padrão 3: Movimento tipo "drunk walk" controlado
-            // Múltiplas ondas com frequências prímas para evitar repetição
-            float x1 = sin(angle * 0.13) * areaW * 0.35;
-            float x2 = cos(angle * 0.29) * areaW * 0.28;
-            float x3 = sin(angle * 0.41) * areaW * 0.15;
-
-            float y1 = cos(angle * 0.19) * areaH * 0.38;
-            float y2 = sin(angle * 0.31) * areaH * 0.22;
-            float y3 = cos(angle * 0.37) * areaH * 0.12;
-
-            baseX = centerX + x1 + x2 + x3;
-            baseY = centerY + y1 + y2 + y3;
-        }
+        // Combinar todos os movimentos
+        float baseX = centerX + (circleX + variation1X + variation2X + searchX) * burstSpeed;
+        float baseY = centerY + (circleY + variation1Y + variation2Y + searchY) * burstSpeed;
 
                         // Suavização para evitar teleporte entre padrões
         float transitionSmooth = 0.95; // Suavização forte
@@ -354,37 +379,20 @@ class ModularWaterEffect {
 
         // === SISTEMA DE ROTAÇÃO NATURAL ===
 
-                                                        // === ORIENTAÇÃO PRECISA BASEADA NA DIREÇÃO REAL ===
+                                                                                                // === ORIENTAÇÃO EVO FISH RÁPIDA ===
 
-        // Calcular direção usando derivação matemática
-        float dt = 0.05;
-        float currentAngle = time * moveSpeed;
-        float futureAngle = (time + dt) * moveSpeed;
+        // Calcular direção baseada no movimento circular principal
+        float velocityX = -sin(mainAngle) * 0.8 * swimSpeed * mainRadius; // Derivada do cos
 
-        float futureBaseX;
+        // Adicionar variações de trajetória
+        velocityX += cos(t * 1.5) * 1.5 * swimSpeed * areaW * 0.15;
+        velocityX += -sin(t * 0.6 + 2.0) * 0.6 * swimSpeed * areaW * 0.2;
 
-        if (currentPattern < 1.0) {
-            // Padrão 1: Calcular posição futura
-            float wave1 = sin(futureAngle * 0.3) * areaW * 0.48;
-            float wave2 = cos(futureAngle * 0.17) * areaW * 0.25;
-            futureBaseX = centerX + wave1 + wave2;
+        // Movimento de busca rápido
+        velocityX += cos(t * 2.2) * 2.2 * swimSpeed * areaW * 0.1;
 
-        } else if (currentPattern < 2.0) {
-            // Padrão 2: Rosácea
-            float r = min(areaW, areaH) * 0.45;
-            float k = 5.0;
-            float roseRadius = r * sin(k * futureAngle * 0.4);
-            futureBaseX = centerX + roseRadius * cos(futureAngle * 0.4) + sin(futureAngle * 0.08) * areaW * 0.2;
-
-        } else {
-            // Padrão 3: Drunk walk
-            float x1 = sin(futureAngle * 0.13) * areaW * 0.35;
-            float x2 = cos(futureAngle * 0.29) * areaW * 0.28;
-            float x3 = sin(futureAngle * 0.41) * areaW * 0.15;
-            futureBaseX = centerX + x1 + x2 + x3;
-        }
-
-        float velocityX = futureBaseX - baseX;
+        // Aplicar aceleração
+        velocityX *= burstSpeed;
 
         float fishAngle = 0.0;
 
