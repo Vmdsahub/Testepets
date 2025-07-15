@@ -62,7 +62,10 @@ class WaterEffect {
     this.fishReactionDelay = 0;
     this.originalFishMovement = { moveX: 0, moveY: 0 };
     this.exclamationTime = 0;
+    this.exclamationStartTime = 0;
+    this.canClickExclamation = false;
     this.onGameStart = null; // Callback para abrir modal
+    this.onExclamationClick = null; // Callback para clique na exclamação
     this.fishTimeOffset = 0; // Offset para sincronizar movimento natural com posição atual
     this.transitionBackToNaturalTime = 0; // Tempo desde que voltou para movimento natural
     this.transitionBackToNaturalDuration = 2000; // 2 segundos para suavizar retorno (debug)
@@ -301,7 +304,7 @@ class WaterEffect {
 
                                 
                 
-                // Calcula refração apenas onde há água
+                // Calcula refração apenas onde h�� água
                 vec2 refraction = calculateRefraction(uv, u_time) * waterMask;
                 vec2 distortedUV = uv + refraction;
                 
