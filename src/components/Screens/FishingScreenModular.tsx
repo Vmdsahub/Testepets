@@ -1770,11 +1770,14 @@ export const FishingScreenModular: React.FC = () => {
       <FishingRod
         waterArea={waterArea}
         onHookCast={(x, y) => {
-          const uvX = x / window.innerWidth;
-          const uvY = y / window.innerHeight;
+          // Verificar se o clique está dentro da área de água antes de iniciar o jogo
+          if (isPointInWaterArea(x, y)) {
+            const uvX = x / window.innerWidth;
+            const uvY = y / window.innerHeight;
 
-          if (waterEffectRef.current) {
-            waterEffectRef.current.startFishingGame(uvX, uvY);
+            if (waterEffectRef.current) {
+              waterEffectRef.current.startFishingGame(uvX, uvY);
+            }
           }
         }}
         onLineReeled={() => {
