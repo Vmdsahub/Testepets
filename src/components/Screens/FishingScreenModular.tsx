@@ -435,7 +435,7 @@ class ModularWaterEffect {
 
         float fishAngle = 0.0;
 
-                                        // === ORIENTAÇÃO DO PEIXE BASEADA NA DIREÇÃO CALCULADA ===
+                                        // === ORIENTA��ÃO DO PEIXE BASEADA NA DIREÇÃO CALCULADA ===
         if (u_fishDirection > 0.0) {
             fishAngle = 3.14159; // Direita (PI para flip correto)
         } else {
@@ -1178,9 +1178,15 @@ class ModularWaterEffect {
         // Ainda dentro do período de 1 segundo
         this.exclamationTime = 1000 - elapsedTime;
       } else {
-        // Passou 1 segundo
+        // Passou 1 segundo - peixe vai embora automaticamente
         this.exclamationTime = 0;
         this.canClickExclamation = false;
+
+        if (this.gameState === "fish_hooked") {
+          console.log("Timer expired - fish swims away automatically");
+          this.isVibrating = false;
+          this.resetFishingGame();
+        }
       }
     }
   }
