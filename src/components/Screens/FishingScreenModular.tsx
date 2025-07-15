@@ -286,7 +286,7 @@ class ModularWaterEffect {
 
                 // === MOVIMENTO CONTÍNUO SIMPLES ===
 
-        float moveSpeed = 0.025; // Velocidade mais consistente
+                float moveSpeed = 0.0375; // Velocidade aumentada em 50% (0.025 * 1.5)
 
         // Trajetória circular contínua - sem início nem fim
         float angle = time * moveSpeed;
