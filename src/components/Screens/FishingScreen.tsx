@@ -2087,8 +2087,21 @@ export const FishingScreen: React.FC = () => {
           {(waterEffectRef.current?.hookPosition.y || 0).toFixed(3)})
         </div>
         {waterEffectRef.current?.gameState === "fish_hooked" && (
-          <div style={{ color: "yellow", fontWeight: "bold" }}>
-            🎣 CLICK TO CATCH!
+          <div>
+            <div style={{ color: "yellow", fontWeight: "bold" }}>
+              🎣 CLICK TO CATCH!
+            </div>
+            <div style={{ color: "orange" }}>
+              Time left:{" "}
+              {Math.max(
+                0,
+                3 -
+                  (Date.now() -
+                    (waterEffectRef.current?.exclamationStartTime || 0)) /
+                    1000,
+              ).toFixed(1)}
+              s
+            </div>
           </div>
         )}
       </div>
