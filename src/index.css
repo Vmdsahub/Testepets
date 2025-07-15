@@ -31,10 +31,10 @@ canvas {
   image-rendering: -webkit-optimize-contrast;
   image-rendering: optimize-contrast;
   image-rendering: optimizeSpeed;
-  image-rendering: crisp-edges;
   transform: translate3d(0, 0, 0);
   will-change: transform;
   backface-visibility: hidden;
+  /* Removido crisp-edges que causava grid no mapa galáctico */
 }
 
 /* Custom slider styles for music player */
