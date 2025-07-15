@@ -175,7 +175,7 @@ class WaterEffect {
                 float dist = length(uv - 0.5);
                 float wave5 = sin(dist * 20.0 - time * 3.0) * 0.04;
                 
-                // Ruído em direções opostas para balanceamento
+                // Ruído em direç��es opostas para balanceamento
                 float noise1 = snoise(uv * 10.0 + time * 0.5) * 0.03;
                 float noise2 = snoise(uv * 15.0 - time * 0.3) * 0.02;
                 float noise3 = snoise(uv.yx * 12.0 + time * 0.7) * 0.025;
@@ -351,7 +351,7 @@ class WaterEffect {
                     // Calcular UV da exclamação
                     vec2 exclamationUV = (uv - exclamationPos + exclamationSize * 0.5) / exclamationSize;
 
-                    // Verificar se est�� na área da exclamação
+                    // Verificar se está na área da exclamação
                     if (exclamationUV.x >= 0.0 && exclamationUV.x <= 1.0 && exclamationUV.y >= 0.0 && exclamationUV.y <= 1.0) {
                         // Simular a imagem de exclamação amarela fornecida
                         vec2 localPos = exclamationUV * 2.0 - 1.0; // Converter para -1 a 1
@@ -1108,7 +1108,7 @@ class WaterEffect {
         console.log("Fish hooked! Starting exclamation timer.");
 
         // Timer de 1 segundo - se não clicar, voltar ao movimento natural
-        setTimeout(() => {
+        const hookedTimer = setTimeout(() => {
           if (this.gameState === "fish_hooked" && this.canClickExclamation) {
             console.log(
               "Player didn't click exclamation in time - fish returns to natural movement",
@@ -1116,6 +1116,7 @@ class WaterEffect {
             this.resetFishingGame();
           }
         }, 1000);
+        this.activeTimers.push(hookedTimer);
       }
     } else if (this.gameState === "fish_hooked") {
       // VERIFICAÇÃO CONTÍNUA: Se anzol saiu da água durante fish_hooked, resetar imediatamente
