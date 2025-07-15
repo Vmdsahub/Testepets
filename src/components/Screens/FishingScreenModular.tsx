@@ -930,7 +930,7 @@ class ModularWaterEffect {
       let angle;
 
       if (Math.random() < 0.7) {
-        // 70% chance de movimento mais horizontal (-45° a 45° ou 135° a 225°)
+        // 70% chance de movimento mais horizontal (-45° a 45° ou 135�� a 225°)
         if (Math.random() < 0.5) {
           angle = (Math.random() - 0.5) * Math.PI * 0.5; // -45° a 45°
         } else {
@@ -1784,6 +1784,20 @@ export const FishingScreenModular: React.FC = () => {
           if (waterEffectRef.current) {
             waterEffectRef.current.resetFishingGame();
           }
+        }}
+      />
+
+      {/* Overlay para mostrar posição da boca do peixe */}
+      <canvas
+        id="fishMouthOverlay"
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          pointerEvents: "none",
+          zIndex: 20,
         }}
       />
 
