@@ -267,7 +267,7 @@ class ModularWaterEffect {
         float totalShadowAlpha = 0.0;
         vec3 totalShadowColor = vec3(0.0);
 
-        // 4 sombras ligeiramente deslocadas para criar dispersão
+        // 4 sombras ligeiramente deslocadas para criar dispers��o
         for(int i = 0; i < 4; i++) {
             float angle = float(i) * 1.57; // 90 graus entre cada sombra
             vec2 disperseOffset = vec2(cos(angle), sin(angle)) * 0.003; // Dispersão mínima
@@ -1230,10 +1230,10 @@ class ModularWaterEffect {
     const mouthX = fishPixelX + mouthOffsetX;
     const mouthY = fishPixelY;
 
-    // Desenhar CÍRCULO ROSA AINDA MENOR na posição da boca
+    // Desenhar CÍRCULO ROSA MUITO PEQUENO na posição da boca
     ctx.fillStyle = "rgba(255, 0, 255, 0.8)";
     ctx.beginPath();
-    ctx.arc(mouthX, mouthY, 10, 0, 2 * Math.PI); // Diminuído de 15 para 10
+    ctx.arc(mouthX, mouthY, 2, 0, 2 * Math.PI); // Diminuído para 2px
     ctx.fill();
 
     // Borda do círculo
