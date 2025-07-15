@@ -910,7 +910,11 @@ class ModularWaterEffect {
     }
 
     // Interpolação suave para a posição alvo
-    const lerpSpeed = 0.02; // Velocidade de interpolação
+    let lerpSpeed = 0.01; // Velocidade de interpolação (mais lenta para movimento natural)
+
+    if (this.gameState === "fish_moving" || this.gameState === "fish_hooked") {
+      lerpSpeed = 0.03; // Mais rápida quando indo ao anzol
+    }
     const dx = this.fishTargetPosition.x - this.fishCurrentPosition.x;
     const dy = this.fishTargetPosition.y - this.fishCurrentPosition.y;
 
@@ -1955,7 +1959,7 @@ export const FishingScreenModular: React.FC = () => {
           <div style={{ fontSize: "12px", color: "#666", marginTop: "10px" }}>
             {isShiftPressed
               ? "🎯 Shift ativo - arraste a área para reposicionar"
-              : "��️ Segure Shift e arraste a área tracejada para reposicionar"}
+              : "����️ Segure Shift e arraste a área tracejada para reposicionar"}
           </div>
         </div>
       )}
