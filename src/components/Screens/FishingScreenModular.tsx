@@ -578,6 +578,10 @@ class ModularWaterEffect {
       this.program,
       "u_transitionStartPosition",
     );
+    this.uniforms.fishDirection = this.gl.getUniformLocation(
+      this.program,
+      "u_fishDirection",
+    );
 
     // Novos uniforms para área modular
     this.uniforms.waterArea = this.gl.getUniformLocation(
