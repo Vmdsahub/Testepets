@@ -63,7 +63,8 @@ class ModularWaterEffect {
     this.fishTargetPosition = { x: 0.5, y: 0.65 };
     this.fishCurrentPosition = { x: 0.5, y: 0.65 }; // Posição atual real do peixe
     this.fishVelocity = { x: 0, y: 0 }; // Velocidade atual do peixe
-    this.fishDirection = 1; // 1 = direita, -1 = esquerda
+    this.fishDirection = 1; // 1 = direita, -1 = esquerda (mantido para compatibilidade)
+    this.fishAngle = 0; // Ângulo real do peixe em radianos (0 = direita, PI = esquerda)
 
     // Sistema de movimento orgânico
     this.fishDesiredDirection = { x: 1, y: 0 }; // Direção desejada
@@ -452,7 +453,7 @@ class ModularWaterEffect {
         float fishX = u_fishTargetPosition.x;
         float fishY = u_fishTargetPosition.y;
 
-        // Aplicar vibração no shader se necess��rio (sincronizada)
+        // Aplicar vibração no shader se necessário (sincronizada)
         if (u_gameState >= 4.0) {
           float vibrationIntensity = 0.003;
           fishX += sin(u_time * 50.0) * vibrationIntensity;
@@ -996,7 +997,7 @@ class ModularWaterEffect {
       // Escolher nova direção que aponte para longe das bordas próximas
       let newAngle;
 
-      // Calcular direção ideal: para o centro, mas com variação
+      // Calcular direç��o ideal: para o centro, mas com variação
       const directionToCenter = Math.atan2(
         centerY - this.fishCurrentPosition.y,
         centerX - this.fishCurrentPosition.x,
@@ -1101,7 +1102,7 @@ class ModularWaterEffect {
       this.gameState === "fish_reacting" ||
       this.gameState === "fish_moving"
     ) {
-      // === MOVIMENTO EM DIREÇÃO AO ANZOL ===
+      // === MOVIMENTO EM DIREÇ��O AO ANZOL ===
       const dx = this.hookPosition.x - this.fishCurrentPosition.x;
       const dy = this.hookPosition.y - this.fishCurrentPosition.y;
       const distance = Math.sqrt(dx * dx + dy * dy);
@@ -1962,7 +1963,7 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
                     repeat: isLowTime ? Infinity : 0,
                   }}
                 >
-                  {isLowTime ? "���" : "⏱️"}
+                  {isLowTime ? "🚨" : "⏱️"}
                 </motion.span>
                 <motion.span
                   className={`text-lg font-bold ${
