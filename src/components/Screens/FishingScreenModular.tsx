@@ -1204,8 +1204,15 @@ class ModularWaterEffect {
       // Após 0.6s, abrir minigame
       const fisgadoTimer = setTimeout(() => {
         this.showFisgadoText = false;
+        console.log(
+          "🎮 About to call onGameStart - callback exists:",
+          !!this.onGameStart,
+        );
         if (this.onGameStart) {
+          console.log("🎮 Calling onGameStart callback...");
           this.onGameStart();
+        } else {
+          console.log("❌ onGameStart callback is null!");
         }
       }, 600);
       if (!this.activeTimers) this.activeTimers = [];
@@ -3043,7 +3050,7 @@ export const FishingScreenModular: React.FC = () => {
             <p
               style={{ color: "#666", marginBottom: "30px", fontSize: "16px" }}
             >
-              Parabéns! Você conseguiu fisgar um peixe na área da água.
+              Parab��ns! Você conseguiu fisgar um peixe na área da água.
             </p>
 
             <div
