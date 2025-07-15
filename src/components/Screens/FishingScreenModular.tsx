@@ -362,7 +362,7 @@ class ModularWaterEffect {
         float variation2X = cos(t * 0.6 + 2.0) * areaW * 0.2;
         float variation2Y = sin(t * 0.7 + 1.5) * areaH * 0.18;
 
-        // Movimento de "busca" rápido (característico do Evo Fish)
+        // Movimento de "busca" rápido (caracter��stico do Evo Fish)
         float searchX = sin(t * 2.2) * areaW * 0.1;
         float searchY = cos(t * 1.8) * areaH * 0.08;
 
@@ -967,7 +967,7 @@ class ModularWaterEffect {
         y: this.fishDesiredDirection.y + avoidanceForce.y,
       };
 
-      // Normalizar dire��ão
+      // Normalizar direção
       const magnitude = Math.sqrt(
         targetDirection.x * targetDirection.x +
           targetDirection.y * targetDirection.y,
@@ -1242,7 +1242,7 @@ class ModularWaterEffect {
     }
 
     const mouthX =
-      fishPixelX + mouthOffsetX + (this.fishDirection > 0 ? -3 : 3); // -3px para direita ou +3px para esquerda (mais 6px próximo da boca)
+      fishPixelX + mouthOffsetX + (this.fishDirection > 0 ? -7 : 7); // -7px para direita ou +7px para esquerda (mais 4px próximo da boca)
     const mouthY = fishPixelY + 2; // +2px para baixo
 
     // Desenhar CÍRCULO ROSA MUITO PEQUENO na posição da boca
