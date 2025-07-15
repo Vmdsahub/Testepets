@@ -335,13 +335,15 @@ class WaterEffect {
                 
                                                                                                 // Adicionar exclamação com imagem fornecida
                 if (u_showExclamation > 0.0 && u_gameState >= 4.0) { // fish_hooked
-                                                            vec2 exclamationPos = vec2(fishX, fishY); // No centro do peixe
+                                                                                // Posição da exclamação (10px para esquerda do centro do peixe)
+                    float leftOffset = 10.0 / u_resolution.x; // Converter 10px para coordenadas UV
+                    vec2 exclamationPos = vec2(fishX - leftOffset, fishY);
 
                     // Pulsação da exclamação para chamar atenção
                     float pulse = 0.98 + 0.02 * sin(u_time * 8.0);
 
-                    // Tamanho da exclamação (ainda menor)
-                    vec2 exclamationSize = vec2(0.015, 0.025) * pulse;
+                    // Tamanho da exclamação (40% maior)
+                    vec2 exclamationSize = vec2(0.015, 0.025) * 1.4 * pulse;
 
                     // Calcular UV da exclamação
                     vec2 exclamationUV = (uv - exclamationPos + exclamationSize * 0.5) / exclamationSize;
