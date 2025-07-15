@@ -1078,6 +1078,15 @@ class WaterEffect {
           );
         }
       } else {
+        // VERIFICAÇÃO: Anzol deve estar na água para peixe ser fisgado
+        if (!this.isHookInWater()) {
+          console.log(
+            "🎣 Fish reached hook position but hook is not in water - resetting",
+          );
+          this.resetFishingGame();
+          return;
+        }
+
         // Peixe chegou ao anzol
         this.gameState = "fish_hooked";
         this.exclamationTime = 1000; // mostrar exclamação por 1 segundo
