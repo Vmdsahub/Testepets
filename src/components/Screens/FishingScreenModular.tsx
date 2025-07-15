@@ -2141,7 +2141,7 @@ export const FishingScreenModular: React.FC = () => {
               onChange={(e) => {
                 const newShape = e.target.value as WaterArea["shape"];
                 setWaterArea((prev) => {
-                  // Se for círculo, igualar largura e altura
+                  // Se for c��rculo, igualar largura e altura
                   if (newShape === "circle") {
                     const size = Math.min(prev.width, prev.height);
                     return {
@@ -2236,6 +2236,21 @@ export const FishingScreenModular: React.FC = () => {
               : "��️ Segure Shift e arraste a área tracejada para reposicionar"}
           </div>
         </div>
+      )}
+
+      {/* Minigame de Pesca estilo Stardew Valley */}
+      {showMinigame && (
+        <FishingMinigame
+          onComplete={(success) => {
+            setShowMinigame(false);
+            if (success) {
+              setShowFishingModal(true);
+            }
+            if (waterEffectRef.current) {
+              waterEffectRef.current.resetFishingGame();
+            }
+          }}
+        />
       )}
 
       {/* Modal de Jogo de Pesca */}
