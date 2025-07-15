@@ -932,6 +932,11 @@ class ModularWaterEffect {
     this.fishCurrentPosition.x += this.fishVelocity.x;
     this.fishCurrentPosition.y += this.fishVelocity.y;
 
+    // Calcular direção baseada na velocidade horizontal
+    if (Math.abs(this.fishVelocity.x) > 0.0001) {
+      this.fishDirection = this.fishVelocity.x > 0 ? 1 : -1;
+    }
+
     // Log de debug ocasional
     if (Math.random() < 0.01) {
       console.log(
