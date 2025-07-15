@@ -335,13 +335,15 @@ class ModularWaterEffect {
             baseY = centerY + y1 + y2 + y3;
         }
 
-                // Posição natural simples sem modificações
+                        // Suavização para evitar teleporte entre padrões
+        float transitionSmooth = 0.95; // Suavização forte
+
         float naturalFishX = baseX;
         float naturalFishY = baseY;
 
-        // Pequena variação suave apenas
-        naturalFishX += sin(time * 0.008) * areaW * 0.01;
-        naturalFishY += cos(time * 0.006) * areaH * 0.008;
+        // Pequena variação orgânica sutil
+        naturalFishX += sin(time * 0.006) * areaW * 0.008;
+        naturalFishY += cos(time * 0.004) * areaH * 0.006;
 
         // === DELIMITAÇÃO DA ÁREA ===
 
