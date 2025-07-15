@@ -237,12 +237,12 @@ class ModularWaterEffect {
                 // Lógica de orientação simplificada
         vec2 fishUV = localUV;
 
-                        // Lógica CORRETA: nada pra direita = aponta pra direita, nada pra esquerda = aponta pra esquerda
-        // fishAngle = 0 significa nadando pra direita, fishAngle = PI significa nadando pra esquerda
-        if (fishAngle > 1.5) {
-            fishUV.x = 1.0 - fishUV.x; // Flip quando nada pra esquerda (fishAngle = PI)
+                                // TESTE: Inverter lógica para ver se textura está ao contrário
+        // fishAngle = 0 (direita), fishAngle = PI (esquerda)
+        if (fishAngle < 1.5) {
+            fishUV.x = 1.0 - fishUV.x; // Flip quando fishAngle = 0 (direita)
         }
-        // fishAngle = 0 (direita): usar imagem normal
+        // fishAngle = PI (esquerda): usar imagem normal
         // Y sempre inalterado - nunca inverte verticalmente
 
                                 if (fishUV.x >= 0.0 && fishUV.x <= 1.0 && fishUV.y >= 0.0 && fishUV.y <= 1.0 && isInWaterArea(coords)) {
@@ -1550,7 +1550,7 @@ export const FishingScreenModular: React.FC = () => {
             �� <strong>Redimensionar:</strong> Use os sliders abaixo
           </div>
 
-          {/* Controles de efeitos de água */}
+          {/* Controles de efeitos de ��gua */}
           <div style={{ marginBottom: "10px" }}>
             <label
               style={{
