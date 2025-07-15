@@ -216,7 +216,7 @@ class ModularWaterEffect {
         return pow(caustic1 * caustic2 * caustic3 + noise * 0.2, 2.0) * 0.3;
       }
 
-      // Verificar se ponto está dentro da área da água
+      // Verificar se ponto está dentro da ��rea da água
       bool isInWaterArea(vec2 uv) {
                 float x = u_waterArea.x;
         float y = u_waterArea.y;
@@ -1202,6 +1202,7 @@ class ModularWaterEffect {
           this.onGameStart();
         }
       }, 600);
+      if (!this.activeTimers) this.activeTimers = [];
       this.activeTimers.push(fisgadoTimer);
 
       return true;
@@ -2784,7 +2785,7 @@ export const FishingScreenModular: React.FC = () => {
                 marginBottom: "5px",
               }}
             >
-              Distorç���o:{" "}
+              Distorç��o:{" "}
               {(fishingSettings?.distortionAmount || 0.3).toFixed(2)}
             </label>
             <input
