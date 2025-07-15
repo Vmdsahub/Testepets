@@ -136,6 +136,13 @@ class FishingSystem {
         this.isCharging = true;
         this.chargeStartTime = Date.now();
       } else {
+        // AJUSTE: Se peixe está mordendo, NÃO recolher - deixar minigame ativar
+        if (this.isFishBiting && this.isFishBiting()) {
+          console.log(
+            "🎣 Fish is biting - ignoring reel in to allow minigame activation",
+          );
+          return; // Não recolher durante mordida
+        }
         this.reelIn();
       }
     });
