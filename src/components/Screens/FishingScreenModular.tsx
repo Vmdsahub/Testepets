@@ -854,43 +854,51 @@ class ModularWaterEffect {
     this.fishReactionStartTime = Date.now();
   }
 
-  // Método para calcular posição natural do peixe (baseado no shader)
-  calculateNaturalFishPosition() {
-    const time = this.fishTime * 0.5;
-    const areaX = this.waterArea.x;
-    const areaY = this.waterArea.y;
-    const areaW = this.waterArea.width;
-    const areaH = this.waterArea.height;
+  // Método para movimento orgânico - evitar bordas
+  avoidBorders() {
+    const margin = 0.05;
+    const areaLeft = this.waterArea.x + margin;
+    const areaRight = this.waterArea.x + this.waterArea.width - margin;
+    const areaTop = this.waterArea.y + margin;
+    const areaBottom = this.waterArea.y + this.waterArea.height - margin;
 
-    const centerX = areaX + areaW * 0.5;
-    const centerY = areaY + areaH * 0.5;
+    let avoidanceForce = { x: 0, y: 0 };
 
-    // Mesmo cálculo do shader
-    const swimSpeed = 0.05;
-    const t = time * swimSpeed;
-    const mainRadius = Math.min(areaW, areaH) * 0.4;
-    const mainAngle = t * 0.8;
+    // Evitar borda esquerda
+    if (this.fishCurrentPosition.x < areaLeft) {
+      avoidanceForce.x += (areaLeft - this.fishCurrentPosition.x) * 2;
+    }
+    // Evitar borda direita
+    if (this.fishCurrentPosition.x > areaRight) {
+      avoidanceForce.x -= (this.fishCurrentPosition.x - areaRight) * 2;
+    }
+    // Evitar borda superior
+    if (this.fishCurrentPosition.y < areaTop) {
+      avoidanceForce.y += (areaTop - this.fishCurrentPosition.y) * 2;
+    }
+    // Evitar borda inferior
+    if (this.fishCurrentPosition.y > areaBottom) {
+      avoidanceForce.y -= (this.fishCurrentPosition.y - areaBottom) * 2;
+    }
 
-    const circleX = Math.cos(mainAngle) * mainRadius;
-    const circleY = Math.sin(mainAngle) * mainRadius * 0.7;
+    return avoidanceForce;
+  }
 
-    const variation1X = Math.sin(t * 1.5) * areaW * 0.15;
-    const variation1Y = Math.cos(t * 1.2) * areaH * 0.12;
+  // Método para mudança gradual de direção
+  updateDesiredDirection() {
+    const currentTime = Date.now();
 
-    const variation2X = Math.cos(t * 0.6 + 2.0) * areaW * 0.2;
-    const variation2Y = Math.sin(t * 0.7 + 1.5) * areaH * 0.18;
+    // Verificar se é hora de mudar direção
+    if (currentTime - this.directionChangeTime > this.directionChangeCooldown) {
+      // Gerar nova direção aleatória
+      const angle = Math.random() * Math.PI * 2;
+      this.fishDesiredDirection.x = Math.cos(angle);
+      this.fishDesiredDirection.y = Math.sin(angle);
 
-    const searchX = Math.sin(t * 2.2) * areaW * 0.1;
-    const searchY = Math.cos(t * 1.8) * areaH * 0.08;
-
-    const burstSpeed = 1.0 + Math.sin(t * 0.3) * 0.4;
-
-    const baseX =
-      centerX + (circleX + variation1X + variation2X + searchX) * burstSpeed;
-    const baseY =
-      centerY + (circleY + variation1Y + variation2Y + searchY) * burstSpeed;
-
-    return { x: baseX, y: baseY };
+      // Resetar timer com novo intervalo aleatório
+      this.directionChangeTime = currentTime;
+      this.directionChangeCooldown = 1500 + Math.random() * 4000; // 1.5-5.5 segundos
+    }
   }
 
   // Método para atualizar posição do peixe suavemente
