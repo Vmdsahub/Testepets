@@ -285,7 +285,7 @@ class ModularWaterEffect {
 
         // === MOVIMENTO BASE: TRAJETÓRIA ORGÂNICA ===
 
-                float moveSpeed = 0.015; // Velocidade base reduzida para evitar teleporte
+                        float moveSpeed = 0.018; // Velocidade aumentada em 20% (0.015 * 1.2)
 
         // Trajetória principal: Lemniscata (símbolo do infinito) suave
         float mainPhase = time * moveSpeed;
