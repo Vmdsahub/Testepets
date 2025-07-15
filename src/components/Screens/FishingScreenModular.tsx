@@ -263,8 +263,13 @@ class ModularWaterEffect {
         // Converter para coordenadas centradas (-0.5 a 0.5)
         vec2 centeredUV = localUV - 0.5;
 
-        // Aplicar rotação diagonal do u_fishAngle (valor do JavaScript)
-        float rotationAngle = u_fishAngle; // Ângulo de rotação diagonal
+                // Aplicar rotação diagonal do u_fishAngle (valor do JavaScript)
+        // Ajustar rotação baseado na direção para corrigir lado direito
+        float rotationAngle = u_fishAngle;
+        if (fishAngle > 1.5) {
+            // Quando peixe nada para direita (flipado), inverter rotação
+            rotationAngle = -rotationAngle;
+        }
         float cosAngle = cos(rotationAngle);
         float sinAngle = sin(rotationAngle);
 
@@ -1068,7 +1073,7 @@ class ModularWaterEffect {
       let angle;
 
       if (Math.random() < 0.7) {
-        // 70% chance de movimento mais horizontal (-45° a 45° ou 135�� a 225°)
+        // 70% chance de movimento mais horizontal (-45° a 45° ou 135���� a 225°)
         if (Math.random() < 0.5) {
           angle = (Math.random() - 0.5) * Math.PI * 0.5; // -45° a 45°
         } else {
@@ -2427,7 +2432,7 @@ export const FishingScreenModular: React.FC = () => {
   const [showMinigame, setShowMinigame] = useState(false);
 
   useEffect(() => {
-    console.log("🎮 showMinigame state changed:", showMinigame);
+    console.log("���� showMinigame state changed:", showMinigame);
   }, [showMinigame]);
 
   // Helper function para redefinir o callback onGameStart
