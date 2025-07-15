@@ -472,8 +472,8 @@ class ModularWaterEffect {
 
                                 // === SISTEMA DE ROTAÇÃO DIAGONAL SUAVE ===
         // Aplica rotação baseada na dire��ão vertical do movimento
-        // u_fishAngle contém o ângulo calculado pelo JavaScript (-30° a +30°)
-                float diagonalTilt = u_fishAngle * 0.9; // 90% do ângulo para rotação bem visível
+                // u_fishAngle contém o ângulo calculado pelo JavaScript (-25° a +25°)
+                float diagonalTilt = u_fishAngle * 0.7; // 70% do ângulo para rotação natural e suave
 
         // Combinar flip horizontal com rotação diagonal
         if (u_fishDirection > 0.0) {
