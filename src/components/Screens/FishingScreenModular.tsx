@@ -360,7 +360,7 @@ class ModularWaterEffect {
         float mainRadius = min(areaW, areaH) * 0.4;
         float mainAngle = t * 0.8; // Circular mais rápido
 
-        // Posiç��o base do movimento circular
+        // Posição base do movimento circular
         float circleX = cos(mainAngle) * mainRadius;
         float circleY = sin(mainAngle) * mainRadius * 0.7; // Elipse
 
@@ -1195,12 +1195,13 @@ class ModularWaterEffect {
       this.fisgadoTextStartTime = Date.now();
 
       // Após 0.6s, abrir minigame
-      setTimeout(() => {
+      const fisgadoTimer = setTimeout(() => {
         this.showFisgadoText = false;
         if (this.onGameStart) {
           this.onGameStart();
         }
       }, 600);
+      this.activeTimers.push(fisgadoTimer);
 
       return true;
     }
