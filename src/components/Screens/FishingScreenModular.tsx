@@ -1057,7 +1057,7 @@ class ModularWaterEffect {
     }
   }
 
-  // Método para lidar com clique na exclamação
+  // Método para lidar com clique na exclama��ão
   handleExclamationClick() {
     if (this.gameState === "fish_hooked" && this.canClickExclamation) {
       console.log("Player clicked exclamation! Opening modal.");
@@ -1222,9 +1222,9 @@ class ModularWaterEffect {
     // fishDirection < 0 = nada para esquerda, imagem normal (0), boca fica à ESQUERDA
     let mouthOffsetX;
     if (this.fishDirection > 0) {
-      mouthOffsetX = fishSizePixelX / 2 + 5; // Boca à direita + 5px mais próximo da ponta
+      mouthOffsetX = fishSizePixelX / 2 - 10; // Boca à direita - 10px mais próximo da ponta
     } else {
-      mouthOffsetX = -(fishSizePixelX / 2) - 5; // Boca à esquerda + 5px mais próximo da ponta
+      mouthOffsetX = -(fishSizePixelX / 2) + 10; // Boca à esquerda + 10px mais próximo da ponta
     }
 
     const mouthX = fishPixelX + mouthOffsetX;
