@@ -64,7 +64,7 @@ class ModularWaterEffect {
     this.fishDesiredDirection = { x: 1, y: 0 }; // Direção desejada
     this.fishSpeed = 0.0006; // Velocidade base mais lenta
     this.directionChangeTime = 0; // Timer para mudança de direção
-    this.directionChangeCooldown = 1000 + Math.random() * 2500; // 1-3.5 segundos entre mudanças (mais frequente)
+    this.directionChangeCooldown = 3000 + Math.random() * 4000; // 3-7 segundos entre mudanças (mais lento)
     this.fishReactionStartTime = 0;
     this.fishReactionDelay = 0;
     this.originalFishMovement = { moveX: 0, moveY: 0 };
@@ -404,10 +404,10 @@ class ModularWaterEffect {
         naturalFishX += sin(time * 0.006) * areaW * 0.008;
         naturalFishY += cos(time * 0.004) * areaH * 0.006;
 
-        // === DELIMITAÇÃO DA ÁREA ===
+                // === DELIMITAÇÃO DA ÁREA - EXATAMENTE NA LINHA TRACEJADA ===
 
-        // Manter dentro da área com margens suaves
-        float margin = 0.1;
+        // Manter dentro da área exatamente na linha tracejada
+        float margin = 0.01; // Margem mínima apenas para evitar pixel bleeding
         naturalFishX = clamp(naturalFishX, areaX + areaW * margin, areaX + areaW * (1.0 - margin));
         naturalFishY = clamp(naturalFishY, areaY + areaH * margin, areaY + areaH * (1.0 - margin));
 
@@ -854,9 +854,9 @@ class ModularWaterEffect {
     this.fishReactionStartTime = Date.now();
   }
 
-  // Método para movimento orgânico - evitar bordas (melhorado)
+  // Método para movimento orgânico - evitar bordas (exatamente na linha tracejada)
   avoidBorders() {
-    const margin = 0.08; // Margem maior para evitação mais cedo
+    const margin = 0.03; // Margem mínima apenas para suavizar movimento
     const areaLeft = this.waterArea.x + margin;
     const areaRight = this.waterArea.x + this.waterArea.width - margin;
     const areaTop = this.waterArea.y + margin;
@@ -886,8 +886,8 @@ class ModularWaterEffect {
         (this.fishCurrentPosition.y - areaBottom) * forceMultiplier;
     }
 
-    // Força preventiva quando se aproxima das bordas
-    const preventiveMargin = 0.12;
+    // Força preventiva quando se aproxima das bordas (exatamente na linha tracejada)
+    const preventiveMargin = 0.05; // Muito próximo da borda tracejada
     const preventiveForce = 1;
 
     if (this.fishCurrentPosition.x < this.waterArea.x + preventiveMargin) {
@@ -936,9 +936,9 @@ class ModularWaterEffect {
       this.fishDesiredDirection.x = Math.cos(angle);
       this.fishDesiredDirection.y = Math.sin(angle) * 0.6; // Reduzir movimento vertical
 
-      // Resetar timer com novo intervalo aleatório mais dinâmico
+      // Resetar timer com novo intervalo aleatório mais lento
       this.directionChangeTime = currentTime;
-      this.directionChangeCooldown = 1200 + Math.random() * 2500; // 1.2-3.7 segundos
+      this.directionChangeCooldown = 3000 + Math.random() * 4000; // 3-7 segundos
     }
   }
 
@@ -1018,8 +1018,8 @@ class ModularWaterEffect {
       this.fishCurrentPosition.x += this.fishVelocity.x;
       this.fishCurrentPosition.y += this.fishVelocity.y;
 
-      // Forçar peixe a ficar dentro da área da água (clamp)
-      const clampMargin = 0.02;
+      // Forçar peixe a ficar exatamente dentro da linha tracejada
+      const clampMargin = 0.01; // Margem mínima apenas para evitar pixel bleeding
       this.fishCurrentPosition.x = Math.max(
         this.waterArea.x + clampMargin,
         Math.min(
@@ -1399,7 +1399,7 @@ export const FishingScreenModular: React.FC = () => {
             );
 
             if (distance <= 0.05) {
-              // Área clicável da exclamação
+              // Área clic��vel da exclamação
               waterEffect.handleExclamationClick();
             }
           }
