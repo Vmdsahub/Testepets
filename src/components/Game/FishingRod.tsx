@@ -561,10 +561,11 @@ class FishingSystem {
             point.x += velX;
             point.y += velY + currentGravity;
 
-            // Verificar se deve assentar
+            // Verificar se deve assentar - ser mais responsivo quando entra na água
             if (isInWater) {
               const speed = Math.sqrt(velX * velX + velY * velY);
-              if (speed < 0.8 && isInWater) {
+              // Reduzir limiar de velocidade para assentar mais rapidamente na água
+              if (speed < 1.2) {
                 point.settled = true;
                 point.settledX = point.x;
                 point.settledY = point.y;
