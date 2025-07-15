@@ -518,7 +518,7 @@ class FishingSystem {
           // Física normal após o lançamento
 
           // Verificar se o ponto está na água usando área configurada
-          const isInWater = this.isPointInWaterArea(point.x, point.y);
+          const isInWater = this.isLinePointInWaterArea(point.x, point.y);
           point.inWater = isInWater;
 
           // Se o ponto está assentado, aplicar movimento muito reduzido
