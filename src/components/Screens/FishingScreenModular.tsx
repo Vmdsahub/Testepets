@@ -88,9 +88,6 @@ class ModularWaterEffect {
     this.fisgadoTextStartTime = 0;
     this.isVibrating = false;
 
-    // Rastreamento de timers para limpeza adequada
-    this.activeTimers = [];
-
     this.init();
     this.render();
   }
@@ -2787,7 +2784,7 @@ export const FishingScreenModular: React.FC = () => {
                 marginBottom: "5px",
               }}
             >
-              Distorç��o:{" "}
+              Distorç���o:{" "}
               {(fishingSettings?.distortionAmount || 0.3).toFixed(2)}
             </label>
             <input
