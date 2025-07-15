@@ -68,7 +68,7 @@ class ModularWaterEffect {
     // Sistema de movimento orgânico
     this.fishDesiredDirection = { x: 1, y: 0 }; // Direção desejada
     this.fishSpeed = 0.0006; // Velocidade base mais lenta
-    this.directionChangeTime = 0; // Timer para mudança de direção
+    this.directionChangeTime = 0; // Timer para mudança de direç��o
     this.directionChangeCooldown = 3000 + Math.random() * 4000; // 3-7 segundos entre mudanças (mais lento)
     this.fishReactionStartTime = 0;
     this.fishReactionDelay = 0;
@@ -2285,10 +2285,8 @@ export const FishingScreenModular: React.FC = () => {
     const timer = setTimeout(() => {
       try {
         const waterEffect = new ModularWaterEffect(waterArea, isAdmin);
-        waterEffect.onGameStart = () => {
-          console.log("🎮 Triggering minigame - setShowMinigame(true)");
-          setShowMinigame(true);
-        };
+        waterEffectRef.current = waterEffect;
+        redefineGameStartCallback();
 
         // NOVA LÓGICA: Clique em QUALQUER LUGAR da tela durante mordida
         globalClickHandler = (e: MouseEvent) => {
@@ -2764,7 +2762,7 @@ export const FishingScreenModular: React.FC = () => {
               borderRadius: "5px",
             }}
           >
-            �� <strong>Reposicionar área:</strong> Segure{" "}
+            ��� <strong>Reposicionar área:</strong> Segure{" "}
             <kbd
               style={{
                 background: "#e0e0e0",
