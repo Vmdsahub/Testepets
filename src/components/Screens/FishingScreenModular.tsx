@@ -475,10 +475,10 @@ class ModularWaterEffect {
                                 // u_fishAngle contém o ângulo calculado pelo JavaScript (-30° a +30°)
                 float diagonalTilt = u_fishAngle; // 100% do ângulo para rotação natural
 
-        // Combinar flip horizontal com rotação diagonal
+                // Combinar flip horizontal com rotação diagonal
         if (u_fishDirection > 0.0) {
-            // Nadando para direita: PI (flip) + ajuste diagonal
-            fishAngle = 3.14159 - diagonalTilt;
+            // Nadando para direita: PI (flip) + ajuste diagonal (mesmo sinal)
+            fishAngle = 3.14159 + diagonalTilt;
         } else {
             // Nadando para esquerda: 0 (sem flip) + ajuste diagonal
             fishAngle = diagonalTilt;
@@ -2358,7 +2358,7 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
                   </h3>
                   <p className="text-sm opacity-90">
                     {gameResult === "success"
-                      ? "Parabéns! Você conseguiu!"
+                      ? "Parabéns! Voc�� conseguiu!"
                       : "Tente novamente da próxima vez!"}
                   </p>
 
