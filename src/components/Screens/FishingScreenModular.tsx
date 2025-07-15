@@ -1074,7 +1074,7 @@ class ModularWaterEffect {
         targetDirection.y /= magnitude;
       }
 
-      // Aplicar força de direção suavemente à velocidade
+      // Aplicar força de dire��ão suavemente à velocidade
       const acceleration = 0.00002; // Aceleração mais suave e lenta
       this.fishVelocity.x += targetDirection.x * acceleration;
       this.fishVelocity.y += targetDirection.y * acceleration;
@@ -1772,6 +1772,11 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
       setTimeout(() => onComplete(true), 1500); // Delay para mostrar animação
     }
   }, [progress, onComplete]);
+
+  // Atualizar isLowTime baseado no gameTime
+  useEffect(() => {
+    setIsLowTime(gameTime < 3000);
+  }, [gameTime]);
 
   // Atualizar resultado para failure quando tempo acabar
   useEffect(() => {
