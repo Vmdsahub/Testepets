@@ -356,7 +356,7 @@ class ModularWaterEffect {
         float searchX = sin(t * 2.2) * areaW * 0.1;
         float searchY = cos(t * 1.8) * areaH * 0.08;
 
-        // Acelerações súbitas (como quando peixes vêem comida)
+        // Acelerações s��bitas (como quando peixes vêem comida)
         float burstSpeed = 1.0 + sin(t * 0.3) * 0.4; // Varia de 0.6x a 1.4x
 
         // Combinar todos os movimentos
@@ -817,8 +817,22 @@ class ModularWaterEffect {
     console.log("Starting fishing game at", hookX, hookY);
     this.gameState = "hook_cast";
     this.hookPosition = { x: hookX, y: hookY };
+    this.canClickExclamation = false;
     this.fishReactionDelay = 4000 + Math.random() * 8000;
     this.fishReactionStartTime = Date.now();
+  }
+
+  // Método para lidar com clique na exclamação
+  handleExclamationClick() {
+    if (this.gameState === "fish_hooked" && this.canClickExclamation) {
+      console.log("Player clicked exclamation! Opening modal.");
+      this.canClickExclamation = false;
+      if (this.onGameStart) {
+        this.onGameStart();
+      }
+      return true;
+    }
+    return false;
   }
 
   updateFishingGame() {
