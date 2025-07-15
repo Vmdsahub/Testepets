@@ -298,9 +298,8 @@ class ModularWaterEffect {
         // float blendFactor = fract(continuousPattern);
         // float smoothBlend = smoothstep(0.0, 0.2, blendFactor) * (1.0 - smoothstep(0.8, 1.0, blendFactor));
 
-        float angle = time * moveSpeed;
-        float baseX = centerX, baseY = centerY;
-        float nextBaseX = centerX, nextBaseY = centerY;
+                float angle = time * moveSpeed;
+        float baseX, baseY;
 
         // Calcular posição do padrão atual
         if (currentPattern < 1.0) {
