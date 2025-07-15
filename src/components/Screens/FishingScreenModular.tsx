@@ -1242,7 +1242,7 @@ class ModularWaterEffect {
     }
 
     const mouthX =
-      fishPixelX + mouthOffsetX + (this.fishDirection > 0 ? 3 : -3); // +3px para direita ou -3px para esquerda
+      fishPixelX + mouthOffsetX + (this.fishDirection > 0 ? 9 : -9); // +9px para direita ou -9px para esquerda
     const mouthY = fishPixelY + 2; // +2px para baixo
 
     // Desenhar CÍRCULO ROSA MUITO PEQUENO na posição da boca
@@ -2052,7 +2052,7 @@ export const FishingScreenModular: React.FC = () => {
               <div
                 style={{ fontSize: "0.75rem", color: "#666", marginTop: "2px" }}
               >
-                ✓ Imagem personalizada ativa
+                �� Imagem personalizada ativa
               </div>
             )}
           </div>
