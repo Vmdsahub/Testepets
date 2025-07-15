@@ -1,9 +1,18 @@
 import React, { useEffect, useRef } from "react";
 
+interface WaterArea {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  shape: "rectangle" | "circle" | "triangle";
+}
+
 interface FishingRodProps {
   className?: string;
   onHookCast?: (x: number, y: number) => void;
   onLineReeled?: () => void;
+  waterArea?: WaterArea;
 }
 
 // Classe do sistema de pesca baseada no simulador fornecido
@@ -32,6 +41,7 @@ class FishingSystem {
     castSpeed: number;
     castDelay: number;
     inWater: boolean;
+    wasInWater: boolean; // Para detectar quando acabou de entrar na água
     reelProgress: number;
     settled: boolean;
     settledX: number;
@@ -46,6 +56,8 @@ class FishingSystem {
   private castStartTime = 0;
   private onHookCast?: (x: number, y: number) => void;
   private onLineReeled?: () => void;
+  private waterArea?: WaterArea;
+  private hookCastCallbackCalled = false;
 
   // Sistema de força de lançamento
   private isCharging = false;
@@ -66,10 +78,12 @@ class FishingSystem {
     canvas: HTMLCanvasElement,
     onHookCast?: (x: number, y: number) => void,
     onLineReeled?: () => void,
+    waterArea?: WaterArea,
   ) {
     this.canvas = canvas;
     this.onHookCast = onHookCast;
     this.onLineReeled = onLineReeled;
+    this.waterArea = waterArea;
     const context = canvas.getContext("2d");
     if (!context) {
       throw new Error("Não foi possível obter o contexto 2D do canvas");
@@ -124,7 +138,10 @@ class FishingSystem {
 
     window.addEventListener("mouseup", (e) => {
       if (this.isCharging && !this.isLineOut) {
-        this.castLine(e.clientX, e.clientY);
+        // Verificar se o clique está dentro da área de água antes de lançar
+        if (this.isPointInWaterArea(e.clientX, e.clientY)) {
+          this.castLine(e.clientX, e.clientY);
+        }
         this.isCharging = false;
       }
     });
@@ -150,9 +167,130 @@ class FishingSystem {
     return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
   }
 
+  // Verificar se um ponto (em pixels) está dentro da área de água configurada
+  private isPointInWaterArea(pixelX: number, pixelY: number): boolean {
+    // Se não há área configurada, usar detecção original (60% da altura)
+    if (!this.waterArea) {
+      return pixelY > window.innerHeight * this.waterLevel;
+    }
+
+    // Converter pixels para coordenadas relativas (0-1)
+    const relX = pixelX / window.innerWidth;
+    const relY = pixelY / window.innerHeight;
+
+    const { x, y, width, height, shape } = this.waterArea;
+
+    switch (shape) {
+      case "rectangle":
+        return (
+          relX >= x && relX <= x + width && relY >= y && relY <= y + height
+        );
+
+      case "circle": {
+        const centerX = x + width / 2;
+        const centerY = y + height / 2;
+        const radius = Math.min(width, height) / 2;
+        const distance = Math.sqrt(
+          (relX - centerX) ** 2 + (relY - centerY) ** 2,
+        );
+        return distance <= radius;
+      }
+
+      case "triangle": {
+        // Triângulo: topo centro, base esquerda, base direita
+        const tx1 = x + width / 2; // Topo centro
+        const ty1 = y;
+        const tx2 = x; // Base esquerda
+        const ty2 = y + height;
+        const tx3 = x + width; // Base direita
+        const ty3 = y + height;
+
+        // Algoritmo de área para verificar se ponto está dentro do triângulo
+        const area = Math.abs(
+          (tx2 - tx1) * (ty3 - ty1) - (tx3 - tx1) * (ty2 - ty1),
+        );
+        const area1 = Math.abs(
+          (relX - tx2) * (ty3 - ty2) - (tx3 - tx2) * (relY - ty2),
+        );
+        const area2 = Math.abs(
+          (tx1 - relX) * (relY - ty1) - (relX - tx1) * (ty1 - relY),
+        );
+        const area3 = Math.abs(
+          (tx2 - tx1) * (relY - ty1) - (relX - tx1) * (ty2 - ty1),
+        );
+
+        return Math.abs(area - (area1 + area2 + area3)) < 0.001;
+      }
+
+      default:
+        return false;
+    }
+  }
+
+  // Método auxiliar para verificar pontos da linha (que já estão em pixels)
+  private isLinePointInWaterArea(pixelX: number, pixelY: number): boolean {
+    // Se não há área configurada, usar detecção original (60% da altura)
+    if (!this.waterArea) {
+      return pixelY > window.innerHeight * this.waterLevel;
+    }
+
+    // Converter pixels para coordenadas relativas (0-1)
+    const relX = pixelX / window.innerWidth;
+    const relY = pixelY / window.innerHeight;
+
+    const { x, y, width, height, shape } = this.waterArea;
+
+    switch (shape) {
+      case "rectangle":
+        return (
+          relX >= x && relX <= x + width && relY >= y && relY <= y + height
+        );
+
+      case "circle": {
+        const centerX = x + width / 2;
+        const centerY = y + height / 2;
+        const radius = Math.min(width, height) / 2;
+        const distance = Math.sqrt(
+          (relX - centerX) ** 2 + (relY - centerY) ** 2,
+        );
+        return distance <= radius;
+      }
+
+      case "triangle": {
+        // Triângulo: topo centro, base esquerda, base direita
+        const tx1 = x + width / 2; // Topo centro
+        const ty1 = y;
+        const tx2 = x; // Base esquerda
+        const ty2 = y + height;
+        const tx3 = x + width; // Base direita
+        const ty3 = y + height;
+
+        // Algoritmo de área para verificar se ponto está dentro do triângulo
+        const area = Math.abs(
+          (tx2 - tx1) * (ty3 - ty1) - (tx3 - tx1) * (ty2 - ty1),
+        );
+        const area1 = Math.abs(
+          (relX - tx2) * (ty3 - ty2) - (tx3 - tx2) * (relY - ty2),
+        );
+        const area2 = Math.abs(
+          (tx1 - relX) * (relY - ty1) - (relX - tx1) * (ty1 - relY),
+        );
+        const area3 = Math.abs(
+          (tx2 - tx1) * (relY - ty1) - (relX - tx1) * (ty2 - ty1),
+        );
+
+        return Math.abs(area - (area1 + area2 + area3)) < 0.001;
+      }
+
+      default:
+        return false;
+    }
+  }
+
   private castLine(x: number, y: number) {
     this.isLineOut = true;
     this.castStartTime = Date.now();
+    this.hookCastCallbackCalled = false; // Resetar para novo lançamento
 
     // Calcular força baseada no tempo de carregamento
     const chargeTime = Date.now() - this.chargeStartTime;
@@ -166,34 +304,50 @@ class FishingSystem {
     const dirY = y - startY;
     const distance = Math.sqrt(dirX * dirX + dirY * dirY);
 
-    // Aplicar força e limite máximo
-    const maxDistancePixels =
-      Math.min(window.innerWidth, window.innerHeight) * this.maxDistance;
-    const actualDistance = Math.min(
-      distance * this.chargePower,
-      maxDistancePixels,
-    );
+    // Para lances dentro da área de água, usar posição exata do clique
+    // Para lances fora da área, aplicar limites tradicionais
+    const isTargetInWaterArea = this.isPointInWaterArea(x, y);
 
-    // Calcular posição final
-    if (distance > 0) {
-      const normalizedX = dirX / distance;
-      const normalizedY = dirY / distance;
-      this.targetX = startX + normalizedX * actualDistance;
-      this.targetY = startY + normalizedY * actualDistance;
+    if (isTargetInWaterArea) {
+      // Se o alvo está na área de água, ir exatamente para lá
+      this.targetX = x;
+      this.targetY = y;
     } else {
-      this.targetX = startX;
-      this.targetY = startY + actualDistance;
+      // Para alvos fora da área, usar sistema original com limites
+      const maxDistancePixels =
+        Math.min(window.innerWidth, window.innerHeight) * this.maxDistance;
+      const actualDistance = Math.min(
+        distance * this.chargePower,
+        maxDistancePixels,
+      );
+
+      // Calcular posição final
+      if (distance > 0) {
+        const normalizedX = dirX / distance;
+        const normalizedY = dirY / distance;
+        this.targetX = startX + normalizedX * actualDistance;
+        this.targetY = startY + normalizedY * actualDistance;
+      } else {
+        this.targetX = startX;
+        this.targetY = startY + actualDistance;
+      }
     }
 
     // Pontos de controle para o arco do lançamento
     const controlX = startX + (this.targetX - startX) * 0.4;
-    const arcHeight = actualDistance * (0.3 + this.chargePower * 0.2);
+
+    // Calcular altura do arco baseada na distância real ao alvo
+    const realDistance = Math.sqrt(
+      (this.targetX - startX) ** 2 + (this.targetY - startY) ** 2,
+    );
+    const arcHeight = isTargetInWaterArea
+      ? realDistance * 0.25 // Arco mais baixo para lances precisos na água
+      : realDistance * (0.3 + this.chargePower * 0.2); // Arco original para outros lances
+
     const controlY = Math.min(startY, this.targetY) - arcHeight;
 
-    // Chamar callback se fornecido
-    if (this.onHookCast) {
-      this.onHookCast(this.targetX, this.targetY);
-    }
+    // Callback será chamado quando anzol atingir posição final
+    // Não chamar aqui pois posição final pode ser diferente após física
 
     // Inicializar segmentos da linha gradualmente
     this.linePoints = [];
@@ -227,6 +381,7 @@ class FishingSystem {
         castSpeed: 0.012 + i * 0.001,
         castDelay: i * 30,
         inWater: false,
+        wasInWater: false,
         reelProgress: 0,
         settled: false,
         settledX: 0,
@@ -382,9 +537,39 @@ class FishingSystem {
         } else {
           // Física normal após o lançamento
 
-          // Verificar se o ponto está na água
-          const isInWater = point.y > window.innerHeight * this.waterLevel;
+          // Se é o último ponto e terminou a animação mas ainda não chamou callback
+          if (
+            i === this.linePoints.length - 1 &&
+            !this.hookCastCallbackCalled &&
+            this.onHookCast
+          ) {
+            const velX = point.x - point.oldX;
+            const velY = point.y - point.oldY;
+            const speed = Math.sqrt(velX * velX + velY * velY);
+
+            // Se velocidade baixa, considerar que chegou ao destino
+            if (speed < 0.5) {
+              this.hookCastCallbackCalled = true;
+              this.onHookCast(point.x, point.y);
+            }
+          }
+
+          // Verificar se o ponto está na água usando área configurada
+          const isInWater = this.isLinePointInWaterArea(point.x, point.y);
+          const justEnteredWater = !point.wasInWater && isInWater;
+
+          point.wasInWater = point.inWater;
           point.inWater = isInWater;
+
+          // Se acabou de entrar na água, reduzir drasticamente a velocidade
+          if (justEnteredWater) {
+            const velX = point.x - point.oldX;
+            const velY = point.y - point.oldY;
+
+            // Reduzir velocidade vertical para quase zero
+            point.oldX = point.x - velX * 0.1;
+            point.oldY = point.y - velY * 0.05; // Reduzir velocidade vertical drasticamente
+          }
 
           // Se o ponto está assentado, aplicar movimento muito reduzido
           if (point.settled) {
@@ -412,9 +597,9 @@ class FishingSystem {
             point.y += waterWave;
           } else {
             // Aplicar física normal
-            const currentDamping = isInWater ? 0.75 : this.damping;
+            const currentDamping = isInWater ? 0.5 : this.damping; // Damping muito mais forte na água
             const currentGravity = isInWater
-              ? this.gravity * 0.1
+              ? this.gravity * 0.02 // Gravidade quase zero na água
               : this.gravity;
 
             const velX = (point.x - point.oldX) * currentDamping;
@@ -426,16 +611,24 @@ class FishingSystem {
             point.x += velX;
             point.y += velY + currentGravity;
 
-            // Verificar se deve assentar
+            // Verificar se deve assentar - ser muito mais responsivo quando entra na água
             if (isInWater) {
               const speed = Math.sqrt(velX * velX + velY * velY);
-              if (
-                speed < 0.8 &&
-                point.y > window.innerHeight * (this.waterLevel + 0.03)
-              ) {
+              // Assentar quase imediatamente ao entrar na água
+              if (speed < 2.0) {
                 point.settled = true;
                 point.settledX = point.x;
                 point.settledY = point.y;
+
+                // Se for o último ponto (anzol) e ainda não chamou callback
+                if (
+                  i === this.linePoints.length - 1 &&
+                  !this.hookCastCallbackCalled &&
+                  this.onHookCast
+                ) {
+                  this.hookCastCallbackCalled = true;
+                  this.onHookCast(point.x, point.y); // Usar posição real final
+                }
               }
 
               // Adicionar oscilação suave na água
@@ -563,7 +756,7 @@ class FishingSystem {
       // Flip vertical da imagem
       this.ctx.scale(1, -1);
 
-      // Desenhar a imagem da vara com orientação correta
+      // Desenhar a imagem da vara com orientaç��o correta
       const rodImageLength = 128; // Comprimento definido para 128px
       const rodImageWidth = 120; // Largura definida para 120px
       this.ctx.drawImage(
@@ -635,6 +828,29 @@ class FishingSystem {
         this.ctx.moveTo(lastPoint.x + 6, lastPoint.y + 3);
         this.ctx.lineTo(lastPoint.x + 4, lastPoint.y - 1);
         this.ctx.stroke();
+
+        // DEBUG: Adicionar indicador vermelho na posição real do anzol quando assentado
+        if (lastPoint.settled) {
+          this.ctx.fillStyle = "rgba(255, 0, 0, 0.7)";
+          this.ctx.beginPath();
+          this.ctx.arc(
+            lastPoint.settledX,
+            lastPoint.settledY,
+            8,
+            0,
+            Math.PI * 2,
+          );
+          this.ctx.fill();
+
+          // Texto debug
+          this.ctx.fillStyle = "red";
+          this.ctx.font = "12px Arial";
+          this.ctx.fillText(
+            `Real: ${Math.round(lastPoint.settledX)}, ${Math.round(lastPoint.settledY)}`,
+            lastPoint.settledX + 15,
+            lastPoint.settledY - 10,
+          );
+        }
       }
     }
   }
@@ -650,6 +866,10 @@ class FishingSystem {
     this.render();
   }
 
+  public updateWaterArea(newWaterArea?: WaterArea) {
+    this.waterArea = newWaterArea;
+  }
+
   public destroy() {
     // Cleanup se necessário
   }
@@ -659,6 +879,7 @@ export const FishingRod: React.FC<FishingRodProps> = ({
   className,
   onHookCast,
   onLineReeled,
+  waterArea,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fishingSystemRef = useRef<FishingSystem | null>(null);
@@ -670,6 +891,7 @@ export const FishingRod: React.FC<FishingRodProps> = ({
           canvasRef.current,
           onHookCast,
           onLineReeled,
+          waterArea,
         );
       } catch (error) {
         console.error("Erro ao inicializar sistema de pesca:", error);
@@ -681,7 +903,14 @@ export const FishingRod: React.FC<FishingRodProps> = ({
         fishingSystemRef.current.destroy();
       }
     };
-  }, []);
+  }, [onHookCast, onLineReeled]);
+
+  // UseEffect separado para atualizar waterArea quando ela mudar
+  useEffect(() => {
+    if (fishingSystemRef.current) {
+      fishingSystemRef.current.updateWaterArea(waterArea);
+    }
+  }, [waterArea]);
 
   return (
     <canvas

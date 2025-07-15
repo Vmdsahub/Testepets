@@ -784,8 +784,8 @@ class WaterEffect {
       this.fishVelocity.x * this.fishVelocity.x +
         this.fishVelocity.y * this.fishVelocity.y,
     );
-    let directionX = speed > 0.0001 ? this.fishVelocity.x / speed : 1;
-    let directionY = speed > 0.0001 ? this.fishVelocity.y / speed : 0;
+    const directionX = speed > 0.0001 ? this.fishVelocity.x / speed : 1;
+    const directionY = speed > 0.0001 ? this.fishVelocity.y / speed : 0;
 
     // Criar círculo de wandering à frente do peixe
     const circleCenter = {
@@ -1677,6 +1677,13 @@ export const FishingScreen: React.FC = () => {
 
       {/* Fishing Rod Component */}
       <FishingRod
+        waterArea={{
+          x: 0,
+          y: 0.6, // 60% da altura da tela (waterLevel original)
+          width: 1,
+          height: 0.4, // 40% restante da altura
+          shape: "rectangle",
+        }}
         onHookCast={(x, y) => {
           // Converter coordenadas de pixel para UV (0-1)
           const uvX = x / window.innerWidth;

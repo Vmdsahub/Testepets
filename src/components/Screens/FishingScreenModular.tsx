@@ -860,7 +860,7 @@ class ModularWaterEffect {
     const centerX = this.waterArea.x + this.waterArea.width / 2;
     const centerY = this.waterArea.y + this.waterArea.height / 2;
 
-    let steeringForce = { x: 0, y: 0 };
+    const steeringForce = { x: 0, y: 0 };
     let shouldChangeDirection = false;
 
     // Verificar proximidade das bordas e criar força de direcionamento natural
@@ -912,7 +912,7 @@ class ModularWaterEffect {
       this.fishDesiredDirection.x = Math.cos(newAngle);
       this.fishDesiredDirection.y = Math.sin(newAngle) * 0.6;
 
-      // Resetar timer para evitar mudanças muito frequentes
+      // Resetar timer para evitar mudan��as muito frequentes
       this.directionChangeTime = Date.now();
       this.directionChangeCooldown = 2000 + Math.random() * 3000; // 2-5 segundos após evitação
     }
@@ -962,7 +962,7 @@ class ModularWaterEffect {
       const avoidanceForce = this.avoidBorders();
 
       // Combinar direção desejada com evitação de bordas
-      let targetDirection = {
+      const targetDirection = {
         x: this.fishDesiredDirection.x + avoidanceForce.x,
         y: this.fishDesiredDirection.y + avoidanceForce.y,
       };
@@ -1768,12 +1768,16 @@ export const FishingScreenModular: React.FC = () => {
 
       {/* Fishing Rod Component */}
       <FishingRod
+        waterArea={waterArea}
         onHookCast={(x, y) => {
-          const uvX = x / window.innerWidth;
-          const uvY = y / window.innerHeight;
+          // Verificar se o clique está dentro da área de água antes de iniciar o jogo
+          if (isPointInWaterArea(x, y)) {
+            const uvX = x / window.innerWidth;
+            const uvY = y / window.innerHeight;
 
-          if (waterEffectRef.current) {
-            waterEffectRef.current.startFishingGame(uvX, uvY);
+            if (waterEffectRef.current) {
+              waterEffectRef.current.startFishingGame(uvX, uvY);
+            }
           }
         }}
         onLineReeled={() => {
