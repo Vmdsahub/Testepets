@@ -284,20 +284,46 @@ class ModularWaterEffect {
             fishBehavior = 0.0; // ESTADO: Nadando livre (30%)
         }
 
-                // === MOVIMENTO CONTÍNUO SIMPLES ===
+                        // === SISTEMA DE MÚLTIPLOS PADRÕES DE MOVIMENTO ===
 
-                float moveSpeed = 0.0375; // Velocidade aumentada em 50% (0.025 * 1.5)
+        float moveSpeed = 0.0375;
 
-                // Trajetória que usa toda a área da água
+        // Ciclo lento para alternar entre padrões (a cada ~2 minutos)
+        float patternCycle = sin(time * 0.008) * 0.5 + 0.5;
+        float currentPattern = floor(patternCycle * 4.0); // 4 padrões diferentes
+
         float angle = time * moveSpeed;
+        float baseX, baseY;
 
-        // Raios que usam quase toda a área (90% para manter margem)
-        float radiusX = areaW * 0.45; // 90% da largura / 2
-        float radiusY = areaH * 0.4;  // 80% da altura / 2
+        if (currentPattern < 1.0) {
+            // Padrão 1: Círculo completo
+            float radiusX = areaW * 0.4;
+            float radiusY = areaH * 0.35;
+            baseX = centerX + cos(angle) * radiusX;
+            baseY = centerY + sin(angle) * radiusY;
 
-        // Movimento em trajetória elíptica que cobre toda a área
-        float baseX = centerX + cos(angle) * radiusX;
-        float baseY = centerY + sin(angle) * radiusY;
+        } else if (currentPattern < 2.0) {
+            // Padrão 2: Figura-8 (lemniscata)
+            float scale = min(areaW, areaH) * 0.3;
+            float sinAngle = sin(angle);
+            float cosAngle = cos(angle);
+            float denominator = 1.0 + sinAngle * sinAngle;
+            baseX = centerX + scale * cosAngle / denominator;
+            baseY = centerY + scale * sinAngle * cosAngle / denominator;
+
+        } else if (currentPattern < 3.0) {
+            // Padrão 3: Movimento em zigue-zague horizontal
+            float zigzagX = sin(angle * 0.5) * areaW * 0.4;
+            float zigzagY = sin(angle * 2.0) * areaH * 0.15;
+            baseX = centerX + zigzagX;
+            baseY = centerY + zigzagY;
+
+        } else {
+            // Padrão 4: Espiral que vai do centro para as bordas
+            float spiralRadius = (sin(angle * 0.1) * 0.5 + 0.5) * min(areaW, areaH) * 0.4;
+            baseX = centerX + cos(angle * 2.0) * spiralRadius;
+            baseY = centerY + sin(angle * 2.0) * spiralRadius * 0.8;
+        }
 
                 // Posição natural simples sem modificações
         float naturalFishX = baseX;
