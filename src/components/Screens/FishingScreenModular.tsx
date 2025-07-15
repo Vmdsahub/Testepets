@@ -854,62 +854,70 @@ class ModularWaterEffect {
     this.fishReactionStartTime = Date.now();
   }
 
-  // Método para movimento orgânico - evitar bordas (exatamente na linha tracejada)
+  // Método para movimento orgânico - evitar bordas naturalmente
   avoidBorders() {
-    const margin = 0.03; // Margem mínima apenas para suavizar movimento
-    const areaLeft = this.waterArea.x + margin;
-    const areaRight = this.waterArea.x + this.waterArea.width - margin;
-    const areaTop = this.waterArea.y + margin;
-    const areaBottom = this.waterArea.y + this.waterArea.height - margin;
+    const detectionMargin = 0.08; // Detectar bordas com antecedência
+    const centerX = this.waterArea.x + this.waterArea.width / 2;
+    const centerY = this.waterArea.y + this.waterArea.height / 2;
 
-    let avoidanceForce = { x: 0, y: 0 };
-    const forceMultiplier = 5; // Força mais intensa
+    let steeringForce = { x: 0, y: 0 };
+    let shouldChangeDirection = false;
 
-    // Evitar borda esquerda
-    if (this.fishCurrentPosition.x < areaLeft) {
-      avoidanceForce.x +=
-        (areaLeft - this.fishCurrentPosition.x) * forceMultiplier;
-    }
-    // Evitar borda direita
-    if (this.fishCurrentPosition.x > areaRight) {
-      avoidanceForce.x -=
-        (this.fishCurrentPosition.x - areaRight) * forceMultiplier;
-    }
-    // Evitar borda superior
-    if (this.fishCurrentPosition.y < areaTop) {
-      avoidanceForce.y +=
-        (areaTop - this.fishCurrentPosition.y) * forceMultiplier;
-    }
-    // Evitar borda inferior
-    if (this.fishCurrentPosition.y > areaBottom) {
-      avoidanceForce.y -=
-        (this.fishCurrentPosition.y - areaBottom) * forceMultiplier;
-    }
+    // Verificar proximidade das bordas e criar força de direcionamento natural
+    const distanceToLeft = this.fishCurrentPosition.x - this.waterArea.x;
+    const distanceToRight =
+      this.waterArea.x + this.waterArea.width - this.fishCurrentPosition.x;
+    const distanceToTop = this.fishCurrentPosition.y - this.waterArea.y;
+    const distanceToBottom =
+      this.waterArea.y + this.waterArea.height - this.fishCurrentPosition.y;
 
-    // Força preventiva quando se aproxima das bordas (exatamente na linha tracejada)
-    const preventiveMargin = 0.05; // Muito próximo da borda tracejada
-    const preventiveForce = 1;
-
-    if (this.fishCurrentPosition.x < this.waterArea.x + preventiveMargin) {
-      avoidanceForce.x += preventiveForce;
+    // Se está muito perto das bordas, direcionar para o centro
+    if (distanceToLeft < detectionMargin) {
+      const intensity = (detectionMargin - distanceToLeft) / detectionMargin;
+      steeringForce.x += intensity * 2; // Força para direita
+      shouldChangeDirection = true;
     }
-    if (
-      this.fishCurrentPosition.x >
-      this.waterArea.x + this.waterArea.width - preventiveMargin
-    ) {
-      avoidanceForce.x -= preventiveForce;
+    if (distanceToRight < detectionMargin) {
+      const intensity = (detectionMargin - distanceToRight) / detectionMargin;
+      steeringForce.x -= intensity * 2; // Força para esquerda
+      shouldChangeDirection = true;
     }
-    if (this.fishCurrentPosition.y < this.waterArea.y + preventiveMargin) {
-      avoidanceForce.y += preventiveForce;
+    if (distanceToTop < detectionMargin) {
+      const intensity = (detectionMargin - distanceToTop) / detectionMargin;
+      steeringForce.y += intensity * 2; // Força para baixo
+      shouldChangeDirection = true;
     }
-    if (
-      this.fishCurrentPosition.y >
-      this.waterArea.y + this.waterArea.height - preventiveMargin
-    ) {
-      avoidanceForce.y -= preventiveForce;
+    if (distanceToBottom < detectionMargin) {
+      const intensity = (detectionMargin - distanceToBottom) / detectionMargin;
+      steeringForce.y -= intensity * 2; // Força para cima
+      shouldChangeDirection = true;
     }
 
-    return avoidanceForce;
+    // Se está perto de uma borda, forçar mudança de direção imediata
+    if (shouldChangeDirection) {
+      // Escolher nova direção que aponte para longe das bordas próximas
+      let newAngle;
+
+      // Calcular direção ideal: para o centro, mas com variação
+      const directionToCenter = Math.atan2(
+        centerY - this.fishCurrentPosition.y,
+        centerX - this.fishCurrentPosition.x,
+      );
+
+      // Adicionar variação aleatória para movimento natural
+      const variation = (Math.random() - 0.5) * Math.PI * 0.8; // ±72 graus
+      newAngle = directionToCenter + variation;
+
+      // Atualizar direção desejada imediatamente
+      this.fishDesiredDirection.x = Math.cos(newAngle);
+      this.fishDesiredDirection.y = Math.sin(newAngle) * 0.6;
+
+      // Resetar timer para evitar mudanças muito frequentes
+      this.directionChangeTime = Date.now();
+      this.directionChangeCooldown = 2000 + Math.random() * 3000; // 2-5 segundos após evitação
+    }
+
+    return steeringForce;
   }
 
   // Método para mudança gradual de direção
