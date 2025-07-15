@@ -11,7 +11,7 @@ import { FishingRod } from "../Game/FishingRod";
 // Tipos para o sistema modular
 interface WaterArea {
   x: number; // Posição X relativa (0-1)
-  y: number; // Posição Y relativa (0-1)
+  y: number; // Posiç��o Y relativa (0-1)
   width: number; // Largura relativa (0-1)
   height: number; // Altura relativa (0-1)
   shape: "rectangle" | "circle" | "triangle";
@@ -358,28 +358,7 @@ class ModularWaterEffect {
             float y3 = cos(angle * 0.37) * areaH * 0.12;
             baseX = centerX + x1 + x2 + x3;
             baseY = centerY + y1 + y2 + y3;
-        }
-
-        // Calcular próximo padrão para suavização
-        float nextPattern = mod(currentPattern + 1.0, 6.0);
-        if (nextPattern < 1.0) {
-            float wave1 = sin(angle * 0.3) * areaW * 0.48;
-            float wave2 = cos(angle * 0.17) * areaW * 0.25;
-            float wave3 = sin(angle * 0.45) * areaH * 0.42;
-            float wave4 = cos(angle * 0.23) * areaH * 0.18;
-            nextBaseX = centerX + wave1 + wave2;
-            nextBaseY = centerY + wave3 + wave4;
-        } else if (nextPattern < 2.0) {
-            float r = min(areaW, areaH) * 0.45;
-            float roseRadius = r * sin(5.0 * angle * 0.4);
-            nextBaseX = centerX + roseRadius * cos(angle * 0.4) + sin(angle * 0.08) * areaW * 0.2;
-            nextBaseY = centerY + roseRadius * sin(angle * 0.4) * 0.85 + cos(angle * 0.06) * areaH * 0.15;
-        }
-        // (outros padrões do nextPattern podem ser implementados se necessário)
-
-        // Misturar padrões suavemente para eliminar teleporte
-        baseX = mix(baseX, nextBaseX, smoothBlend);
-        baseY = mix(baseY, nextBaseY, smoothBlend);
+                }
 
                         // Suavização para evitar teleporte entre padrões
         float transitionSmooth = 0.95; // Suavização forte
