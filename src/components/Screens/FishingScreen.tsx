@@ -971,6 +971,13 @@ class WaterEffect {
       }
 
       if (elapsedTime >= this.fishReactionDelay) {
+        // VERIFICAÇÃO: Anzol deve estar na água para peixe reagir
+        if (!this.isHookInWater()) {
+          console.log("🎣 Hook is not in water - fish will not react");
+          this.resetFishingGame(); // Reset se anzol não estiver na água
+          return;
+        }
+
         // Usar posição atual do sistema de steering behaviors
         const currentFishX = this.fishPosition.x;
         const currentFishY = this.fishPosition.y;
