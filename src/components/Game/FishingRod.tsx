@@ -571,30 +571,13 @@ class FishingSystem {
             point.oldY = point.y - velY * 0.05; // Reduzir velocidade vertical drasticamente
           }
 
-          // Se o ponto está assentado, aplicar movimento muito reduzido
+          // Se o ponto está assentado, manter posição fixa sem oscilações
           if (point.settled) {
-            // Movimento muito sutil quando assentado
-            const settledDamping = 0.92;
-            const velX = (point.x - point.oldX) * settledDamping;
-            const velY = (point.y - point.oldY) * settledDamping;
-
-            point.oldX = point.x;
-            point.oldY = point.y;
-
-            // Permitir movimento m��nimo
-            point.x += velX * 0.1;
-            point.y += velY * 0.1;
-
-            // Manter próximo à posição assentada
-            const pullX = (point.settledX - point.x) * 0.05;
-            const pullY = (point.settledY - point.y) * 0.05;
-            point.x += pullX;
-            point.y += pullY;
-
-            // Pequena oscilação na água
-            const time = Date.now() * 0.001;
-            const waterWave = Math.sin(time * 1.5 + point.x * 0.01) * 0.3;
-            point.y += waterWave;
+            // Manter posição exatamente na posição assentada
+            point.x = point.settledX;
+            point.y = point.settledY;
+            point.oldX = point.settledX;
+            point.oldY = point.settledY;
           } else {
             // Aplicar física normal
             const currentDamping = isInWater ? 0.5 : this.damping; // Damping muito mais forte na água
