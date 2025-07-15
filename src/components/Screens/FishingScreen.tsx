@@ -950,8 +950,7 @@ class WaterEffect {
         const currentFishX = this.fishPosition.x;
         const currentFishY = this.fishPosition.y;
 
-        // Definir a posição atual como ponto de partida
-        this.fishTargetPosition = { x: currentFishX, y: currentFishY };
+        // Mudar estado para reação - o sistema de steering behaviors cuidará do movimento
         this.gameState = "fish_reacting";
 
         // Começar movimento suave após breve pausa
