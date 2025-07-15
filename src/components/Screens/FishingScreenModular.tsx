@@ -139,7 +139,7 @@ class ModularWaterEffect {
       uniform vec2 u_transitionStartPosition;
       uniform float u_fishDirection; // 1.0 = direita, -1.0 = esquerda
       
-            // Uniforms para área da ��gua modular
+            // Uniforms para área da água modular
       uniform vec4 u_waterArea; // x, y, width, height (0-1)
       uniform float u_waterShape; // 0=rectangle, 1=circle, 2=triangle
       
@@ -1947,25 +1947,101 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/10 to-white/20 animate-pulse"></div>
 
                 {/* Peixe */}
-                <div
-                  className="absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 transition-all duration-100"
+                <motion.div
+                  className="absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2"
                   style={{ top: `${fishPosition}%` }}
+                  animate={
+                    fishInBar
+                      ? {
+                          scale: [1, 1.1, 1],
+                          rotate: [0, -5, 5, 0],
+                        }
+                      : {}
+                  }
+                  transition={{
+                    duration: 0.5,
+                    repeat: fishInBar ? Infinity : 0,
+                  }}
                 >
                   <div className="relative">
-                    <div className="w-12 h-6 bg-gradient-to-r from-orange-400 to-red-500 rounded-full border-2 border-orange-600 shadow-lg flex items-center justify-center">
+                    <motion.div
+                      className={`w-12 h-6 rounded-full border-2 shadow-lg flex items-center justify-center ${
+                        fishInBar
+                          ? "bg-gradient-to-r from-yellow-400 to-orange-500 border-yellow-600"
+                          : "bg-gradient-to-r from-orange-400 to-red-500 border-orange-600"
+                      }`}
+                      animate={
+                        fishInBar
+                          ? {
+                              boxShadow: [
+                                "0 0 0 rgba(251, 191, 36, 0)",
+                                "0 0 15px rgba(251, 191, 36, 0.8)",
+                                "0 0 0 rgba(251, 191, 36, 0)",
+                              ],
+                            }
+                          : {}
+                      }
+                      transition={{
+                        duration: 0.6,
+                        repeat: fishInBar ? Infinity : 0,
+                      }}
+                    >
                       <span className="text-sm">🐟</span>
-                    </div>
-                    {/* Bubble effect */}
-                    <div className="absolute -top-2 -right-1 w-2 h-2 bg-white/60 rounded-full animate-bounce"></div>
+                    </motion.div>
+
+                    {/* Bubble effects */}
+                    <motion.div
+                      className="absolute -top-2 -right-1 w-2 h-2 bg-white/60 rounded-full"
+                      animate={{ y: [-2, -8, -2], opacity: [0.6, 0, 0.6] }}
+                      transition={{ duration: 1.5, repeat: Infinity }}
+                    />
+                    <motion.div
+                      className="absolute -top-1 -left-2 w-1.5 h-1.5 bg-white/40 rounded-full"
+                      animate={{ y: [-1, -6, -1], opacity: [0.4, 0, 0.4] }}
+                      transition={{
+                        duration: 1.8,
+                        repeat: Infinity,
+                        delay: 0.3,
+                      }}
+                    />
+
+                    {/* Success particles */}
+                    {fishInBar && (
+                      <>
+                        {[...Array(3)].map((_, i) => (
+                          <motion.div
+                            key={i}
+                            className="absolute w-1 h-1 bg-yellow-400 rounded-full"
+                            style={{
+                              top: "50%",
+                              left: "50%",
+                            }}
+                            initial={{ scale: 0, x: 0, y: 0 }}
+                            animate={{
+                              scale: [0, 1, 0],
+                              x: [0, (Math.random() - 0.5) * 20],
+                              y: [0, (Math.random() - 0.5) * 20],
+                            }}
+                            transition={{
+                              duration: 0.8,
+                              repeat: Infinity,
+                              delay: i * 0.2,
+                            }}
+                          />
+                        ))}
+                      </>
+                    )}
                   </div>
-                </div>
+                </motion.div>
 
                 {/* Barra do jogador */}
-                <div
-                  className={`absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 transition-all duration-100 rounded-xl border-3 shadow-lg ${
-                    isHolding
+                <motion.div
+                  className={`absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-xl border-3 shadow-lg transition-all duration-100 ${
+                    fishInBar
                       ? "bg-gradient-to-r from-green-400 to-emerald-500 border-green-600 shadow-green-300/50"
-                      : "bg-gradient-to-r from-emerald-300 to-green-400 border-emerald-500 shadow-emerald-300/30"
+                      : isHolding
+                        ? "bg-gradient-to-r from-green-300 to-emerald-400 border-green-500 shadow-green-300/40"
+                        : "bg-gradient-to-r from-emerald-300 to-green-400 border-emerald-500 shadow-emerald-300/30"
                   }`}
                   style={{
                     top: `${barPosition}%`,
@@ -1973,9 +2049,34 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
                     height: `${barSize}%`,
                     minHeight: "24px",
                   }}
+                  animate={
+                    fishInBar
+                      ? {
+                          boxShadow: [
+                            "0 0 0 rgba(34, 197, 94, 0)",
+                            "0 0 20px rgba(34, 197, 94, 0.9)",
+                            "0 0 0 rgba(34, 197, 94, 0)",
+                          ],
+                        }
+                      : {}
+                  }
+                  transition={{
+                    duration: 0.5,
+                    repeat: fishInBar ? Infinity : 0,
+                  }}
                 >
-                  <div className="h-full w-full bg-white/20 rounded-lg"></div>
-                </div>
+                  <div className="h-full w-full bg-white/30 rounded-lg relative overflow-hidden">
+                    {/* Energy bar effect */}
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent"
+                      animate={isHolding ? { x: [-100, 100] } : {}}
+                      transition={{
+                        duration: 0.8,
+                        repeat: isHolding ? Infinity : 0,
+                      }}
+                    />
+                  </div>
+                </motion.div>
 
                 {/* Depth lines */}
                 {[20, 40, 60, 80].map((depth) => (
