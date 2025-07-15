@@ -736,7 +736,11 @@ class WaterEffect {
     if (this.gameState === "idle" || this.gameState === "hook_cast") {
       // Comportamento de wandering natural
       this.wander(deltaTime);
-    } else if (this.gameState === "fish_moving") {
+    } else if (
+      this.gameState === "fish_reacting" ||
+      this.gameState === "fish_moving" ||
+      this.gameState === "fish_hooked"
+    ) {
       // Comportamento de seek/arrive em direção ao anzol
       this.seek(this.hookPosition, deltaTime);
     }
