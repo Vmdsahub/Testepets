@@ -179,7 +179,7 @@ class ModularWaterEffect {
         return (wave1 + wave2 + wave3 + wave4 + wave5 + noise1 + noise2 + noise3) * u_waveIntensity;
       }
 
-      // Função para calcular a refração (mantida original)
+      // Fun��ão para calcular a refração (mantida original)
       vec2 calculateRefraction(vec2 uv, float time) {
         float waveHeight = createWaves(uv, time);
         vec2 epsilon = vec2(0.01, 0.0);
@@ -850,6 +850,90 @@ class ModularWaterEffect {
     this.canClickExclamation = false;
     this.fishReactionDelay = 4000 + Math.random() * 8000;
     this.fishReactionStartTime = Date.now();
+  }
+
+  // Método para calcular posição natural do peixe (baseado no shader)
+  calculateNaturalFishPosition() {
+    const time = this.fishTime * 0.5;
+    const areaX = this.waterArea.x;
+    const areaY = this.waterArea.y;
+    const areaW = this.waterArea.width;
+    const areaH = this.waterArea.height;
+
+    const centerX = areaX + areaW * 0.5;
+    const centerY = areaY + areaH * 0.5;
+
+    // Mesmo cálculo do shader
+    const swimSpeed = 0.05;
+    const t = time * swimSpeed;
+    const mainRadius = Math.min(areaW, areaH) * 0.4;
+    const mainAngle = t * 0.8;
+
+    const circleX = Math.cos(mainAngle) * mainRadius;
+    const circleY = Math.sin(mainAngle) * mainRadius * 0.7;
+
+    const variation1X = Math.sin(t * 1.5) * areaW * 0.15;
+    const variation1Y = Math.cos(t * 1.2) * areaH * 0.12;
+
+    const variation2X = Math.cos(t * 0.6 + 2.0) * areaW * 0.2;
+    const variation2Y = Math.sin(t * 0.7 + 1.5) * areaH * 0.18;
+
+    const searchX = Math.sin(t * 2.2) * areaW * 0.1;
+    const searchY = Math.cos(t * 1.8) * areaH * 0.08;
+
+    const burstSpeed = 1.0 + Math.sin(t * 0.3) * 0.4;
+
+    const baseX =
+      centerX + (circleX + variation1X + variation2X + searchX) * burstSpeed;
+    const baseY =
+      centerY + (circleY + variation1Y + variation2Y + searchY) * burstSpeed;
+
+    return { x: baseX, y: baseY };
+  }
+
+  // Método para atualizar posição do peixe suavemente
+  updateFishPosition() {
+    const deltaTime = 16; // Assumindo ~60fps
+
+    if (this.gameState === "idle" || this.gameState === "hook_cast") {
+      // Seguir movimento natural
+      const naturalPos = this.calculateNaturalFishPosition();
+      this.fishTargetPosition = naturalPos;
+      this.lastNaturalPosition = naturalPos;
+    } else if (
+      this.gameState === "fish_reacting" ||
+      this.gameState === "fish_moving"
+    ) {
+      // Interpolar suavemente em direção ao anzol
+      this.fishTargetPosition = {
+        x: this.hookPosition.x,
+        y: this.hookPosition.y,
+      };
+    } else if (this.gameState === "fish_hooked") {
+      // Manter próximo ao anzol
+      this.fishTargetPosition = {
+        x: this.hookPosition.x,
+        y: this.hookPosition.y,
+      };
+    }
+
+    // Interpolação suave para a posição alvo
+    const lerpSpeed = 0.02; // Velocidade de interpolação
+    const dx = this.fishTargetPosition.x - this.fishCurrentPosition.x;
+    const dy = this.fishTargetPosition.y - this.fishCurrentPosition.y;
+
+    this.fishVelocity.x = dx * lerpSpeed;
+    this.fishVelocity.y = dy * lerpSpeed;
+
+    this.fishCurrentPosition.x += this.fishVelocity.x;
+    this.fishCurrentPosition.y += this.fishVelocity.y;
+
+    // Log de debug ocasional
+    if (Math.random() < 0.01) {
+      console.log(
+        `🐟 POSITION - Current: (${this.fishCurrentPosition.x.toFixed(3)}, ${this.fishCurrentPosition.y.toFixed(3)}), Target: (${this.fishTargetPosition.x.toFixed(3)}, ${this.fishTargetPosition.y.toFixed(3)}), State: ${this.gameState}`,
+      );
+    }
   }
 
   // Método para lidar com clique na exclamação
