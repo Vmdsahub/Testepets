@@ -974,11 +974,8 @@ class ModularWaterEffect {
       this.fishVelocity.x += targetDirection.x * acceleration;
       this.fishVelocity.y += targetDirection.y * acceleration;
 
-      // Variar velocidade naturalmente com mudanças mais dinâmicas
-      const speedVariation =
-        0.6 +
-        0.4 * Math.sin(Date.now() * 0.002) +
-        0.2 * Math.cos(Date.now() * 0.0015);
+      // Variar velocidade naturalmente de forma mais suave
+      const speedVariation = 0.7 + 0.3 * Math.sin(Date.now() * 0.001);
       const maxSpeed = this.fishSpeed * speedVariation;
 
       // Limitar velocidade máxima
