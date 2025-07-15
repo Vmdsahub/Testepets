@@ -1497,7 +1497,7 @@ export const FishingScreenModular: React.FC = () => {
       try {
         const waterEffect = new ModularWaterEffect(waterArea);
         waterEffect.onGameStart = () => {
-          setShowFishingModal(true);
+          setShowMinigame(true);
         };
 
         // Adicionar listener para cliques na exclamação
