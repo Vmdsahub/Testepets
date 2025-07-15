@@ -2100,36 +2100,26 @@ export const FishingScreen: React.FC = () => {
           fontFamily: "monospace",
         }}
       >
-        <div>Game State: {waterEffectRef.current?.gameState || "unknown"}</div>
+        <div>Game State: {debugInfo.gameState}</div>
+        <div>Can Click: {debugInfo.canClick ? "YES" : "NO"}</div>
         <div>
-          Can Click:{" "}
-          {waterEffectRef.current?.canClickExclamation ? "YES" : "NO"}
+          Fish Position: ({debugInfo.fishPos.x.toFixed(3)},{" "}
+          {debugInfo.fishPos.y.toFixed(3)})
         </div>
         <div>
-          Fish Position: (
-          {(waterEffectRef.current?.fishPosition.x || 0).toFixed(3)},{" "}
-          {(waterEffectRef.current?.fishPosition.y || 0).toFixed(3)})
+          Hook Position: ({debugInfo.hookPos.x.toFixed(3)},{" "}
+          {debugInfo.hookPos.y.toFixed(3)})
         </div>
-        <div>
-          Hook Position: (
-          {(waterEffectRef.current?.hookPosition.x || 0).toFixed(3)},{" "}
-          {(waterEffectRef.current?.hookPosition.y || 0).toFixed(3)})
-        </div>
-        {waterEffectRef.current?.gameState === "fish_hooked" && (
+        {debugInfo.gameState === "fish_hooked" && (
           <div>
             <div style={{ color: "yellow", fontWeight: "bold" }}>
               🎣 CLICK TO CATCH!
             </div>
             <div style={{ color: "orange" }}>
-              Time left:{" "}
-              {Math.max(
-                0,
-                3 -
-                  (Date.now() -
-                    (waterEffectRef.current?.exclamationStartTime || 0)) /
-                    1000,
-              ).toFixed(1)}
-              s
+              Time left: {debugInfo.timeLeft.toFixed(1)}s
+            </div>
+            <div style={{ color: "lime", fontSize: "10px" }}>
+              Click anywhere near the fish!
             </div>
           </div>
         )}
