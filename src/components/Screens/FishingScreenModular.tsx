@@ -630,7 +630,7 @@ class ModularWaterEffect {
       "u_fishDirection",
     );
 
-    // Novos uniforms para ����rea modular
+    // Novos uniforms para ��rea modular
     this.uniforms.waterArea = this.gl.getUniformLocation(
       this.program,
       "u_waterArea",
@@ -2119,6 +2119,86 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
               </p>
             </div>
           </div>
+
+          {/* Success/Failure Overlay */}
+          <AnimatePresence>
+            {gameResult !== "playing" && (
+              <motion.div
+                className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm rounded-3xl"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                <motion.div
+                  className={`text-center p-6 rounded-2xl ${
+                    gameResult === "success"
+                      ? "bg-green-500 text-white"
+                      : "bg-red-500 text-white"
+                  }`}
+                  initial={{ scale: 0, rotate: -180 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 400,
+                    damping: 15,
+                    delay: 0.2,
+                  }}
+                >
+                  <motion.div
+                    className="text-4xl mb-2"
+                    animate={{
+                      scale: [1, 1.2, 1],
+                      rotate: [0, 10, -10, 0],
+                    }}
+                    transition={{
+                      duration: 0.8,
+                      repeat: Infinity,
+                      repeatType: "reverse",
+                    }}
+                  >
+                    {gameResult === "success" ? "🎉" : "😞"}
+                  </motion.div>
+                  <h3 className="text-xl font-bold mb-1">
+                    {gameResult === "success"
+                      ? "Peixe Capturado!"
+                      : "Peixe Escapou!"}
+                  </h3>
+                  <p className="text-sm opacity-90">
+                    {gameResult === "success"
+                      ? "Parabéns! Você conseguiu!"
+                      : "Tente novamente da próxima vez!"}
+                  </p>
+
+                  {/* Celebration particles for success */}
+                  {gameResult === "success" && (
+                    <>
+                      {[...Array(8)].map((_, i) => (
+                        <motion.div
+                          key={i}
+                          className="absolute w-2 h-2 bg-yellow-300 rounded-full"
+                          style={{
+                            top: "50%",
+                            left: "50%",
+                          }}
+                          initial={{ scale: 0, x: 0, y: 0 }}
+                          animate={{
+                            scale: [0, 1, 0],
+                            x: [0, Math.cos((i / 8) * Math.PI * 2) * 60],
+                            y: [0, Math.sin((i / 8) * Math.PI * 2) * 60],
+                          }}
+                          transition={{
+                            duration: 1.5,
+                            repeat: Infinity,
+                            delay: i * 0.1,
+                          }}
+                        />
+                      ))}
+                    </>
+                  )}
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
       </motion.div>
     </AnimatePresence>
