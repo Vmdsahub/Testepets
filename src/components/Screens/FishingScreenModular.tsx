@@ -472,8 +472,8 @@ class ModularWaterEffect {
 
                                 // === SISTEMA DE ROTAÇÃO DIAGONAL SUAVE ===
         // Aplica rotação baseada na dire��ão vertical do movimento
-                // u_fishAngle contém o ângulo calculado pelo JavaScript (-25° a +25°)
-                float diagonalTilt = u_fishAngle * 0.7; // 70% do ângulo para rotação natural e suave
+                        // u_fishAngle contém o ângulo calculado pelo JavaScript (-25° a +25°)
+                float diagonalTilt = u_fishAngle * 0.8; // 80% do ângulo para rotação mais visível
 
         // Combinar flip horizontal com rotação diagonal
         if (u_fishDirection > 0.0) {
@@ -3179,7 +3179,7 @@ export const FishingScreenModular: React.FC = () => {
           <div style={{ fontSize: "12px", color: "#666", marginTop: "10px" }}>
             {isShiftPressed
               ? "🎯 Shift ativo - arraste a área para reposicionar"
-              : "��️ Segure Shift e arraste a área tracejada para reposicionar"}
+              : "����️ Segure Shift e arraste a área tracejada para reposicionar"}
           </div>
         </div>
       )}
