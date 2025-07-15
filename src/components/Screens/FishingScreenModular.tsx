@@ -1043,9 +1043,19 @@ class ModularWaterEffect {
         (this.fishDirection > 0 ? -7 : 7) / window.innerWidth; // Converter -7px/+7px para UV
 
       // Posicionar centro do peixe para que boca fique EXATAMENTE no anzol
-      this.fishCurrentPosition.x =
-        this.hookPosition.x - mouthOffsetX - additionalOffsetX;
-      this.fishCurrentPosition.y = this.hookPosition.y - 2 / window.innerHeight; // Converter 2px para UV (offset Y da boca)
+      let baseX = this.hookPosition.x - mouthOffsetX - additionalOffsetX;
+      let baseY = this.hookPosition.y - 2 / window.innerHeight; // Converter 2px para UV (offset Y da boca)
+
+      // Adicionar vibração se estiver vibrando
+      if (this.isVibrating) {
+        const vibrationTime = Date.now() * 0.05;
+        const vibrationIntensity = 0.003;
+        baseX += Math.sin(vibrationTime) * vibrationIntensity;
+        baseY += Math.cos(vibrationTime * 0.94) * vibrationIntensity;
+      }
+
+      this.fishCurrentPosition.x = baseX;
+      this.fishCurrentPosition.y = baseY;
     }
 
     // Atualizar posição
