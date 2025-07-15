@@ -511,7 +511,7 @@ class ModularWaterEffect {
 
           // Verificar se está na área da exclamação
           if (exclamationUV.x >= 0.0 && exclamationUV.x <= 1.0 && exclamationUV.y >= 0.0 && exclamationUV.y <= 1.0) {
-            // Simular a imagem de exclamação amarela fornecida
+            // Simular a imagem de exclamaç��o amarela fornecida
             // Criar forma de exclamação baseada na imagem
             vec2 localPos = exclamationUV * 2.0 - 1.0; // Converter para -1 a 1
 
@@ -1229,11 +1229,12 @@ class ModularWaterEffect {
         );
 
         // Come��ar movimento ap��s breve pausa
-        setTimeout(() => {
+        const reactionTimer = setTimeout(() => {
           if (this.gameState === "fish_reacting") {
             this.gameState = "fish_moving";
           }
         }, 500);
+        this.activeTimers.push(reactionTimer);
       }
     } else if (
       this.gameState === "fish_reacting" ||
