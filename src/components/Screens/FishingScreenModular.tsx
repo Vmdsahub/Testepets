@@ -1311,9 +1311,15 @@ class ModularWaterEffect {
 
   resetFishingGame() {
     // Limpar todos os timers ativos para evitar comportamentos persistentes
-    this.activeTimers.forEach((timer) => clearTimeout(timer));
-    this.activeTimers = [];
-    console.log("🧹 Cleared all active timers");
+    if (this.activeTimers) {
+      this.activeTimers.forEach((timer) => clearTimeout(timer));
+      this.activeTimers = [];
+      console.log("🧹 Cleared all active timers");
+    } else {
+      // Inicializar se não existe
+      this.activeTimers = [];
+      console.log("🧹 Initialized activeTimers array");
+    }
 
     if (
       this.gameState === "fish_moving" ||
