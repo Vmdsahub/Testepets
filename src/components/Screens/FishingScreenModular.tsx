@@ -1425,6 +1425,19 @@ class ModularWaterEffect {
     this.isVibrating = false;
     this.showFisgadoText = false;
     this.canClickExclamation = false;
+
+    // IMPORTANTE: Preservar backup do callback
+    if (this.onGameStartBackup && !this.onGameStart) {
+      console.log("🔄 Restoring callback from backup after reset");
+      this.onGameStart = this.onGameStartBackup;
+    }
+
+    console.log(
+      "⚠️ resetFishingGame completed - callback state:",
+      !!this.onGameStart,
+      "backup:",
+      !!this.onGameStartBackup,
+    );
   }
 
   updateBackgroundFromImage(image) {
