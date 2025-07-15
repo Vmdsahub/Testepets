@@ -367,8 +367,10 @@ export const FishingScreenNew: React.FC = () => {
       ctx.fillStyle = "white";
       ctx.font = "14px monospace";
 
-      const mouthOffsetX = 30 / window.innerWidth; // Mesmo cálculo usado no movimento
-      const fishMouthX = fish.x - mouthOffsetX; // Boca à ESQUERDA do centro
+      // Boca está na extremidade esquerda (centro - 30px)
+      const fishCenterX = fish.x * canvas.width;
+      const fishMouthPixelX = fishCenterX - 30;
+      const fishMouthX = fishMouthPixelX / canvas.width; // Coordenada normalizada da boca
       const fishMouthY = fish.y;
 
       ctx.fillText(
