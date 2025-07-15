@@ -276,7 +276,7 @@ class WaterEffect {
 
                 // O movimento real é calculado no sistema de steering behaviors em JavaScript
 
-                                                // Sempre usar posição do sistema de steering behaviors para movimento suave
+                                                // Sempre usar posi��ão do sistema de steering behaviors para movimento suave
                 fishX = u_fishPosition.x;
                 fishY = u_fishPosition.y;
 
@@ -1927,6 +1927,29 @@ export const FishingScreen: React.FC = () => {
       >
         <ArrowLeft size={16} />
         Voltar
+      </button>
+
+      {/* Debug Button */}
+      <button
+        onClick={() => {
+          console.log("🔴 DEBUG: Forcing modal to open!");
+          setShowFishingModal(true);
+        }}
+        style={{
+          position: "fixed",
+          top: "60px",
+          left: "20px",
+          zIndex: 30,
+          background: "rgba(255, 0, 0, 0.9)",
+          border: "1px solid #e5e5e5",
+          borderRadius: "8px",
+          padding: "10px",
+          cursor: "pointer",
+          fontSize: "12px",
+          color: "white",
+        }}
+      >
+        TEST MODAL
       </button>
 
       {/* Admin Controls */}
