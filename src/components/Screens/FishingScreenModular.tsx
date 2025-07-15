@@ -918,14 +918,27 @@ class ModularWaterEffect {
 
     // Verificar se é hora de mudar direção
     if (currentTime - this.directionChangeTime > this.directionChangeCooldown) {
-      // Gerar nova direção aleatória
-      const angle = Math.random() * Math.PI * 2;
+      // Gerar nova direção favorecendo movimento horizontal
+      let angle;
+
+      if (Math.random() < 0.7) {
+        // 70% chance de movimento mais horizontal (-45° a 45° ou 135° a 225°)
+        if (Math.random() < 0.5) {
+          angle = (Math.random() - 0.5) * Math.PI * 0.5; // -45° a 45°
+        } else {
+          angle = Math.PI + (Math.random() - 0.5) * Math.PI * 0.5; // 135° a 225°
+        }
+      } else {
+        // 30% chance de movimento em qualquer direção (para variedade)
+        angle = Math.random() * Math.PI * 2;
+      }
+
       this.fishDesiredDirection.x = Math.cos(angle);
-      this.fishDesiredDirection.y = Math.sin(angle);
+      this.fishDesiredDirection.y = Math.sin(angle) * 0.6; // Reduzir movimento vertical
 
       // Resetar timer com novo intervalo aleatório mais dinâmico
       this.directionChangeTime = currentTime;
-      this.directionChangeCooldown = 800 + Math.random() * 3000; // 0.8-3.8 segundos (mais variação)
+      this.directionChangeCooldown = 1200 + Math.random() * 2500; // 1.2-3.7 segundos
     }
   }
 
