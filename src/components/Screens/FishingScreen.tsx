@@ -997,6 +997,9 @@ class WaterEffect {
 
         // Mudar estado para reação - o sistema de steering behaviors cuidará do movimento
         this.gameState = "fish_reacting";
+        console.log(
+          `🎣 Fish reacting! Hook at (${this.hookPosition.x.toFixed(3)}, ${this.hookPosition.y.toFixed(3)}) - Hook in water: ${this.isHookInWater()}`,
+        );
 
         // Começar movimento suave após breve pausa
         const reactionTimer = setTimeout(() => {
@@ -1146,7 +1149,7 @@ class WaterEffect {
     this.activeTimers = [];
     console.log("🧹 Cleared all active timers");
 
-    // Se o peixe estava em estado direcionado, ajustar fishTime para continuar da posiç��o atual
+    // Se o peixe estava em estado direcionado, ajustar fishTime para continuar da posição atual
     if (
       this.gameState === "fish_moving" ||
       this.gameState === "fish_reacting" ||
