@@ -1201,7 +1201,7 @@ class ModularWaterEffect {
       this.showFisgadoText = true;
       this.fisgadoTextStartTime = Date.now();
 
-      // Após 0.6s, abrir minigame
+      // Ap��s 0.6s, abrir minigame
       const fisgadoTimer = setTimeout(() => {
         this.showFisgadoText = false;
         console.log(
@@ -1734,13 +1734,13 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
       });
 
       // Verificar se o peixe está na barra
+      const fishIsInBar =
+        Math.abs(fishPositionRef.current - barPositionRef.current) <
+        (barSize + fishSize) / 2;
+
+      setFishInBar(fishIsInBar);
+
       setProgress((prev) => {
-        const fishIsInBar =
-          Math.abs(fishPositionRef.current - barPositionRef.current) <
-          (barSize + fishSize) / 2;
-
-        setFishInBar(fishIsInBar);
-
         if (fishIsInBar) {
           setProgressGain(true);
           setTimeout(() => setProgressGain(false), 200);
@@ -1753,11 +1753,16 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
       // Diminuir tempo
       setGameTime((prev) => {
         const newTime = prev - 50;
-        setIsLowTime(newTime < 3000); // Tempo baixo nos últimos 3 segundos
         if (newTime <= 0) {
           onComplete(false); // Tempo esgotado
         }
         return newTime;
+      });
+
+      // Atualizar isLowTime separadamente
+      setGameTime((prev) => {
+        setIsLowTime(prev < 3000); // Tempo baixo nos últimos 3 segundos
+        return prev;
       });
     }, 50);
 
