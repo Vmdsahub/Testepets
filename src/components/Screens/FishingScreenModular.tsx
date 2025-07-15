@@ -1170,7 +1170,7 @@ class ModularWaterEffect {
       );
     }
 
-    // Calcular direção do peixe baseada na velocidade
+    // Calcular dire��ão do peixe baseada na velocidade
     if (Math.abs(this.fishVelocity.x) > 0.0001) {
       this.fishDirection = this.fishVelocity.x > 0 ? 1 : -1;
     }
@@ -1765,12 +1765,14 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
     };
   }, []);
 
-    return (
+  return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-md z-60 flex items-center justify-center p-4">
       <div className="bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl border border-gray-100 w-full max-w-md mx-auto">
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-t-3xl">
-          <h2 className="text-2xl font-bold text-center">🎣 Minigame de Pesca</h2>
+          <h2 className="text-2xl font-bold text-center">
+            🎣 Minigame de Pesca
+          </h2>
           <p className="text-blue-100 text-center text-sm mt-2">
             Mantenha o peixe na área verde!
           </p>
@@ -1781,13 +1783,17 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
           <div className="flex items-center justify-between bg-gray-50 rounded-2xl p-4">
             <div className="flex items-center space-x-2">
               <div className="w-3 h-3 bg-gradient-to-r from-green-400 to-blue-500 rounded-full animate-pulse"></div>
-              <span className="text-sm font-medium text-gray-700">Progresso</span>
+              <span className="text-sm font-medium text-gray-700">
+                Progresso
+              </span>
             </div>
             <div className="flex items-center space-x-2">
               <span className="text-2xl">⏱️</span>
-              <span className={`text-lg font-bold ${
-                gameTime < 3000 ? 'text-red-500' : 'text-gray-700'
-              }`}>
+              <span
+                className={`text-lg font-bold ${
+                  gameTime < 3000 ? "text-red-500" : "text-gray-700"
+                }`}
+              >
                 {Math.ceil(gameTime / 1000)}s
               </span>
             </div>
@@ -1802,10 +1808,13 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
             <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
               <div
                 className={`h-full transition-all duration-300 ease-out rounded-full ${
-                  progress > 75 ? 'bg-gradient-to-r from-green-500 to-emerald-600' :
-                  progress > 50 ? 'bg-gradient-to-r from-yellow-400 to-orange-500' :
-                  progress > 25 ? 'bg-gradient-to-r from-orange-400 to-red-500' :
-                  'bg-gradient-to-r from-red-500 to-pink-600'
+                  progress > 75
+                    ? "bg-gradient-to-r from-green-500 to-emerald-600"
+                    : progress > 50
+                      ? "bg-gradient-to-r from-yellow-400 to-orange-500"
+                      : progress > 25
+                        ? "bg-gradient-to-r from-orange-400 to-red-500"
+                        : "bg-gradient-to-r from-red-500 to-pink-600"
                 }`}
                 style={{ width: `${progress}%` }}
               >
@@ -1838,21 +1847,21 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
               <div
                 className={`absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 transition-all duration-100 rounded-xl border-3 shadow-lg ${
                   isHolding
-                    ? 'bg-gradient-to-r from-green-400 to-emerald-500 border-green-600 shadow-green-300/50'
-                    : 'bg-gradient-to-r from-emerald-300 to-green-400 border-emerald-500 shadow-emerald-300/30'
+                    ? "bg-gradient-to-r from-green-400 to-emerald-500 border-green-600 shadow-green-300/50"
+                    : "bg-gradient-to-r from-emerald-300 to-green-400 border-emerald-500 shadow-emerald-300/30"
                 }`}
                 style={{
                   top: `${barPosition}%`,
-                  width: '52px',
+                  width: "52px",
                   height: `${barSize}%`,
-                  minHeight: '24px'
+                  minHeight: "24px",
                 }}
               >
                 <div className="h-full w-full bg-white/20 rounded-lg"></div>
               </div>
 
               {/* Depth lines */}
-              {[20, 40, 60, 80].map(depth => (
+              {[20, 40, 60, 80].map((depth) => (
                 <div
                   key={depth}
                   className="absolute left-0 right-0 h-px bg-white/20"
@@ -1865,29 +1874,21 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
           {/* Controls */}
           <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-4 text-center space-y-2">
             <div className="flex items-center justify-center space-x-2">
-              <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-                isHolding
-                  ? 'bg-green-500 text-white shadow-lg'
-                  : 'bg-gray-200 text-gray-600'
-              }`}>
-                {isHolding ? '⬆️ SUBINDO' : '⬇️ DESCENDO'}
+              <div
+                className={`px-3 py-1 rounded-full text-xs font-medium ${
+                  isHolding
+                    ? "bg-green-500 text-white shadow-lg"
+                    : "bg-gray-200 text-gray-600"
+                }`}
+              >
+                {isHolding ? "⬆️ SUBINDO" : "⬇️ DESCENDO"}
               </div>
             </div>
             <p className="text-sm text-gray-600">
-              <span className="font-semibold">ESPAÇO</span> ou <span className="font-semibold">CLIQUE</span> para subir a barra
+              <span className="font-semibold">ESPAÇO</span> ou{" "}
+              <span className="font-semibold">CLIQUE</span> para subir a barra
             </p>
           </div>
-        </div>
-      </div>
-    </div>
-        </div>
-
-        <div
-          style={{ textAlign: "center", marginTop: "20px", fontSize: "14px" }}
-        >
-          Segure ESPAÇO ou clique para subir a barra verde.
-          <br />
-          Mantenha o peixe na barra!
         </div>
       </div>
     </div>
