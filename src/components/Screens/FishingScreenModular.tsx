@@ -1806,7 +1806,7 @@ export const FishingScreenModular: React.FC = () => {
         };
 
         // NOVA LÓGICA: Clique em QUALQUER LUGAR da tela durante mordida
-        const handleGlobalClick = (e: MouseEvent) => {
+        globalClickHandler = (e: MouseEvent) => {
           if (
             waterEffect.gameState === "fish_hooked" &&
             waterEffect.canClickExclamation
