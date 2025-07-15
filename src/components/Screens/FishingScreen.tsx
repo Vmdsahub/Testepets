@@ -304,7 +304,7 @@ class WaterEffect {
 
                                 
                 
-                // Calcula refração apenas onde h�� água
+                // Calcula refração apenas onde há água
                 vec2 refraction = calculateRefraction(uv, u_time) * waterMask;
                 vec2 distortedUV = uv + refraction;
                 
@@ -938,6 +938,13 @@ class WaterEffect {
         // Definir a posição atual como ponto de partida
         this.fishTargetPosition = { x: currentFishX, y: currentFishY };
         this.gameState = "fish_reacting";
+
+        // Começar movimento suave após breve pausa
+        setTimeout(() => {
+          if (this.gameState === "fish_reacting") {
+            this.gameState = "fish_moving";
+          }
+        }, 500);
 
         // Debug: verificar se posição JS bate com shader
         console.log(
