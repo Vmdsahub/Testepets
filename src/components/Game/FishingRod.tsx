@@ -521,7 +521,20 @@ class FishingSystem {
 
           // Verificar se o ponto está na água usando área configurada
           const isInWater = this.isLinePointInWaterArea(point.x, point.y);
+          const justEnteredWater = !point.wasInWater && isInWater;
+
+          point.wasInWater = point.inWater;
           point.inWater = isInWater;
+
+          // Se acabou de entrar na água, reduzir drasticamente a velocidade
+          if (justEnteredWater) {
+            const velX = point.x - point.oldX;
+            const velY = point.y - point.oldY;
+
+            // Reduzir velocidade vertical para quase zero
+            point.oldX = point.x - velX * 0.1;
+            point.oldY = point.y - velY * 0.05; // Reduzir velocidade vertical drasticamente
+          }
 
           // Se o ponto está assentado, aplicar movimento muito reduzido
           if (point.settled) {
