@@ -32,7 +32,7 @@ class ModularWaterEffect {
       this.canvas.getContext("webgl2") || this.canvas.getContext("webgl");
 
     if (!this.gl) {
-      console.warn("WebGL não é suportado neste navegador");
+      console.warn("WebGL n��o é suportado neste navegador");
       return;
     }
 
@@ -1177,6 +1177,7 @@ class ModularWaterEffect {
       this.transitionStartPosition.x,
       this.transitionStartPosition.y,
     );
+    this.gl.uniform1f(this.uniforms.fishDirection, this.fishDirection);
 
     // Novos uniforms para área modular
     this.gl.uniform4f(
