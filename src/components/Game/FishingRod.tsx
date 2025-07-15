@@ -333,7 +333,15 @@ class FishingSystem {
 
     // Pontos de controle para o arco do lançamento
     const controlX = startX + (this.targetX - startX) * 0.4;
-    const arcHeight = actualDistance * (0.3 + this.chargePower * 0.2);
+
+    // Calcular altura do arco baseada na distância real ao alvo
+    const realDistance = Math.sqrt(
+      (this.targetX - startX) ** 2 + (this.targetY - startY) ** 2,
+    );
+    const arcHeight = isTargetInWaterArea
+      ? realDistance * 0.25 // Arco mais baixo para lances precisos na água
+      : realDistance * (0.3 + this.chargePower * 0.2); // Arco original para outros lances
+
     const controlY = Math.min(startY, this.targetY) - arcHeight;
 
     // Chamar callback se fornecido
