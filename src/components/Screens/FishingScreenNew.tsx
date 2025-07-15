@@ -48,7 +48,7 @@ export const FishingScreenNew: React.FC = () => {
     targetX: 0.5,
     targetY: 0.7,
     state: "swimming",
-    speed: 0.001,
+    speed: 0.003,
   });
 
   const [waterArea, setWaterArea] = useState<WaterArea>({
