@@ -1087,11 +1087,22 @@ class ModularWaterEffect {
   // Método para lidar com clique na exclama��ão
   handleExclamationClick() {
     if (this.gameState === "fish_hooked" && this.canClickExclamation) {
-      console.log("Player clicked exclamation! Opening modal.");
+      console.log("Player clicked exclamation! Showing Fisgado text.");
       this.canClickExclamation = false;
-      if (this.onGameStart) {
-        this.onGameStart();
-      }
+      this.exclamationTime = 0;
+
+      // Mostrar texto "Fisgado!" por 0.6 segundos
+      this.showFisgadoText = true;
+      this.fisgadoTextStartTime = Date.now();
+
+      // Após 0.6s, abrir minigame
+      setTimeout(() => {
+        this.showFisgadoText = false;
+        if (this.onGameStart) {
+          this.onGameStart();
+        }
+      }, 600);
+
       return true;
     }
     return false;
