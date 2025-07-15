@@ -903,60 +903,90 @@ class ModularWaterEffect {
 
   // Método para atualizar posição do peixe suavemente
   updateFishPosition() {
-    const deltaTime = 16; // Assumindo ~60fps
-
     if (this.gameState === "idle" || this.gameState === "hook_cast") {
-      // Movimento orgânico será controlado abaixo
+      // === MOVIMENTO ORGÂNICO LIVRE ===
+
+      // Atualizar direção desejada
+      this.updateDesiredDirection();
+
+      // Obter força de evitar bordas
+      const avoidanceForce = this.avoidBorders();
+
+      // Combinar direção desejada com evitação de bordas
+      let targetDirection = {
+        x: this.fishDesiredDirection.x + avoidanceForce.x,
+        y: this.fishDesiredDirection.y + avoidanceForce.y,
+      };
+
+      // Normalizar direção
+      const magnitude = Math.sqrt(
+        targetDirection.x * targetDirection.x +
+          targetDirection.y * targetDirection.y,
+      );
+      if (magnitude > 0) {
+        targetDirection.x /= magnitude;
+        targetDirection.y /= magnitude;
+      }
+
+      // Aplicar força de direção suavemente à velocidade
+      const acceleration = 0.00002; // Aceleração suave
+      this.fishVelocity.x += targetDirection.x * acceleration;
+      this.fishVelocity.y += targetDirection.y * acceleration;
+
+      // Variar velocidade naturalmente
+      const speedVariation = 0.5 + 0.5 * Math.sin(Date.now() * 0.001);
+      const maxSpeed = this.fishSpeed * speedVariation;
+
+      // Limitar velocidade máxima
+      const currentSpeed = Math.sqrt(
+        this.fishVelocity.x * this.fishVelocity.x +
+          this.fishVelocity.y * this.fishVelocity.y,
+      );
+      if (currentSpeed > maxSpeed) {
+        this.fishVelocity.x = (this.fishVelocity.x / currentSpeed) * maxSpeed;
+        this.fishVelocity.y = (this.fishVelocity.y / currentSpeed) * maxSpeed;
+      }
+
+      // Aplicar damping natural
+      this.fishVelocity.x *= 0.99;
+      this.fishVelocity.y *= 0.99;
     } else if (
       this.gameState === "fish_reacting" ||
       this.gameState === "fish_moving"
     ) {
-      // Interpolar suavemente em direção ao anzol
-      this.fishTargetPosition = {
-        x: this.hookPosition.x,
-        y: this.hookPosition.y,
-      };
+      // === MOVIMENTO EM DIREÇÃO AO ANZOL ===
+      const dx = this.hookPosition.x - this.fishCurrentPosition.x;
+      const dy = this.hookPosition.y - this.fishCurrentPosition.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      if (distance > 0) {
+        const moveSpeed = 0.001; // Velocidade moderada
+        this.fishVelocity.x = (dx / distance) * moveSpeed;
+        this.fishVelocity.y = (dy / distance) * moveSpeed;
+      }
     } else if (this.gameState === "fish_hooked") {
-      // Ficar EXATAMENTE no anzol (sem movimento)
-      this.fishTargetPosition = {
-        x: this.hookPosition.x,
-        y: this.hookPosition.y,
-      };
-      // Força posição atual para o anzol também
-      this.fishCurrentPosition = {
-        x: this.hookPosition.x,
-        y: this.hookPosition.y,
-      };
+      // === PARADO NO ANZOL ===
+      this.fishVelocity.x = 0;
+      this.fishVelocity.y = 0;
+      this.fishCurrentPosition.x = this.hookPosition.x;
+      this.fishCurrentPosition.y = this.hookPosition.y;
     }
 
-    // Interpolação suave para a posição alvo
-    let lerpSpeed = 0.008; // Velocidade de interpolação (mais lenta para movimento natural)
-
-    if (this.gameState === "fish_moving") {
-      lerpSpeed = 0.015; // Velocidade moderada quando indo ao anzol (reduzida)
-    } else if (this.gameState === "fish_hooked") {
-      lerpSpeed = 0.0; // Parar completamente quando fisgado
+    // Atualizar posição
+    if (this.gameState !== "fish_hooked") {
+      this.fishCurrentPosition.x += this.fishVelocity.x;
+      this.fishCurrentPosition.y += this.fishVelocity.y;
     }
-    const dx = this.fishTargetPosition.x - this.fishCurrentPosition.x;
-    const dy = this.fishTargetPosition.y - this.fishCurrentPosition.y;
 
-    this.fishVelocity.x = dx * lerpSpeed;
-    this.fishVelocity.y = dy * lerpSpeed;
-
-    this.fishCurrentPosition.x += this.fishVelocity.x;
-    this.fishCurrentPosition.y += this.fishVelocity.y;
-
-    // Calcular direção baseada na velocidade horizontal
+    // Calcular direção do peixe baseada na velocidade
     if (Math.abs(this.fishVelocity.x) > 0.0001) {
       this.fishDirection = this.fishVelocity.x > 0 ? 1 : -1;
-    } else if (this.gameState === "idle" || this.gameState === "hook_cast") {
-      // Direção será calculada pela velocidade atual
     }
 
     // Log de debug ocasional
-    if (Math.random() < 0.01) {
+    if (Math.random() < 0.005) {
       console.log(
-        `🐟 POSITION - Current: (${this.fishCurrentPosition.x.toFixed(3)}, ${this.fishCurrentPosition.y.toFixed(3)}), Target: (${this.fishTargetPosition.x.toFixed(3)}, ${this.fishTargetPosition.y.toFixed(3)}), State: ${this.gameState}`,
+        `🐟 ORGANIC - Pos: (${this.fishCurrentPosition.x.toFixed(3)}, ${this.fishCurrentPosition.y.toFixed(3)}), Vel: (${this.fishVelocity.x.toFixed(4)}, ${this.fishVelocity.y.toFixed(4)}), Dir: ${this.fishDirection > 0 ? "RIGHT" : "LEFT"}`,
       );
     }
   }
