@@ -273,15 +273,9 @@ class WaterEffect {
 
                 // O movimento real é calculado no sistema de steering behaviors em JavaScript
 
-                                if (u_gameState >= 2.0) { // fish_reacting, fish_moving, fish_hooked
-                    // Usar posição alvo quando o peixe está reagindo/se movendo
-                    fishX = u_fishTargetPosition.x;
-                    fishY = u_fishTargetPosition.y;
-                } else {
-                    // Usar posição do sistema de steering behaviors
-                    fishX = u_fishPosition.x;
-                    fishY = u_fishPosition.y;
-                }
+                                                // Sempre usar posição do sistema de steering behaviors para movimento suave
+                fishX = u_fishPosition.x;
+                fishY = u_fishPosition.y;
 
                 // Cria máscara de água (60% da tela de baixo para cima)
                                 float waterLine = 0.4; // Linha da água aos 40% (deixando 60% de baixo com efeito)
