@@ -940,7 +940,10 @@ class ModularWaterEffect {
         this.exclamationTime = 1000;
         this.exclamationStartTime = Date.now();
         this.canClickExclamation = true;
-        console.log("Fish hooked! Starting exclamation timer.");
+        console.log("🎣 Fish hooked! Starting exclamation timer.");
+        console.log(
+          `🔔 Exclamation setup - gameState: ${this.gameState}, exclamationTime: ${this.exclamationTime}, canClick: ${this.canClickExclamation}`,
+        );
 
         // Timer de 1 segundo - se não clicar, voltar ao movimento natural
         setTimeout(() => {
