@@ -1812,17 +1812,6 @@ export const FishingScreenModular: React.FC = () => {
               "🎣 Player clicked anywhere during fish bite - triggering minigame!",
             );
             waterEffect.handleExclamationClick();
-            return; // Sair da função após processar o clique
-
-            // CÓDIGO ANTIGO - Posição da exclamação (acima do peixe)
-            // Usar posição natural do peixe baseada no tempo
-            const time = waterEffect.fishTime * 0.5;
-            const areaX = waterEffect.waterArea.x;
-            const areaY = waterEffect.waterArea.y;
-            const areaW = waterEffect.waterArea.width;
-            const areaH = waterEffect.waterArea.height;
-
-            // Calcular posição do peixe (baseado no shader)
             const centerX = areaX + areaW / 2;
             const centerY = areaY + areaH / 2;
             const mainRadius = Math.min(areaW, areaH) * 0.35;
