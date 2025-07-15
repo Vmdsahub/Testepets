@@ -11,7 +11,7 @@ import { FishingRod } from "../Game/FishingRod";
 
 // Tipos para o sistema modular
 interface WaterArea {
-  x: number; // Posi��ão X relativa (0-1)
+  x: number; // Posição X relativa (0-1)
   y: number; // Posiç���o Y relativa (0-1)
   width: number; // Largura relativa (0-1)
   height: number; // Altura relativa (0-1)
@@ -475,13 +475,12 @@ class ModularWaterEffect {
                                 // u_fishAngle contém o ângulo calculado pelo JavaScript (-30° a +30°)
                 float diagonalTilt = u_fishAngle; // 100% do ângulo para rotação natural
 
-                        // Combinar flip horizontal com rotação diagonal
+                // Combinar flip horizontal com rotação diagonal
         if (u_fishDirection > 0.0) {
-            // Nadando para direita: PI (flip) + ajuste diagonal INVERTIDO
-            // Quando há flip horizontal, a rotação diagonal deve ser invertida
-            fishAngle = 3.14159 - diagonalTilt;
+            // Nadando para direita: PI (flip) + ajuste diagonal (mesmo sinal)
+            fishAngle = 3.14159 + diagonalTilt;
         } else {
-            // Nadando para esquerda: 0 (sem flip) + ajuste diagonal normal
+            // Nadando para esquerda: 0 (sem flip) + ajuste diagonal
             fishAngle = diagonalTilt;
         }
 
