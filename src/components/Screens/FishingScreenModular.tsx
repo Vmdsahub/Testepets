@@ -234,7 +234,7 @@ class ModularWaterEffect {
         return (wave1 + wave2 + wave3 + wave4 + wave5 + noise1 + noise2 + noise3) * u_waveIntensity;
       }
 
-      // Função para calcular a refração (mantida original)
+      // Função para calcular a refra��ão (mantida original)
       vec2 calculateRefraction(vec2 uv, float time) {
         float waveHeight = createWaves(uv, time);
         vec2 epsilon = vec2(0.01, 0.0);
@@ -2038,7 +2038,7 @@ class ModularWaterEffect {
 
         // Chegou próximo ao anzol
         this.gameState = "fish_hooked";
-        this.exclamationTime = 3000; // Aumentado de 1000ms para 3000ms (3 segundos)
+        this.exclamationTime = 1000;
         this.exclamationStartTime = Date.now();
         this.canClickExclamation = true;
         this.isVibrating = true;
@@ -2164,7 +2164,7 @@ class ModularWaterEffect {
     }
 
     console.log(
-      "��️ resetFishingGame completed - callback state:",
+      "⚠️ resetFishingGame completed - callback state:",
       !!this.onGameStart,
       "backup:",
       !!this.onGameStartBackup,
