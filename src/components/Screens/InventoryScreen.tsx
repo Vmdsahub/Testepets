@@ -489,10 +489,10 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = ({
               className="fixed bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-[300] min-w-[200px]"
               style={{
                 left: dropdownState.position
-                  ? `${dropdownState.position.x}px`
+                  ? `${Math.max(10, Math.min(dropdownState.position.x, window.innerWidth - 210))}px`
                   : "50%",
                 top: dropdownState.position
-                  ? `${dropdownState.position.y}px`
+                  ? `${Math.max(10, Math.min(dropdownState.position.y, window.innerHeight - 300))}px`
                   : "50%",
                 transform: dropdownState.position
                   ? "translateX(-50%)"
@@ -711,5 +711,5 @@ const getItemEmoji = (item: Item) => {
   if (item.type === "Special") return "✨";
   if (item.type === "Style") return "🎨";
   if (item.type === "Theme") return "🎭";
-  return "📦";
+  return "��";
 };
