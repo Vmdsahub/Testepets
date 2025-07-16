@@ -199,9 +199,10 @@ function App() {
         return <ExplorationScreen />;
       case "fishing":
         return <FishingScreen />;
+      case "inventory":
+        return <InventoryScreen />;
       // Modal screens are now handled by ModalManager when on world screen
       case "pet":
-      case "inventory":
       case "profile":
       case "admin":
         // Show SpaceMap while redirect is processing
