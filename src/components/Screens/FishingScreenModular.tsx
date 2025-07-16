@@ -2044,7 +2044,10 @@ class ModularWaterEffect {
         this.isVibrating = true;
         const activeFishName = this.activeFish === 1 ? "AZUL" : "VERDE";
         console.log(
-          `🎣 ${activeFishName} fish hooked! Hook at (${this.hookPosition.x.toFixed(3)}, ${this.hookPosition.y.toFixed(3)}) - Hook in water: ${this.isHookInWater()} - Starting exclamation timer.`,
+          `🎣 ${activeFishName} fish hooked! Hook at (${this.hookPosition.x.toFixed(3)}, ${this.hookPosition.y.toFixed(3)}) - Hook in water: ${this.isHookInWater()} - Starting 3-second exclamation timer.`,
+        );
+        console.log(
+          "✅ CLICK NOW! Fish is biting - you have 3 seconds to click anywhere on screen!",
         );
 
         // Timer automático será gerenciado no updateFishingGame()
@@ -2142,7 +2145,7 @@ class ModularWaterEffect {
       );
     } else {
       // Se não, voltar ao estado idle e garantir reset completo
-      console.log("����� Complete reset - hook removed from water");
+      console.log("���� Complete reset - hook removed from water");
       this.gameState = "idle";
       this.hookPosition = { x: 0.5, y: 0.5 }; // Garantir reset da posição
       this.fishReactionStartTime = 0;
@@ -3194,7 +3197,7 @@ export const FishingScreenModular: React.FC = () => {
 
         // Debug: listar todos os peixes ativos
         const allFish = fishingService.getActiveFish();
-        console.log("��� All active fish:", allFish);
+        console.log("🐟 All active fish:", allFish);
 
         const nearbyFish = fishingService.getFishNearPosition(
           hookX,
