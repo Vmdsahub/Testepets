@@ -1638,22 +1638,58 @@ export const FishingScreen: React.FC = () => {
       try {
         const waterEffect = new WaterEffect();
 
-        // Configurar callback para abrir modal
+        // Configurar callback para abrir modal e pescar peixe
         waterEffect.onGameStart = () => {
-          console.log(
-            "🎮 onGameStart callback called - opening fishing modal!",
-          );
-          console.log("🎮 Current showFishingModal state:", showFishingModal);
-          console.log("🎮 Calling setShowFishingModal(true)");
-          setShowFishingModal(true);
-          console.log(
-            "🎮 setShowFishingModal(true) called - should trigger re-render",
+          console.log("🎮 Fish caught! Processing catch...");
+
+          // Tentar pescar um peixe na posição do anzol
+          const hookX = waterEffect.hookPosition.x;
+          const hookY = waterEffect.hookPosition.y;
+
+          const nearbyFish = fishingService.getFishNearPosition(
+            hookX,
+            hookY,
+            0.1,
           );
 
-          // Força uma nova verificação imediata
-          setTimeout(() => {
-            console.log("🎮 Timeout check - modal should be visible now");
-          }, 100);
+          if (nearbyFish && user) {
+            // Pescar o peixe
+            const caughtFish = fishingService.catchFish(nearbyFish.id, user.id);
+
+            if (caughtFish) {
+              // Converter peixe para item e adicionar ao inventário
+              const fishItem = fishingService.convertFishToItem(caughtFish);
+
+              // Adicionar ao inventário através do gameStore
+              get()
+                .addToInventory(fishItem)
+                .then((success) => {
+                  if (success) {
+                    get().addNotification({
+                      type: "success",
+                      title: "Peixe pescado!",
+                      message: `Você pescou um ${caughtFish.name}!`,
+                      isRead: false,
+                    });
+                    console.log(
+                      `🐟 Successfully caught and added ${caughtFish.name} to inventory`,
+                    );
+                  } else {
+                    console.error("Failed to add fish to inventory");
+                    get().addNotification({
+                      type: "error",
+                      title: "Erro",
+                      message: "Falha ao adicionar peixe ao inventário.",
+                      isRead: false,
+                    });
+                  }
+                });
+            }
+          } else {
+            console.log("🎣 No fish nearby to catch");
+            // Ainda abre o modal de minigame como fallback
+            setShowFishingModal(true);
+          }
         };
 
         // Adicionar listener para cliques na exclamação
