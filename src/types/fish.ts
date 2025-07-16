@@ -98,7 +98,7 @@ export const FISH_SPECIES: Record<string, FishSpecies> = {
     respawnTime: 15000, // 15 segundos
     rarity: "Common",
     baseImageUrl:
-      "https://cdn.builder.io/api/v1/image/assets%2Fae8512d3d0df4d1f8f1504a06406c6ba%2F62141810443b4226b05ad6c4f3dcd94e?format=webp&width=800", // Placeholder - será substituído por imagem verde
+      "https://cdn.builder.io/api/v1/image/assets%2Fc79b00ce148640919b4d22fcf2a41b59%2Fe5f89db4d2e242d9972a7d48951cd4a7?format=webp&width=800",
     description: "Um pequeno peixe verde ágil que prefere águas rasas.",
   },
 };
