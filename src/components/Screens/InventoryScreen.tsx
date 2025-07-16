@@ -141,8 +141,6 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = ({
       }
       useItem(item.inventoryId, activePet.id);
     }
-
-    setSelectedItem(null);
   };
 
   const handleDiscardItem = (item: Item) => {
