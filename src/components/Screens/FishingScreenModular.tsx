@@ -47,6 +47,7 @@ class ModularWaterEffect {
     this.backgroundTexture = null;
     this.noiseTexture = null;
     this.fishTexture = null;
+    this.fish2Texture = null; // Textura do peixe verde
 
     this.uniforms = {};
     this.attributes = {};
@@ -569,7 +570,7 @@ class ModularWaterEffect {
 
           // Verificar se está na área da exclamação
           if (exclamationUV.x >= 0.0 && exclamationUV.x <= 1.0 && exclamationUV.y >= 0.0 && exclamationUV.y <= 1.0) {
-            // Simular a imagem de exclamação amarela fornecida
+            // Simular a imagem de exclamaç��o amarela fornecida
             // Criar forma de exclamação baseada na imagem
             vec2 localPos = exclamationUV * 2.0 - 1.0; // Converter para -1 a 1
 
@@ -2377,7 +2378,7 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
                       repeatType: "reverse",
                     }}
                   >
-                    {gameResult === "success" ? "🎉" : "😞"}
+                    {gameResult === "success" ? "🎉" : "����"}
                   </motion.div>
                   <h3 className="text-xl font-bold mb-1">
                     {gameResult === "success"
