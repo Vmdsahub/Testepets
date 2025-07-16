@@ -2521,7 +2521,6 @@ class ModularWaterEffect {
       this.gl.uniform4f(this.uniforms.waterArea, 0.1, 0.4, 0.8, 0.5);
       this.gl.uniform1f(this.uniforms.waterShape, 0);
     }
-    this.gl.uniform1f(this.uniforms.waterShape, shapeValue);
 
     // Ativa texturas
     this.gl.activeTexture(this.gl.TEXTURE0);
