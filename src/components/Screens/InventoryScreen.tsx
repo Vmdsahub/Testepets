@@ -26,6 +26,7 @@ const tabs = [
     color: "text-green-600",
   },
   { id: "equipment", name: "Equipment", icon: Sword, color: "text-blue-600" },
+  { id: "fish", name: "Fish", icon: Utensils, color: "text-cyan-600" },
   { id: "special", name: "Special", icon: Sparkles, color: "text-purple-600" },
 ];
 
