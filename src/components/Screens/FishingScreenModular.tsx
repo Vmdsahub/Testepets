@@ -1921,7 +1921,7 @@ class ModularWaterEffect {
       );
 
       if (distance < 0.03) {
-        // VERIFICAÇ��O: Anzol deve estar na água para peixe ser fisgado
+        // VERIFICAÇÃO: Anzol deve estar na água para peixe ser fisgado
         if (!this.isHookInWater()) {
           console.log(
             "🎣 Fish reached hook position but hook is not in water - resetting",
@@ -2635,7 +2635,7 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
                     repeat: isLowTime ? Infinity : 0,
                   }}
                 >
-                  {isLowTime ? "🚨" : "⏱️"}
+                  {isLowTime ? "����" : "⏱️"}
                 </motion.span>
                 <motion.span
                   className={`text-lg font-bold ${
@@ -2983,6 +2983,8 @@ export const FishingScreenModular: React.FC = () => {
   console.log("🏏 FishingScreenModular component rendering...");
   console.log("🐟 FishingService loaded:", !!fishingService);
   console.log("🐟 Active fish count:", fishingService.getActiveFish().length);
+  console.log("🐟 Active fish details:", fishingService.getActiveFish());
+  console.log("🐟 Fishing stats:", fishingService.getFishingStats());
   const { setCurrentScreen, addToInventory, addNotification } = useGameStore();
   const { user } = useAuthStore();
   const waterEffectRef = useRef<ModularWaterEffect | null>(null);
@@ -3044,7 +3046,7 @@ export const FishingScreenModular: React.FC = () => {
           if (caughtFish) {
             // Converter peixe para item e adicionar ao inventário
             const fishItem = fishingService.convertFishToItem(caughtFish);
-            console.log("�� Fish converted to item:", fishItem);
+            console.log("🐟 Fish converted to item:", fishItem);
 
             // Adicionar ao inventário através do gameStore
             console.log("🎒 Adding to inventory...");
