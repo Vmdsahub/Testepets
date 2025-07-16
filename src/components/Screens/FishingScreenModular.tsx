@@ -520,7 +520,7 @@ class ModularWaterEffect {
         float variation2X = cos(t * 0.6 + 2.0) * areaW * 0.2;
         float variation2Y = sin(t * 0.7 + 1.5) * areaH * 0.18;
 
-        // Movimento de "busca" rápido (característico do Evo Fish)
+        // Movimento de "busca" r��pido (característico do Evo Fish)
         float searchX = sin(t * 2.2) * areaW * 0.1;
         float searchY = cos(t * 1.8) * areaH * 0.08;
 
@@ -4029,8 +4029,8 @@ export const FishingScreenModular: React.FC = () => {
           </div>
           <button
             onClick={() => {
-              fishingService.forceRespawnAll();
-              console.log("🔄 Force respawned all fish");
+              spawnFish();
+              console.log("🔄 Spawned simple fish");
             }}
             style={{
               marginTop: "5px",
