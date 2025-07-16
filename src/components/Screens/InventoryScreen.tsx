@@ -41,7 +41,7 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = ({
   onClose,
 }) => {
   const [activeTab, setActiveTab] = useState("all");
-  const [selectedItem, setSelectedItem] = useState<Item | null>(null);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [fishInspectModal, setFishInspectModal] = useState<{
     isOpen: boolean;
