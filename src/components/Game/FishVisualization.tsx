@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from "react";
-import { fishingService } from "../../services/fishingService";
 
 interface FishVisualizationProps {
   waterArea: {
