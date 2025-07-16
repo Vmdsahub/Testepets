@@ -16,6 +16,7 @@ import { SpaceMap } from "./components/Game/SpaceMap";
 import { PlanetScreen } from "./components/Screens/PlanetScreen";
 import { ExplorationScreen } from "./components/Screens/ExplorationScreen";
 import { FishingScreenModular as FishingScreen } from "./components/Screens/FishingScreenModular";
+import { InventoryScreen } from "./components/Screens/InventoryScreen";
 import { useAuthStore } from "./store/authStore";
 import { useGameStore } from "./store/gameStore";
 import { preloadAllSounds } from "./utils/soundManager";
@@ -152,10 +153,14 @@ function App() {
   useEffect(() => {
     if (
       isAuthenticated &&
-      ["pet", "inventory", "profile", "admin"].includes(currentScreen)
+      ["pet", "profile", "admin"].includes(currentScreen)
     ) {
       setCurrentScreen("world");
       setTimeout(() => openModal(currentScreen), 100);
+    } else if (isAuthenticated && currentScreen === "inventory") {
+      setCurrentScreen("world");
+      // For inventory, we don't use the modal manager
+      setTimeout(() => setOpenModals((prev) => [...prev, "inventory"]), 100);
     }
   }, [isAuthenticated, currentScreen]);
 
@@ -201,7 +206,6 @@ function App() {
         return <FishingScreen />;
       // Modal screens are now handled by ModalManager when on world screen
       case "pet":
-      case "inventory":
       case "profile":
       case "admin":
         // Show SpaceMap while redirect is processing
@@ -209,6 +213,21 @@ function App() {
           <>
             <SpaceMap />
             <ModalManager openModals={openModals} onCloseModal={closeModal} />
+          </>
+        );
+      case "inventory":
+        // Inventory is now a standalone modal
+        return (
+          <>
+            <SpaceMap />
+            <ModalManager
+              openModals={openModals.filter((id) => id !== "inventory")}
+              onCloseModal={closeModal}
+            />
+            <InventoryScreen
+              isOpen={openModals.includes("inventory")}
+              onClose={() => closeModal("inventory")}
+            />
           </>
         );
       default:
@@ -295,7 +314,14 @@ function App() {
               {currentScreen === "fishing" && <FishingScreen />}
             </div>
             {/* Modals persist outside AnimatePresence */}
-            <ModalManager openModals={openModals} onCloseModal={closeModal} />
+            <ModalManager
+              openModals={openModals.filter((id) => id !== "inventory")}
+              onCloseModal={closeModal}
+            />
+            <InventoryScreen
+              isOpen={openModals.includes("inventory")}
+              onClose={() => closeModal("inventory")}
+            />
           </div>
         ) : (
           // Normal layout for other screens with traditional navigation
