@@ -520,7 +520,7 @@ class ModularWaterEffect {
         float variation2X = cos(t * 0.6 + 2.0) * areaW * 0.2;
         float variation2Y = sin(t * 0.7 + 1.5) * areaH * 0.18;
 
-        // Movimento de "busca" r��pido (característico do Evo Fish)
+        // Movimento de "busca" rápido (característico do Evo Fish)
         float searchX = sin(t * 2.2) * areaW * 0.1;
         float searchY = cos(t * 1.8) * areaH * 0.08;
 
@@ -1424,7 +1424,7 @@ class ModularWaterEffect {
       let baseX = this.hookPosition.x - mouthOffsetX - additionalOffsetX;
       let baseY = this.hookPosition.y - 2 / window.innerHeight; // Converter 2px para UV (offset Y da boca)
 
-      // Adicionar vibração se estiver vibrando
+      // Adicionar vibra��ão se estiver vibrando
       if (this.isVibrating) {
         const vibrationTime = Date.now() * 0.05;
         const vibrationIntensity = 0.003;
@@ -4048,26 +4048,12 @@ export const FishingScreenModular: React.FC = () => {
           </button>
           <button
             onClick={() => {
-              // Testar adição de peixe ao inventário diretamente
-              const testFish = fishingService.getActiveFish()[0];
-              if (testFish && user) {
-                const caughtFish = fishingService.catchFish(
-                  testFish.id,
-                  user.id,
-                );
+              // Testar adição de peixe simples
+              if (visibleFish.length > 0) {
+                const testFish = visibleFish[0];
+                const caughtFish = catchFish(testFish.id);
                 if (caughtFish) {
-                  const fishItem = fishingService.convertFishToItem(caughtFish);
-                  addToInventory(fishItem).then((success) => {
-                    console.log("🧪 Test fish added:", success);
-                    if (success) {
-                      addNotification({
-                        type: "success",
-                        title: "Teste",
-                        message: `Peixe de teste adicionado!`,
-                        isRead: false,
-                      });
-                    }
-                  });
+                  console.log("🧪 Test fish caught:", caughtFish);
                 }
               }
             }}
