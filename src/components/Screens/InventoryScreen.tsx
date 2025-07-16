@@ -570,6 +570,11 @@ const getItemEmoji = (item: Item) => {
   if (item.type === "Weapon") return "⚔️";
   if (item.type === "Food") return "🍎";
   if (item.type === "Potion") return "🧪";
+  if (item.type === "Fish") {
+    if (item.fishData?.species === "Peixinho Azul") return "🐟";
+    if (item.fishData?.species === "Peixinho Verde") return "🐠";
+    return "🐟";
+  }
   if (item.type === "Collectible") return "💎";
   if (item.type === "Special") return "✨";
   if (item.type === "Style") return "🎨";
