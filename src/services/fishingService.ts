@@ -232,11 +232,13 @@ class FishingService {
     this.respawnTimers.forEach((timer) => clearTimeout(timer));
     this.respawnTimers.clear();
 
-    console.log("🔄 Cleared all fish and timers, spawning fresh fish...");
+    console.log("🔄 Spawning exactly 3 fish...");
 
-    // Spawnar peixes imediatamente (sem delay)
+    // Spawnar exatamente 3 peixes
     this.fishingSpots.forEach((spot) => {
-      this.spawnFishAtSpot(spot);
+      const newFish = createFish(spot.species, spot.x, spot.y);
+      this.activeFish.set(newFish.id, newFish);
+      console.log(`🐟 Spawned ${newFish.species} at (${spot.x}, ${spot.y})`);
     });
 
     console.log(
