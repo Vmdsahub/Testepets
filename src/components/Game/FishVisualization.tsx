@@ -8,6 +8,13 @@ interface FishVisualizationProps {
     width: number;
     height: number;
   };
+  visibleFish: Array<{
+    id: string;
+    x: number;
+    y: number;
+    species: "Peixinho Azul" | "Peixinho Verde";
+    size: number;
+  }>;
 }
 
 export const FishVisualization: React.FC<FishVisualizationProps> = ({
