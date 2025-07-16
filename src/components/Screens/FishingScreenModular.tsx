@@ -2063,11 +2063,11 @@ class ModularWaterEffect {
       // Usar tempo real em vez de contador de frames
       const elapsedTime = Date.now() - this.exclamationStartTime;
 
-      if (elapsedTime < 1000) {
-        // Ainda dentro do período de 1 segundo
-        this.exclamationTime = 1000 - elapsedTime;
+      if (elapsedTime < 3000) {
+        // Ainda dentro do período de 3 segundos
+        this.exclamationTime = 3000 - elapsedTime;
       } else {
-        // Passou 1 segundo - peixe vai embora automaticamente
+        // Passou 3 segundos - peixe vai embora automaticamente
         this.exclamationTime = 0;
         this.canClickExclamation = false;
 
@@ -2142,7 +2142,7 @@ class ModularWaterEffect {
       );
     } else {
       // Se não, voltar ao estado idle e garantir reset completo
-      console.log("���� Complete reset - hook removed from water");
+      console.log("����� Complete reset - hook removed from water");
       this.gameState = "idle";
       this.hookPosition = { x: 0.5, y: 0.5 }; // Garantir reset da posição
       this.fishReactionStartTime = 0;
@@ -3194,7 +3194,7 @@ export const FishingScreenModular: React.FC = () => {
 
         // Debug: listar todos os peixes ativos
         const allFish = fishingService.getActiveFish();
-        console.log("🐟 All active fish:", allFish);
+        console.log("��� All active fish:", allFish);
 
         const nearbyFish = fishingService.getFishNearPosition(
           hookX,
