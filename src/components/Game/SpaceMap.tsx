@@ -2078,7 +2078,7 @@ const SpaceMapComponent: React.FC = () => {
     const planetImages = [
       "https://cdn.builder.io/api/v1/image/assets%2Ff94d2a386a444693b9fbdff90d783a66%2Fdfdbc589c3f344eea7b33af316e83b41?format=webp&width=800",
       "https://cdn.builder.io/api/v1/image/assets%2Ff94d2a386a444693b9fbdff90d783a66%2Fd42810aa3d45429d93d8c58c52827326?format=webp&width=800",
-      "https://cdn.builder.io/api/v1/image/assets%2Ff94d2a386a444693b9fbdff90d783a66%2Fdfce7132f868407eb4d7afdf27d09a77?format=webp&width=800",
+      "https://cdn.builder.io/api/v1/image/assets%2F8ec9b1b631094c4a90f6526f2a2446cc%2F1192080bbca44c28b40c7df4984132da?format=webp&width=800",
       "https://cdn.builder.io/api/v1/image/assets%2Ff94d2a386a444693b9fbdff90d783a66%2F8e6b96287f6448089ed602d82e2839bc?format=webp&width=800",
       "https://cdn.builder.io/api/v1/image/assets%2Ff94d2a386a444693b9fbdff90d783a66%2F7a1b7c8172a5446b9a22ffd65d22a6f7?format=webp&width=800",
       "https://cdn.builder.io/api/v1/image/assets%2F9116099af5104b05bb8ec173428706be%2F53dbf5154a144566a9f2df4e9ce385b0?format=webp&width=800",
@@ -3913,7 +3913,7 @@ const SpaceMapComponent: React.FC = () => {
 
           // Schedule transition for next render cycle to prevent setState during render
           console.log(
-            "🛬 Animação de pouso concluída, agendando transição para:",
+            "�� Animação de pouso concluída, agendando transição para:",
             planetData,
           );
           pendingScreenTransition.current = {
