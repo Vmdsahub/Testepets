@@ -162,9 +162,15 @@ class ModularWaterEffect {
       uniform vec4 u_waterArea; // x, y, width, height (0-1)
       uniform float u_waterShape; // 0=rectangle, 1=circle, 2=triangle
       
-      uniform sampler2D u_backgroundTexture;
+            uniform sampler2D u_backgroundTexture;
       uniform sampler2D u_noiseTexture;
       uniform sampler2D u_fishTexture;
+      uniform sampler2D u_fish2Texture;
+
+      // Uniforms para o segundo peixe
+      uniform vec2 u_fish2TargetPosition;
+      uniform float u_fish2Direction;
+      uniform float u_fish2Angle;
       
       varying vec2 v_texCoord;
       varying vec2 v_position;
@@ -1344,7 +1350,7 @@ class ModularWaterEffect {
         // Velocidade Y positiva = nadando para baixo = ângulo positivo
         // Velocidade Y negativa = nadando para cima = ângulo negativo
         const maxTiltAngle = Math.PI / 6; // 30 graus máximo
-        const velocityScale = 1000; // Escala para converter velocidade em ângulo
+        const velocityScale = 1000; // Escala para converter velocidade em ��ngulo
 
         let targetAngle = verticalComponent * velocityScale;
 
