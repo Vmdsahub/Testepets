@@ -106,18 +106,16 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = ({
   }>({ isOpen: false, item: null, position: null });
 
   const handleItemClick = (item: Item, event: React.MouseEvent) => {
-    const rect = (event.target as HTMLElement).getBoundingClientRect();
-    const position = {
-      x: rect.left + rect.width / 2,
-      y: rect.bottom + 5,
-    };
-    console.log("Item clicked:", item.name, "Position:", position);
-    setDropdownState({ isOpen: true, item, position });
-    console.log("Dropdown state set:", {
+    event.preventDefault();
+    event.stopPropagation();
+
+    console.log("Item clicked:", item.name);
+    setDropdownState({
       isOpen: true,
-      item: item.name,
-      position,
+      item,
+      position: { x: window.innerWidth / 2, y: window.innerHeight / 2 },
     });
+    console.log("Dropdown state set to center screen");
   };
 
   const handleUseItem = (item: Item) => {
