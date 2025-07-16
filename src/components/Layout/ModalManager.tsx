@@ -71,11 +71,6 @@ export const ModalManager: React.FC<ModalManagerProps> = ({
       component: <PetScreen />,
     },
     {
-      id: "inventory",
-      title: "Inventário",
-      component: <InventoryScreen />,
-    },
-    {
       id: "profile",
       title: "Perfil",
       component: <ProfileScreen />,
