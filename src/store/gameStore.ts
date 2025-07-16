@@ -2470,7 +2470,7 @@ export const useGameStore = create<GameStore>()(
             color: "#45b7d1",
             interactionRadius: 80, // Área de pouso menor - mundo perigoso
             imageUrl:
-              "https://cdn.builder.io/api/v1/image/assets%2Ff94d2a386a444693b9fbdff90d783a66%2Fdfce7132f868407eb4d7afdf27d09a77?format=webp&width=800",
+              "https://cdn.builder.io/api/v1/image/assets%2F8ec9b1b631094c4a90f6526f2a2446cc%2F1192080bbca44c28b40c7df4984132da?format=webp&width=800",
             createdAt: new Date(),
             updatedAt: new Date(),
           },
