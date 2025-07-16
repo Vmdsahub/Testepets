@@ -9,6 +9,7 @@ import {
 } from "../../services/fishingSettingsService";
 import { FishingRod } from "../Game/FishingRod";
 import { fishingService } from "../../services/fishingService";
+import { FishVisualization } from "../Game/FishVisualization";
 
 // Tipos para o sistema modular
 interface WaterArea {
@@ -499,7 +500,7 @@ class ModularWaterEffect {
             fishBehavior = 0.0; // ESTADO: Nadando livre (30%)
         }
 
-                                                                // === MOVIMENTO EVO FISH - VELÓCIDÃO E DIN��MICA ===
+                                                                // === MOVIMENTO EVO FISH - VELÓCIDÃO E DINÂMICA ===
 
         float swimSpeed = 0.05; // Velocidade mais rápida como Evo Fish
         float t = time * swimSpeed;
@@ -3118,7 +3119,7 @@ export const FishingScreenModular: React.FC = () => {
   // Cleanup do fishingService
   useEffect(() => {
     return () => {
-      console.log("🧹 Cleaning up fishingService");
+      console.log("��� Cleaning up fishingService");
       fishingService.cleanup();
     };
   }, []);
