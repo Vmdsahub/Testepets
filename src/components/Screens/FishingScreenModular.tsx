@@ -1558,7 +1558,7 @@ class ModularWaterEffect {
     }
 
     // Calcular direção do peixe baseada na velocidade
-    // Atualizar direção e ângulo baseados na velocidade
+    // Atualizar dire��ão e ângulo baseados na velocidade
     const velocityMagnitude = Math.sqrt(
       this.fishVelocity.x * this.fishVelocity.x +
         this.fishVelocity.y * this.fishVelocity.y,
@@ -3158,11 +3158,6 @@ export const FishingScreenModular: React.FC = () => {
           console.error("❌ WaterEffect ref is null!");
           return;
         }
-
-        // Tentar pescar um peixe na posição do anzol
-        const hookX = waterEffectRef.current.hookPosition.x;
-        const hookY = waterEffectRef.current.hookPosition.y;
-        console.log(`🎣 Hook position: (${hookX}, ${hookY})`);
 
         // Apenas abrir o minigame - a captura será feita após o sucesso do minigame
         console.log("🎮 Opening fishing minigame...");
