@@ -374,7 +374,7 @@ class ModularWaterEffect {
                 return bgColor;
       }
 
-      // Função para adicionar o segundo peixe por cima
+            // Função para adicionar o segundo peixe por cima
       vec4 addSecondFish(vec4 bgColor, vec2 coords, float fish2X, float fish2Y, float fish2Angle) {
         vec2 fish2Pos = vec2(fish2X, fish2Y);
         vec2 fish2Size = vec2(0.08, 0.06);
@@ -404,6 +404,59 @@ class ModularWaterEffect {
         if (fish2Angle > 1.5) {
             fish2UV.x = 1.0 - fish2UV.x;
         }
+
+        // === RENDERIZAR SOMBRA SUAVE E DISPERSA DO PEIXE 2 ===
+
+        // Offset da sombra (ligeiramente para baixo e direita)
+        vec2 shadow2Offset = vec2(0.008, 0.015);
+
+        // Criar múltiplas sombras dispersas para efeito suave
+        float totalShadow2Alpha = 0.0;
+        vec3 totalShadow2Color = vec3(0.0);
+
+        // 4 sombras ligeiramente deslocadas para criar dispersão
+        for(int i = 0; i < 4; i++) {
+            float angle = float(i) * 1.57; // 90 graus entre cada sombra
+            vec2 disperseOffset = vec2(cos(angle), sin(angle)) * 0.003; // Dispersão mínima
+
+            vec2 shadow2Pos = fish2Pos + shadow2Offset + disperseOffset;
+            vec2 shadow2LocalUV = (coords - shadow2Pos + fish2Size * 0.5) / fish2Size;
+
+            // Aplicar a mesma rotação diagonal na sombra do peixe 2
+            vec2 shadow2CenteredUV = shadow2LocalUV - 0.5;
+            vec2 shadow2RotatedUV = vec2(
+                shadow2CenteredUV.x * cos2Angle - shadow2CenteredUV.y * sin2Angle,
+                shadow2CenteredUV.x * sin2Angle + shadow2CenteredUV.y * cos2Angle
+            );
+            vec2 shadow2UV = shadow2RotatedUV + 0.5;
+
+            // Aplicar flip horizontal da sombra do peixe 2
+            if (fish2Angle > 1.5) {
+                shadow2UV.x = 1.0 - shadow2UV.x;
+            }
+
+            // Verificar se está na área válida
+            if (shadow2UV.x >= 0.0 && shadow2UV.x <= 1.0 && shadow2UV.y >= 0.0 && shadow2UV.y <= 1.0 && isInWaterArea(coords)) {
+                vec4 shadow2Texture = texture2D(u_fish2Texture, shadow2UV);
+                if (shadow2Texture.a > 0.05) {
+                    // Sombra muito sutil e esverdeada para o peixe verde
+                    vec3 shadow2Tint = vec3(0.3, 0.5, 0.4) * 0.25; // Tom verde muito fraco
+                    float shadow2Alpha = shadow2Texture.a * 0.08; // Muito transparente
+
+                    totalShadow2Color += shadow2Tint * shadow2Alpha;
+                    totalShadow2Alpha += shadow2Alpha;
+                }
+            }
+        }
+
+        // Aplicar sombra dispersa e sutil do peixe 2
+        if (totalShadow2Alpha > 0.0) {
+            // Limitar intensidade máxima da sombra
+            totalShadow2Alpha = min(totalShadow2Alpha, 0.2);
+            bgColor = mix(bgColor, vec4(totalShadow2Color / max(totalShadow2Alpha, 0.01), 1.0), totalShadow2Alpha);
+        }
+
+        // === RENDERIZAR PEIXE 2 POR CIMA DA SOMBRA ===
 
         // Renderizar peixe 2 se estiver na área válida
         if (fish2UV.x >= 0.0 && fish2UV.x <= 1.0 && fish2UV.y >= 0.0 && fish2UV.y <= 1.0 && isInWaterArea(coords)) {
@@ -3722,7 +3775,7 @@ export const FishingScreenModular: React.FC = () => {
           <div style={{ fontSize: "12px", color: "#666", marginTop: "10px" }}>
             {isShiftPressed
               ? "🎯 Shift ativo - arraste a área para reposicionar"
-              : "⌨️ Segure Shift e arraste a área tracejada para reposicionar"}
+              : "⌨�� Segure Shift e arraste a área tracejada para reposicionar"}
           </div>
         </div>
       )}
