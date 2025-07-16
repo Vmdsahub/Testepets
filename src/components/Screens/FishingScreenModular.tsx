@@ -1921,7 +1921,7 @@ class ModularWaterEffect {
       );
 
       if (distance < 0.03) {
-        // VERIFICAÇÃO: Anzol deve estar na água para peixe ser fisgado
+        // VERIFICAÇ��O: Anzol deve estar na água para peixe ser fisgado
         if (!this.isHookInWater()) {
           console.log(
             "🎣 Fish reached hook position but hook is not in water - resetting",
@@ -3011,50 +3011,76 @@ export const FishingScreenModular: React.FC = () => {
     if (waterEffectRef.current) {
       const callback = () => {
         console.log("🎮 Fish caught! Processing catch...");
+        console.log("🎮 User:", user);
+        console.log("🎮 WaterEffect ref:", !!waterEffectRef.current);
+
+        if (!waterEffectRef.current) {
+          console.error("❌ WaterEffect ref is null!");
+          return;
+        }
 
         // Tentar pescar um peixe na posição do anzol
         const hookX = waterEffectRef.current.hookPosition.x;
         const hookY = waterEffectRef.current.hookPosition.y;
+        console.log(`🎣 Hook position: (${hookX}, ${hookY})`);
+
+        // Debug: listar todos os peixes ativos
+        const allFish = fishingService.getActiveFish();
+        console.log("🐟 All active fish:", allFish);
 
         const nearbyFish = fishingService.getFishNearPosition(
           hookX,
           hookY,
           0.1,
         );
+        console.log("🐟 Nearby fish:", nearbyFish);
 
         if (nearbyFish && user) {
+          console.log(`🎣 Attempting to catch fish: ${nearbyFish.name}`);
           // Pescar o peixe
           const caughtFish = fishingService.catchFish(nearbyFish.id, user.id);
+          console.log("🐟 Caught fish result:", caughtFish);
 
           if (caughtFish) {
             // Converter peixe para item e adicionar ao inventário
             const fishItem = fishingService.convertFishToItem(caughtFish);
+            console.log("�� Fish converted to item:", fishItem);
 
             // Adicionar ao inventário através do gameStore
-            addToInventory(fishItem).then((success) => {
-              if (success) {
-                addNotification({
-                  type: "success",
-                  title: "Peixe pescado!",
-                  message: `Você pescou um ${caughtFish.name}!`,
-                  isRead: false,
-                });
-                console.log(
-                  `🐟 Successfully caught and added ${caughtFish.name} to inventory`,
-                );
-              } else {
-                console.error("Failed to add fish to inventory");
-                addNotification({
-                  type: "error",
-                  title: "Erro",
-                  message: "Falha ao adicionar peixe ao inventário.",
-                  isRead: false,
-                });
-              }
-            });
+            console.log("🎒 Adding to inventory...");
+            addToInventory(fishItem)
+              .then((success) => {
+                console.log("🎒 AddToInventory result:", success);
+                if (success) {
+                  addNotification({
+                    type: "success",
+                    title: "Peixe pescado!",
+                    message: `Você pescou um ${caughtFish.name}!`,
+                    isRead: false,
+                  });
+                  console.log(
+                    `🐟 Successfully caught and added ${caughtFish.name} to inventory`,
+                  );
+                } else {
+                  console.error("Failed to add fish to inventory");
+                  addNotification({
+                    type: "error",
+                    title: "Erro",
+                    message: "Falha ao adicionar peixe ao inventário.",
+                    isRead: false,
+                  });
+                }
+              })
+              .catch((error) => {
+                console.error("🎒 Error adding to inventory:", error);
+              });
+          } else {
+            console.error("❌ Failed to catch fish");
           }
         } else {
-          console.log("🎣 No fish nearby to catch");
+          console.log("🎣 No fish nearby to catch or no user");
+          console.log("🎣 Fish count:", allFish.length);
+          console.log("🎣 User exists:", !!user);
           // Ainda abre o modal de minigame como fallback
           setShowMinigame(true);
         }
