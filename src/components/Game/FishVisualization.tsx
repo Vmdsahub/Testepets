@@ -45,11 +45,8 @@ export const FishVisualization: React.FC<FishVisualizationProps> = ({
       // Limpar canvas
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Pegar peixes ativos
-      const activeFish = fishingService.getActiveFish();
-
       // Renderizar cada peixe
-      activeFish.forEach((fish) => {
+      visibleFish.forEach((fish) => {
         const x = fish.x * canvas.width;
         const y = fish.y * canvas.height;
 
