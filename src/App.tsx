@@ -16,6 +16,7 @@ import { SpaceMap } from "./components/Game/SpaceMap";
 import { PlanetScreen } from "./components/Screens/PlanetScreen";
 import { ExplorationScreen } from "./components/Screens/ExplorationScreen";
 import { FishingScreenModular as FishingScreen } from "./components/Screens/FishingScreenModular";
+import { InventoryScreen } from "./components/Screens/InventoryScreen";
 import { useAuthStore } from "./store/authStore";
 import { useGameStore } from "./store/gameStore";
 import { preloadAllSounds } from "./utils/soundManager";
@@ -193,7 +194,7 @@ function App() {
       case "otherUserCollectibles":
         return <OtherUserCollectiblesScreen />;
       case "planet":
-        console.log("📱 App.tsx: Renderizando PlanetScreen");
+        console.log("�� App.tsx: Renderizando PlanetScreen");
         return <PlanetScreen />;
       case "exploration":
         return <ExplorationScreen />;
