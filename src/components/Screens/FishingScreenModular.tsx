@@ -629,11 +629,16 @@ class ModularWaterEffect {
           gl_FragColor = originalColor;
         }
         
-                                                                // Adicionar exclamação com imagem fornecida
+                                                                                                                                // Adicionar exclamação com imagem fornecida
         if (u_showExclamation > 0.0 && u_gameState >= 4.0) {
-                    // Posição da exclamação (10px para esquerda do centro do peixe, sem vibração)
+                    // Posição da exclamação (10px para esquerda do centro do peixe ativo, sem vibração)
           float leftOffset = 10.0 / u_resolution.x; // Converter 10px para coordenadas UV
-          vec2 exclamationPos = vec2(fishX - leftOffset, fishY);
+
+          // Usar posição do peixe ativo (1 = azul, 2 = verde)
+          float activeFishX = u_activeFish < 1.5 ? fishX : fish2X;
+          float activeFishY = u_activeFish < 1.5 ? fishY : fish2Y;
+
+          vec2 exclamationPos = vec2(activeFishX - leftOffset, activeFishY);
 
           // Pulsação suave para chamar atenção
           float pulse = 0.98 + 0.02 * sin(u_time * 8.0);
