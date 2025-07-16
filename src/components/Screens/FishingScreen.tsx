@@ -788,7 +788,7 @@ class WaterEffect {
         this.onGameStart();
         console.log("🎮 onGameStart callback finished");
       } else {
-        console.log("❌ onGameStart callback is null or undefined!");
+        console.log("��� onGameStart callback is null or undefined!");
       }
       return true;
     }
@@ -1355,7 +1355,7 @@ class WaterEffect {
     const resultX = Math.max(0.05, Math.min(0.95, naturalFishX));
     const resultY = Math.max(0.45, Math.min(0.95, naturalFishY));
     console.log(
-      `�� OFFSET DEBUG - Target: (${targetX.toFixed(3)}, ${targetY.toFixed(3)}) -> Result: (${resultX.toFixed(3)}, ${resultY.toFixed(3)})`,
+      `🎯 OFFSET DEBUG - Target: (${targetX.toFixed(3)}, ${targetY.toFixed(3)}) -> Result: (${resultX.toFixed(3)}, ${resultY.toFixed(3)})`,
     );
   }
 
@@ -1661,32 +1661,30 @@ export const FishingScreen: React.FC = () => {
               const fishItem = fishingService.convertFishToItem(caughtFish);
 
               // Adicionar ao inventário através do gameStore
-              get()
-                .addToInventory(fishItem)
-                .then((success) => {
-                  if (success) {
-                    get().addNotification({
-                      type: "success",
-                      title: "Peixe pescado!",
-                      message: `Você pescou um ${caughtFish.name}!`,
-                      isRead: false,
-                    });
-                    console.log(
-                      `🐟 Successfully caught and added ${caughtFish.name} to inventory`,
-                    );
-                  } else {
-                    console.error("Failed to add fish to inventory");
-                    get().addNotification({
-                      type: "error",
-                      title: "Erro",
-                      message: "Falha ao adicionar peixe ao inventário.",
-                      isRead: false,
-                    });
-                  }
-                });
+              addToInventory(fishItem).then((success) => {
+                if (success) {
+                  addNotification({
+                    type: "success",
+                    title: "Peixe pescado!",
+                    message: `Você pescou um ${caughtFish.name}!`,
+                    isRead: false,
+                  });
+                  console.log(
+                    `🐟 Successfully caught and added ${caughtFish.name} to inventory`,
+                  );
+                } else {
+                  console.error("Failed to add fish to inventory");
+                  addNotification({
+                    type: "error",
+                    title: "Erro",
+                    message: "Falha ao adicionar peixe ao inventário.",
+                    isRead: false,
+                  });
+                }
+              });
             }
           } else {
-            console.log("🎣 No fish nearby to catch");
+            console.log("�� No fish nearby to catch");
             // Ainda abre o modal de minigame como fallback
             setShowFishingModal(true);
           }
