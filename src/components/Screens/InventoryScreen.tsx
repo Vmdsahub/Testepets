@@ -111,7 +111,13 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = ({
       x: rect.left + rect.width / 2,
       y: rect.bottom + 5,
     };
+    console.log("Item clicked:", item.name, "Position:", position);
     setDropdownState({ isOpen: true, item, position });
+    console.log("Dropdown state set:", {
+      isOpen: true,
+      item: item.name,
+      position,
+    });
   };
 
   const handleUseItem = (item: Item) => {
