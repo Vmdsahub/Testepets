@@ -521,7 +521,7 @@ class ModularWaterEffect {
         // Calcular direção baseada no movimento circular principal
         float velocityX = -sin(mainAngle) * 0.8 * swimSpeed * mainRadius; // Derivada do cos
 
-        // Adicionar variaç��es de trajetória
+        // Adicionar variações de trajetória
         velocityX += cos(t * 1.5) * 1.5 * swimSpeed * areaW * 0.15;
         velocityX += -sin(t * 0.6 + 2.0) * 0.6 * swimSpeed * areaW * 0.2;
 
@@ -582,12 +582,8 @@ class ModularWaterEffect {
         }
         
                                 // Imagem original com peixe
-                // Renderizar primeiro peixe (azul)
+                        // Renderizar primeiro peixe (azul)
         vec4 originalColor = getColorWithFish(uv, fishX, fishY, fishAngle);
-
-        // === PEIXE 2 (VERDE) ===
-        float fish2X = u_fish2TargetPosition.x;
-        float fish2Y = u_fish2TargetPosition.y;
 
         // Cálculo da direção do peixe 2
         float fish2Angle = 0.0;
@@ -3756,7 +3752,7 @@ export const FishingScreenModular: React.FC = () => {
             }}
           >
             <h2 style={{ marginTop: 0, color: "#333", fontSize: "24px" }}>
-              🎣 Peixe Fisgado!
+              ���� Peixe Fisgado!
             </h2>
             <p
               style={{ color: "#666", marginBottom: "30px", fontSize: "16px" }}
