@@ -944,6 +944,95 @@ class ModularWaterEffect {
       "https://cdn.builder.io/api/v1/image/assets%2Fc79b00ce148640919b4d22fcf2a41b59%2F2856af704b4e406cb206025a802b3bdc?format=webp&width=800";
   }
 
+  createFish2Texture() {
+    this.fish2Texture = this.gl.createTexture();
+    this.gl.bindTexture(this.gl.TEXTURE_2D, this.fish2Texture);
+
+    const canvas = document.createElement("canvas");
+    canvas.width = 64;
+    canvas.height = 64;
+    const ctx = canvas.getContext("2d");
+
+    // Placeholder verde até carregar a imagem real
+    ctx.fillStyle = "#4ABAD2";
+    ctx.beginPath();
+    ctx.ellipse(32, 32, 25, 15, 0, 0, 2 * Math.PI);
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(7, 32);
+    ctx.lineTo(15, 20);
+    ctx.lineTo(15, 44);
+    ctx.closePath();
+    ctx.fill();
+
+    this.gl.texImage2D(
+      this.gl.TEXTURE_2D,
+      0,
+      this.gl.RGBA,
+      this.gl.RGBA,
+      this.gl.UNSIGNED_BYTE,
+      canvas,
+    );
+    this.gl.texParameteri(
+      this.gl.TEXTURE_2D,
+      this.gl.TEXTURE_WRAP_S,
+      this.gl.CLAMP_TO_EDGE,
+    );
+    this.gl.texParameteri(
+      this.gl.TEXTURE_2D,
+      this.gl.TEXTURE_WRAP_T,
+      this.gl.CLAMP_TO_EDGE,
+    );
+    this.gl.texParameteri(
+      this.gl.TEXTURE_2D,
+      this.gl.TEXTURE_MIN_FILTER,
+      this.gl.LINEAR,
+    );
+    this.gl.texParameteri(
+      this.gl.TEXTURE_2D,
+      this.gl.TEXTURE_MAG_FILTER,
+      this.gl.LINEAR,
+    );
+
+    // Carrega a imagem real do peixe verde
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      this.gl.bindTexture(this.gl.TEXTURE_2D, this.fish2Texture);
+      this.gl.texImage2D(
+        this.gl.TEXTURE_2D,
+        0,
+        this.gl.RGBA,
+        this.gl.RGBA,
+        this.gl.UNSIGNED_BYTE,
+        img,
+      );
+      this.gl.texParameteri(
+        this.gl.TEXTURE_2D,
+        this.gl.TEXTURE_WRAP_S,
+        this.gl.CLAMP_TO_EDGE,
+      );
+      this.gl.texParameteri(
+        this.gl.TEXTURE_2D,
+        this.gl.TEXTURE_WRAP_T,
+        this.gl.CLAMP_TO_EDGE,
+      );
+      this.gl.texParameteri(
+        this.gl.TEXTURE_2D,
+        this.gl.TEXTURE_MIN_FILTER,
+        this.gl.LINEAR,
+      );
+      this.gl.texParameteri(
+        this.gl.TEXTURE_2D,
+        this.gl.TEXTURE_MAG_FILTER,
+        this.gl.LINEAR,
+      );
+    };
+    img.src =
+      "https://cdn.builder.io/api/v1/image/assets%2Fc79b00ce148640919b4d22fcf2a41b59%2Fe5f89db4d2e242d9972a7d48951cd4a7?format=webp&width=800";
+  }
+
   // Atualizar área da água
   updateWaterArea(waterArea) {
     this.waterArea = waterArea;
@@ -1138,7 +1227,7 @@ class ModularWaterEffect {
       }
 
       // Aplicar força de direção suavemente à velocidade
-      const acceleration = 0.00002; // Aceleração mais suave e lenta
+      const acceleration = 0.00002; // Aceleraç��o mais suave e lenta
       this.fishVelocity.x += targetDirection.x * acceleration;
       this.fishVelocity.y += targetDirection.y * acceleration;
 
@@ -1453,7 +1542,7 @@ class ModularWaterEffect {
         // Timer automático ser�� gerenciado no updateFishingGame()
       }
     } else if (this.gameState === "fish_hooked") {
-      // VERIFICAÇÃO CONTÍNUA: Se anzol saiu da água durante fish_hooked, resetar imediatamente
+      // VERIFICAÇ��O CONTÍNUA: Se anzol saiu da água durante fish_hooked, resetar imediatamente
       if (!this.isHookInWater()) {
         console.log(
           "��� Hook removed from water while fish hooked - resetting immediately",
@@ -3086,7 +3175,7 @@ export const FishingScreenModular: React.FC = () => {
               <div
                 style={{ fontSize: "0.75rem", color: "#666", marginTop: "2px" }}
               >
-                �� Imagem personalizada ativa
+                ���� Imagem personalizada ativa
               </div>
             )}
           </div>
