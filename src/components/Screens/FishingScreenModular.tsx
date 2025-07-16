@@ -12,13 +12,13 @@ import { FishingRod } from "../Game/FishingRod";
 // Tipos para o sistema modular
 interface WaterArea {
   x: number; // Posição X relativa (0-1)
-  y: number; // Posiç���o Y relativa (0-1)
+  y: number; // Posição Y relativa (0-1)
   width: number; // Largura relativa (0-1)
   height: number; // Altura relativa (0-1)
   shape: "rectangle" | "circle" | "triangle";
 }
 
-// WebGL Water Effect Class Modular - NOVO: Movimento aleat���rio livre com rotação 360° baseado na área definida
+// WebGL Water Effect Class Modular - NOVO: Movimento aleatório livre com rotação 360° baseado na área definida
 class ModularWaterEffect {
   constructor(waterArea, isAdmin = false) {
     // Inicializar activeTimers PRIMEIRO para evitar undefined
@@ -78,7 +78,7 @@ class ModularWaterEffect {
     // Sistema de movimento orgânico
     this.fishDesiredDirection = { x: 1, y: 0 }; // Direção desejada
     this.fishSpeed = 0.0006; // Velocidade base mais lenta
-    this.directionChangeTime = 0; // Timer para mudança de direç��o
+    this.directionChangeTime = 0; // Timer para mudança de direção
     this.directionChangeCooldown = 3000 + Math.random() * 4000; // 3-7 segundos entre mudanças (mais lento)
 
     // Sistema de movimento orgânico - Peixe 2 (verde)
@@ -176,7 +176,7 @@ class ModularWaterEffect {
       varying vec2 v_texCoord;
       varying vec2 v_position;
 
-      // Função de ru��do simplex 2D (mantida original)
+      // Função de ruído simplex 2D (mantida original)
       vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
       vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
       vec3 permute(vec3 x) { return mod289(((x*34.0)+1.0)*x); }
@@ -222,7 +222,7 @@ class ModularWaterEffect {
         return (wave1 + wave2 + wave3 + wave4 + wave5 + noise1 + noise2 + noise3) * u_waveIntensity;
       }
 
-      // Fun��ão para calcular a refração (mantida original)
+      // Função para calcular a refração (mantida original)
       vec2 calculateRefraction(vec2 uv, float time) {
         float waveHeight = createWaves(uv, time);
         vec2 epsilon = vec2(0.01, 0.0);
@@ -273,7 +273,7 @@ class ModularWaterEffect {
         return false;
       }
 
-      // Fun����ão para obter cor com peixe (mantida original)
+      // Função para obter cor com peixe (mantida original)
             vec4 getColorWithFish(vec2 coords, float fishX, float fishY, float fishAngle) {
         vec4 bgColor = texture2D(u_backgroundTexture, coords);
         
@@ -319,7 +319,7 @@ class ModularWaterEffect {
         float totalShadowAlpha = 0.0;
         vec3 totalShadowColor = vec3(0.0);
 
-        // 4 sombras ligeiramente deslocadas para criar dispers��o
+        // 4 sombras ligeiramente deslocadas para criar dispersão
         for(int i = 0; i < 4; i++) {
             float angle = float(i) * 1.57; // 90 graus entre cada sombra
             vec2 disperseOffset = vec2(cos(angle), sin(angle)) * 0.003; // Dispersão mínima
@@ -340,7 +340,7 @@ class ModularWaterEffect {
                 shadowUV.x = 1.0 - shadowUV.x;
             }
 
-            // Verificar se está na área v��lida
+            // Verificar se está na área válida
             if (shadowUV.x >= 0.0 && shadowUV.x <= 1.0 && shadowUV.y >= 0.0 && shadowUV.y <= 1.0 && isInWaterArea(coords)) {
                 vec4 shadowTexture = texture2D(u_fishTexture, shadowUV);
                 if (shadowTexture.a > 0.05) {
@@ -422,7 +422,7 @@ class ModularWaterEffect {
 
         float time = u_fishTime;
 
-        // Área da ��gua
+        // Área da água
         float areaX = u_waterArea.x;
         float areaY = u_waterArea.y;
         float areaW = u_waterArea.z;
@@ -453,7 +453,7 @@ class ModularWaterEffect {
         float mainRadius = min(areaW, areaH) * 0.4;
         float mainAngle = t * 0.8; // Circular mais rápido
 
-        // Posi����ão base do movimento circular
+        // Posição base do movimento circular
         float circleX = cos(mainAngle) * mainRadius;
         float circleY = sin(mainAngle) * mainRadius * 0.7; // Elipse
 
@@ -464,11 +464,11 @@ class ModularWaterEffect {
         float variation2X = cos(t * 0.6 + 2.0) * areaW * 0.2;
         float variation2Y = sin(t * 0.7 + 1.5) * areaH * 0.18;
 
-        // Movimento de "busca" rápido (caracter��stico do Evo Fish)
+        // Movimento de "busca" rápido (característico do Evo Fish)
         float searchX = sin(t * 2.2) * areaW * 0.1;
         float searchY = cos(t * 1.8) * areaH * 0.08;
 
-        // Acelerações s��bitas (como quando peixes vêem comida)
+        // Acelerações súbitas (como quando peixes vêem comida)
         float burstSpeed = 1.0 + sin(t * 0.3) * 0.4; // Varia de 0.6x a 1.4x
 
         // Combinar todos os movimentos
@@ -508,7 +508,7 @@ class ModularWaterEffect {
 
                 // === DELIMITAÇÃO DA ÁREA - EXATAMENTE NA LINHA TRACEJADA ===
 
-        // Manter dentro da ��rea exatamente na linha tracejada
+        // Manter dentro da área exatamente na linha tracejada
         float margin = 0.01; // Margem mínima apenas para evitar pixel bleeding
         naturalFishX = clamp(naturalFishX, areaX + areaW * margin, areaX + areaW * (1.0 - margin));
         naturalFishY = clamp(naturalFishY, areaY + areaH * margin, areaY + areaH * (1.0 - margin));
@@ -524,7 +524,7 @@ class ModularWaterEffect {
         velocityX += cos(t * 1.5) * 1.5 * swimSpeed * areaW * 0.15;
         velocityX += -sin(t * 0.6 + 2.0) * 0.6 * swimSpeed * areaW * 0.2;
 
-        // Movimento de busca r��pido
+        // Movimento de busca rápido
         velocityX += cos(t * 2.2) * 2.2 * swimSpeed * areaW * 0.1;
 
         // Aplicar aceleração
@@ -541,7 +541,7 @@ class ModularWaterEffect {
         }
 
                                 // === SISTEMA DE ROTAÇÃO DIAGONAL SUAVE ===
-        // Aplica rotação baseada na dire��ão vertical do movimento
+        // Aplica rotação baseada na direção vertical do movimento
                                 // u_fishAngle contém o ângulo calculado pelo JavaScript (-30° a +30°)
                 float diagonalTilt = u_fishAngle; // 100% do ângulo para rotação natural
 
@@ -597,7 +597,7 @@ class ModularWaterEffect {
         float waterMask = inWater ? 1.0 : 0.0;
         
         if (inWater) {
-          // Aplicar efeitos de água apenas dentro da ����rea
+          // Aplicar efeitos de água apenas dentro da área
           vec2 refraction = calculateRefraction(uv, u_time) * waterMask;
           vec2 distortedUV = uv + refraction;
           
@@ -630,11 +630,11 @@ class ModularWaterEffect {
         
                                                                 // Adicionar exclamação com imagem fornecida
         if (u_showExclamation > 0.0 && u_gameState >= 4.0) {
-                    // Posição da exclamação (10px para esquerda do centro do peixe, sem vibra��ão)
+                    // Posição da exclamação (10px para esquerda do centro do peixe, sem vibração)
           float leftOffset = 10.0 / u_resolution.x; // Converter 10px para coordenadas UV
           vec2 exclamationPos = vec2(fishX - leftOffset, fishY);
 
-          // Pulsaç��o suave para chamar atenção
+          // Pulsação suave para chamar atenção
           float pulse = 0.98 + 0.02 * sin(u_time * 8.0);
 
                     // Tamanho da exclamação (82% maior que o original)
@@ -645,11 +645,11 @@ class ModularWaterEffect {
 
           // Verificar se está na área da exclamação
           if (exclamationUV.x >= 0.0 && exclamationUV.x <= 1.0 && exclamationUV.y >= 0.0 && exclamationUV.y <= 1.0) {
-            // Simular a imagem de exclamaç��o amarela fornecida
+            // Simular a imagem de exclamação amarela fornecida
             // Criar forma de exclamação baseada na imagem
             vec2 localPos = exclamationUV * 2.0 - 1.0; // Converter para -1 a 1
 
-            // Corpo da exclamação (parte comprida) - corrigido para orienta��ão correta
+            // Corpo da exclamação (parte comprida) - corrigido para orientação correta
             float bodyWidth = 0.2;
             bool inBody = abs(localPos.x) < bodyWidth && localPos.y > -0.8 && localPos.y < 0.4;
 
@@ -767,7 +767,7 @@ class ModularWaterEffect {
       "u_fishAngle",
     );
 
-    // Novos uniforms para ��rea modular
+    // Novos uniforms para área modular
     this.uniforms.waterArea = this.gl.getUniformLocation(
       this.program,
       "u_waterArea",
@@ -1179,7 +1179,7 @@ class ModularWaterEffect {
         const tx3 = x + width; // Base direita
         const ty3 = y + height;
 
-        // Algoritmo de ��rea para verificar se ponto está dentro do triângulo
+        // Algoritmo de área para verificar se ponto está dentro do triângulo
         const area = Math.abs(
           (tx2 - tx1) * (ty3 - ty1) - (tx3 - tx1) * (ty2 - ty1),
         );
@@ -1245,7 +1245,7 @@ class ModularWaterEffect {
       // Escolher nova direção que aponte para longe das bordas próximas
       let newAngle;
 
-      // Calcular direç��o ideal: para o centro, mas com variação
+      // Calcular direção ideal: para o centro, mas com variação
       const directionToCenter = Math.atan2(
         centerY - this.fishCurrentPosition.y,
         centerX - this.fishCurrentPosition.x,
@@ -1259,7 +1259,7 @@ class ModularWaterEffect {
       this.fishDesiredDirection.x = Math.cos(newAngle);
       this.fishDesiredDirection.y = Math.sin(newAngle) * 0.6;
 
-      // Resetar timer para evitar mudan��as muito frequentes
+      // Resetar timer para evitar mudanças muito frequentes
       this.directionChangeTime = Date.now();
       this.directionChangeCooldown = 2000 + Math.random() * 3000; // 2-5 segundos após evitação
     }
@@ -1271,13 +1271,13 @@ class ModularWaterEffect {
   updateDesiredDirection() {
     const currentTime = Date.now();
 
-    // Verificar se �� hora de mudar direção
+    // Verificar se é hora de mudar direção
     if (currentTime - this.directionChangeTime > this.directionChangeCooldown) {
       // Gerar nova direção favorecendo movimento horizontal
       let angle;
 
       if (Math.random() < 0.7) {
-        // 70% chance de movimento mais horizontal (-45° a 45° ou 135���� a 225°)
+        // 70% chance de movimento mais horizontal (-45° a 45° ou 135° a 225°)
         if (Math.random() < 0.5) {
           angle = (Math.random() - 0.5) * Math.PI * 0.5; // -45° a 45°
         } else {
@@ -1299,58 +1299,20 @@ class ModularWaterEffect {
 
   // Método para atualizar posição do peixe suavemente
   updateFishPosition() {
+    // Se o peixe ativo não é o peixe 1, apenas movimento livre
+    if (this.activeFish !== 1) {
+      this.updateFishFreeMovement();
+      this.updateFishPositionCommon();
+      return;
+    }
+
     if (this.gameState === "idle" || this.gameState === "hook_cast") {
-      // === MOVIMENTO ORGÂNICO LIVRE ===
-
-      // Atualizar direção desejada
-      this.updateDesiredDirection();
-
-      // Obter força de evitar bordas
-      const avoidanceForce = this.avoidBorders();
-
-      // Combinar direção desejada com evitação de bordas
-      const targetDirection = {
-        x: this.fishDesiredDirection.x + avoidanceForce.x,
-        y: this.fishDesiredDirection.y + avoidanceForce.y,
-      };
-
-      // Normalizar direção
-      const magnitude = Math.sqrt(
-        targetDirection.x * targetDirection.x +
-          targetDirection.y * targetDirection.y,
-      );
-      if (magnitude > 0) {
-        targetDirection.x /= magnitude;
-        targetDirection.y /= magnitude;
-      }
-
-      // Aplicar força de direção suavemente à velocidade
-      const acceleration = 0.00002; // Aceleraç��o mais suave e lenta
-      this.fishVelocity.x += targetDirection.x * acceleration;
-      this.fishVelocity.y += targetDirection.y * acceleration;
-
-      // Variar velocidade naturalmente de forma mais suave
-      const speedVariation = 0.7 + 0.3 * Math.sin(Date.now() * 0.001);
-      const maxSpeed = this.fishSpeed * speedVariation;
-
-      // Limitar velocidade máxima
-      const currentSpeed = Math.sqrt(
-        this.fishVelocity.x * this.fishVelocity.x +
-          this.fishVelocity.y * this.fishVelocity.y,
-      );
-      if (currentSpeed > maxSpeed) {
-        this.fishVelocity.x = (this.fishVelocity.x / currentSpeed) * maxSpeed;
-        this.fishVelocity.y = (this.fishVelocity.y / currentSpeed) * maxSpeed;
-      }
-
-      // Aplicar damping natural (mais suave)
-      this.fishVelocity.x *= 0.985;
-      this.fishVelocity.y *= 0.985;
+      this.updateFishFreeMovement();
     } else if (
       this.gameState === "fish_reacting" ||
       this.gameState === "fish_moving"
     ) {
-      // === MOVIMENTO EM DIREÇ��O AO ANZOL ===
+      // === MOVIMENTO EM DIREÇÃO AO ANZOL ===
       const dx = this.hookPosition.x - this.fishCurrentPosition.x;
       const dy = this.hookPosition.y - this.fishCurrentPosition.y;
       const distance = Math.sqrt(dx * dx + dy * dy);
@@ -1398,8 +1360,63 @@ class ModularWaterEffect {
       this.fishCurrentPosition.y = baseY;
     }
 
+    this.updateFishPositionCommon();
+  }
+
+  // Método comum para movimento livre do peixe 1
+  updateFishFreeMovement() {
+    // === MOVIMENTO ORGÂNICO LIVRE ===
+
+    // Atualizar direção desejada
+    this.updateDesiredDirection();
+
+    // Obter força de evitar bordas
+    const avoidanceForce = this.avoidBorders();
+
+    // Combinar direção desejada com evitação de bordas
+    const targetDirection = {
+      x: this.fishDesiredDirection.x + avoidanceForce.x,
+      y: this.fishDesiredDirection.y + avoidanceForce.y,
+    };
+
+    // Normalizar direção
+    const magnitude = Math.sqrt(
+      targetDirection.x * targetDirection.x +
+        targetDirection.y * targetDirection.y,
+    );
+    if (magnitude > 0) {
+      targetDirection.x /= magnitude;
+      targetDirection.y /= magnitude;
+    }
+
+    // Aplicar força de direção suavemente à velocidade
+    const acceleration = 0.00002; // Aceleração mais suave e lenta
+    this.fishVelocity.x += targetDirection.x * acceleration;
+    this.fishVelocity.y += targetDirection.y * acceleration;
+
+    // Variar velocidade naturalmente de forma mais suave
+    const speedVariation = 0.7 + 0.3 * Math.sin(Date.now() * 0.001);
+    const maxSpeed = this.fishSpeed * speedVariation;
+
+    // Limitar velocidade máxima
+    const currentSpeed = Math.sqrt(
+      this.fishVelocity.x * this.fishVelocity.x +
+        this.fishVelocity.y * this.fishVelocity.y,
+    );
+    if (currentSpeed > maxSpeed) {
+      this.fishVelocity.x = (this.fishVelocity.x / currentSpeed) * maxSpeed;
+      this.fishVelocity.y = (this.fishVelocity.y / currentSpeed) * maxSpeed;
+    }
+
+    // Aplicar damping natural (mais suave)
+    this.fishVelocity.x *= 0.985;
+    this.fishVelocity.y *= 0.985;
+  }
+
+  // Método comum para finalizar atualização de posição do peixe 1
+  updateFishPositionCommon() {
     // Atualizar posição
-    if (this.gameState !== "fish_hooked") {
+    if (this.gameState !== "fish_hooked" || this.activeFish !== 1) {
       this.fishCurrentPosition.x += this.fishVelocity.x;
       this.fishCurrentPosition.y += this.fishVelocity.y;
 
@@ -1432,7 +1449,7 @@ class ModularWaterEffect {
       // Manter sistema original para direção horizontal
       this.fishDirection = this.fishVelocity.x > 0 ? 1 : -1;
 
-      // NOVA IMPLEMENTAÇÃO: Rotação diagonal suave baseada na direç��o do movimento
+      // NOVA IMPLEMENTAÇÃO: Rotação diagonal suave baseada na direção do movimento
       const horizontalComponent = this.fishVelocity.x;
       const verticalComponent = this.fishVelocity.y;
 
@@ -1442,7 +1459,7 @@ class ModularWaterEffect {
         // Velocidade Y positiva = nadando para baixo = ângulo positivo
         // Velocidade Y negativa = nadando para cima = ângulo negativo
         const maxTiltAngle = Math.PI / 6; // 30 graus máximo
-        const velocityScale = 1000; // Escala para converter velocidade em ��ngulo
+        const velocityScale = 1000; // Escala para converter velocidade em ângulo
 
         let targetAngle = verticalComponent * velocityScale;
 
@@ -1462,7 +1479,7 @@ class ModularWaterEffect {
             this.fishAngle + (targetAngle - this.fishAngle) * lerpSpeed;
         }
       } else {
-        // Quando não há movimento, gradualmente retornar para posiç��o horizontal
+        // Quando não há movimento, gradualmente retornar para posição horizontal
         if (this.fishAngle !== undefined) {
           this.fishAngle *= 0.8; // Retorno mais rápido para 0
           if (Math.abs(this.fishAngle) < 0.01) {
@@ -1498,13 +1515,78 @@ class ModularWaterEffect {
             : "horizontal";
 
       console.log(
-        `🐟 DEBUG PEIXE - Lado: ${horizontalDir}, Movimento: ${verticalDir}, Inclinação esperada: ${expectedTilt}, Ângulo: ${angleDegrees.toFixed(1)}°`,
+        `🐟 DEBUG PEIXE 1 - Lado: ${horizontalDir}, Movimento: ${verticalDir}, Inclinação esperada: ${expectedTilt}, Ângulo: ${angleDegrees.toFixed(1)}°`,
       );
     }
   }
 
   // Método para atualizar posição do segundo peixe (verde)
   updateFish2Position() {
+    // Se o peixe ativo não é o peixe 2, apenas movimento livre
+    if (this.activeFish !== 2) {
+      this.updateFish2FreeMovement();
+      this.updateFish2PositionCommon();
+      return;
+    }
+
+    if (this.gameState === "idle" || this.gameState === "hook_cast") {
+      this.updateFish2FreeMovement();
+    } else if (
+      this.gameState === "fish_reacting" ||
+      this.gameState === "fish_moving"
+    ) {
+      // === MOVIMENTO EM DIREÇÃO AO ANZOL ===
+      const dx = this.hookPosition.x - this.fish2CurrentPosition.x;
+      const dy = this.hookPosition.y - this.fish2CurrentPosition.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      if (distance > 0) {
+        const moveSpeed = 0.0003; // Velocidade mais lenta e curiosa
+        this.fish2Velocity.x = (dx / distance) * moveSpeed;
+        this.fish2Velocity.y = (dy / distance) * moveSpeed;
+      }
+    } else if (this.gameState === "fish_hooked") {
+      // === PARADO NO ANZOL ===
+      // A BOCA deve ficar no anzol, não o centro do peixe
+      this.fish2Velocity.x = 0;
+      this.fish2Velocity.y = 0;
+
+      // Calcular posição do centro do peixe para que a boca fique EXATAMENTE no anzol
+      const fishSizePixelX = 0.08; // Tamanho do peixe no shader
+
+      // Lógica idêntica ao drawFishMouthOverlay
+      let mouthOffsetX;
+      if (this.fish2Direction > 0) {
+        mouthOffsetX = fishSizePixelX / 2 - 10 / window.innerWidth; // Converter 10px para UV
+      } else {
+        mouthOffsetX = -(fishSizePixelX / 2) + 10 / window.innerWidth; // Converter 10px para UV
+      }
+
+      // Adicionar offset adicional
+      const additionalOffsetX =
+        (this.fish2Direction > 0 ? -7 : 7) / window.innerWidth; // Converter -7px/+7px para UV
+
+      // Posicionar centro do peixe para que boca fique EXATAMENTE no anzol
+      let baseX = this.hookPosition.x - mouthOffsetX - additionalOffsetX;
+      let baseY = this.hookPosition.y - 2 / window.innerHeight; // Converter 2px para UV (offset Y da boca)
+
+      // Adicionar vibração se estiver vibrando
+      if (this.isVibrating) {
+        const vibrationTime = Date.now() * 0.05;
+        const vibrationIntensity = 0.003;
+        baseX += Math.sin(vibrationTime) * vibrationIntensity;
+        baseY += Math.cos(vibrationTime * 0.94) * vibrationIntensity;
+      }
+
+      this.fish2CurrentPosition.x = baseX;
+      this.fish2CurrentPosition.y = baseY;
+    }
+
+    this.updateFish2PositionCommon();
+  }
+
+  // Método comum para movimento livre do peixe 2
+  updateFish2FreeMovement() {
     // Movimento orgânico independente para o peixe 2
     const currentTime = Date.now();
 
@@ -1544,27 +1626,32 @@ class ModularWaterEffect {
     // Aplicar damping natural
     this.fish2Velocity.x *= 0.985;
     this.fish2Velocity.y *= 0.985;
+  }
 
+  // Método comum para finalizar atualização de posição do peixe 2
+  updateFish2PositionCommon() {
     // Atualizar posição
-    this.fish2CurrentPosition.x += this.fish2Velocity.x;
-    this.fish2CurrentPosition.y += this.fish2Velocity.y;
+    if (this.gameState !== "fish_hooked" || this.activeFish !== 2) {
+      this.fish2CurrentPosition.x += this.fish2Velocity.x;
+      this.fish2CurrentPosition.y += this.fish2Velocity.y;
 
-    // Manter dentro da área da água
-    const clampMargin = 0.01;
-    this.fish2CurrentPosition.x = Math.max(
-      this.waterArea.x + clampMargin,
-      Math.min(
-        this.waterArea.x + this.waterArea.width - clampMargin,
-        this.fish2CurrentPosition.x,
-      ),
-    );
-    this.fish2CurrentPosition.y = Math.max(
-      this.waterArea.y + clampMargin,
-      Math.min(
-        this.waterArea.y + this.waterArea.height - clampMargin,
-        this.fish2CurrentPosition.y,
-      ),
-    );
+      // Manter dentro da área da água
+      const clampMargin = 0.01;
+      this.fish2CurrentPosition.x = Math.max(
+        this.waterArea.x + clampMargin,
+        Math.min(
+          this.waterArea.x + this.waterArea.width - clampMargin,
+          this.fish2CurrentPosition.x,
+        ),
+      );
+      this.fish2CurrentPosition.y = Math.max(
+        this.waterArea.y + clampMargin,
+        Math.min(
+          this.waterArea.y + this.waterArea.height - clampMargin,
+          this.fish2CurrentPosition.y,
+        ),
+      );
+    }
 
     // Calcular direção e ângulo do peixe 2
     const velocityMagnitude2 = Math.sqrt(
@@ -1604,9 +1691,35 @@ class ModularWaterEffect {
     } else if (this.fish2Angle === undefined) {
       this.fish2Angle = 0;
     }
+
+    // Log de debug para monitoramento
+    if (Math.random() < 0.008) {
+      // 0.8% para debug moderado
+      const angleDegrees = this.fish2Angle
+        ? (this.fish2Angle * 180) / Math.PI
+        : 0;
+      const verticalVel = this.fish2Velocity.y.toFixed(6);
+      const horizontalDir = this.fish2Direction > 0 ? "DIREITA" : "ESQUERDA";
+      const verticalDir =
+        this.fish2Velocity.y > 0.0002
+          ? "BAIXO"
+          : this.fish2Velocity.y < -0.0002
+            ? "CIMA"
+            : "PARADO";
+      const expectedTilt =
+        this.fish2Velocity.y > 0
+          ? "para baixo"
+          : this.fish2Velocity.y < 0
+            ? "para cima"
+            : "horizontal";
+
+      console.log(
+        `🐟 DEBUG PEIXE 2 - Lado: ${horizontalDir}, Movimento: ${verticalDir}, Inclinação esperada: ${expectedTilt}, Ângulo: ${angleDegrees.toFixed(1)}°`,
+      );
+    }
   }
 
-  // Método para lidar com clique na exclama��ão
+  // Método para lidar com clique na exclamação
   handleExclamationClick() {
     console.log(
       "🎯 handleExclamationClick called - gameState:",
@@ -1638,7 +1751,7 @@ class ModularWaterEffect {
         // Após 600ms, esconder texto e abrir minigame
         const fisgadoTimer = setTimeout(() => {
           this.showFisgadoText = false;
-          console.log("���� Opening minigame now...");
+          console.log("🎮 Opening minigame now...");
           savedCallback(); // Usar callback salvo
         }, 600);
 
@@ -1689,13 +1802,18 @@ class ModularWaterEffect {
           return;
         }
 
-        // Capturar posiç��o atual e começar reação
+        // Capturar posição atual e começar reação
         this.gameState = "fish_reacting";
+        const activeFishName = this.activeFish === 1 ? "AZUL" : "VERDE";
+        const activeFishPosition =
+          this.activeFish === 1
+            ? this.fishCurrentPosition
+            : this.fish2CurrentPosition;
         console.log(
-          `🎣 Fish reacting! Hook at (${this.hookPosition.x.toFixed(3)}, ${this.hookPosition.y.toFixed(3)}) - Fish at (${this.fishCurrentPosition.x.toFixed(3)}, ${this.fishCurrentPosition.y.toFixed(3)}) - Hook in water: ${this.isHookInWater()}`,
+          `🎣 ${activeFishName} fish reacting! Hook at (${this.hookPosition.x.toFixed(3)}, ${this.hookPosition.y.toFixed(3)}) - Fish at (${activeFishPosition.x.toFixed(3)}, ${activeFishPosition.y.toFixed(3)}) - Hook in water: ${this.isHookInWater()}`,
         );
 
-        // Come��ar movimento ap����s breve pausa
+        // Começar movimento após breve pausa
         const reactionTimer = setTimeout(() => {
           if (this.gameState === "fish_reacting") {
             this.gameState = "fish_moving";
@@ -1717,10 +1835,14 @@ class ModularWaterEffect {
         return;
       }
 
-      // Verificar se chegou próximo ao anzol
+      // Verificar distância do peixe ativo ao anzol
+      const activeFishPosition =
+        this.activeFish === 1
+          ? this.fishCurrentPosition
+          : this.fish2CurrentPosition;
       const distance = Math.sqrt(
-        Math.pow(this.fishCurrentPosition.x - this.hookPosition.x, 2) +
-          Math.pow(this.fishCurrentPosition.y - this.hookPosition.y, 2),
+        Math.pow(activeFishPosition.x - this.hookPosition.x, 2) +
+          Math.pow(activeFishPosition.y - this.hookPosition.y, 2),
       );
 
       if (distance < 0.03) {
@@ -1739,17 +1861,18 @@ class ModularWaterEffect {
         this.exclamationStartTime = Date.now();
         this.canClickExclamation = true;
         this.isVibrating = true;
+        const activeFishName = this.activeFish === 1 ? "AZUL" : "VERDE";
         console.log(
-          `🎣 Fish hooked! Hook at (${this.hookPosition.x.toFixed(3)}, ${this.hookPosition.y.toFixed(3)}) - Hook in water: ${this.isHookInWater()} - Starting exclamation timer.`,
+          `🎣 ${activeFishName} fish hooked! Hook at (${this.hookPosition.x.toFixed(3)}, ${this.hookPosition.y.toFixed(3)}) - Hook in water: ${this.isHookInWater()} - Starting exclamation timer.`,
         );
 
-        // Timer automático ser�� gerenciado no updateFishingGame()
+        // Timer automático será gerenciado no updateFishingGame()
       }
     } else if (this.gameState === "fish_hooked") {
-      // VERIFICAÇ��O CONTÍNUA: Se anzol saiu da água durante fish_hooked, resetar imediatamente
+      // VERIFICAÇÃO CONTÍNUA: Se anzol saiu da água durante fish_hooked, resetar imediatamente
       if (!this.isHookInWater()) {
         console.log(
-          "��� Hook removed from water while fish hooked - resetting immediately",
+          "🎣 Hook removed from water while fish hooked - resetting immediately",
         );
         this.isVibrating = false;
         this.resetFishingGame();
@@ -1852,7 +1975,7 @@ class ModularWaterEffect {
 
     // IMPORTANTE: Preservar backup do callback
     if (this.onGameStartBackup && !this.onGameStart) {
-      console.log("�� Restoring callback from backup after reset");
+      console.log("🔄 Restoring callback from backup after reset");
       this.onGameStart = this.onGameStartBackup;
     }
 
@@ -1916,9 +2039,13 @@ class ModularWaterEffect {
     // Limpar canvas
     ctx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
 
-    // Usar a MESMA posição do peixe que o shader usa
-    const fishUvX = this.fishCurrentPosition.x;
-    const fishUvY = this.fishCurrentPosition.y;
+    // Usar a MESMA posição do peixe ativo
+    const activeFishPosition =
+      this.activeFish === 1
+        ? this.fishCurrentPosition
+        : this.fish2CurrentPosition;
+    const fishUvX = activeFishPosition.x;
+    const fishUvY = activeFishPosition.y;
 
     // Converter para pixels
     const fishPixelX = fishUvX * overlayCanvas.width;
@@ -1941,7 +2068,7 @@ class ModularWaterEffect {
 
   // Método para desenhar overlay da boca do peixe (APENAS ADMIN)
   drawFishMouthOverlay() {
-    // VERIFICAÇÃO: Círculo rosa da boca vis��vel APENAS para admin
+    // VERIFICAÇÃO: Círculo rosa da boca visível APENAS para admin
     if (!this.isAdmin) {
       // Se não é admin, apenas desenhar texto "Fisgado!" se necessário
       if (this.showFisgadoText) {
@@ -1963,50 +2090,31 @@ class ModularWaterEffect {
     // Limpar canvas
     ctx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
 
-    // Usar a MESMA posição do peixe que o shader usa
-    const fishUvX = this.fishCurrentPosition.x;
-    const fishUvY = this.fishCurrentPosition.y;
+    // Desenhar círculo da boca para ambos os peixes
+    this.drawFishMouth(
+      ctx,
+      overlayCanvas,
+      this.fishCurrentPosition,
+      this.fishDirection,
+      1,
+    );
+    this.drawFishMouth(
+      ctx,
+      overlayCanvas,
+      this.fish2CurrentPosition,
+      this.fish2Direction,
+      2,
+    );
 
-    // Converter para pixels
-    const fishPixelX = fishUvX * overlayCanvas.width;
-    const fishPixelY = fishUvY * overlayCanvas.height;
-
-    // A boca do peixe muda de lado dependendo da direção
-    // Tamanho do peixe no shader: 0.08 width, 0.06 height
-    const fishSizePixelX = 0.08 * overlayCanvas.width;
-
-    // Lógica correta baseada no shader:
-    // fishDirection > 0 = nada para direita, imagem flipada (PI), boca fica à DIREITA
-    // fishDirection < 0 = nada para esquerda, imagem normal (0), boca fica à ESQUERDA
-    let mouthOffsetX;
-    if (this.fishDirection > 0) {
-      mouthOffsetX = fishSizePixelX / 2 - 10; // Boca à direita - 10px mais próximo da ponta
-    } else {
-      mouthOffsetX = -(fishSizePixelX / 2) + 10; // Boca à esquerda + 10px mais próximo da ponta
-    }
-
-    const mouthX =
-      fishPixelX + mouthOffsetX + (this.fishDirection > 0 ? -7 : 7); // -7px para direita ou +7px para esquerda (mais 4px próximo da boca)
-    const mouthY = fishPixelY + 2; // +2px para baixo
-
-    // Desenhar CÍRCULO ROSA MUITO PEQUENO na posi��ão da boca
-    ctx.fillStyle = "rgba(255, 0, 255, 0.8)";
-    ctx.beginPath();
-    ctx.arc(mouthX, mouthY, 2, 0, 2 * Math.PI); // Diminuído para 2px
-    ctx.fill();
-
-    // Borda do círculo
-    ctx.strokeStyle = "#ff00ff";
-    ctx.lineWidth = 4;
-    ctx.stroke();
-
-    // Texto indicativo
-    ctx.fillStyle = "#fff";
-    ctx.font = "16px Arial";
-    ctx.fillText("BOCA", mouthX - 20, mouthY - 40);
-
-    // Desenhar texto "Fisgado!" se necessário
+    // Desenhar texto "Fisgado!" se necessário - na posição do peixe ativo
     if (this.showFisgadoText) {
+      const activeFishPosition =
+        this.activeFish === 1
+          ? this.fishCurrentPosition
+          : this.fish2CurrentPosition;
+      const fishPixelX = activeFishPosition.x * overlayCanvas.width;
+      const fishPixelY = activeFishPosition.y * overlayCanvas.height;
+
       ctx.fillStyle = "#FFD700";
       ctx.font = "bold 24px Arial";
       ctx.strokeStyle = "#000";
@@ -2020,6 +2128,63 @@ class ModularWaterEffect {
       ctx.strokeText(text, textX, textY);
       ctx.fillText(text, textX, textY);
     }
+  }
+
+  // Método auxiliar para desenhar a boca de um peixe específico
+  drawFishMouth(ctx, overlayCanvas, fishPosition, fishDirection, fishNumber) {
+    // Usar a MESMA posição do peixe que o shader usa
+    const fishUvX = fishPosition.x;
+    const fishUvY = fishPosition.y;
+
+    // Converter para pixels
+    const fishPixelX = fishUvX * overlayCanvas.width;
+    const fishPixelY = fishUvY * overlayCanvas.height;
+
+    // A boca do peixe muda de lado dependendo da direção
+    // Tamanho do peixe no shader: 0.08 width, 0.06 height
+    const fishSizePixelX = 0.08 * overlayCanvas.width;
+
+    // Lógica correta baseada no shader:
+    // fishDirection > 0 = nada para direita, imagem flipada (PI), boca fica à DIREITA
+    // fishDirection < 0 = nada para esquerda, imagem normal (0), boca fica à ESQUERDA
+    let mouthOffsetX;
+    if (fishDirection > 0) {
+      mouthOffsetX = fishSizePixelX / 2 - 10; // Boca à direita - 10px mais próximo da ponta
+    } else {
+      mouthOffsetX = -(fishSizePixelX / 2) + 10; // Boca à esquerda + 10px mais próximo da ponta
+    }
+
+    const mouthX = fishPixelX + mouthOffsetX + (fishDirection > 0 ? -7 : 7); // -7px para direita ou +7px para esquerda (mais 4px próximo da boca)
+    const mouthY = fishPixelY + 2; // +2px para baixo
+
+    // Cores diferentes para cada peixe e destacar o peixe ativo
+    const isActiveFish = this.activeFish === fishNumber;
+    const baseColor = fishNumber === 1 ? "#0099ff" : "#00ff99"; // Azul para peixe 1, verde para peixe 2
+    const activeColor = "#ff00ff"; // Rosa/magenta para peixe ativo
+
+    const circleColor = isActiveFish ? activeColor : baseColor;
+    const circleSize = isActiveFish ? 3 : 2; // Maior se for o peixe ativo
+    const circleAlpha = isActiveFish ? 1.0 : 0.6; // Mais opaco se for o peixe ativo
+
+    // Desenhar círculo da boca
+    ctx.fillStyle = circleColor;
+    ctx.globalAlpha = circleAlpha;
+    ctx.beginPath();
+    ctx.arc(mouthX, mouthY, circleSize, 0, 2 * Math.PI);
+    ctx.fill();
+
+    // Borda do círculo
+    ctx.strokeStyle = circleColor;
+    ctx.lineWidth = isActiveFish ? 3 : 2;
+    ctx.stroke();
+    ctx.globalAlpha = 1.0; // Resetar alpha
+
+    // Texto indicativo
+    ctx.fillStyle = isActiveFish ? "#fff" : "#ccc";
+    ctx.font = isActiveFish ? "bold 14px Arial" : "12px Arial";
+    const fishLabel = fishNumber === 1 ? "AZUL" : "VERDE";
+    const labelText = isActiveFish ? `${fishLabel} (ATIVO)` : fishLabel;
+    ctx.fillText(labelText, mouthX - 25, mouthY - 35);
   }
 
   render() {
@@ -2053,7 +2218,7 @@ class ModularWaterEffect {
       8,
     );
 
-    // Define uniforms b��sicos
+    // Define uniforms básicos
     this.gl.uniform1f(this.uniforms.time, this.time);
     this.gl.uniform1f(this.uniforms.fishTime, this.fishTime);
     this.gl.uniform1f(this.uniforms.waveIntensity, this.waveIntensity);
@@ -2685,7 +2850,7 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
                       repeatType: "reverse",
                     }}
                   >
-                    {gameResult === "success" ? "🎉" : "����"}
+                    {gameResult === "success" ? "🎉" : "😞"}
                   </motion.div>
                   <h3 className="text-xl font-bold mb-1">
                     {gameResult === "success"
@@ -2694,7 +2859,7 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
                   </h3>
                   <p className="text-sm opacity-90">
                     {gameResult === "success"
-                      ? "Parabéns! Voc�� conseguiu!"
+                      ? "Parabéns! Você conseguiu!"
                       : "Tente novamente da próxima vez!"}
                   </p>
 
@@ -2755,7 +2920,7 @@ export const FishingScreenModular: React.FC = () => {
   const [showMinigame, setShowMinigame] = useState(false);
 
   useEffect(() => {
-    console.log("���� showMinigame state changed:", showMinigame);
+    console.log("🎮 showMinigame state changed:", showMinigame);
   }, [showMinigame]);
 
   // Helper function para redefinir o callback onGameStart
@@ -2774,7 +2939,7 @@ export const FishingScreenModular: React.FC = () => {
   const [fishingSettings, setFishingSettings] =
     useState<FishingSettings | null>(null);
   const [isUpdatingSettings, setIsUpdatingSettings] = useState(false);
-  const [editMode, setEditMode] = useState(false); // Modo de edição da ��rea da água
+  const [editMode, setEditMode] = useState(false); // Modo de edição da área da água
   const [isShiftPressed, setIsShiftPressed] = useState(false);
 
   const isAdmin = user?.isAdmin || false;
@@ -3271,7 +3436,7 @@ export const FishingScreenModular: React.FC = () => {
               borderRadius: "5px",
             }}
           >
-            ����� <strong>Reposicionar área:</strong> Segure{" "}
+            🔧 <strong>Reposicionar área:</strong> Segure{" "}
             <kbd
               style={{
                 background: "#e0e0e0",
@@ -3283,7 +3448,7 @@ export const FishingScreenModular: React.FC = () => {
             </kbd>{" "}
             + arraste a área tracejada
             <br />
-            �� <strong>Redimensionar:</strong> Use os sliders abaixo
+            📏 <strong>Redimensionar:</strong> Use os sliders abaixo
           </div>
 
           {/* Controles de efeitos de água */}
@@ -3324,8 +3489,7 @@ export const FishingScreenModular: React.FC = () => {
                 marginBottom: "5px",
               }}
             >
-              Distorç��o:{" "}
-              {(fishingSettings?.distortionAmount || 0.3).toFixed(2)}
+              Distorção: {(fishingSettings?.distortionAmount || 0.3).toFixed(2)}
             </label>
             <input
               type="range"
@@ -3392,7 +3556,7 @@ export const FishingScreenModular: React.FC = () => {
               <div
                 style={{ fontSize: "0.75rem", color: "#666", marginTop: "2px" }}
               >
-                ���� Imagem personalizada ativa
+                ✅ Imagem personalizada ativa
               </div>
             )}
           </div>
@@ -3518,7 +3682,7 @@ export const FishingScreenModular: React.FC = () => {
           <div style={{ fontSize: "12px", color: "#666", marginTop: "10px" }}>
             {isShiftPressed
               ? "🎯 Shift ativo - arraste a área para reposicionar"
-              : "��️ Segure Shift e arraste a área tracejada para reposicionar"}
+              : "⌨️ Segure Shift e arraste a área tracejada para reposicionar"}
           </div>
         </div>
       )}
@@ -3566,12 +3730,12 @@ export const FishingScreenModular: React.FC = () => {
             }}
           >
             <h2 style={{ marginTop: 0, color: "#333", fontSize: "24px" }}>
-              �� Peixe Fisgado!
+              🎣 Peixe Fisgado!
             </h2>
             <p
               style={{ color: "#666", marginBottom: "30px", fontSize: "16px" }}
             >
-              Parab��ns! Você conseguiu fisgar um peixe na área da água.
+              Parabéns! Você conseguiu fisgar um peixe na área da água.
             </p>
 
             <div
