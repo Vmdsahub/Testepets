@@ -2211,7 +2211,7 @@ class ModularWaterEffect {
   render() {
     if (!this.gl || !this.canvas) return;
 
-    this.time += 0.016 * this.animationSpeed; // Animação da água
+    this.time += 0.016 * this.animationSpeed; // Animaç��o da água
     this.fishTime += 0.016; // Peixe na mesma velocidade da água para evitar teleporte
 
     this.updateFishingGame();
@@ -2950,7 +2950,7 @@ export const FishingScreenModular: React.FC = () => {
   }, [showMinigame]);
 
   // Helper function para redefinir o callback onGameStart
-  const redefineGameStartCallback = () => {
+  const redefineGameStartCallback = useCallback(() => {
     if (waterEffectRef.current) {
       const callback = () => {
         console.log("🎮 Triggering minigame - setShowMinigame(true)");
@@ -2961,7 +2961,21 @@ export const FishingScreenModular: React.FC = () => {
       waterEffectRef.current.onGameStartBackup = callback; // Salvar backup
       console.log("🔄 Callback defined and backed up");
     }
-  };
+  }, []);
+
+  // Callback otimizado para o minigame
+  const handleMinigameComplete = useCallback(
+    (success: boolean) => {
+      setShowMinigame(false);
+      // Sucesso ou falha, apenas fecha o minigame
+      if (waterEffectRef.current) {
+        waterEffectRef.current.resetFishingGame();
+        // IMPORTANTE: Redefinir o callback onGameStart após o reset
+        redefineGameStartCallback();
+      }
+    },
+    [redefineGameStartCallback],
+  );
   const [fishingSettings, setFishingSettings] =
     useState<FishingSettings | null>(null);
   const [isUpdatingSettings, setIsUpdatingSettings] = useState(false);
