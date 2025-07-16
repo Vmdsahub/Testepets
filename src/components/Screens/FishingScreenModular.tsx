@@ -1322,6 +1322,10 @@ class ModularWaterEffect {
 
   // Método para movimento orgânico - evitar bordas naturalmente
   avoidBorders() {
+    if (!this.waterArea) {
+      return { x: 0, y: 0 }; // Retorna força nula se waterArea não estiver definida
+    }
+
     const detectionMargin = 0.08; // Detectar bordas com antecedência
     const centerX = this.waterArea.x + this.waterArea.width / 2;
     const centerY = this.waterArea.y + this.waterArea.height / 2;
