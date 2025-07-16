@@ -696,7 +696,7 @@ class ModularWaterEffect {
         
                                                                                                                                 // Adicionar exclamação com imagem fornecida
         if (u_showExclamation > 0.0 && u_gameState >= 4.0) {
-                    // Posição da exclamação (10px para esquerda do centro do peixe ativo, sem vibração)
+                    // Posi��ão da exclamação (10px para esquerda do centro do peixe ativo, sem vibração)
           float leftOffset = 10.0 / u_resolution.x; // Converter 10px para coordenadas UV
 
           // Usar posição do peixe ativo (1 = azul, 2 = verde)
@@ -3086,6 +3086,14 @@ export const FishingScreenModular: React.FC = () => {
   const [isShiftPressed, setIsShiftPressed] = useState(false);
 
   const isAdmin = user?.isAdmin || false;
+
+  // Cleanup do fishingService
+  useEffect(() => {
+    return () => {
+      console.log("🧹 Cleaning up fishingService");
+      fishingService.cleanup();
+    };
+  }, []);
 
   // Load fishing settings
   useEffect(() => {
