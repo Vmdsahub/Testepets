@@ -521,7 +521,7 @@ class ModularWaterEffect {
         // Calcular direção baseada no movimento circular principal
         float velocityX = -sin(mainAngle) * 0.8 * swimSpeed * mainRadius; // Derivada do cos
 
-        // Adicionar variações de trajetória
+        // Adicionar variaç��es de trajetória
         velocityX += cos(t * 1.5) * 1.5 * swimSpeed * areaW * 0.15;
         velocityX += -sin(t * 0.6 + 2.0) * 0.6 * swimSpeed * areaW * 0.2;
 
@@ -555,15 +555,30 @@ class ModularWaterEffect {
             fishAngle = diagonalTilt;
         }
 
-                                // Usar posição calculada pelo JavaScript com vibração
+                                        // Usar posição calculada pelo JavaScript com vibração
         float fishX = u_fishTargetPosition.x;
         float fishY = u_fishTargetPosition.y;
 
-        // Aplicar vibração no shader se necessário (sincronizada)
+        // === PEIXE 2 (VERDE) ===
+        float fish2X = u_fish2TargetPosition.x;
+        float fish2Y = u_fish2TargetPosition.y;
+
+        // Aplicar vibração no shader se necessário (sincronizada) - APENAS NO PEIXE ATIVO
         if (u_gameState >= 4.0) {
           float vibrationIntensity = 0.003;
-          fishX += sin(u_time * 50.0) * vibrationIntensity;
-          fishY += cos(u_time * 47.0) * vibrationIntensity;
+          float vibrationX = sin(u_time * 50.0) * vibrationIntensity;
+          float vibrationY = cos(u_time * 47.0) * vibrationIntensity;
+
+          // Aplicar vibração apenas no peixe ativo
+          if (u_activeFish < 1.5) {
+            // Peixe 1 (azul) está ativo
+            fishX += vibrationX;
+            fishY += vibrationY;
+          } else {
+            // Peixe 2 (verde) está ativo
+            fish2X += vibrationX;
+            fish2Y += vibrationY;
+          }
         }
         
                                 // Imagem original com peixe
