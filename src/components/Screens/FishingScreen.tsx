@@ -7,6 +7,7 @@ import {
   FishingSettings,
 } from "../../services/fishingSettingsService";
 import { FishingRod } from "../Game/FishingRod";
+import { fishingService } from "../../services/fishingService";
 
 // WebGL Water Effect Class - With 60% coverage mask
 class WaterEffect {
