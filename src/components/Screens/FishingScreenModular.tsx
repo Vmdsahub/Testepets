@@ -1544,21 +1544,23 @@ class ModularWaterEffect {
       this.fishCurrentPosition.y += this.fishVelocity.y;
 
       // Forçar peixe a ficar exatamente dentro da linha tracejada
-      const clampMargin = 0.01; // Margem mínima apenas para evitar pixel bleeding
-      this.fishCurrentPosition.x = Math.max(
-        this.waterArea.x + clampMargin,
-        Math.min(
-          this.waterArea.x + this.waterArea.width - clampMargin,
-          this.fishCurrentPosition.x,
-        ),
-      );
-      this.fishCurrentPosition.y = Math.max(
-        this.waterArea.y + clampMargin,
-        Math.min(
-          this.waterArea.y + this.waterArea.height - clampMargin,
-          this.fishCurrentPosition.y,
-        ),
-      );
+      if (this.waterArea) {
+        const clampMargin = 0.01; // Margem mínima apenas para evitar pixel bleeding
+        this.fishCurrentPosition.x = Math.max(
+          this.waterArea.x + clampMargin,
+          Math.min(
+            this.waterArea.x + this.waterArea.width - clampMargin,
+            this.fishCurrentPosition.x,
+          ),
+        );
+        this.fishCurrentPosition.y = Math.max(
+          this.waterArea.y + clampMargin,
+          Math.min(
+            this.waterArea.y + this.waterArea.height - clampMargin,
+            this.fishCurrentPosition.y,
+          ),
+        );
+      }
     }
 
     // Calcular direção do peixe baseada na velocidade
