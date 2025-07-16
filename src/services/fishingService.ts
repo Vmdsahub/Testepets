@@ -25,17 +25,14 @@ class FishingService {
     // Área de água: y > 0.6 (60% da tela de baixo para cima)
     this.fishingSpots = [
       // Peixinho Azul - spots mais profundos
-      { x: 0.2, y: 0.8, species: "Peixinho Azul" },
-      { x: 0.5, y: 0.85, species: "Peixinho Azul" },
+      { x: 0.2, y: 0.7, species: "Peixinho Azul" },
       { x: 0.8, y: 0.75, species: "Peixinho Azul" },
 
       // Peixinho Verde - spots mais rasos
-      { x: 0.3, y: 0.65, species: "Peixinho Verde" },
-      { x: 0.7, y: 0.68, species: "Peixinho Verde" },
+      { x: 0.5, y: 0.6, species: "Peixinho Verde" },
     ];
 
-    // Spawnar peixes iniciais
-    this.spawnInitialFish();
+    // Não spawnar peixes automaticamente - será feito manualmente
   }
 
   private spawnInitialFish() {
