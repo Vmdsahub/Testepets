@@ -127,14 +127,8 @@ export const calculateFishRarity = (
   species: FishSpecies,
   size: number,
 ): "Common" | "Uncommon" | "Rare" | "Epic" | "Legendary" => {
-  const sizeRange = species.sizeRange.max - species.sizeRange.min;
-  const sizePercentile = (size - species.sizeRange.min) / sizeRange;
-
-  if (sizePercentile >= 0.9) return "Legendary";
-  if (sizePercentile >= 0.7) return "Epic";
-  if (sizePercentile >= 0.5) return "Rare";
-  if (sizePercentile >= 0.3) return "Uncommon";
-  return "Common";
+  // Raridade baseada apenas na espécie, não no tamanho
+  return species.rarity;
 };
 
 export const createFish = (
