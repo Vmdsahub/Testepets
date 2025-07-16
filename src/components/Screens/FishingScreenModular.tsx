@@ -2164,7 +2164,7 @@ class ModularWaterEffect {
     }
 
     console.log(
-      "⚠️ resetFishingGame completed - callback state:",
+      "��️ resetFishingGame completed - callback state:",
       !!this.onGameStart,
       "backup:",
       !!this.onGameStartBackup,
@@ -3321,12 +3321,17 @@ export const FishingScreenModular: React.FC = () => {
 
         // NOVA LÓGICA: Clique em QUALQUER LUGAR da tela durante mordida
         globalClickHandler = (e: MouseEvent) => {
-          console.log(
-            "🖱️ Global click detected - gameState:",
-            waterEffect.gameState,
-            "canClick:",
-            waterEffect.canClickExclamation,
-          );
+          const currentTime = Date.now();
+          const elapsedTime = currentTime - waterEffect.exclamationStartTime;
+          console.log("🖱️ Global click detected:", {
+            gameState: waterEffect.gameState,
+            canClick: waterEffect.canClickExclamation,
+            exclamationTime: waterEffect.exclamationTime,
+            elapsedTime: elapsedTime,
+            hasCallback: !!waterEffect.onGameStart,
+            hasBackup: !!waterEffect.onGameStartBackup,
+          });
+
           if (
             waterEffect.gameState === "fish_hooked" &&
             waterEffect.canClickExclamation
@@ -3339,7 +3344,10 @@ export const FishingScreenModular: React.FC = () => {
               console.log("🔄 Restoring callback before opening minigame");
               waterEffect.onGameStart = waterEffect.onGameStartBackup;
             }
-            waterEffect.handleExclamationClick();
+            const success = waterEffect.handleExclamationClick();
+            console.log("🎮 Minigame trigger result:", success);
+          } else {
+            console.log("❌ Click ignored - conditions not met");
           }
         };
 
