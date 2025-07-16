@@ -655,7 +655,7 @@ class ModularWaterEffect {
             // Criar forma de exclamação baseada na imagem
             vec2 localPos = exclamationUV * 2.0 - 1.0; // Converter para -1 a 1
 
-            // Corpo da exclamação (parte comprida) - corrigido para orientação correta
+            // Corpo da exclama��ão (parte comprida) - corrigido para orientação correta
             float bodyWidth = 0.2;
             bool inBody = abs(localPos.x) < bodyWidth && localPos.y > -0.8 && localPos.y < 0.4;
 
@@ -2296,6 +2296,7 @@ class ModularWaterEffect {
     );
     this.gl.uniform1f(this.uniforms.fish2Direction, this.fish2Direction);
     this.gl.uniform1f(this.uniforms.fish2Angle, this.fish2Angle || 0);
+    this.gl.uniform1f(this.uniforms.activeFish, this.activeFish);
 
     // Novos uniforms para área modular
     this.gl.uniform4f(
