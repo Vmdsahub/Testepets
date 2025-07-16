@@ -300,7 +300,7 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = ({
   );
 
   const inventoryContent = (
-    <div className="max-w-md mx-auto pb-12">
+    <div className="max-w-md mx-auto pb-12 inventory-container relative">
       {/* Search Bar */}
       <motion.div
         className="bg-white rounded-2xl shadow-lg mb-4 p-4 border border-gray-100"
