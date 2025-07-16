@@ -146,6 +146,35 @@ export const InventoryScreen: React.FC = () => {
     setSelectedItem(null);
   };
 
+  // Fish-specific handlers
+  const handleFishInspect = (fishItem: Item) => {
+    const result = fishingService.inspectFish(fishItem);
+    if (result.success) {
+      setFishInspectModal({ isOpen: true, fish: fishItem });
+    } else {
+      addNotification({
+        type: "error",
+        title: "Erro",
+        message: result.message,
+        isRead: false,
+      });
+    }
+  };
+
+  const handleFishFeed = (fishItem: Item) => {
+    const result = fishingService.feedFish(fishItem);
+    addNotification({
+      type: result.success ? "success" : "error",
+      title: result.success ? "Peixe Alimentado!" : "Erro",
+      message: result.message,
+      isRead: false,
+    });
+  };
+
+  const handleFishDiscard = (fishItem: Item) => {
+    handleDiscardItem(fishItem);
+  };
+
   const getItemTypeColor = (type: string) => {
     const colors = {
       Food: "text-green-600",
