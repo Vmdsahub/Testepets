@@ -624,72 +624,43 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = ({
   );
 
   return (
-    <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 200 }}>
-      <motion.div
-        className="absolute pointer-events-auto bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden flex flex-col"
-        style={{
-          width: "636px",
-          height: "750px",
-          maxWidth: "95vw",
-          maxHeight: "90vh",
-          left: "50%",
-          top: "50%",
-          transform: "translate(-50%, -50%)",
-        }}
-        initial={{
-          opacity: 0,
-          scale: 0.8,
-          x: position.x,
-          y: position.y,
-        }}
-        animate={{
-          opacity: 1,
-          scale: 1,
-          x: position.x,
-          y: position.y,
-        }}
-        exit={{
-          opacity: 0,
-          scale: 0.8,
-          x: position.x,
-          y: position.y,
-        }}
-        transition={{
-          type: "spring",
-          stiffness: 300,
-          damping: 25,
-          duration: 0.4,
-        }}
-        drag={true}
-        dragElastic={0.1}
-        dragMomentum={false}
-        onDragStart={() => setIsDragging(true)}
-        onDragEnd={handleDragEnd}
-        whileDrag={{ scale: 1.02 }}
-      >
-        {/* Header */}
-        <div className="bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between select-none cursor-move">
-          <h2 className="text-lg font-semibold text-gray-900">Inventário</h2>
-          <div className="flex items-center space-x-2">
-            <motion.button
-              onClick={handleClose}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <X className="w-4 h-4 text-gray-500" />
-            </motion.button>
-          </div>
-        </div>
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          className="fixed inset-0 flex items-start justify-center pt-20 z-50"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          {/* Close button */}
+          <motion.button
+            onClick={handleClose}
+            className="absolute top-4 right-4 p-2 bg-white hover:bg-gray-100 rounded-full shadow-lg transition-colors cursor-pointer z-10"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.1 }}
+          >
+            <X className="w-5 h-5 text-gray-600" />
+          </motion.button>
 
-        {/* Content */}
-        <div className="flex-1 overflow-auto">
-          {inventory.filter((item) => item.quantity > 0).length === 0
-            ? emptyInventoryContent
-            : inventoryContent}
-        </div>
-      </motion.div>
-    </div>
+          {/* Inventory content directly */}
+          <motion.div
+            className="w-full max-w-md mx-4"
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.95 }}
+            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+          >
+            {inventory.filter((item) => item.quantity > 0).length === 0
+              ? emptyInventoryContent
+              : inventoryContent}
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };
 
