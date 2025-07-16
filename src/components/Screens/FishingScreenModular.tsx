@@ -3143,6 +3143,14 @@ export const FishingScreenModular: React.FC = () => {
         waterEffectRef.current = waterEffect;
         redefineGameStartCallback();
 
+        // Forçar spawn inicial de peixes
+        console.log("🐟 Forcing initial fish spawn...");
+        fishingService.forceRespawnAll();
+        console.log(
+          "🐟 Fish after forced spawn:",
+          fishingService.getActiveFish(),
+        );
+
         // NOVA LÓGICA: Clique em QUALQUER LUGAR da tela durante mordida
         globalClickHandler = (e: MouseEvent) => {
           if (
