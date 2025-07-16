@@ -231,6 +231,11 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = ({
     }
   }, [isOpen]);
 
+  // Debug dropdown state
+  React.useEffect(() => {
+    console.log("Dropdown state changed:", dropdownState);
+  }, [dropdownState]);
+
   const handleDragEnd = (event: any, info: any) => {
     setIsDragging(false);
     const newPosition = {
