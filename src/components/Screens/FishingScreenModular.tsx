@@ -89,6 +89,7 @@ class ModularWaterEffect {
 
     this.fishReactionStartTime = 0;
     this.fishReactionDelay = 0;
+    this.activeFish = 1; // Qual peixe está ativo (1 = azul, 2 = verde)
     this.originalFishMovement = { moveX: 0, moveY: 0 };
     this.exclamationTime = 0;
     this.exclamationStartTime = 0;
@@ -526,7 +527,7 @@ class ModularWaterEffect {
         // Movimento de busca r��pido
         velocityX += cos(t * 2.2) * 2.2 * swimSpeed * areaW * 0.1;
 
-        // Aplicar aceleraç��o
+        // Aplicar aceleração
         velocityX *= burstSpeed;
 
         float fishAngle = 0.0;
@@ -1831,7 +1832,7 @@ class ModularWaterEffect {
         `🎣 Fish will try again in ${(this.fishReactionDelay / 1000).toFixed(1)}s since hook is still in water`,
       );
     } else {
-      // Se não, voltar ao estado idle e garantir reset completo
+      // Se n��o, voltar ao estado idle e garantir reset completo
       console.log("🔄 Complete reset - hook removed from water");
       this.gameState = "idle";
       this.hookPosition = { x: 0.5, y: 0.5 }; // Garantir reset da posição
