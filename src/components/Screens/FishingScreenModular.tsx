@@ -291,7 +291,7 @@ class ModularWaterEffect {
         vec2 fishPos = vec2(fishX, fishY);
         vec2 fishSize = vec2(0.08, 0.06);
 
-                                                                                        // SISTEMA COM ROTA��ÃO DIAGONAL: Aplicar rota��ão real nas coordenadas UV
+                                                                                        // SISTEMA COM ROTA��ÃO DIAGONAL: Aplicar rotação real nas coordenadas UV
         vec2 localUV = (coords - fishPos + fishSize * 0.5) / fishSize;
 
         // Converter para coordenadas centradas (-0.5 a 0.5)
@@ -1845,7 +1845,18 @@ class ModularWaterEffect {
       this.gameState,
       "canClick:",
       this.canClickExclamation,
+      "callback exists:",
+      !!this.onGameStart,
+      "backup exists:",
+      !!this.onGameStartBackup,
     );
+
+    // Verificar e restaurar callback se necessário
+    if (!this.onGameStart && this.onGameStartBackup) {
+      console.log("🔄 Auto-restoring callback in handleExclamationClick");
+      this.onGameStart = this.onGameStartBackup;
+    }
+
     if (this.gameState === "fish_hooked" && this.canClickExclamation) {
       console.log("Player clicked exclamation! Showing Fisgado text.");
       this.canClickExclamation = false;
@@ -2131,7 +2142,7 @@ class ModularWaterEffect {
       );
     } else {
       // Se não, voltar ao estado idle e garantir reset completo
-      console.log("🔄 Complete reset - hook removed from water");
+      console.log("���� Complete reset - hook removed from water");
       this.gameState = "idle";
       this.hookPosition = { x: 0.5, y: 0.5 }; // Garantir reset da posição
       this.fishReactionStartTime = 0;
