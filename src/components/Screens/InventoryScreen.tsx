@@ -464,7 +464,7 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = ({
         </div>
       </motion.div>
 
-            {/* Item Detail Modal */}
+      {/* Item Detail Modal */}
       <AnimatePresence>
         {selectedItem && (
           <motion.div
@@ -473,147 +473,142 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = ({
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
           >
-              <div className="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-gray-100">
-                <div className="text-center mb-6">
-                  <div
-                    className={`w-20 h-20 mx-auto rounded-2xl border-2 ${getRarityColor(selectedItem.rarity)} flex items-center justify-center mb-3 shadow-lg overflow-hidden`}
-                  >
-                    {selectedItem.imageUrl ? (
-                      <img
-                        src={selectedItem.imageUrl}
-                        alt={selectedItem.name}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.style.display = "none";
-                          target.parentElement!.innerHTML = `<span class="text-4xl">${getItemEmoji(selectedItem)}</span>`;
-                        }}
-                      />
-                    ) : (
-                      <span className="text-4xl">
-                        {getItemEmoji(selectedItem)}
-                      </span>
-                    )}
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-1">
-                    {selectedItem.name}
-                  </h3>
-                  <div className="flex items-center justify-center space-x-2">
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${getRarityColor(selectedItem.rarity)}`}
-                    >
-                      {selectedItem.rarity}
-                    </span>
-                    <span
-                      className={`px-2 py-1 bg-gray-100 rounded-full text-xs font-medium ${getItemTypeColor(selectedItem.type)}`}
-                    >
-                      {selectedItem.type}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="bg-gray-50 rounded-2xl p-4 mb-6">
-                  <p className="text-gray-700 text-sm leading-relaxed">
-                    {selectedItem.description}
-                  </p>
-                </div>
-
-                {selectedItem.effects &&
-                  Object.keys(selectedItem.effects).length > 0 && (
-                    <div className="mb-6">
-                      <h4 className="font-semibold text-gray-900 mb-3">
-                        Effects:
-                      </h4>
-                      <div className="space-y-2">
-                        {Object.entries(selectedItem.effects).map(
-                          ([effect, value]) => (
-                            <div
-                              key={effect}
-                              className="flex justify-between items-center p-2 bg-green-50 rounded-lg"
-                            >
-                              <span className="text-gray-700 capitalize font-medium flex items-center">
-                                {effect === "health" && (
-                                  <Heart className="w-4 h-4 mr-1 text-red-500" />
-                                )}
-                                {effect === "hunger" && (
-                                  <Utensils className="w-4 h-4 mr-1 text-green-500" />
-                                )}
-                                {effect === "happiness" && (
-                                  <Sparkles className="w-4 h-4 mr-1 text-yellow-500" />
-                                )}
-                                {effect === "defense" && (
-                                  <Shield className="w-4 h-4 mr-1 text-blue-500" />
-                                )}
-                                {effect}:
-                              </span>
-                              <span className="text-green-600 font-bold">
-                                +{value}
-                              </span>
-                            </div>
-                          ),
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                {selectedItem.quantity > 1 && (
-                  <div className="mb-6 p-3 bg-blue-50 rounded-xl">
-                    <div className="flex justify-between items-center">
-                      <span className="text-blue-700 font-medium">
-                        Quantity:
-                      </span>
-                      <span className="text-blue-800 font-bold">
-                        {selectedItem.quantity}
-                      </span>
-                    </div>
-                  </div>
-                )}
-
-                {selectedItem.price && (
-                  <div className="mb-6 p-3 bg-yellow-50 rounded-xl">
-                    <div className="flex justify-between items-center">
-                      <span className="text-yellow-700 font-medium">
-                        Value:
-                      </span>
-                      <span className="text-yellow-800 font-bold">
-                        {selectedItem.price} {selectedItem.currency}
-                      </span>
-                    </div>
-                  </div>
-                )}
-
-                <div className="flex space-x-3">
-                  <motion.button
-                    onClick={() => handleUseItem(selectedItem)}
-                    className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-2xl hover:from-blue-700 hover:to-purple-700 transition-all font-semibold shadow-lg"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    {selectedItem.type === "Equipment" ||
-                    selectedItem.type === "Weapon"
-                      ? "Equip"
-                      : "Use Item"}
-                  </motion.button>
-                  <motion.button
-                    onClick={() => handleDiscardItem(selectedItem)}
-                    className="px-4 py-3 bg-red-100 hover:bg-red-200 rounded-2xl transition-colors"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <Trash2 className="w-5 h-5 text-red-600" />
-                  </motion.button>
-                </div>
-
-                <motion.button
-                  onClick={() => setSelectedItem(null)}
-                  className="w-full mt-3 text-gray-600 hover:text-gray-800 transition-colors py-2"
-                  whileHover={{ scale: 1.02 }}
+            <div className="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-gray-100">
+              <div className="text-center mb-6">
+                <div
+                  className={`w-20 h-20 mx-auto rounded-2xl border-2 ${getRarityColor(selectedItem.rarity)} flex items-center justify-center mb-3 shadow-lg overflow-hidden`}
                 >
-                  Cancel
+                  {selectedItem.imageUrl ? (
+                    <img
+                      src={selectedItem.imageUrl}
+                      alt={selectedItem.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = "none";
+                        target.parentElement!.innerHTML = `<span class="text-4xl">${getItemEmoji(selectedItem)}</span>`;
+                      }}
+                    />
+                  ) : (
+                    <span className="text-4xl">
+                      {getItemEmoji(selectedItem)}
+                    </span>
+                  )}
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-1">
+                  {selectedItem.name}
+                </h3>
+                <div className="flex items-center justify-center space-x-2">
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs font-medium ${getRarityColor(selectedItem.rarity)}`}
+                  >
+                    {selectedItem.rarity}
+                  </span>
+                  <span
+                    className={`px-2 py-1 bg-gray-100 rounded-full text-xs font-medium ${getItemTypeColor(selectedItem.type)}`}
+                  >
+                    {selectedItem.type}
+                  </span>
+                </div>
+              </div>
+
+              <div className="bg-gray-50 rounded-2xl p-4 mb-6">
+                <p className="text-gray-700 text-sm leading-relaxed">
+                  {selectedItem.description}
+                </p>
+              </div>
+
+              {selectedItem.effects &&
+                Object.keys(selectedItem.effects).length > 0 && (
+                  <div className="mb-6">
+                    <h4 className="font-semibold text-gray-900 mb-3">
+                      Effects:
+                    </h4>
+                    <div className="space-y-2">
+                      {Object.entries(selectedItem.effects).map(
+                        ([effect, value]) => (
+                          <div
+                            key={effect}
+                            className="flex justify-between items-center p-2 bg-green-50 rounded-lg"
+                          >
+                            <span className="text-gray-700 capitalize font-medium flex items-center">
+                              {effect === "health" && (
+                                <Heart className="w-4 h-4 mr-1 text-red-500" />
+                              )}
+                              {effect === "hunger" && (
+                                <Utensils className="w-4 h-4 mr-1 text-green-500" />
+                              )}
+                              {effect === "happiness" && (
+                                <Sparkles className="w-4 h-4 mr-1 text-yellow-500" />
+                              )}
+                              {effect === "defense" && (
+                                <Shield className="w-4 h-4 mr-1 text-blue-500" />
+                              )}
+                              {effect}:
+                            </span>
+                            <span className="text-green-600 font-bold">
+                              +{value}
+                            </span>
+                          </div>
+                        ),
+                      )}
+                    </div>
+                  </div>
+                )}
+
+              {selectedItem.quantity > 1 && (
+                <div className="mb-6 p-3 bg-blue-50 rounded-xl">
+                  <div className="flex justify-between items-center">
+                    <span className="text-blue-700 font-medium">Quantity:</span>
+                    <span className="text-blue-800 font-bold">
+                      {selectedItem.quantity}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {selectedItem.price && (
+                <div className="mb-6 p-3 bg-yellow-50 rounded-xl">
+                  <div className="flex justify-between items-center">
+                    <span className="text-yellow-700 font-medium">Value:</span>
+                    <span className="text-yellow-800 font-bold">
+                      {selectedItem.price} {selectedItem.currency}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex space-x-3">
+                <motion.button
+                  onClick={() => handleUseItem(selectedItem)}
+                  className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-2xl hover:from-blue-700 hover:to-purple-700 transition-all font-semibold shadow-lg"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  {selectedItem.type === "Equipment" ||
+                  selectedItem.type === "Weapon"
+                    ? "Equip"
+                    : "Use Item"}
+                </motion.button>
+                <motion.button
+                  onClick={() => handleDiscardItem(selectedItem)}
+                  className="px-4 py-3 bg-red-100 hover:bg-red-200 rounded-2xl transition-colors"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Trash2 className="w-5 h-5 text-red-600" />
                 </motion.button>
               </div>
-            </motion.div>
-          </>
+
+              <motion.button
+                onClick={() => setSelectedItem(null)}
+                className="w-full mt-3 text-gray-600 hover:text-gray-800 transition-colors py-2"
+                whileHover={{ scale: 1.02 }}
+              >
+                Cancel
+              </motion.button>
+            </div>
+          </motion.div>
         )}
       </AnimatePresence>
 
