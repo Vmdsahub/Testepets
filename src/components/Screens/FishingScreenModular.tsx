@@ -285,14 +285,13 @@ class ModularWaterEffect {
         return false;
       }
 
-      // Função para obter cor com peixe (mantida original)
-            vec4 getColorWithFish(vec2 coords, float fishX, float fishY, float fishAngle) {
-        vec4 bgColor = texture2D(u_backgroundTexture, coords);
+            // Função para obter cor com peixe (mantida original)
+            vec4 getColorWithFish(vec4 bgColor, vec2 coords, float fishX, float fishY, float fishAngle) {
         
         vec2 fishPos = vec2(fishX, fishY);
         vec2 fishSize = vec2(0.08, 0.06);
 
-                                                                                        // SISTEMA COM ROTAÇÃO DIAGONAL: Aplicar rotação real nas coordenadas UV
+                                                                                        // SISTEMA COM ROTA��ÃO DIAGONAL: Aplicar rotação real nas coordenadas UV
         vec2 localUV = (coords - fishPos + fishSize * 0.5) / fishSize;
 
         // Converter para coordenadas centradas (-0.5 a 0.5)
@@ -2066,7 +2065,7 @@ class ModularWaterEffect {
     );
 
     if (this.showFisgadoText) {
-      console.log("⚠️ Skipping timer cleanup - minigame is starting!");
+      console.log("⚠�� Skipping timer cleanup - minigame is starting!");
       // Não limpar timers quando "Fisgado!" está sendo mostrado
     } else {
       // Limpar todos os timers ativos para evitar comportamentos persistentes
@@ -2100,7 +2099,7 @@ class ModularWaterEffect {
     );
 
     // CORREÇÃO: Só reagir novamente se o anzol foi genuinamente lançado pela vara
-    // e não apenas está na posição de água por acaso
+    // e não apenas está na posi��ão de água por acaso
     const wasProperlyReset =
       this.hookPosition.x === 0.5 && this.hookPosition.y === 0.5;
 
@@ -2667,7 +2666,7 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
               🎣 Minigame de Pesca
             </h2>
             <p className="text-blue-100 text-center text-sm mt-2">
-              Mantenha o peixe na área verde!
+              Mantenha o peixe na ��rea verde!
             </p>
           </div>
 
