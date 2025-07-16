@@ -3164,11 +3164,11 @@ export const FishingScreenModular: React.FC = () => {
         setShowMinigame(true);
 
         // Código removido - agora a captura acontece no handleMinigameComplete
-                // Código legacy removido - não será executado
+        // Código legacy removido - não será executado
         if (false) {
-          console.log(`�� Attempting to catch fish: ${legacy fish}`);
+          console.log(`�� Attempting to catch fish: legacy fish`);
           // Pescar o peixe
-                    const caughtFish = null; // Legacy code - not executed
+          const caughtFish = null; // Legacy code - not executed
           console.log("🐟 Caught fish result:", caughtFish);
 
           if (caughtFish) {
