@@ -103,7 +103,7 @@ export const FishVisualization: React.FC<FishVisualizationProps> = ({
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [waterArea]);
+  }, [waterArea, visibleFish]);
 
   return (
     <canvas
