@@ -111,12 +111,17 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = ({
 
     const button = event.currentTarget as HTMLElement;
     const rect = button.getBoundingClientRect();
-    const position = {
-      x: rect.left + rect.width / 2,
-      y: rect.bottom + 8,
+    const inventoryContainer = button.closest(".inventory-container");
+    const containerRect = inventoryContainer?.getBoundingClientRect() || {
+      left: 0,
+      top: 0,
     };
 
-    console.log("Item clicked:", item.name, "Position:", position);
+    const position = {
+      x: rect.left - containerRect.left + rect.width / 2,
+      y: rect.bottom - containerRect.top + 8,
+    };
+
     setDropdownState({ isOpen: true, item, position });
   };
 
@@ -711,5 +716,5 @@ const getItemEmoji = (item: Item) => {
   if (item.type === "Special") return "✨";
   if (item.type === "Style") return "🎨";
   if (item.type === "Theme") return "🎭";
-  return "��";
+  return "📦";
 };
