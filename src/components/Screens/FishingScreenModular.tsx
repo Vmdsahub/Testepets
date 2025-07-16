@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { ArrowLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useGameStore } from "../../store/gameStore";
@@ -2211,7 +2211,7 @@ class ModularWaterEffect {
   render() {
     if (!this.gl || !this.canvas) return;
 
-    this.time += 0.016 * this.animationSpeed; // Animaç��o da água
+    this.time += 0.016 * this.animationSpeed; // Animação da água
     this.fishTime += 0.016; // Peixe na mesma velocidade da água para evitar teleporte
 
     this.updateFishingGame();
