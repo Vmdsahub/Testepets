@@ -3024,9 +3024,47 @@ export const FishingScreenModular: React.FC = () => {
   const redefineGameStartCallback = useCallback(() => {
     if (waterEffectRef.current) {
       const callback = () => {
-        console.log("🎮 Fish caught! Processing catch...");
-        console.log("🎮 User:", user);
-        console.log("🎮 WaterEffect ref:", !!waterEffectRef.current);
+        console.log("🎮 Fish caught! Using simple system...");
+
+        // Sistema simples - pegar qualquer peixe disponível
+        if (visibleFish.length > 0 && user) {
+          const fishToCatch = visibleFish[0];
+          const caughtFish = catchFish(fishToCatch.id);
+
+          if (caughtFish) {
+            // Criar item de peixe
+            const fishItem = {
+              id: `fish_item_${Date.now()}`,
+              slug: `${caughtFish.species.toLowerCase().replace(" ", "-")}-size-${caughtFish.size}`,
+              name: `${caughtFish.species} (Tamanho ${caughtFish.size})`,
+              description: `Um ${caughtFish.species} pescado recentemente`,
+              type: "Fish" as const,
+              rarity: "Common" as const,
+              quantity: 1,
+              createdAt: new Date(),
+              fishData: {
+                species: caughtFish.species,
+                size: caughtFish.size,
+                caughtAt: new Date(),
+                caughtPosition: { x: caughtFish.x, y: caughtFish.y },
+              },
+            };
+
+            // Adicionar ao inventário
+            addToInventory(fishItem).then((success) => {
+              if (success) {
+                addNotification({
+                  type: "success",
+                  title: "Peixe pescado!",
+                  message: `Você pescou um ${caughtFish.species}!`,
+                  isRead: false,
+                });
+                console.log(`🐟 Successfully caught ${caughtFish.species}`);
+              }
+            });
+            return;
+          }
+        }
 
         if (!waterEffectRef.current) {
           console.error("❌ WaterEffect ref is null!");
