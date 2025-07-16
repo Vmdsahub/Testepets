@@ -8,6 +8,7 @@ import {
   FishingSettings,
 } from "../../services/fishingSettingsService";
 import { FishingRod } from "../Game/FishingRod";
+import { fishingService } from "../../services/fishingService";
 
 // Tipos para o sistema modular
 interface WaterArea {
