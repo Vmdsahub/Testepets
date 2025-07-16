@@ -79,6 +79,13 @@ class ModularWaterEffect {
     this.fishSpeed = 0.0006; // Velocidade base mais lenta
     this.directionChangeTime = 0; // Timer para mudança de direç��o
     this.directionChangeCooldown = 3000 + Math.random() * 4000; // 3-7 segundos entre mudanças (mais lento)
+
+    // Sistema de movimento orgânico - Peixe 2 (verde)
+    this.fish2DesiredDirection = { x: -1, y: 0 }; // Começa indo para esquerda
+    this.fish2Speed = 0.0005; // Velocidade ligeiramente diferente
+    this.fish2DirectionChangeTime = 1500; // Offset inicial
+    this.fish2DirectionChangeCooldown = 3500 + Math.random() * 3500; // Timing diferente
+
     this.fishReactionStartTime = 0;
     this.fishReactionDelay = 0;
     this.originalFishMovement = { moveX: 0, moveY: 0 };
