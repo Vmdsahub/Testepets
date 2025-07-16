@@ -626,17 +626,14 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = ({
   return (
     <AnimatePresence>
       {isOpen && (
-        <motion.div
-          className="fixed inset-0 flex items-start justify-center pt-20 z-50"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.2 }}
+        <div
+          className="fixed inset-0 pointer-events-none"
+          style={{ zIndex: 200 }}
         >
           {/* Close button */}
           <motion.button
             onClick={handleClose}
-            className="absolute top-4 right-4 p-2 bg-white hover:bg-gray-100 rounded-full shadow-lg transition-colors cursor-pointer z-10"
+            className="absolute top-4 right-4 p-2 bg-white hover:bg-gray-100 rounded-full shadow-lg transition-colors cursor-pointer z-10 pointer-events-auto"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             initial={{ opacity: 0, scale: 0.8 }}
@@ -646,19 +643,61 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = ({
             <X className="w-5 h-5 text-gray-600" />
           </motion.button>
 
-          {/* Inventory content directly */}
+          {/* Draggable inventory content */}
           <motion.div
-            className="w-full max-w-md mx-4"
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -20, scale: 0.95 }}
+            className="absolute pointer-events-auto w-full max-w-md"
+            style={{
+              left: "50%",
+              top: "20%",
+              transform: "translate(-50%, 0)",
+            }}
+            initial={{
+              opacity: 0,
+              y: 20,
+              scale: 0.95,
+              x: position.x,
+              y: position.y + 20,
+            }}
+            animate={{
+              opacity: 1,
+              y: 0,
+              scale: 1,
+              x: position.x,
+              y: position.y,
+            }}
+            exit={{
+              opacity: 0,
+              y: -20,
+              scale: 0.95,
+              x: position.x,
+              y: position.y - 20,
+            }}
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            drag={true}
+            dragMomentum={false}
+            dragElastic={0.1}
+            onDragStart={() => setIsDragging(true)}
+            onDragEnd={handleDragEnd}
+            whileDrag={{ scale: 1.02, cursor: "grabbing" }}
           >
-            {inventory.filter((item) => item.quantity > 0).length === 0
-              ? emptyInventoryContent
-              : inventoryContent}
+            <div
+              onMouseDown={(e) => {
+                // Allow dragging only if clicked on non-interactive elements
+                const target = e.target as HTMLElement;
+                const isInteractive = target.closest(
+                  'input, button, [role="button"], select, textarea, [contenteditable="true"]',
+                );
+                if (isInteractive) {
+                  e.stopPropagation();
+                }
+              }}
+            >
+              {inventory.filter((item) => item.quantity > 0).length === 0
+                ? emptyInventoryContent
+                : inventoryContent}
+            </div>
           </motion.div>
-        </motion.div>
+        </div>
       )}
     </AnimatePresence>
   );
