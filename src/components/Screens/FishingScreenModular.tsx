@@ -3010,15 +3010,61 @@ export const FishingScreenModular: React.FC = () => {
   const redefineGameStartCallback = useCallback(() => {
     if (waterEffectRef.current) {
       const callback = () => {
-        console.log("🎮 Triggering minigame - setShowMinigame(true)");
-        setShowMinigame(true);
+        console.log("🎮 Fish caught! Processing catch...");
+
+        // Tentar pescar um peixe na posição do anzol
+        const hookX = waterEffectRef.current.hookPosition.x;
+        const hookY = waterEffectRef.current.hookPosition.y;
+
+        const nearbyFish = fishingService.getFishNearPosition(
+          hookX,
+          hookY,
+          0.1,
+        );
+
+        if (nearbyFish && user) {
+          // Pescar o peixe
+          const caughtFish = fishingService.catchFish(nearbyFish.id, user.id);
+
+          if (caughtFish) {
+            // Converter peixe para item e adicionar ao inventário
+            const fishItem = fishingService.convertFishToItem(caughtFish);
+
+            // Adicionar ao inventário através do gameStore
+            addToInventory(fishItem).then((success) => {
+              if (success) {
+                addNotification({
+                  type: "success",
+                  title: "Peixe pescado!",
+                  message: `Você pescou um ${caughtFish.name}!`,
+                  isRead: false,
+                });
+                console.log(
+                  `🐟 Successfully caught and added ${caughtFish.name} to inventory`,
+                );
+              } else {
+                console.error("Failed to add fish to inventory");
+                addNotification({
+                  type: "error",
+                  title: "Erro",
+                  message: "Falha ao adicionar peixe ao inventário.",
+                  isRead: false,
+                });
+              }
+            });
+          }
+        } else {
+          console.log("🎣 No fish nearby to catch");
+          // Ainda abre o modal de minigame como fallback
+          setShowMinigame(true);
+        }
       };
 
       waterEffectRef.current.onGameStart = callback;
       waterEffectRef.current.onGameStartBackup = callback; // Salvar backup
       console.log("🔄 Callback defined and backed up");
     }
-  }, []);
+  }, [user, addToInventory, addNotification]);
 
   // Callback otimizado para o minigame
   const handleMinigameComplete = useCallback(
