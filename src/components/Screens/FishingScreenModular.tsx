@@ -108,6 +108,12 @@ class ModularWaterEffect {
     this.fisgadoTextStartTime = 0;
     this.isVibrating = false;
 
+    // Sistema de visibilidade e respawn
+    this.fish1Visible = true; // Peixe azul visível
+    this.fish2Visible = true; // Peixe verde visível
+    this.fish1RespawnTime = 0; // Tempo para respawn do peixe azul
+    this.fish2RespawnTime = 0; // Tempo para respawn do peixe verde
+
     this.init();
     this.render();
   }
@@ -1210,9 +1216,22 @@ class ModularWaterEffect {
   startFishingGame(hookX, hookY) {
     console.log("Starting fishing game at", hookX, hookY);
 
-    // Alternar qual peixe vai reagir (50% de chance para cada um)
-    this.activeFish = Math.random() < 0.5 ? 1 : 2;
-    console.log(`🎯 Peixe ativo: ${this.activeFish === 1 ? "Azul" : "Verde"}`);
+    // Apenas peixes visíveis podem ser ativos
+    const availableFish = [];
+    if (this.fish1Visible) availableFish.push(1);
+    if (this.fish2Visible) availableFish.push(2);
+
+    if (availableFish.length === 0) {
+      console.log("❌ Nenhum peixe disponível para pescar!");
+      return;
+    }
+
+    // Seleção aleatória entre peixes disponíveis
+    this.activeFish =
+      availableFish[Math.floor(Math.random() * availableFish.length)];
+    console.log(
+      `🎯 Peixe ativo: ${this.activeFish === 1 ? "Azul" : "Verde"} (disponíveis: ${availableFish.length})`,
+    );
 
     this.gameState = "hook_cast";
     this.hookPosition = { x: hookX, y: hookY };
