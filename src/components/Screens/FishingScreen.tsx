@@ -2008,6 +2008,73 @@ export const FishingScreen: React.FC = () => {
         TEST MODAL
       </button>
 
+      {/* Admin Debug Panel for Fish */}
+      {isAdmin && (
+        <div
+          style={{
+            position: "fixed",
+            top: "100px",
+            left: "20px",
+            zIndex: 30,
+            background: "rgba(0, 0, 0, 0.8)",
+            color: "white",
+            border: "1px solid #555",
+            borderRadius: "8px",
+            padding: "10px",
+            fontSize: "11px",
+            minWidth: "200px",
+            maxWidth: "300px",
+          }}
+        >
+          <div style={{ fontWeight: "bold", marginBottom: "5px" }}>
+            🐟 FISH DEBUG PANEL
+          </div>
+          <div>Active Fish: {fishingService.getActiveFish().length}</div>
+          <div>
+            Azuis:{" "}
+            {
+              fishingService
+                .getActiveFish()
+                .filter((f) => f.species === "Peixinho Azul").length
+            }
+          </div>
+          <div>
+            Verdes:{" "}
+            {
+              fishingService
+                .getActiveFish()
+                .filter((f) => f.species === "Peixinho Verde").length
+            }
+          </div>
+          <div style={{ marginTop: "5px", fontSize: "10px" }}>
+            {fishingService.getActiveFish().map((fish) => (
+              <div key={fish.id}>
+                {fish.species} ({fish.size}) at ({fish.x.toFixed(2)},{" "}
+                {fish.y.toFixed(2)})
+              </div>
+            ))}
+          </div>
+          <button
+            onClick={() => {
+              fishingService.forceRespawnAll();
+              console.log("🔄 Force respawned all fish");
+            }}
+            style={{
+              marginTop: "5px",
+              padding: "3px 6px",
+              background: "#444",
+              border: "1px solid #666",
+              borderRadius: "4px",
+              color: "white",
+              fontSize: "10px",
+              cursor: "pointer",
+            }}
+          >
+            Force Respawn All
+          </button>
+        </div>
+      )}
+
       {/* Admin Controls */}
       {isAdmin && (
         <div
@@ -2291,7 +2358,7 @@ export const FishingScreen: React.FC = () => {
                   console.log("🚫 Canceling fishing game...");
                   setShowFishingModal(false);
                   if (waterEffectRef.current) {
-                    console.log("���� Resetting fishing game after cancel...");
+                    console.log("🚫 Resetting fishing game after cancel...");
                     waterEffectRef.current.resetFishingGame();
 
                     // IMPORTANTE: Reconfigurar callback após reset
