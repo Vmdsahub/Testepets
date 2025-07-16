@@ -56,7 +56,6 @@ export const ModalManager: React.FC<ModalManagerProps> = ({
   const getModalSize = (modalId: string) => {
     const sizes = {
       pet: { width: 712, height: 750 }, // -25% horizontal (950 * 0.75 = 712)
-      inventory: { width: 636, height: 750 }, // -33% horizontal (950 * 0.67 = 636)
       profile: { width: 712, height: 750 }, // -25% horizontal (950 * 0.75 = 712)
       admin: { width: 950, height: 750 }, // Manter tamanho original
       notifications: { width: 380, height: 500 }, // Compact size for notifications
