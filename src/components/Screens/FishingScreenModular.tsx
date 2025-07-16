@@ -67,7 +67,7 @@ class ModularWaterEffect {
     this.fishCurrentPosition = { x: 0.4, y: 0.6 }; // Posição atual real do peixe
     this.fishVelocity = { x: 0, y: 0 }; // Velocidade atual do peixe
     this.fishDirection = 1; // 1 = direita, -1 = esquerda (mantido para compatibilidade)
-    this.fishAngle = 0; // Ângulo real do peixe em radianos (0 = direita, PI = esquerda)
+    this.fishAngle = 0; // ��ngulo real do peixe em radianos (0 = direita, PI = esquerda)
 
     // Peixe 2 (verde) - novo
     this.fish2TargetPosition = { x: 0.6, y: 0.7 };
@@ -2044,10 +2044,7 @@ class ModularWaterEffect {
         this.isVibrating = true;
         const activeFishName = this.activeFish === 1 ? "AZUL" : "VERDE";
         console.log(
-          `🎣 ${activeFishName} fish hooked! Hook at (${this.hookPosition.x.toFixed(3)}, ${this.hookPosition.y.toFixed(3)}) - Hook in water: ${this.isHookInWater()} - Starting 3-second exclamation timer.`,
-        );
-        console.log(
-          "✅ CLICK NOW! Fish is biting - you have 3 seconds to click anywhere on screen!",
+          `🎣 ${activeFishName} fish hooked! Hook at (${this.hookPosition.x.toFixed(3)}, ${this.hookPosition.y.toFixed(3)}) - Hook in water: ${this.isHookInWater()} - Starting exclamation timer.`,
         );
 
         // Timer automático será gerenciado no updateFishingGame()
@@ -3345,7 +3342,7 @@ export const FishingScreenModular: React.FC = () => {
               waterEffect.onGameStart = waterEffect.onGameStartBackup;
             }
             const success = waterEffect.handleExclamationClick();
-            console.log("🎮 Minigame trigger result:", success);
+            console.log("��� Minigame trigger result:", success);
           } else {
             console.log("❌ Click ignored - conditions not met");
           }
