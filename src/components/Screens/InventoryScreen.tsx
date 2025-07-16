@@ -13,6 +13,9 @@ import {
 import { useGameStore } from "../../store/gameStore";
 import { Item } from "../../types/game";
 import { motion, AnimatePresence } from "framer-motion";
+import { FishDropdownMenu } from "../Game/FishDropdownMenu";
+import { FishInspectModal } from "../Game/FishInspectModal";
+import { fishingService } from "../../services/fishingService";
 
 const tabs = [
   { id: "all", name: "All", icon: Package, color: "text-gray-600" },
