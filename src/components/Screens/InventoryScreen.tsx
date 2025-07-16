@@ -157,7 +157,6 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = ({
       message: `${item.name} has been removed from your inventory.`,
       isRead: false,
     });
-    setSelectedItem(null);
   };
 
   // Fish-specific handlers
