@@ -244,7 +244,7 @@ class ModularWaterEffect {
         return pow(caustic1 * caustic2 * caustic3 + noise * 0.2, 2.0) * 0.3;
       }
 
-      // Verificar se ponto está dentro da área da água
+      // Verificar se ponto est�� dentro da área da água
       bool isInWaterArea(vec2 uv) {
                 float x = u_waterArea.x;
         float y = u_waterArea.y;
@@ -459,7 +459,7 @@ class ModularWaterEffect {
 
         // === RENDERIZAR PEIXE 2 POR CIMA DA SOMBRA ===
 
-        // Renderizar peixe 2 se estiver na área válida
+        // Renderizar peixe 2 se estiver na área v��lida
         if (fish2UV.x >= 0.0 && fish2UV.x <= 1.0 && fish2UV.y >= 0.0 && fish2UV.y <= 1.0 && isInWaterArea(coords)) {
           vec4 fish2Color = texture2D(u_fish2Texture, fish2UV);
           if (fish2Color.a > 0.1) {
@@ -1813,7 +1813,7 @@ class ModularWaterEffect {
 
       // CORRIGIDO: Chamar onGameStart imediatamente para evitar perda de callback
       console.log(
-        "🎮 About to call onGameStart - callback exists:",
+        "���� About to call onGameStart - callback exists:",
         !!this.onGameStart,
       );
 
@@ -3934,9 +3934,48 @@ export const FishingScreenModular: React.FC = () => {
               color: "white",
               fontSize: "10px",
               cursor: "pointer",
+              marginRight: "5px",
             }}
           >
             Force Respawn All
+          </button>
+          <button
+            onClick={() => {
+              // Testar adição de peixe ao inventário diretamente
+              const testFish = fishingService.getActiveFish()[0];
+              if (testFish && user) {
+                const caughtFish = fishingService.catchFish(
+                  testFish.id,
+                  user.id,
+                );
+                if (caughtFish) {
+                  const fishItem = fishingService.convertFishToItem(caughtFish);
+                  addToInventory(fishItem).then((success) => {
+                    console.log("🧪 Test fish added:", success);
+                    if (success) {
+                      addNotification({
+                        type: "success",
+                        title: "Teste",
+                        message: `Peixe de teste adicionado!`,
+                        isRead: false,
+                      });
+                    }
+                  });
+                }
+              }
+            }}
+            style={{
+              marginTop: "5px",
+              padding: "3px 6px",
+              background: "#006600",
+              border: "1px solid #666",
+              borderRadius: "4px",
+              color: "white",
+              fontSize: "10px",
+              cursor: "pointer",
+            }}
+          >
+            Test Add Fish
           </button>
         </div>
       )}
