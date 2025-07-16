@@ -326,7 +326,7 @@ class ModularWaterEffect {
         // Offset da sombra (ligeiramente para baixo e direita)
         vec2 shadowOffset = vec2(0.008, 0.015);
 
-        // Criar m��ltiplas sombras dispersas para efeito suave
+        // Criar m����ltiplas sombras dispersas para efeito suave
         float totalShadowAlpha = 0.0;
         vec3 totalShadowColor = vec3(0.0);
 
@@ -558,7 +558,7 @@ class ModularWaterEffect {
             attractionStrength = 0.8; // Muito próximo ao anzol
           }
 
-          // Movimento suave em direção ao anzol
+          // Movimento suave em dire��ão ao anzol
           float targetX = u_hookPosition.x;
           float targetY = u_hookPosition.y;
 
@@ -566,7 +566,7 @@ class ModularWaterEffect {
           naturalFishY = mix(naturalFishY, targetY, attractionStrength);
         }
 
-        // Pequena variação orgânica sutil
+        // Pequena varia��ão orgânica sutil
         naturalFishX += sin(time * 0.006) * areaW * 0.008;
         naturalFishY += cos(time * 0.004) * areaH * 0.006;
 
@@ -1267,6 +1267,10 @@ class ModularWaterEffect {
 
   // Verificar se o anzol está dentro da área de água
   isHookInWater() {
+    if (!this.waterArea) {
+      return false; // Se não há área definida, assumir que não está na água
+    }
+
     const hookX = this.hookPosition.x;
     const hookY = this.hookPosition.y;
 
@@ -1322,6 +1326,10 @@ class ModularWaterEffect {
 
   // Método para movimento orgânico - evitar bordas naturalmente
   avoidBorders() {
+    if (!this.waterArea) {
+      return { x: 0, y: 0 }; // Retorna força nula se waterArea não estiver definida
+    }
+
     const detectionMargin = 0.08; // Detectar bordas com antecedência
     const centerX = this.waterArea.x + this.waterArea.width / 2;
     const centerY = this.waterArea.y + this.waterArea.height / 2;
@@ -1540,25 +1548,27 @@ class ModularWaterEffect {
       this.fishCurrentPosition.y += this.fishVelocity.y;
 
       // Forçar peixe a ficar exatamente dentro da linha tracejada
-      const clampMargin = 0.01; // Margem mínima apenas para evitar pixel bleeding
-      this.fishCurrentPosition.x = Math.max(
-        this.waterArea.x + clampMargin,
-        Math.min(
-          this.waterArea.x + this.waterArea.width - clampMargin,
-          this.fishCurrentPosition.x,
-        ),
-      );
-      this.fishCurrentPosition.y = Math.max(
-        this.waterArea.y + clampMargin,
-        Math.min(
-          this.waterArea.y + this.waterArea.height - clampMargin,
-          this.fishCurrentPosition.y,
-        ),
-      );
+      if (this.waterArea) {
+        const clampMargin = 0.01; // Margem mínima apenas para evitar pixel bleeding
+        this.fishCurrentPosition.x = Math.max(
+          this.waterArea.x + clampMargin,
+          Math.min(
+            this.waterArea.x + this.waterArea.width - clampMargin,
+            this.fishCurrentPosition.x,
+          ),
+        );
+        this.fishCurrentPosition.y = Math.max(
+          this.waterArea.y + clampMargin,
+          Math.min(
+            this.waterArea.y + this.waterArea.height - clampMargin,
+            this.fishCurrentPosition.y,
+          ),
+        );
+      }
     }
 
     // Calcular direção do peixe baseada na velocidade
-    // Atualizar direção e ângulo baseados na velocidade
+    // Atualizar dire��ão e ângulo baseados na velocidade
     const velocityMagnitude = Math.sqrt(
       this.fishVelocity.x * this.fishVelocity.x +
         this.fishVelocity.y * this.fishVelocity.y,
@@ -1588,7 +1598,7 @@ class ModularWaterEffect {
           Math.min(maxTiltAngle, targetAngle),
         );
 
-        // Aplicar suavização simples e responsíva
+        // Aplicar suavizaç��o simples e responsíva
         if (this.fishAngle === undefined || this.fishAngle === 0) {
           this.fishAngle = targetAngle * 0.2; // Começar com 20% do ângulo
         } else {
@@ -1755,21 +1765,23 @@ class ModularWaterEffect {
       this.fish2CurrentPosition.y += this.fish2Velocity.y;
 
       // Manter dentro da área da água
-      const clampMargin = 0.01;
-      this.fish2CurrentPosition.x = Math.max(
-        this.waterArea.x + clampMargin,
-        Math.min(
-          this.waterArea.x + this.waterArea.width - clampMargin,
-          this.fish2CurrentPosition.x,
-        ),
-      );
-      this.fish2CurrentPosition.y = Math.max(
-        this.waterArea.y + clampMargin,
-        Math.min(
-          this.waterArea.y + this.waterArea.height - clampMargin,
-          this.fish2CurrentPosition.y,
-        ),
-      );
+      if (this.waterArea) {
+        const clampMargin = 0.01;
+        this.fish2CurrentPosition.x = Math.max(
+          this.waterArea.x + clampMargin,
+          Math.min(
+            this.waterArea.x + this.waterArea.width - clampMargin,
+            this.fish2CurrentPosition.x,
+          ),
+        );
+        this.fish2CurrentPosition.y = Math.max(
+          this.waterArea.y + clampMargin,
+          Math.min(
+            this.waterArea.y + this.waterArea.height - clampMargin,
+            this.fish2CurrentPosition.y,
+          ),
+        );
+      }
     }
 
     // Calcular direção e ângulo do peixe 2
@@ -1785,7 +1797,7 @@ class ModularWaterEffect {
       // Rotação baseada na velocidade vertical
       const verticalVelocity2 = this.fish2Velocity.y;
       if (Math.abs(verticalVelocity2) > 0.0002) {
-        const maxTiltAngle = Math.PI / 6; // 30 graus máximo
+        const maxTiltAngle = Math.PI / 6; // 30 graus m��ximo
         const velocityScale = 1000;
         let targetAngle = verticalVelocity2 * velocityScale;
         targetAngle = Math.max(
@@ -1920,6 +1932,22 @@ class ModularWaterEffect {
     const caughtFishName = this.activeFish === 1 ? "Azul" : "Verde";
     console.log(`🎣 Capturando peixe ${caughtFishName}...`);
 
+    // Obter dados antes de esconder o peixe
+    const fishData = {
+      species: caughtFishName === "Azul" ? "Peixinho Azul" : "Peixinho Verde",
+      activeFish: this.activeFish,
+      position: {
+        x:
+          this.activeFish === 1
+            ? this.fishCurrentPosition.x
+            : this.fish2CurrentPosition.x,
+        y:
+          this.activeFish === 1
+            ? this.fishCurrentPosition.y
+            : this.fish2CurrentPosition.y,
+      },
+    };
+
     if (this.activeFish === 1) {
       // Esconder peixe azul
       this.fish1Visible = false;
@@ -1934,9 +1962,12 @@ class ModularWaterEffect {
 
     // Resetar o jogo após captura
     this.resetFishingGame();
+
+    // Retornar dados do peixe capturado
+    return fishData;
   }
 
-  // Método para verificar e processar respawns
+  // M��todo para verificar e processar respawns
   updateRespawns() {
     const currentTime = Date.now();
 
@@ -2480,22 +2511,28 @@ class ModularWaterEffect {
     );
 
     // Novos uniforms para área modular
-    this.gl.uniform4f(
-      this.uniforms.waterArea,
-      this.waterArea.x,
-      this.waterArea.y,
-      this.waterArea.width,
-      this.waterArea.height,
-    );
-    const shapeValue =
-      this.waterArea.shape === "rectangle"
-        ? 0
-        : this.waterArea.shape === "circle"
-          ? 1
-          : this.waterArea.shape === "triangle"
-            ? 2
-            : 0;
-    this.gl.uniform1f(this.uniforms.waterShape, shapeValue);
+    if (this.waterArea) {
+      this.gl.uniform4f(
+        this.uniforms.waterArea,
+        this.waterArea.x,
+        this.waterArea.y,
+        this.waterArea.width,
+        this.waterArea.height,
+      );
+      const shapeValue =
+        this.waterArea.shape === "rectangle"
+          ? 0
+          : this.waterArea.shape === "circle"
+            ? 1
+            : this.waterArea.shape === "triangle"
+              ? 2
+              : 0;
+      this.gl.uniform1f(this.uniforms.waterShape, shapeValue);
+    } else {
+      // Valores padrão se waterArea não estiver definida
+      this.gl.uniform4f(this.uniforms.waterArea, 0.1, 0.4, 0.8, 0.5);
+      this.gl.uniform1f(this.uniforms.waterShape, 0);
+    }
 
     // Ativa texturas
     this.gl.activeTexture(this.gl.TEXTURE0);
@@ -3100,7 +3137,7 @@ export const FishingScreenModular: React.FC = () => {
   console.log("🐟 FishingService loaded:", !!fishingService);
   console.log("🐟 Active fish count:", fishingService.getActiveFish().length);
   console.log("🐟 Active fish details:", fishingService.getActiveFish());
-  console.log("🐟 Fishing stats:", fishingService.getFishingStats());
+  console.log("���� Fishing stats:", fishingService.getFishingStats());
   const { setCurrentScreen, addToInventory, addNotification } = useGameStore();
   const { user } = useAuthStore();
   const waterEffectRef = useRef<ModularWaterEffect | null>(null);
@@ -3140,26 +3177,16 @@ export const FishingScreenModular: React.FC = () => {
           return;
         }
 
-        // Tentar pescar um peixe na posição do anzol
-        const hookX = waterEffectRef.current.hookPosition.x;
-        const hookY = waterEffectRef.current.hookPosition.y;
-        console.log(`🎣 Hook position: (${hookX}, ${hookY})`);
+        // Apenas abrir o minigame - a captura será feita após o sucesso do minigame
+        console.log("🎮 Opening fishing minigame...");
+        setShowMinigame(true);
 
-        // Debug: listar todos os peixes ativos
-        const allFish = fishingService.getActiveFish();
-        console.log("🐟 All active fish:", allFish);
-
-        const nearbyFish = fishingService.getFishNearPosition(
-          hookX,
-          hookY,
-          0.2,
-        );
-        console.log("🐟 Nearby fish:", nearbyFish);
-
-        if (nearbyFish && user) {
-          console.log(`�� Attempting to catch fish: ${nearbyFish.name}`);
+        // Código removido - agora a captura acontece no handleMinigameComplete
+        // Código legacy removido - não será executado
+        if (false) {
+          console.log(`�� Attempting to catch fish: legacy fish`);
           // Pescar o peixe
-          const caughtFish = fishingService.catchFish(nearbyFish.id, user.id);
+          const caughtFish = null; // Legacy code - not executed
           console.log("🐟 Caught fish result:", caughtFish);
 
           if (caughtFish) {
@@ -3199,11 +3226,9 @@ export const FishingScreenModular: React.FC = () => {
             console.error("❌ Failed to catch fish");
           }
         } else {
-          console.log("🎣 No fish nearby to catch or no user");
-          console.log("🎣 Fish count:", allFish.length);
+          console.log("🎣 Fallback case - no legacy logic needed");
           console.log("🎣 User exists:", !!user);
-          // Ainda abre o modal de minigame como fallback
-          setShowMinigame(true);
+          // Esse bloco não é mais necessário pois não fazemos captura aqui
         }
       };
 
@@ -3215,16 +3240,77 @@ export const FishingScreenModular: React.FC = () => {
 
   // Callback otimizado para o minigame
   const handleMinigameComplete = useCallback(
-    (success: boolean) => {
+    async (success: boolean) => {
+      console.log("🎮 Minigame completed with result:", success);
       setShowMinigame(false);
-      // Sucesso ou falha, apenas fecha o minigame
-      if (waterEffectRef.current) {
-        waterEffectRef.current.resetFishingGame();
-        // IMPORTANTE: Redefinir o callback onGameStart após o reset
-        redefineGameStartCallback();
+
+      if (success && waterEffectRef.current && user) {
+        // Se minigame foi bem-sucedido, capturar peixe do WebGL
+        const caughtFishData = waterEffectRef.current.catchActiveFish();
+        console.log(
+          "🐟 Fish caught after successful minigame:",
+          caughtFishData,
+        );
+
+        if (caughtFishData) {
+          // Criar peixe com tamanho aleatório
+          const { createFish } = await import("../../types/fish");
+          const newFish = createFish(
+            caughtFishData.species as "Peixinho Azul" | "Peixinho Verde",
+            caughtFishData.position.x,
+            caughtFishData.position.y,
+          );
+
+          // Marcar como capturado
+          newFish.stats.caught = true;
+          newFish.stats.caughtAt = new Date();
+          newFish.stats.caughtByUserId = user.id;
+
+          // Converter para item e adicionar ao inventário
+          const fishItem = fishingService.convertFishToItem(newFish);
+
+          try {
+            const inventorySuccess = await addToInventory(fishItem);
+            if (inventorySuccess) {
+              addNotification({
+                type: "success",
+                title: "Peixe capturado!",
+                message: `Você capturou um ${newFish.name} (Tamanho ${newFish.size})!`,
+                isRead: false,
+              });
+              console.log(`🎣 Successfully added ${newFish.name} to inventory`);
+            } else {
+              throw new Error("Failed to add to inventory");
+            }
+          } catch (error) {
+            console.error("Error adding fish to inventory:", error);
+            addNotification({
+              type: "error",
+              title: "Erro",
+              message: "Falha ao adicionar peixe ao inventário.",
+              isRead: false,
+            });
+          }
+        }
+      } else if (!success) {
+        console.log("🐟 Fish escaped during minigame");
+        addNotification({
+          type: "warning",
+          title: "Peixe escapou!",
+          message: "O peixe conseguiu escapar. Tente novamente!",
+          isRead: false,
+        });
       }
+
+      // Reset do jogo e redefinir callback apenas se não foi sucesso (pois catchActiveFish já resetou)
+      if (waterEffectRef.current && !success) {
+        waterEffectRef.current.resetFishingGame();
+      }
+
+      // IMPORTANTE: Redefinir o callback onGameStart após o reset
+      redefineGameStartCallback();
     },
-    [redefineGameStartCallback],
+    [redefineGameStartCallback, user, addToInventory, addNotification],
   );
   const [fishingSettings, setFishingSettings] =
     useState<FishingSettings | null>(null);
@@ -3287,7 +3373,7 @@ export const FishingScreenModular: React.FC = () => {
             waterEffect.canClickExclamation
           ) {
             console.log(
-              "🎣 Player clicked anywhere during fish bite - triggering minigame!",
+              "���� Player clicked anywhere during fish bite - triggering minigame!",
             );
             // Garantir que o callback está definido antes de tentar abrir minigame
             if (!waterEffect.onGameStart && waterEffect.onGameStartBackup) {
@@ -4036,63 +4122,69 @@ export const FishingScreenModular: React.FC = () => {
           </div>
           <div>🔵 Peixinho Azul (tamanho 4)</div>
           <div>🟢 Peixinho Verde (tamanho 3)</div>
-          {waterEffectRef.current && (
-            <>
-              <div style={{ marginTop: "5px" }}>
-                <strong>Estado:</strong> {waterEffectRef.current.gameState}
-              </div>
-              <div>
-                <strong>Peixe Ativo:</strong>{" "}
-                {waterEffectRef.current.activeFish === 1 ? "Azul" : "Verde"}
-              </div>
-              <div style={{ fontSize: "9px", marginTop: "5px" }}>
-                <strong>Azul:</strong>{" "}
-                {waterEffectRef.current.fish1Visible
-                  ? "🐟 Visível"
-                  : "🚫 Capturado"}
-                {!waterEffectRef.current.fish1Visible &&
-                  waterEffectRef.current.fish1RespawnTime > 0 && (
-                    <span>
-                      {" "}
-                      (respawn em{" "}
-                      {Math.ceil(
-                        (waterEffectRef.current.fish1RespawnTime - Date.now()) /
-                          1000,
-                      )}
-                      s)
-                    </span>
-                  )}
-              </div>
-              <div style={{ fontSize: "9px" }}>
-                <strong>Verde:</strong>{" "}
-                {waterEffectRef.current.fish2Visible
-                  ? "🐟 Visível"
-                  : "🚫 Capturado"}
-                {!waterEffectRef.current.fish2Visible &&
-                  waterEffectRef.current.fish2RespawnTime > 0 && (
-                    <span>
-                      {" "}
-                      (respawn em{" "}
-                      {Math.ceil(
-                        (waterEffectRef.current.fish2RespawnTime - Date.now()) /
-                          1000,
-                      )}
-                      s)
-                    </span>
-                  )}
-              </div>
-              <div style={{ fontSize: "8px", marginTop: "3px", color: "#ccc" }}>
-                Pos. Azul: (
-                {waterEffectRef.current.fishCurrentPosition.x.toFixed(2)},{" "}
-                {waterEffectRef.current.fishCurrentPosition.y.toFixed(2)})
-              </div>
-              <div style={{ fontSize: "8px", color: "#ccc" }}>
-                Pos. Verde: (
-                {waterEffectRef.current.fish2CurrentPosition.x.toFixed(2)},{" "}
-                {waterEffectRef.current.fish2CurrentPosition.y.toFixed(2)})
-              </div>
-            </>
-          )}
+          {waterEffectRef.current &&
+            waterEffectRef.current.fishCurrentPosition &&
+            waterEffectRef.current.fish2CurrentPosition && (
+              <>
+                <div style={{ marginTop: "5px" }}>
+                  <strong>Estado:</strong> {waterEffectRef.current.gameState}
+                </div>
+                <div>
+                  <strong>Peixe Ativo:</strong>{" "}
+                  {waterEffectRef.current.activeFish === 1 ? "Azul" : "Verde"}
+                </div>
+                <div style={{ fontSize: "9px", marginTop: "5px" }}>
+                  <strong>Azul:</strong>{" "}
+                  {waterEffectRef.current.fish1Visible
+                    ? "🐟 Visível"
+                    : "🚫 Capturado"}
+                  {!waterEffectRef.current.fish1Visible &&
+                    waterEffectRef.current.fish1RespawnTime > 0 && (
+                      <span>
+                        {" "}
+                        (respawn em{" "}
+                        {Math.ceil(
+                          (waterEffectRef.current.fish1RespawnTime -
+                            Date.now()) /
+                            1000,
+                        )}
+                        s)
+                      </span>
+                    )}
+                </div>
+                <div style={{ fontSize: "9px" }}>
+                  <strong>Verde:</strong>{" "}
+                  {waterEffectRef.current.fish2Visible
+                    ? "🐟 Visível"
+                    : "🚫 Capturado"}
+                  {!waterEffectRef.current.fish2Visible &&
+                    waterEffectRef.current.fish2RespawnTime > 0 && (
+                      <span>
+                        {" "}
+                        (respawn em{" "}
+                        {Math.ceil(
+                          (waterEffectRef.current.fish2RespawnTime -
+                            Date.now()) /
+                            1000,
+                        )}
+                        s)
+                      </span>
+                    )}
+                </div>
+                <div
+                  style={{ fontSize: "8px", marginTop: "3px", color: "#ccc" }}
+                >
+                  Pos. Azul: (
+                  {waterEffectRef.current.fishCurrentPosition.x.toFixed(2)},{" "}
+                  {waterEffectRef.current.fishCurrentPosition.y.toFixed(2)})
+                </div>
+                <div style={{ fontSize: "8px", color: "#ccc" }}>
+                  Pos. Verde: (
+                  {waterEffectRef.current.fish2CurrentPosition.x.toFixed(2)},{" "}
+                  {waterEffectRef.current.fish2CurrentPosition.y.toFixed(2)})
+                </div>
+              </>
+            )}
           <div style={{ fontSize: "9px", marginTop: "5px", color: "#ccc" }}>
             Os peixes WebGL nadam automaticamente
           </div>

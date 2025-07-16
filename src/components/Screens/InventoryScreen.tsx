@@ -9,6 +9,7 @@ import {
   Heart,
   Utensils,
   Shield,
+  X,
 } from "lucide-react";
 import { useGameStore } from "../../store/gameStore";
 import { Item } from "../../types/game";
@@ -30,14 +31,24 @@ const tabs = [
   { id: "special", name: "Special", icon: Sparkles, color: "text-purple-600" },
 ];
 
-export const InventoryScreen: React.FC = () => {
+interface InventoryScreenProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export const InventoryScreen: React.FC<InventoryScreenProps> = ({
+  isOpen,
+  onClose,
+}) => {
   const [activeTab, setActiveTab] = useState("all");
-  const [selectedItem, setSelectedItem] = useState<Item | null>(null);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [fishInspectModal, setFishInspectModal] = useState<{
     isOpen: boolean;
     fish: Item | null;
   }>({ isOpen: false, fish: null });
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
 
   const {
     activePet,
@@ -88,8 +99,19 @@ export const InventoryScreen: React.FC = () => {
     return matchesTab && matchesSearch && item.quantity > 0;
   });
 
-  const handleItemClick = (item: Item) => {
-    setSelectedItem(item);
+  const [dropdownState, setDropdownState] = useState<{
+    isOpen: boolean;
+    item: Item | null;
+    position: { x: number; y: number } | null;
+  }>({ isOpen: false, item: null, position: null });
+
+  const handleItemClick = (item: Item, event: React.MouseEvent) => {
+    const rect = (event.target as HTMLElement).getBoundingClientRect();
+    const position = {
+      x: rect.left + rect.width / 2,
+      y: rect.bottom + 5,
+    };
+    setDropdownState({ isOpen: true, item, position });
   };
 
   const handleUseItem = (item: Item) => {
@@ -125,8 +147,6 @@ export const InventoryScreen: React.FC = () => {
       }
       useItem(item.inventoryId, activePet.id);
     }
-
-    setSelectedItem(null);
   };
 
   const handleDiscardItem = (item: Item) => {
@@ -143,7 +163,6 @@ export const InventoryScreen: React.FC = () => {
       message: `${item.name} has been removed from your inventory.`,
       isRead: false,
     });
-    setSelectedItem(null);
   };
 
   // Fish-specific handlers
@@ -192,47 +211,79 @@ export const InventoryScreen: React.FC = () => {
   const maxSlots = 30;
   const usedSlots = filteredItems.length;
 
-  // Show empty state if no items
-  if (inventory.filter((item) => item.quantity > 0).length === 0) {
-    return (
-      <div className="max-w-md mx-auto pb-12">
-        <motion.div
-          className="bg-white rounded-3xl shadow-xl p-8 border border-gray-100 text-center"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Package className="w-12 h-12 text-gray-400" />
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            Empty Inventory
-          </h2>
-          <p className="text-gray-600 mb-6">
-            Your inventory is empty. Explore the world, complete quests, and
-            visit shops to collect items!
-          </p>
-          <motion.button
-            className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all font-semibold shadow-lg"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => {
-              addNotification({
-                type: "info",
-                title: "Explore the World",
-                message:
-                  "Visit shops and complete quests to find amazing items!",
-                isRead: false,
-              });
-            }}
-          >
-            Start Exploring
-          </motion.button>
-        </motion.div>
-      </div>
-    );
-  }
+  const getSavedPosition = () => {
+    const saved = localStorage.getItem(`modal-position-inventory`);
+    if (saved) {
+      return JSON.parse(saved);
+    }
+    return { x: 0, y: 0 };
+  };
 
-  return (
+  React.useEffect(() => {
+    if (isOpen) {
+      setPosition(getSavedPosition());
+    }
+  }, [isOpen]);
+
+  const handleDragEnd = (event: any, info: any) => {
+    setIsDragging(false);
+    const newPosition = {
+      x: position.x + info.offset.x,
+      y: position.y + info.offset.y,
+    };
+    setPosition(newPosition);
+    localStorage.setItem(
+      `modal-position-inventory`,
+      JSON.stringify(newPosition),
+    );
+  };
+
+  const handleClose = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onClose();
+  };
+
+  if (!isOpen) return null;
+
+  // Show empty state if no items
+  const emptyInventoryContent = (
+    <div className="max-w-md mx-auto pb-12">
+      <motion.div
+        className="bg-white rounded-3xl shadow-xl p-8 border border-gray-100 text-center"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <Package className="w-12 h-12 text-gray-400" />
+        </div>
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">
+          Empty Inventory
+        </h2>
+        <p className="text-gray-600 mb-6">
+          Your inventory is empty. Explore the world, complete quests, and visit
+          shops to collect items!
+        </p>
+        <motion.button
+          className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all font-semibold shadow-lg"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={() => {
+            addNotification({
+              type: "info",
+              title: "Explore the World",
+              message: "Visit shops and complete quests to find amazing items!",
+              isRead: false,
+            });
+          }}
+        >
+          Start Exploring
+        </motion.button>
+      </motion.div>
+    </div>
+  );
+
+  const inventoryContent = (
     <div className="max-w-md mx-auto pb-12">
       {/* Search Bar */}
       <motion.div
@@ -300,10 +351,10 @@ export const InventoryScreen: React.FC = () => {
           <div className="grid grid-cols-5 gap-3 mb-4">
             <AnimatePresence>
               {filteredItems.map((item, index) => {
-                const itemButton = (
+                return (
                   <motion.button
                     key={item.inventoryId || item.id}
-                    onClick={() => handleItemClick(item)}
+                    onClick={(e) => handleItemClick(item, e)}
                     className={`relative aspect-square rounded-xl border-2 p-2 transition-all hover:scale-105 ${getRarityColor(item.rarity)} ${getRarityGlow(item.rarity)} ${
                       item.isEquipped ? "ring-2 ring-blue-500" : ""
                     }`}
@@ -363,23 +414,6 @@ export const InventoryScreen: React.FC = () => {
                     )}
                   </motion.button>
                 );
-
-                // Wrapper com dropdown para peixes, botão normal para outros itens
-                if (item.type === "Fish") {
-                  return (
-                    <FishDropdownMenu
-                      key={item.inventoryId || item.id}
-                      fishItem={item}
-                      onInspect={handleFishInspect}
-                      onFeed={handleFishFeed}
-                      onDiscard={handleFishDiscard}
-                    >
-                      {itemButton}
-                    </FishDropdownMenu>
-                  );
-                }
-
-                return itemButton;
               })}
             </AnimatePresence>
 
@@ -421,162 +455,143 @@ export const InventoryScreen: React.FC = () => {
         </div>
       </motion.div>
 
-      {/* Item Detail Modal */}
+      {/* Universal Item Dropdown */}
       <AnimatePresence>
-        {selectedItem && (
+        {dropdownState.isOpen && dropdownState.item && (
           <>
+            {/* Backdrop */}
             <motion.div
-              className="fixed inset-0 bg-black/50 z-40"
+              className="fixed inset-0 z-40"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setSelectedItem(null)}
+              onClick={() =>
+                setDropdownState({ isOpen: false, item: null, position: null })
+              }
             />
+
+            {/* Dropdown Menu */}
             <motion.div
-              className="fixed inset-0 flex items-center justify-center p-4 z-50"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
+              initial={{ opacity: 0, scale: 0.95, y: -5 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: -5 }}
+              className="fixed bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50 min-w-[200px]"
+              style={{
+                left: dropdownState.position
+                  ? `${dropdownState.position.x}px`
+                  : "50%",
+                top: dropdownState.position
+                  ? `${dropdownState.position.y}px`
+                  : "50%",
+                transform: dropdownState.position
+                  ? "translateX(-50%)"
+                  : "translate(-50%, -50%)",
+              }}
             >
-              <div className="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-gray-100">
-                <div className="text-center mb-6">
-                  <div
-                    className={`w-20 h-20 mx-auto rounded-2xl border-2 ${getRarityColor(selectedItem.rarity)} flex items-center justify-center mb-3 shadow-lg overflow-hidden`}
-                  >
-                    {selectedItem.imageUrl ? (
-                      <img
-                        src={selectedItem.imageUrl}
-                        alt={selectedItem.name}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.style.display = "none";
-                          target.parentElement!.innerHTML = `<span class="text-4xl">${getItemEmoji(selectedItem)}</span>`;
-                        }}
-                      />
-                    ) : (
-                      <span className="text-4xl">
-                        {getItemEmoji(selectedItem)}
-                      </span>
-                    )}
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-1">
-                    {selectedItem.name}
-                  </h3>
-                  <div className="flex items-center justify-center space-x-2">
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${getRarityColor(selectedItem.rarity)}`}
-                    >
-                      {selectedItem.rarity}
-                    </span>
-                    <span
-                      className={`px-2 py-1 bg-gray-100 rounded-full text-xs font-medium ${getItemTypeColor(selectedItem.type)}`}
-                    >
-                      {selectedItem.type}
-                    </span>
+              {/* Item Info Header */}
+              <div className="px-3 py-2 border-b border-gray-100">
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">
+                    {getItemEmoji(dropdownState.item)}
+                  </span>
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">
+                      {dropdownState.item.name}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {dropdownState.item.rarity} • {dropdownState.item.type}
+                      {dropdownState.item.type === "Fish" &&
+                        dropdownState.item.fishData && (
+                          <> • Tamanho {dropdownState.item.fishData.size}</>
+                        )}
+                    </p>
                   </div>
                 </div>
+              </div>
 
-                <div className="bg-gray-50 rounded-2xl p-4 mb-6">
-                  <p className="text-gray-700 text-sm leading-relaxed">
-                    {selectedItem.description}
+              {/* Actions */}
+              <div className="py-1">
+                {dropdownState.item.type === "Fish" ? (
+                  <>
+                    <button
+                      onClick={() => {
+                        handleFishInspect(dropdownState.item!);
+                        setDropdownState({
+                          isOpen: false,
+                          item: null,
+                          position: null,
+                        });
+                      }}
+                      className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      <Package className="w-4 h-4 text-blue-500" />
+                      <span>Inspecionar</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        handleFishFeed(dropdownState.item!);
+                        setDropdownState({
+                          isOpen: false,
+                          item: null,
+                          position: null,
+                        });
+                      }}
+                      className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      <Utensils className="w-4 h-4 text-green-500" />
+                      <span>Alimentar</span>
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={() => {
+                      handleUseItem(dropdownState.item!);
+                      setDropdownState({
+                        isOpen: false,
+                        item: null,
+                        position: null,
+                      });
+                    }}
+                    className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <Sparkles className="w-4 h-4 text-blue-500" />
+                    <span>
+                      {dropdownState.item.type === "Equipment" ||
+                      dropdownState.item.type === "Weapon"
+                        ? "Equipar"
+                        : "Usar Item"}
+                    </span>
+                  </button>
+                )}
+
+                <button
+                  onClick={() => {
+                    handleDiscardItem(dropdownState.item!);
+                    setDropdownState({
+                      isOpen: false,
+                      item: null,
+                      position: null,
+                    });
+                  }}
+                  className="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  <span>Descartar</span>
+                </button>
+              </div>
+
+              {/* Additional Info Footer */}
+              {dropdownState.item.fishData && (
+                <div className="px-3 py-2 border-t border-gray-100">
+                  <p className="text-xs text-gray-500">
+                    Pescado em{" "}
+                    {dropdownState.item.fishData.caughtAt.toLocaleDateString(
+                      "pt-BR",
+                    )}
                   </p>
                 </div>
-
-                {selectedItem.effects &&
-                  Object.keys(selectedItem.effects).length > 0 && (
-                    <div className="mb-6">
-                      <h4 className="font-semibold text-gray-900 mb-3">
-                        Effects:
-                      </h4>
-                      <div className="space-y-2">
-                        {Object.entries(selectedItem.effects).map(
-                          ([effect, value]) => (
-                            <div
-                              key={effect}
-                              className="flex justify-between items-center p-2 bg-green-50 rounded-lg"
-                            >
-                              <span className="text-gray-700 capitalize font-medium flex items-center">
-                                {effect === "health" && (
-                                  <Heart className="w-4 h-4 mr-1 text-red-500" />
-                                )}
-                                {effect === "hunger" && (
-                                  <Utensils className="w-4 h-4 mr-1 text-green-500" />
-                                )}
-                                {effect === "happiness" && (
-                                  <Sparkles className="w-4 h-4 mr-1 text-yellow-500" />
-                                )}
-                                {effect === "defense" && (
-                                  <Shield className="w-4 h-4 mr-1 text-blue-500" />
-                                )}
-                                {effect}:
-                              </span>
-                              <span className="text-green-600 font-bold">
-                                +{value}
-                              </span>
-                            </div>
-                          ),
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                {selectedItem.quantity > 1 && (
-                  <div className="mb-6 p-3 bg-blue-50 rounded-xl">
-                    <div className="flex justify-between items-center">
-                      <span className="text-blue-700 font-medium">
-                        Quantity:
-                      </span>
-                      <span className="text-blue-800 font-bold">
-                        {selectedItem.quantity}
-                      </span>
-                    </div>
-                  </div>
-                )}
-
-                {selectedItem.price && (
-                  <div className="mb-6 p-3 bg-yellow-50 rounded-xl">
-                    <div className="flex justify-between items-center">
-                      <span className="text-yellow-700 font-medium">
-                        Value:
-                      </span>
-                      <span className="text-yellow-800 font-bold">
-                        {selectedItem.price} {selectedItem.currency}
-                      </span>
-                    </div>
-                  </div>
-                )}
-
-                <div className="flex space-x-3">
-                  <motion.button
-                    onClick={() => handleUseItem(selectedItem)}
-                    className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-2xl hover:from-blue-700 hover:to-purple-700 transition-all font-semibold shadow-lg"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    {selectedItem.type === "Equipment" ||
-                    selectedItem.type === "Weapon"
-                      ? "Equip"
-                      : "Use Item"}
-                  </motion.button>
-                  <motion.button
-                    onClick={() => handleDiscardItem(selectedItem)}
-                    className="px-4 py-3 bg-red-100 hover:bg-red-200 rounded-2xl transition-colors"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <Trash2 className="w-5 h-5 text-red-600" />
-                  </motion.button>
-                </div>
-
-                <motion.button
-                  onClick={() => setSelectedItem(null)}
-                  className="w-full mt-3 text-gray-600 hover:text-gray-800 transition-colors py-2"
-                  whileHover={{ scale: 1.02 }}
-                >
-                  Cancel
-                </motion.button>
-              </div>
+              )}
             </motion.div>
           </>
         )}
@@ -591,6 +606,82 @@ export const InventoryScreen: React.FC = () => {
         onDiscard={handleFishDiscard}
       />
     </div>
+  );
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <div
+          className="fixed inset-0 pointer-events-none"
+          style={{ zIndex: 200 }}
+        >
+          {/* Close button */}
+          <motion.button
+            onClick={handleClose}
+            className="absolute top-4 right-4 p-2 bg-white hover:bg-gray-100 rounded-full shadow-lg transition-colors cursor-pointer z-10 pointer-events-auto"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.1 }}
+          >
+            <X className="w-5 h-5 text-gray-600" />
+          </motion.button>
+
+          {/* Draggable inventory content */}
+          <motion.div
+            className="absolute pointer-events-auto w-full max-w-md"
+            style={{
+              left: "50%",
+              top: "20%",
+              transform: "translate(-50%, 0)",
+            }}
+            initial={{
+              opacity: 0,
+              scale: 0.95,
+              x: position.x,
+              y: position.y + 20,
+            }}
+            animate={{
+              opacity: 1,
+              scale: 1,
+              x: position.x,
+              y: position.y,
+            }}
+            exit={{
+              opacity: 0,
+              scale: 0.95,
+              x: position.x,
+              y: position.y - 20,
+            }}
+            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            drag={true}
+            dragMomentum={false}
+            dragElastic={0.1}
+            onDragStart={() => setIsDragging(true)}
+            onDragEnd={handleDragEnd}
+            whileDrag={{ scale: 1.02, cursor: "grabbing" }}
+          >
+            <div
+              onMouseDown={(e) => {
+                // Allow dragging only if clicked on non-interactive elements
+                const target = e.target as HTMLElement;
+                const isInteractive = target.closest(
+                  'input, button, [role="button"], select, textarea, [contenteditable="true"]',
+                );
+                if (isInteractive) {
+                  e.stopPropagation();
+                }
+              }}
+            >
+              {inventory.filter((item) => item.quantity > 0).length === 0
+                ? emptyInventoryContent
+                : inventoryContent}
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
   );
 };
 
