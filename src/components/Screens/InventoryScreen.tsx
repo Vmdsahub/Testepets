@@ -71,7 +71,7 @@ export const InventoryScreen: React.FC = () => {
     return glows[rarity as keyof typeof glows] || "";
   };
 
-    const filteredItems = inventory.filter((item) => {
+  const filteredItems = inventory.filter((item) => {
     const matchesTab =
       activeTab === "all" ||
       (activeTab === "consumables" && ["Food", "Potion"].includes(item.type)) ||
@@ -129,7 +129,7 @@ export const InventoryScreen: React.FC = () => {
     setSelectedItem(null);
   };
 
-    const handleDiscardItem = (item: Item) => {
+  const handleDiscardItem = (item: Item) => {
     if (item.inventoryId) {
       removeFromInventory(item.inventoryId, 1);
     } else {
@@ -281,7 +281,7 @@ export const InventoryScreen: React.FC = () => {
         {/* Inventory Grid */}
         <div className="p-4">
           <div className="flex items-center justify-between mb-4">
-                        <h3 className="font-semibold text-gray-900">
+            <h3 className="font-semibold text-gray-900">
               {activeTab === "all"
                 ? "All Items"
                 : activeTab === "consumables"
@@ -299,7 +299,7 @@ export const InventoryScreen: React.FC = () => {
 
           <div className="grid grid-cols-5 gap-3 mb-4">
             <AnimatePresence>
-                            {filteredItems.map((item, index) => {
+              {filteredItems.map((item, index) => {
                 const itemButton = (
                   <motion.button
                     key={item.inventoryId || item.id}
@@ -314,55 +314,73 @@ export const InventoryScreen: React.FC = () => {
                     whileHover={{ y: -2 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                  {/* Item Image */}
-                  <div className="w-full h-full rounded-lg overflow-hidden flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
-                    {item.imageUrl ? (
-                      <img
-                        src={item.imageUrl}
-                        alt={item.name}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          // Fallback to emoji if image fails to load
-                          const target = e.target as HTMLImageElement;
-                          target.style.display = "none";
-                          target.parentElement!.innerHTML = `<span class="text-2xl">${getItemEmoji(item)}</span>`;
-                        }}
-                      />
-                    ) : (
-                      <span className="text-2xl">{getItemEmoji(item)}</span>
+                    {/* Item Image */}
+                    <div className="w-full h-full rounded-lg overflow-hidden flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
+                      {item.imageUrl ? (
+                        <img
+                          src={item.imageUrl}
+                          alt={item.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            // Fallback to emoji if image fails to load
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = "none";
+                            target.parentElement!.innerHTML = `<span class="text-2xl">${getItemEmoji(item)}</span>`;
+                          }}
+                        />
+                      ) : (
+                        <span className="text-2xl">{getItemEmoji(item)}</span>
+                      )}
+                    </div>
+
+                    {/* Quantity */}
+                    {item.quantity > 1 && (
+                      <motion.span
+                        className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold shadow-lg"
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ delay: 0.2 + index * 0.05 }}
+                      >
+                        {item.quantity > 99 ? "99+" : item.quantity}
+                      </motion.span>
                     )}
-                  </div>
 
-                  {/* Quantity */}
-                  {item.quantity > 1 && (
-                    <motion.span
-                      className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold shadow-lg"
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ delay: 0.2 + index * 0.05 }}
+                    {/* Equipped Indicator */}
+                    {item.isEquipped && (
+                      <motion.span
+                        className="absolute -bottom-1 -right-1 bg-green-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center"
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ delay: 0.3 + index * 0.05 }}
+                      >
+                        ✓
+                      </motion.span>
+                    )}
+
+                    {/* Rarity Indicator */}
+                    {item.rarity !== "Common" && (
+                      <div className="absolute top-1 left-1 w-2 h-2 rounded-full bg-current opacity-60"></div>
+                    )}
+                  </motion.button>
+                );
+
+                // Wrapper com dropdown para peixes, botão normal para outros itens
+                if (item.type === "Fish") {
+                  return (
+                    <FishDropdownMenu
+                      key={item.inventoryId || item.id}
+                      fishItem={item}
+                      onInspect={handleFishInspect}
+                      onFeed={handleFishFeed}
+                      onDiscard={handleFishDiscard}
                     >
-                      {item.quantity > 99 ? "99+" : item.quantity}
-                    </motion.span>
-                  )}
+                      {itemButton}
+                    </FishDropdownMenu>
+                  );
+                }
 
-                  {/* Equipped Indicator */}
-                  {item.isEquipped && (
-                    <motion.span
-                      className="absolute -bottom-1 -right-1 bg-green-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center"
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ delay: 0.3 + index * 0.05 }}
-                    >
-                      ✓
-                    </motion.span>
-                  )}
-
-                  {/* Rarity Indicator */}
-                  {item.rarity !== "Common" && (
-                    <div className="absolute top-1 left-1 w-2 h-2 rounded-full bg-current opacity-60"></div>
-                  )}
-                </motion.button>
-              ))}
+                return itemButton;
+              })}
             </AnimatePresence>
 
             {/* Empty Slots */}
