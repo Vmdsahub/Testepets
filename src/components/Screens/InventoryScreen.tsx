@@ -486,7 +486,7 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = ({
               initial={{ opacity: 0, scale: 0.95, y: -5 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: -5 }}
-              className="absolute bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-[300] min-w-[200px]"
+              className="fixed bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-[300] min-w-[200px]"
               style={{
                 left: dropdownState.position
                   ? `${dropdownState.position.x}px`
