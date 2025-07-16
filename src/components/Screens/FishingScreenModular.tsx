@@ -1134,6 +1134,11 @@ class ModularWaterEffect {
   // Métodos do jogo de pesca (mantidos originais mas simplificados)
   startFishingGame(hookX, hookY) {
     console.log("Starting fishing game at", hookX, hookY);
+
+    // Alternar qual peixe vai reagir (50% de chance para cada um)
+    this.activeFish = Math.random() < 0.5 ? 1 : 2;
+    console.log(`🎯 Peixe ativo: ${this.activeFish === 1 ? "Azul" : "Verde"}`);
+
     this.gameState = "hook_cast";
     this.hookPosition = { x: hookX, y: hookY };
     this.canClickExclamation = false;
@@ -1832,7 +1837,7 @@ class ModularWaterEffect {
         `🎣 Fish will try again in ${(this.fishReactionDelay / 1000).toFixed(1)}s since hook is still in water`,
       );
     } else {
-      // Se n��o, voltar ao estado idle e garantir reset completo
+      // Se não, voltar ao estado idle e garantir reset completo
       console.log("🔄 Complete reset - hook removed from water");
       this.gameState = "idle";
       this.hookPosition = { x: 0.5, y: 0.5 }; // Garantir reset da posição
