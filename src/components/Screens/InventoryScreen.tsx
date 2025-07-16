@@ -33,6 +33,10 @@ export const InventoryScreen: React.FC = () => {
   const [activeTab, setActiveTab] = useState("all");
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [fishInspectModal, setFishInspectModal] = useState<{
+    isOpen: boolean;
+    fish: Item | null;
+  }>({ isOpen: false, fish: null });
 
   const {
     activePet,
