@@ -1588,7 +1588,7 @@ class ModularWaterEffect {
           Math.min(maxTiltAngle, targetAngle),
         );
 
-        // Aplicar suavização simples e responsíva
+        // Aplicar suavizaç��o simples e responsíva
         if (this.fishAngle === undefined || this.fishAngle === 0) {
           this.fishAngle = targetAngle * 0.2; // Começar com 20% do ângulo
         } else {
@@ -1920,6 +1920,22 @@ class ModularWaterEffect {
     const caughtFishName = this.activeFish === 1 ? "Azul" : "Verde";
     console.log(`🎣 Capturando peixe ${caughtFishName}...`);
 
+    // Obter dados antes de esconder o peixe
+    const fishData = {
+      species: caughtFishName === "Azul" ? "Peixinho Azul" : "Peixinho Verde",
+      activeFish: this.activeFish,
+      position: {
+        x:
+          this.activeFish === 1
+            ? this.fishCurrentPosition.x
+            : this.fish2CurrentPosition.x,
+        y:
+          this.activeFish === 1
+            ? this.fishCurrentPosition.y
+            : this.fish2CurrentPosition.y,
+      },
+    };
+
     if (this.activeFish === 1) {
       // Esconder peixe azul
       this.fish1Visible = false;
@@ -1934,6 +1950,9 @@ class ModularWaterEffect {
 
     // Resetar o jogo após captura
     this.resetFishingGame();
+
+    // Retornar dados do peixe capturado
+    return fishData;
   }
 
   // Método para verificar e processar respawns
