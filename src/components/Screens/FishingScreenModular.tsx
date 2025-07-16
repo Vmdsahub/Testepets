@@ -3999,32 +3999,22 @@ export const FishingScreenModular: React.FC = () => {
           }}
         >
           <div style={{ fontWeight: "bold", marginBottom: "5px" }}>
-            🐟 FISH DEBUG PANEL
+            🐟 SIMPLE FISH DEBUG
           </div>
-          <div>Active Fish: {fishingService.getActiveFish().length}</div>
-          <div>Total Spots: {fishingService.getAllFishingSpots().length}</div>
+          <div>Visible Fish: {visibleFish.length}</div>
           <div>
             Azuis:{" "}
-            {
-              fishingService
-                .getActiveFish()
-                .filter((f) => f.species === "Peixinho Azul").length
-            }
+            {visibleFish.filter((f) => f.species === "Peixinho Azul").length}
           </div>
           <div>
             Verdes:{" "}
-            {
-              fishingService
-                .getActiveFish()
-                .filter((f) => f.species === "Peixinho Verde").length
-            }
+            {visibleFish.filter((f) => f.species === "Peixinho Verde").length}
           </div>
           <div style={{ marginTop: "5px", fontSize: "9px" }}>
-            <strong>Fish IDs:</strong>
-            {fishingService.getActiveFish().map((fish) => (
+            {visibleFish.map((fish) => (
               <div key={fish.id} style={{ fontSize: "8px" }}>
-                {fish.species.substring(0, 5)} ({fish.size}) | ID:{" "}
-                {fish.id.substring(0, 8)}...
+                {fish.species} ({fish.size}) at ({fish.x.toFixed(2)},
+                {fish.y.toFixed(2)})
               </div>
             ))}
           </div>
