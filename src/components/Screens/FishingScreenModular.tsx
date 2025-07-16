@@ -558,7 +558,7 @@ class ModularWaterEffect {
             attractionStrength = 0.8; // Muito próximo ao anzol
           }
 
-          // Movimento suave em direção ao anzol
+          // Movimento suave em dire��ão ao anzol
           float targetX = u_hookPosition.x;
           float targetY = u_hookPosition.y;
 
@@ -1761,21 +1761,23 @@ class ModularWaterEffect {
       this.fish2CurrentPosition.y += this.fish2Velocity.y;
 
       // Manter dentro da área da água
-      const clampMargin = 0.01;
-      this.fish2CurrentPosition.x = Math.max(
-        this.waterArea.x + clampMargin,
-        Math.min(
-          this.waterArea.x + this.waterArea.width - clampMargin,
-          this.fish2CurrentPosition.x,
-        ),
-      );
-      this.fish2CurrentPosition.y = Math.max(
-        this.waterArea.y + clampMargin,
-        Math.min(
-          this.waterArea.y + this.waterArea.height - clampMargin,
-          this.fish2CurrentPosition.y,
-        ),
-      );
+      if (this.waterArea) {
+        const clampMargin = 0.01;
+        this.fish2CurrentPosition.x = Math.max(
+          this.waterArea.x + clampMargin,
+          Math.min(
+            this.waterArea.x + this.waterArea.width - clampMargin,
+            this.fish2CurrentPosition.x,
+          ),
+        );
+        this.fish2CurrentPosition.y = Math.max(
+          this.waterArea.y + clampMargin,
+          Math.min(
+            this.waterArea.y + this.waterArea.height - clampMargin,
+            this.fish2CurrentPosition.y,
+          ),
+        );
+      }
     }
 
     // Calcular direção e ângulo do peixe 2
