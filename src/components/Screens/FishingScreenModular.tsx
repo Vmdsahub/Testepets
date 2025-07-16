@@ -890,6 +890,16 @@ class ModularWaterEffect {
       this.program,
       "u_activeFish",
     );
+
+    // Uniforms para visibilidade dos peixes
+    this.uniforms.fish1Visible = this.gl.getUniformLocation(
+      this.program,
+      "u_fish1Visible",
+    );
+    this.uniforms.fish2Visible = this.gl.getUniformLocation(
+      this.program,
+      "u_fish2Visible",
+    );
   }
 
   createShader(type, source) {
