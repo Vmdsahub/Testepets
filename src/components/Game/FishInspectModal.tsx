@@ -1,6 +1,6 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, MapPin, Calendar, Ruler, Star } from "lucide-react";
+import { X, MapPin, Calendar, Ruler, Star, Trash2 } from "lucide-react";
 import { Item } from "../../types/game";
 import { FISH_SPECIES } from "../../types/fish";
 
