@@ -486,15 +486,9 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = ({
               exit={{ opacity: 0, scale: 0.95, y: -5 }}
               className="fixed bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-[300] min-w-[200px]"
               style={{
-                left: dropdownState.position
-                  ? `${Math.max(10, Math.min(dropdownState.position.x, window.innerWidth - 210))}px`
-                  : "50%",
-                top: dropdownState.position
-                  ? `${Math.max(10, Math.min(dropdownState.position.y, window.innerHeight - 200))}px`
-                  : "50%",
-                transform: dropdownState.position
-                  ? "translateX(-50%)"
-                  : "translate(-50%, -50%)",
+                left: "50%",
+                top: "50%",
+                transform: "translate(-50%, -50%)",
               }}
             >
               {/* Item Info Header */}
