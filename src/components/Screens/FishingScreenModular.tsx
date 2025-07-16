@@ -73,7 +73,7 @@ class ModularWaterEffect {
     this.fish2TargetPosition = { x: 0.6, y: 0.7 };
     this.fish2CurrentPosition = { x: 0.6, y: 0.7 }; // Posição atual real do peixe 2
     this.fish2Velocity = { x: 0, y: 0 }; // Velocidade atual do peixe 2
-    this.fish2Direction = -1; // Começa nadando para esquerda
+    this.fish2Direction = -1; // Come��a nadando para esquerda
     this.fish2Angle = 0; // Ângulo real do peixe 2
 
     // Sistema de movimento orgânico
@@ -732,7 +732,7 @@ class ModularWaterEffect {
                     // Tamanho da exclamação (82% maior que o original)
           vec2 exclamationSize = vec2(0.015, 0.025) * 1.82 * pulse;
 
-          // Calcular UV da exclamação
+          // Calcular UV da exclama��ão
           vec2 exclamationUV = (uv - exclamationPos + exclamationSize * 0.5) / exclamationSize;
 
           // Verificar se está na área da exclamação
@@ -1673,7 +1673,7 @@ class ModularWaterEffect {
       // Calcular posição do centro do peixe para que a boca fique EXATAMENTE no anzol
       const fishSizePixelX = 0.08; // Tamanho do peixe no shader
 
-      // Lógica idêntica ao drawFishMouthOverlay
+      // Lógica id��ntica ao drawFishMouthOverlay
       let mouthOffsetX;
       if (this.fish2Direction > 0) {
         mouthOffsetX = fishSizePixelX / 2 - 10 / window.innerWidth; // Converter 10px para UV
@@ -3164,6 +3164,7 @@ export const FishingScreenModular: React.FC = () => {
         setShowMinigame(true);
 
         // Código removido - agora a captura acontece no handleMinigameComplete
+        // Código legacy removido - não será executado
         if (false) {
           console.log(`�� Attempting to catch fish: ${nearbyFish.name}`);
           // Pescar o peixe
