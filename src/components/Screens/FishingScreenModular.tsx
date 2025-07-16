@@ -175,11 +175,15 @@ class ModularWaterEffect {
       uniform sampler2D u_fishTexture;
       uniform sampler2D u_fish2Texture;
 
-      // Uniforms para o segundo peixe
+            // Uniforms para o segundo peixe
             uniform vec2 u_fish2TargetPosition;
       uniform float u_fish2Direction;
       uniform float u_fish2Angle;
       uniform float u_activeFish;
+
+      // Uniforms para visibilidade dos peixes
+      uniform float u_fish1Visible; // 1.0 = visível, 0.0 = capturado
+      uniform float u_fish2Visible; // 1.0 = visível, 0.0 = capturado
       
       varying vec2 v_texCoord;
       varying vec2 v_position;
@@ -1861,7 +1865,7 @@ class ModularWaterEffect {
 
           const fisgadoTimer = setTimeout(() => {
             this.showFisgadoText = false;
-            console.log("🎮 Opening minigame with restored callback...");
+            console.log("��� Opening minigame with restored callback...");
             this.onGameStart();
           }, 600);
 
