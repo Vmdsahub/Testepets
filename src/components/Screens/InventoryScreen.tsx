@@ -71,7 +71,7 @@ export const InventoryScreen: React.FC = () => {
     return glows[rarity as keyof typeof glows] || "";
   };
 
-  const filteredItems = inventory.filter((item) => {
+    const filteredItems = inventory.filter((item) => {
     const matchesTab =
       activeTab === "all" ||
       (activeTab === "consumables" && ["Food", "Potion"].includes(item.type)) ||
@@ -129,7 +129,7 @@ export const InventoryScreen: React.FC = () => {
     setSelectedItem(null);
   };
 
-  const handleDiscardItem = (item: Item) => {
+    const handleDiscardItem = (item: Item) => {
     if (item.inventoryId) {
       removeFromInventory(item.inventoryId, 1);
     } else {
@@ -281,7 +281,7 @@ export const InventoryScreen: React.FC = () => {
         {/* Inventory Grid */}
         <div className="p-4">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-gray-900">
+                        <h3 className="font-semibold text-gray-900">
               {activeTab === "all"
                 ? "All Items"
                 : activeTab === "consumables"
@@ -299,20 +299,21 @@ export const InventoryScreen: React.FC = () => {
 
           <div className="grid grid-cols-5 gap-3 mb-4">
             <AnimatePresence>
-              {filteredItems.map((item, index) => (
-                <motion.button
-                  key={item.inventoryId || item.id}
-                  onClick={() => handleItemClick(item)}
-                  className={`relative aspect-square rounded-xl border-2 p-2 transition-all hover:scale-105 ${getRarityColor(item.rarity)} ${getRarityGlow(item.rarity)} ${
-                    item.isEquipped ? "ring-2 ring-blue-500" : ""
-                  }`}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  transition={{ delay: index * 0.05 }}
-                  whileHover={{ y: -2 }}
-                  whileTap={{ scale: 0.95 }}
-                >
+                            {filteredItems.map((item, index) => {
+                const itemButton = (
+                  <motion.button
+                    key={item.inventoryId || item.id}
+                    onClick={() => handleItemClick(item)}
+                    className={`relative aspect-square rounded-xl border-2 p-2 transition-all hover:scale-105 ${getRarityColor(item.rarity)} ${getRarityGlow(item.rarity)} ${
+                      item.isEquipped ? "ring-2 ring-blue-500" : ""
+                    }`}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    transition={{ delay: index * 0.05 }}
+                    whileHover={{ y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
                   {/* Item Image */}
                   <div className="w-full h-full rounded-lg overflow-hidden flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
                     {item.imageUrl ? (
