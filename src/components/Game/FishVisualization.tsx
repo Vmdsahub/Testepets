@@ -19,6 +19,7 @@ interface FishVisualizationProps {
 
 export const FishVisualization: React.FC<FishVisualizationProps> = ({
   waterArea,
+  visibleFish,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationFrameRef = useRef<number>();
