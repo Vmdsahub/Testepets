@@ -19,7 +19,7 @@ interface WaterArea {
   shape: "rectangle" | "circle" | "triangle";
 }
 
-// WebGL Water Effect Class Modular - NOVO: Movimento aleatório livre com rotação 360° baseado na área definida
+// WebGL Water Effect Class Modular - NOVO: Movimento aleatório livre com rotação 360�� baseado na área definida
 class ModularWaterEffect {
   constructor(waterArea, isAdmin = false) {
     // Inicializar activeTimers PRIMEIRO para evitar undefined
@@ -2457,6 +2457,16 @@ class ModularWaterEffect {
     this.gl.uniform1f(this.uniforms.fish2Direction, this.fish2Direction);
     this.gl.uniform1f(this.uniforms.fish2Angle, this.fish2Angle || 0);
     this.gl.uniform1f(this.uniforms.activeFish, this.activeFish);
+
+    // Uniforms de visibilidade dos peixes
+    this.gl.uniform1f(
+      this.uniforms.fish1Visible,
+      this.fish1Visible ? 1.0 : 0.0,
+    );
+    this.gl.uniform1f(
+      this.uniforms.fish2Visible,
+      this.fish2Visible ? 1.0 : 0.0,
+    );
 
     // Novos uniforms para área modular
     this.gl.uniform4f(
