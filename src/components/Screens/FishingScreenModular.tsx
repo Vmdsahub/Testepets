@@ -3153,6 +3153,9 @@ export const FishingScreenModular: React.FC = () => {
             },
           };
 
+          // Esconder peixe e agendar respawn
+          waterEffectRef.current.catchActiveFish();
+
           // Adicionar ao inventário
           addToInventory(fishItem).then((success) => {
             if (success) {
