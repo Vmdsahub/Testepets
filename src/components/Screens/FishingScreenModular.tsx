@@ -1785,7 +1785,7 @@ class ModularWaterEffect {
       // Rotação baseada na velocidade vertical
       const verticalVelocity2 = this.fish2Velocity.y;
       if (Math.abs(verticalVelocity2) > 0.0002) {
-        const maxTiltAngle = Math.PI / 6; // 30 graus máximo
+        const maxTiltAngle = Math.PI / 6; // 30 graus m��ximo
         const velocityScale = 1000;
         let targetAngle = verticalVelocity2 * velocityScale;
         targetAngle = Math.max(
@@ -3163,7 +3163,8 @@ export const FishingScreenModular: React.FC = () => {
         console.log("🎮 Opening fishing minigame...");
         setShowMinigame(true);
 
-        if (nearbyFish && user) {
+        // Código removido - agora a captura acontece no handleMinigameComplete
+        if (false) {
           console.log(`�� Attempting to catch fish: ${nearbyFish.name}`);
           // Pescar o peixe
           const caughtFish = fishingService.catchFish(nearbyFish.id, user.id);
