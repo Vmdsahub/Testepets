@@ -89,7 +89,7 @@ class ModularWaterEffect {
 
     this.fishReactionStartTime = 0;
     this.fishReactionDelay = 0;
-    this.activeFish = 1; // Qual peixe está ativo (1 = azul, 2 = verde)
+    this.activeFish = 1; // Qual peixe est�� ativo (1 = azul, 2 = verde)
     this.originalFishMovement = { moveX: 0, moveY: 0 };
     this.exclamationTime = 0;
     this.exclamationStartTime = 0;
@@ -2451,11 +2451,11 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
   }, [isHolding, onComplete, barSize, fishSize]);
 
   useEffect(() => {
-    if (progress >= 100) {
+    if (progress >= 100 && gameResult === "playing") {
       setGameResult("success");
       setTimeout(() => onComplete(true), 1500); // Delay para mostrar animação
     }
-  }, [progress, onComplete]);
+  }, [progress, gameResult, onComplete]);
 
   // Atualizar isLowTime baseado no gameTime
   useEffect(() => {
