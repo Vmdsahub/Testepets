@@ -465,7 +465,9 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = ({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setDropdownState({ isOpen: false, item: null })}
+              onClick={() =>
+                setDropdownState({ isOpen: false, item: null, position: null })
+              }
             />
 
             {/* Dropdown Menu */}
