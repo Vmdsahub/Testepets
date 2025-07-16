@@ -598,7 +598,7 @@ class ModularWaterEffect {
                                 // === SISTEMA DE ROTA��ÃO DIAGONAL SUAVE ===
         // Aplica rotação baseada na direção vertical do movimento
                                 // u_fishAngle contém o ângulo calculado pelo JavaScript (-30° a +30°)
-                float diagonalTilt = u_fishAngle; // 100% do ângulo para rotação natural
+                float diagonalTilt = u_fishAngle; // 100% do ��ngulo para rotação natural
 
                 // Combinar flip horizontal com rotação diagonal
         if (u_fishDirection > 0.0) {
@@ -2980,7 +2980,10 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
 };
 
 export const FishingScreenModular: React.FC = () => {
-  const { setCurrentScreen } = useGameStore();
+  console.log("🏏 FishingScreenModular component rendering...");
+  console.log("🐟 FishingService loaded:", !!fishingService);
+  console.log("🐟 Active fish count:", fishingService.getActiveFish().length);
+  const { setCurrentScreen, addToInventory, addNotification } = useGameStore();
   const { user } = useAuthStore();
   const waterEffectRef = useRef<ModularWaterEffect | null>(null);
   const overlayCanvasRef = useRef<HTMLCanvasElement>(null);
