@@ -2153,7 +2153,7 @@ class ModularWaterEffect {
     // Verificar se o anzol ainda está na água para permitir novo interesse
     const hookInWater = this.isHookInWater();
     console.log(
-      `��� RESET DEBUG - Hook position: (${this.hookPosition.x.toFixed(3)}, ${this.hookPosition.y.toFixed(3)}) - isHookInWater: ${hookInWater}`,
+      `����� RESET DEBUG - Hook position: (${this.hookPosition.x.toFixed(3)}, ${this.hookPosition.y.toFixed(3)}) - isHookInWater: ${hookInWater}`,
     );
 
     // CORREÇÃO: Só reagir novamente se o anzol foi genuinamente lançado pela vara
@@ -4175,12 +4175,8 @@ export const FishingScreenModular: React.FC = () => {
                   style={{ fontSize: "8px", marginTop: "3px", color: "#ccc" }}
                 >
                   Pos. Azul: (
-                  {waterEffectRef.current.fishCurrentPosition?.x?.toFixed(2) ||
-                    "0.00"}
-                  ,{" "}
-                  {waterEffectRef.current.fishCurrentPosition?.y?.toFixed(2) ||
-                    "0.00"}
-                  )
+                  {waterEffectRef.current.fishCurrentPosition.x.toFixed(2)},{" "}
+                  {waterEffectRef.current.fishCurrentPosition.y.toFixed(2)})
                 </div>
                 <div style={{ fontSize: "8px", color: "#ccc" }}>
                   Pos. Verde: (
