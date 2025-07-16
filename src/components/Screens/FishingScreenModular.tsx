@@ -2038,7 +2038,7 @@ class ModularWaterEffect {
 
         // Chegou próximo ao anzol
         this.gameState = "fish_hooked";
-        this.exclamationTime = 1000;
+        this.exclamationTime = 3000; // Aumentado de 1000ms para 3000ms (3 segundos)
         this.exclamationStartTime = Date.now();
         this.canClickExclamation = true;
         this.isVibrating = true;
