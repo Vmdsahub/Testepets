@@ -669,7 +669,7 @@ class ModularWaterEffect {
           vec2 distortedUV = uv + refraction;
           
                                                   vec4 backgroundColor = getColorWithFish(distortedUV, fishX, fishY, fishAngle);
-          // Adicionar segundo peixe na versão com efeitos de água
+          // Adicionar segundo peixe na vers��o com efeitos de água
           backgroundColor = addSecondFish(backgroundColor, distortedUV, fish2X, fish2Y, fish2Angle);
           
           float depth = (sin(uv.x * 3.0) + sin(uv.y * 4.0)) * 0.1 + 0.9;
@@ -3658,7 +3658,7 @@ export const FishingScreenModular: React.FC = () => {
       />
 
       {/* Fish Visualization */}
-      <FishVisualization waterArea={waterArea} />
+      <FishVisualization waterArea={waterArea} visibleFish={visibleFish} />
 
       {/* Overlay para mostrar posição da boca do peixe */}
       <canvas
