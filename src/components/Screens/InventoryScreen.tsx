@@ -105,7 +105,7 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = ({
     position: { x: number; y: number } | null;
   }>({ isOpen: false, item: null, position: null });
 
-            const handleItemClick = (item: Item, event: React.MouseEvent) => {
+  const handleItemClick = (item: Item, event: React.MouseEvent) => {
     event.preventDefault();
     event.stopPropagation();
 
@@ -294,7 +294,7 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = ({
     </div>
   );
 
-    const inventoryContent = (
+  const inventoryContent = (
     <div className="max-w-md mx-auto pb-12 inventory-container relative">
       {/* Search Bar */}
       <motion.div
@@ -359,7 +359,7 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = ({
             </div>
           </div>
 
-                    <div className="grid grid-cols-5 gap-3 mb-4 relative">
+          <div className="grid grid-cols-5 gap-3 mb-4 relative">
             <AnimatePresence>
               {filteredItems.map((item, index) => {
                 return (
@@ -370,61 +370,62 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = ({
                       className={`relative aspect-square rounded-xl border-2 p-2 transition-all hover:scale-105 w-full ${getRarityColor(item.rarity)} ${getRarityGlow(item.rarity)} ${
                         item.isEquipped ? "ring-2 ring-blue-500" : ""
                       }`}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.8 }}
-                    transition={{ delay: index * 0.05 }}
-                    whileHover={{ y: -2 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    {/* Item Image */}
-                    <div className="w-full h-full rounded-lg overflow-hidden flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
-                      {item.imageUrl ? (
-                        <img
-                          src={item.imageUrl}
-                          alt={item.name}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            // Fallback to emoji if image fails to load
-                            const target = e.target as HTMLImageElement;
-                            target.style.display = "none";
-                            target.parentElement!.innerHTML = `<span class="text-2xl">${getItemEmoji(item)}</span>`;
-                          }}
-                        />
-                      ) : (
-                        <span className="text-2xl">{getItemEmoji(item)}</span>
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                      transition={{ delay: index * 0.05 }}
+                      whileHover={{ y: -2 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      {/* Item Image */}
+                      <div className="w-full h-full rounded-lg overflow-hidden flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
+                        {item.imageUrl ? (
+                          <img
+                            src={item.imageUrl}
+                            alt={item.name}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              // Fallback to emoji if image fails to load
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = "none";
+                              target.parentElement!.innerHTML = `<span class="text-2xl">${getItemEmoji(item)}</span>`;
+                            }}
+                          />
+                        ) : (
+                          <span className="text-2xl">{getItemEmoji(item)}</span>
+                        )}
+                      </div>
+
+                      {/* Quantity */}
+                      {item.quantity > 1 && (
+                        <motion.span
+                          className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold shadow-lg"
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ delay: 0.2 + index * 0.05 }}
+                        >
+                          {item.quantity > 99 ? "99+" : item.quantity}
+                        </motion.span>
                       )}
-                    </div>
 
-                    {/* Quantity */}
-                    {item.quantity > 1 && (
-                      <motion.span
-                        className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold shadow-lg"
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ delay: 0.2 + index * 0.05 }}
-                      >
-                        {item.quantity > 99 ? "99+" : item.quantity}
-                      </motion.span>
-                    )}
+                      {/* Equipped Indicator */}
+                      {item.isEquipped && (
+                        <motion.span
+                          className="absolute -bottom-1 -right-1 bg-green-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center"
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ delay: 0.3 + index * 0.05 }}
+                        >
+                          ✓
+                        </motion.span>
+                      )}
 
-                    {/* Equipped Indicator */}
-                    {item.isEquipped && (
-                      <motion.span
-                        className="absolute -bottom-1 -right-1 bg-green-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center"
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ delay: 0.3 + index * 0.05 }}
-                      >
-                        ✓
-                      </motion.span>
-                    )}
-
-                    {/* Rarity Indicator */}
-                    {item.rarity !== "Common" && (
-                      <div className="absolute top-1 left-1 w-2 h-2 rounded-full bg-current opacity-60"></div>
-                    )}
-                  </motion.button>
+                      {/* Rarity Indicator */}
+                      {item.rarity !== "Common" && (
+                        <div className="absolute top-1 left-1 w-2 h-2 rounded-full bg-current opacity-60"></div>
+                      )}
+                    </motion.button>
+                  </div>
                 );
               })}
             </AnimatePresence>
@@ -482,15 +483,19 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = ({
               }
             />
 
-                                    {/* Dropdown Menu */}
+            {/* Dropdown Menu */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: -5 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: -5 }}
               className="fixed bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-[300] min-w-[200px]"
-                                                                      style={{
-                left: dropdownState.position ? `${dropdownState.position.x}px` : "50%",
-                top: dropdownState.position ? `${dropdownState.position.y}px` : "50%",
+              style={{
+                left: dropdownState.position
+                  ? `${dropdownState.position.x}px`
+                  : "50%",
+                top: dropdownState.position
+                  ? `${dropdownState.position.y}px`
+                  : "50%",
                 transform: "translateX(-50%)",
               }}
             >
