@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS world_positions (
 INSERT INTO world_positions (id, name, x, y, size, rotation, color, image_url) VALUES
 ('planet-0', 'Estação Galáctica', 7750, 7250, 60, 0, '#ff6b6b', 'https://cdn.builder.io/api/v1/image/assets%2Ff94d2a386a444693b9fbdff90d783a66%2Fdfdbc589c3f344eea7b33af316e83b41?format=webp&width=800'),
 ('planet-1', 'Base Orbital', 7966.6, 7625, 60, 0, '#4ecdc4', 'https://cdn.builder.io/api/v1/image/assets%2Ff94d2a386a444693b9fbdff90d783a66%2Fd42810aa3d45429d93d8c58c52827326?format=webp&width=800'),
-('planet-2', 'Mundo Alienígena', 7750, 8000, 60, 0, '#45b7d1', 'https://cdn.builder.io/api/v1/image/assets%2Ff94d2a386a444693b9fbdff90d783a66%2Fdfce7132f868407eb4d7afdf27d09a77?format=webp&width=800'),
+('planet-2', 'Mundo Alienígena', 7750, 8000, 60, 0, '#45b7d1', 'https://cdn.builder.io/api/v1/image/assets%2F8ec9b1b631094c4a90f6526f2a2446cc%2F1192080bbca44c28b40c7df4984132da?format=webp&width=800'),
 ('planet-3', 'Terra Verdejante', 7533.4, 7625, 60, 0, '#96ceb4', 'https://cdn.builder.io/api/v1/image/assets%2Ff94d2a386a444693b9fbdff90d783a66%2F8e6b96287f6448089ed602d82e2839bc?format=webp&width=800'),
 ('planet-4', 'Reino Gelado', 7533.4, 7375, 60, 0, '#ffeaa7', 'https://cdn.builder.io/api/v1/image/assets%2Ff94d2a386a444693b9fbdff90d783a66%2F7a1b7c8172a5446b9a22ffd65d22a6f7?format=webp&width=800'),
 ('planet-5', 'Vila Ancestral', 7966.6, 7375, 60, 0, '#dda0dd', 'https://cdn.builder.io/api/v1/image/assets%2F14397f3b3f9049c3ad3ca64e1b66afd5%2F93a4cd7c0ad245e5ba9abebe11152d46?format=webp&width=800');
