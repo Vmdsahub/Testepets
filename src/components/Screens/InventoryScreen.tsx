@@ -581,6 +581,15 @@ export const InventoryScreen: React.FC = () => {
           </>
         )}
       </AnimatePresence>
+
+      {/* Fish Inspect Modal */}
+      <FishInspectModal
+        fishItem={fishInspectModal.fish}
+        isOpen={fishInspectModal.isOpen}
+        onClose={() => setFishInspectModal({ isOpen: false, fish: null })}
+        onFeed={handleFishFeed}
+        onDiscard={handleFishDiscard}
+      />
     </div>
   );
 };
