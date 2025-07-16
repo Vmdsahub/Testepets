@@ -234,7 +234,7 @@ class ModularWaterEffect {
         return (wave1 + wave2 + wave3 + wave4 + wave5 + noise1 + noise2 + noise3) * u_waveIntensity;
       }
 
-      // Função para calcular a refra��ão (mantida original)
+      // Função para calcular a refração (mantida original)
       vec2 calculateRefraction(vec2 uv, float time) {
         float waveHeight = createWaves(uv, time);
         vec2 epsilon = vec2(0.01, 0.0);
@@ -2066,11 +2066,11 @@ class ModularWaterEffect {
       // Usar tempo real em vez de contador de frames
       const elapsedTime = Date.now() - this.exclamationStartTime;
 
-      if (elapsedTime < 3000) {
-        // Ainda dentro do período de 3 segundos
-        this.exclamationTime = 3000 - elapsedTime;
+      if (elapsedTime < 1000) {
+        // Ainda dentro do período de 1 segundo
+        this.exclamationTime = 1000 - elapsedTime;
       } else {
-        // Passou 3 segundos - peixe vai embora automaticamente
+        // Passou 1 segundo - peixe vai embora automaticamente
         this.exclamationTime = 0;
         this.canClickExclamation = false;
 
