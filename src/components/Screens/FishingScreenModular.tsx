@@ -1349,7 +1349,7 @@ class ModularWaterEffect {
 
     // Verificar se é hora de mudar direção
     if (currentTime - this.directionChangeTime > this.directionChangeCooldown) {
-      // Gerar nova direção favorecendo movimento horizontal
+      // Gerar nova direç��o favorecendo movimento horizontal
       let angle;
 
       if (Math.random() < 0.7) {
@@ -1424,7 +1424,7 @@ class ModularWaterEffect {
       let baseX = this.hookPosition.x - mouthOffsetX - additionalOffsetX;
       let baseY = this.hookPosition.y - 2 / window.innerHeight; // Converter 2px para UV (offset Y da boca)
 
-      // Adicionar vibra��ão se estiver vibrando
+      // Adicionar vibração se estiver vibrando
       if (this.isVibrating) {
         const vibrationTime = Date.now() * 0.05;
         const vibrationIntensity = 0.003;
@@ -3246,13 +3246,9 @@ export const FishingScreenModular: React.FC = () => {
         waterEffectRef.current = waterEffect;
         redefineGameStartCallback();
 
-        // Forçar spawn inicial de peixes
-        console.log("🐟 Forcing initial fish spawn...");
-        fishingService.forceRespawnAll();
-        console.log(
-          "🐟 Fish after forced spawn:",
-          fishingService.getActiveFish(),
-        );
+        // Spawnar peixes simples inicial
+        console.log("🐟 Spawning initial simple fish...");
+        spawnFish();
 
         // NOVA LÓGICA: Clique em QUALQUER LUGAR da tela durante mordida
         globalClickHandler = (e: MouseEvent) => {
