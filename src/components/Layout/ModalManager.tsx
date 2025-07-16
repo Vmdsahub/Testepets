@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import { DraggableModal } from "./DraggableModal";
 import { PetScreen } from "../Screens/PetScreen";
-import { InventoryScreen } from "../Screens/InventoryScreen";
+
 import { ProfileScreen } from "../Screens/ProfileScreen";
 import { AdminPanel } from "../Admin/AdminPanel";
 import { NotificationsModal } from "./NotificationsModal";
