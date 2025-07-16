@@ -475,7 +475,18 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = ({
               initial={{ opacity: 0, scale: 0.95, y: -5 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: -5 }}
-              className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50 min-w-[200px]"
+              className="fixed bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50 min-w-[200px]"
+              style={{
+                left: dropdownState.position
+                  ? `${dropdownState.position.x}px`
+                  : "50%",
+                top: dropdownState.position
+                  ? `${dropdownState.position.y}px`
+                  : "50%",
+                transform: dropdownState.position
+                  ? "translateX(-50%)"
+                  : "translate(-50%, -50%)",
+              }}
             >
               {/* Item Info Header */}
               <div className="px-3 py-2 border-b border-gray-100">
