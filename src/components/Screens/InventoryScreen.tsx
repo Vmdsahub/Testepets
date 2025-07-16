@@ -288,7 +288,9 @@ export const InventoryScreen: React.FC = () => {
                   ? "Food & Potions"
                   : activeTab === "equipment"
                     ? "Equipment & Weapons"
-                    : "Special Items"}
+                    : activeTab === "fish"
+                      ? "Fish Collection"
+                      : "Special Items"}
             </h3>
             <div className="text-sm text-gray-500">
               {usedSlots}/{maxSlots} slots
