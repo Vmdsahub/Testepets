@@ -600,7 +600,9 @@ class ModularWaterEffect {
           vec2 refraction = calculateRefraction(uv, u_time) * waterMask;
           vec2 distortedUV = uv + refraction;
           
-                                        vec4 backgroundColor = getColorWithFish(distortedUV, fishX, fishY, fishAngle);
+                                                  vec4 backgroundColor = getColorWithFish(distortedUV, fishX, fishY, fishAngle);
+          // Adicionar segundo peixe na versão com efeitos de água
+          backgroundColor = addSecondFish(backgroundColor, distortedUV, fish2X, fish2Y, fish2Angle);
           
           float depth = (sin(uv.x * 3.0) + sin(uv.y * 4.0)) * 0.1 + 0.9;
           backgroundColor.rgb *= depth;
