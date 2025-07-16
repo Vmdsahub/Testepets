@@ -2423,12 +2423,16 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
 
       setProgress((prev) => {
         if (fishIsInBar) {
-          setProgressGain(true);
           return Math.min(100, prev + 2); // Progresso aumenta
         } else {
           return Math.max(0, prev - 1); // Progresso diminui
         }
       });
+
+      // Atualizar progressGain separadamente
+      if (fishIsInBar) {
+        setProgressGain(true);
+      }
 
       // Diminuir tempo
       setGameTime((prev) => {
