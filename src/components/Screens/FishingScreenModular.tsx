@@ -3970,49 +3970,9 @@ export const FishingScreenModular: React.FC = () => {
               </div>
             </>
           )}
-          <button
-            onClick={() => {
-              spawnFish();
-              console.log("🔄 Spawned simple fish");
-            }}
-            style={{
-              marginTop: "5px",
-              padding: "3px 6px",
-              background: "#444",
-              border: "1px solid #666",
-              borderRadius: "4px",
-              color: "white",
-              fontSize: "10px",
-              cursor: "pointer",
-              marginRight: "5px",
-            }}
-          >
-            Force Respawn All
-          </button>
-          <button
-            onClick={() => {
-              // Testar adição de peixe simples
-              if (visibleFish.length > 0) {
-                const testFish = visibleFish[0];
-                const caughtFish = catchFish(testFish.id);
-                if (caughtFish) {
-                  console.log("🧪 Test fish caught:", caughtFish);
-                }
-              }
-            }}
-            style={{
-              marginTop: "5px",
-              padding: "3px 6px",
-              background: "#006600",
-              border: "1px solid #666",
-              borderRadius: "4px",
-              color: "white",
-              fontSize: "10px",
-              cursor: "pointer",
-            }}
-          >
-            Test Add Fish
-          </button>
+          <div style={{ fontSize: "9px", marginTop: "5px", color: "#ccc" }}>
+            Os peixes WebGL nadam automaticamente
+          </div>
         </div>
       )}
 
