@@ -110,21 +110,14 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = ({
     event.stopPropagation();
 
     const button = event.currentTarget as HTMLElement;
-    const inventoryContainer = button.closest(
-      ".inventory-container",
-    ) as HTMLElement;
+    const buttonRect = button.getBoundingClientRect();
 
-    if (inventoryContainer) {
-      const buttonRect = button.getBoundingClientRect();
-      const containerRect = inventoryContainer.getBoundingClientRect();
+    const position = {
+      x: buttonRect.left + buttonRect.width / 2,
+      y: buttonRect.bottom + 5,
+    };
 
-      const position = {
-        x: buttonRect.left - containerRect.left + buttonRect.width / 2,
-        y: buttonRect.bottom - containerRect.top + 5,
-      };
-
-      setDropdownState({ isOpen: true, item, position });
-    }
+    setDropdownState({ isOpen: true, item, position });
   };
 
   const handleUseItem = (item: Item) => {
