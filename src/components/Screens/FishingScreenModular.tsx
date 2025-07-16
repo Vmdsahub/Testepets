@@ -4169,13 +4169,21 @@ export const FishingScreenModular: React.FC = () => {
               </div>
               <div style={{ fontSize: "8px", marginTop: "3px", color: "#ccc" }}>
                 Pos. Azul: (
-                {waterEffectRef.current.fishCurrentPosition.x.toFixed(2)},{" "}
-                {waterEffectRef.current.fishCurrentPosition.y.toFixed(2)})
+                {waterEffectRef.current.fishCurrentPosition?.x?.toFixed(2) ||
+                  "0.00"}
+                ,{" "}
+                {waterEffectRef.current.fishCurrentPosition?.y?.toFixed(2) ||
+                  "0.00"}
+                )
               </div>
               <div style={{ fontSize: "8px", color: "#ccc" }}>
                 Pos. Verde: (
-                {waterEffectRef.current.fish2CurrentPosition.x.toFixed(2)},{" "}
-                {waterEffectRef.current.fish2CurrentPosition.y.toFixed(2)})
+                {waterEffectRef.current.fish2CurrentPosition?.x?.toFixed(2) ||
+                  "0.00"}
+                ,{" "}
+                {waterEffectRef.current.fish2CurrentPosition?.y?.toFixed(2) ||
+                  "0.00"}
+                )
               </div>
             </>
           )}
