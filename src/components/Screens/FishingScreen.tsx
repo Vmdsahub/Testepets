@@ -1578,6 +1578,8 @@ class WaterEffect {
 
 export const FishingScreen: React.FC = () => {
   console.log("🏏 FishingScreen component rendering...");
+  console.log("🐟 FishingService loaded:", !!fishingService);
+  console.log("🐟 Active fish count:", fishingService.getActiveFish().length);
   const { setCurrentScreen, addToInventory, addNotification } = useGameStore();
   const { user } = useAuthStore();
   const waterEffectRef = useRef<WaterEffect | null>(null);
