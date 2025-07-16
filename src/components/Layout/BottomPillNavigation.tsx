@@ -112,7 +112,8 @@ export const BottomPillNavigation: React.FC<BottomPillNavigationProps> = ({
               const isActive =
                 currentScreen === id ||
                 (id === "world" && currentScreen === "world") ||
-                (["pet", "inventory", "profile", "admin"].includes(id) &&
+                (id === "inventory" && currentScreen === "inventory") ||
+                (["pet", "profile", "admin"].includes(id) &&
                   openModals.includes(id));
 
               return (
