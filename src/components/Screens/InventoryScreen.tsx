@@ -653,21 +653,18 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = ({
             }}
             initial={{
               opacity: 0,
-              y: 20,
               scale: 0.95,
               x: position.x,
               y: position.y + 20,
             }}
             animate={{
               opacity: 1,
-              y: 0,
               scale: 1,
               x: position.x,
               y: position.y,
             }}
             exit={{
               opacity: 0,
-              y: -20,
               scale: 0.95,
               x: position.x,
               y: position.y - 20,
