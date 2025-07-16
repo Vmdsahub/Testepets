@@ -526,7 +526,7 @@ class ModularWaterEffect {
         // Movimento de busca r��pido
         velocityX += cos(t * 2.2) * 2.2 * swimSpeed * areaW * 0.1;
 
-        // Aplicar aceleração
+        // Aplicar aceleraç��o
         velocityX *= burstSpeed;
 
         float fishAngle = 0.0;
@@ -1494,6 +1494,109 @@ class ModularWaterEffect {
       console.log(
         `🐟 DEBUG PEIXE - Lado: ${horizontalDir}, Movimento: ${verticalDir}, Inclinação esperada: ${expectedTilt}, Ângulo: ${angleDegrees.toFixed(1)}°`,
       );
+    }
+  }
+
+  // Método para atualizar posição do segundo peixe (verde)
+  updateFish2Position() {
+    // Movimento orgânico independente para o peixe 2
+    const currentTime = Date.now();
+
+    // Atualizar direção desejada do peixe 2
+    if (
+      currentTime - this.fish2DirectionChangeTime >
+      this.fish2DirectionChangeCooldown
+    ) {
+      // Gerar nova direção
+      const angle = Math.random() * Math.PI * 2;
+      this.fish2DesiredDirection.x = Math.cos(angle);
+      this.fish2DesiredDirection.y = Math.sin(angle) * 0.6; // Reduzir movimento vertical
+
+      this.fish2DirectionChangeTime = currentTime;
+      this.fish2DirectionChangeCooldown = 3500 + Math.random() * 3500; // 3.5-7 segundos
+    }
+
+    // Aplicar força de direção suavemente à velocidade
+    const acceleration = 0.00002;
+    this.fish2Velocity.x += this.fish2DesiredDirection.x * acceleration;
+    this.fish2Velocity.y += this.fish2DesiredDirection.y * acceleration;
+
+    // Variar velocidade naturalmente
+    const speedVariation = 0.7 + 0.3 * Math.sin(currentTime * 0.0008);
+    const maxSpeed = this.fish2Speed * speedVariation;
+
+    // Limitar velocidade máxima
+    const currentSpeed = Math.sqrt(
+      this.fish2Velocity.x * this.fish2Velocity.x +
+        this.fish2Velocity.y * this.fish2Velocity.y,
+    );
+    if (currentSpeed > maxSpeed) {
+      this.fish2Velocity.x = (this.fish2Velocity.x / currentSpeed) * maxSpeed;
+      this.fish2Velocity.y = (this.fish2Velocity.y / currentSpeed) * maxSpeed;
+    }
+
+    // Aplicar damping natural
+    this.fish2Velocity.x *= 0.985;
+    this.fish2Velocity.y *= 0.985;
+
+    // Atualizar posição
+    this.fish2CurrentPosition.x += this.fish2Velocity.x;
+    this.fish2CurrentPosition.y += this.fish2Velocity.y;
+
+    // Manter dentro da área da água
+    const clampMargin = 0.01;
+    this.fish2CurrentPosition.x = Math.max(
+      this.waterArea.x + clampMargin,
+      Math.min(
+        this.waterArea.x + this.waterArea.width - clampMargin,
+        this.fish2CurrentPosition.x,
+      ),
+    );
+    this.fish2CurrentPosition.y = Math.max(
+      this.waterArea.y + clampMargin,
+      Math.min(
+        this.waterArea.y + this.waterArea.height - clampMargin,
+        this.fish2CurrentPosition.y,
+      ),
+    );
+
+    // Calcular direção e ângulo do peixe 2
+    const velocityMagnitude2 = Math.sqrt(
+      this.fish2Velocity.x * this.fish2Velocity.x +
+        this.fish2Velocity.y * this.fish2Velocity.y,
+    );
+
+    if (velocityMagnitude2 > 0.0001) {
+      // Direção horizontal
+      this.fish2Direction = this.fish2Velocity.x > 0 ? 1 : -1;
+
+      // Rotação baseada na velocidade vertical
+      const verticalVelocity2 = this.fish2Velocity.y;
+      if (Math.abs(verticalVelocity2) > 0.0002) {
+        const maxTiltAngle = Math.PI / 6; // 30 graus máximo
+        const velocityScale = 1000;
+        let targetAngle = verticalVelocity2 * velocityScale;
+        targetAngle = Math.max(
+          -maxTiltAngle,
+          Math.min(maxTiltAngle, targetAngle),
+        );
+
+        if (this.fish2Angle === undefined || this.fish2Angle === 0) {
+          this.fish2Angle = targetAngle * 0.2;
+        } else {
+          const lerpSpeed = 0.08;
+          this.fish2Angle =
+            this.fish2Angle + (targetAngle - this.fish2Angle) * lerpSpeed;
+        }
+      } else {
+        if (this.fish2Angle !== undefined && Math.abs(this.fish2Angle) > 0.01) {
+          this.fish2Angle *= 0.8;
+        } else {
+          this.fish2Angle = 0;
+        }
+      }
+    } else if (this.fish2Angle === undefined) {
+      this.fish2Angle = 0;
     }
   }
 
