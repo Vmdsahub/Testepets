@@ -291,7 +291,7 @@ class ModularWaterEffect {
         vec2 fishPos = vec2(fishX, fishY);
         vec2 fishSize = vec2(0.08, 0.06);
 
-                                                                                        // SISTEMA COM ROTA��ÃO DIAGONAL: Aplicar rotação real nas coordenadas UV
+                                                                                        // SISTEMA COM ROTA��ÃO DIAGONAL: Aplicar rota��ão real nas coordenadas UV
         vec2 localUV = (coords - fishPos + fishSize * 0.5) / fishSize;
 
         // Converter para coordenadas centradas (-0.5 a 0.5)
@@ -3307,6 +3307,12 @@ export const FishingScreenModular: React.FC = () => {
 
         // NOVA LÓGICA: Clique em QUALQUER LUGAR da tela durante mordida
         globalClickHandler = (e: MouseEvent) => {
+          console.log(
+            "🖱️ Global click detected - gameState:",
+            waterEffect.gameState,
+            "canClick:",
+            waterEffect.canClickExclamation,
+          );
           if (
             waterEffect.gameState === "fish_hooked" &&
             waterEffect.canClickExclamation
@@ -3314,6 +3320,11 @@ export const FishingScreenModular: React.FC = () => {
             console.log(
               "🎣 Player clicked anywhere during fish bite - triggering minigame!",
             );
+            // Garantir que o callback está definido antes de tentar abrir minigame
+            if (!waterEffect.onGameStart && waterEffect.onGameStartBackup) {
+              console.log("🔄 Restoring callback before opening minigame");
+              waterEffect.onGameStart = waterEffect.onGameStartBackup;
+            }
             waterEffect.handleExclamationClick();
           }
         };
