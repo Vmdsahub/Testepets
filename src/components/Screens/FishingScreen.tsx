@@ -788,7 +788,7 @@ class WaterEffect {
         this.onGameStart();
         console.log("🎮 onGameStart callback finished");
       } else {
-        console.log("��� onGameStart callback is null or undefined!");
+        console.log("❌ onGameStart callback is null or undefined!");
       }
       return true;
     }
@@ -1684,7 +1684,7 @@ export const FishingScreen: React.FC = () => {
               });
             }
           } else {
-            console.log("�� No fish nearby to catch");
+            console.log("🎣 No fish nearby to catch");
             // Ainda abre o modal de minigame como fallback
             setShowFishingModal(true);
           }
@@ -1744,6 +1744,10 @@ export const FishingScreen: React.FC = () => {
         }
 
         waterEffectRef.current = waterEffect;
+
+        // Debug: Log dos peixes ativos
+        console.log("🐟 Active fish:", fishingService.getActiveFish());
+        console.log("📊 Fishing stats:", fishingService.getFishingStats());
 
         // Atualizar debug info periodicamente
         const debugInterval = setInterval(() => {
@@ -2287,7 +2291,7 @@ export const FishingScreen: React.FC = () => {
                   console.log("🚫 Canceling fishing game...");
                   setShowFishingModal(false);
                   if (waterEffectRef.current) {
-                    console.log("🚫 Resetting fishing game after cancel...");
+                    console.log("���� Resetting fishing game after cancel...");
                     waterEffectRef.current.resetFishingGame();
 
                     // IMPORTANTE: Reconfigurar callback após reset
