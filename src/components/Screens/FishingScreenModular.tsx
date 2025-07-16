@@ -326,7 +326,7 @@ class ModularWaterEffect {
         // Offset da sombra (ligeiramente para baixo e direita)
         vec2 shadowOffset = vec2(0.008, 0.015);
 
-        // Criar m��ltiplas sombras dispersas para efeito suave
+        // Criar m����ltiplas sombras dispersas para efeito suave
         float totalShadowAlpha = 0.0;
         vec3 totalShadowColor = vec3(0.0);
 
@@ -2153,7 +2153,7 @@ class ModularWaterEffect {
     // Verificar se o anzol ainda está na água para permitir novo interesse
     const hookInWater = this.isHookInWater();
     console.log(
-      `����� RESET DEBUG - Hook position: (${this.hookPosition.x.toFixed(3)}, ${this.hookPosition.y.toFixed(3)}) - isHookInWater: ${hookInWater}`,
+      `��� RESET DEBUG - Hook position: (${this.hookPosition.x.toFixed(3)}, ${this.hookPosition.y.toFixed(3)}) - isHookInWater: ${hookInWater}`,
     );
 
     // CORREÇÃO: Só reagir novamente se o anzol foi genuinamente lançado pela vara
@@ -3373,7 +3373,7 @@ export const FishingScreenModular: React.FC = () => {
             waterEffect.canClickExclamation
           ) {
             console.log(
-              "🎣 Player clicked anywhere during fish bite - triggering minigame!",
+              "���� Player clicked anywhere during fish bite - triggering minigame!",
             );
             // Garantir que o callback está definido antes de tentar abrir minigame
             if (!waterEffect.onGameStart && waterEffect.onGameStartBackup) {
@@ -4180,12 +4180,8 @@ export const FishingScreenModular: React.FC = () => {
                 </div>
                 <div style={{ fontSize: "8px", color: "#ccc" }}>
                   Pos. Verde: (
-                  {waterEffectRef.current.fish2CurrentPosition?.x?.toFixed(2) ||
-                    "0.00"}
-                  ,{" "}
-                  {waterEffectRef.current.fish2CurrentPosition?.y?.toFixed(2) ||
-                    "0.00"}
-                  )
+                  {waterEffectRef.current.fish2CurrentPosition.x.toFixed(2)},{" "}
+                  {waterEffectRef.current.fish2CurrentPosition.y.toFixed(2)})
                 </div>
               </>
             )}
