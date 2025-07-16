@@ -224,10 +224,28 @@ class FishingService {
 
   // Método para forçar respawn de todos os peixes (útil para debugging)
   public forceRespawnAll() {
+    console.log(
+      "🔄 Force respawning all fish - clearing existing fish and timers",
+    );
+
+    // Limpar todos os peixes ativos
     this.activeFish.clear();
+
+    // Limpar todos os timers de respawn
     this.respawnTimers.forEach((timer) => clearTimeout(timer));
     this.respawnTimers.clear();
-    this.spawnInitialFish();
+
+    console.log("🔄 Cleared all fish and timers, spawning fresh fish...");
+
+    // Spawnar peixes imediatamente (sem delay)
+    this.fishingSpots.forEach((spot) => {
+      this.spawnFishAtSpot(spot);
+    });
+
+    console.log(
+      "🔄 Force respawn completed, active fish:",
+      this.getActiveFish().length,
+    );
   }
 
   // Método para obter estatísticas de pesca
