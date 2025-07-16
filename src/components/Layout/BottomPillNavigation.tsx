@@ -67,7 +67,7 @@ export const BottomPillNavigation: React.FC<BottomPillNavigationProps> = ({
         console.log(`🌍 Retornando ao planeta: ${currentPlanet.name}`);
         setCurrentScreen("planet");
       } else {
-        console.log(`🌍 Retornando à navegaç��o galáctica`);
+        console.log(`🌍 Retornando à navegaç��o gal��ctica`);
         setCurrentScreen("world");
       }
     } else if (["pet", "inventory", "profile", "admin"].includes(id)) {
@@ -109,8 +109,7 @@ export const BottomPillNavigation: React.FC<BottomPillNavigationProps> = ({
               const isActive =
                 currentScreen === id ||
                 (id === "world" && currentScreen === "world") ||
-                (id === "inventory" && currentScreen === "inventory") ||
-                (["pet", "profile", "admin"].includes(id) &&
+                (["pet", "inventory", "profile", "admin"].includes(id) &&
                   openModals.includes(id));
 
               return (
