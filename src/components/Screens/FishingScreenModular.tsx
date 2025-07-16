@@ -244,7 +244,7 @@ class ModularWaterEffect {
         return pow(caustic1 * caustic2 * caustic3 + noise * 0.2, 2.0) * 0.3;
       }
 
-      // Verificar se ponto est�� dentro da área da água
+      // Verificar se ponto está dentro da área da água
       bool isInWaterArea(vec2 uv) {
                 float x = u_waterArea.x;
         float y = u_waterArea.y;
@@ -459,7 +459,7 @@ class ModularWaterEffect {
 
         // === RENDERIZAR PEIXE 2 POR CIMA DA SOMBRA ===
 
-        // Renderizar peixe 2 se estiver na área v��lida
+        // Renderizar peixe 2 se estiver na área válida
         if (fish2UV.x >= 0.0 && fish2UV.x <= 1.0 && fish2UV.y >= 0.0 && fish2UV.y <= 1.0 && isInWaterArea(coords)) {
           vec4 fish2Color = texture2D(u_fish2Texture, fish2UV);
           if (fish2Color.a > 0.1) {
@@ -499,7 +499,7 @@ class ModularWaterEffect {
             fishBehavior = 0.0; // ESTADO: Nadando livre (30%)
         }
 
-                                                                // === MOVIMENTO EVO FISH - VELÓCIDÃO E DINÂMICA ===
+                                                                // === MOVIMENTO EVO FISH - VELÓCIDÃO E DIN��MICA ===
 
         float swimSpeed = 0.05; // Velocidade mais rápida como Evo Fish
         float t = time * swimSpeed;
@@ -1813,7 +1813,7 @@ class ModularWaterEffect {
 
       // CORRIGIDO: Chamar onGameStart imediatamente para evitar perda de callback
       console.log(
-        "���� About to call onGameStart - callback exists:",
+        "🎮 About to call onGameStart - callback exists:",
         !!this.onGameStart,
       );
 
@@ -3896,6 +3896,7 @@ export const FishingScreenModular: React.FC = () => {
             🐟 FISH DEBUG PANEL
           </div>
           <div>Active Fish: {fishingService.getActiveFish().length}</div>
+          <div>Total Spots: {fishingService.getAllFishingSpots().length}</div>
           <div>
             Azuis:{" "}
             {
@@ -3912,11 +3913,21 @@ export const FishingScreenModular: React.FC = () => {
                 .filter((f) => f.species === "Peixinho Verde").length
             }
           </div>
-          <div style={{ marginTop: "5px", fontSize: "10px" }}>
+          <div style={{ marginTop: "5px", fontSize: "9px" }}>
+            <strong>Fish IDs:</strong>
             {fishingService.getActiveFish().map((fish) => (
-              <div key={fish.id}>
-                {fish.species} ({fish.size}) at ({fish.x.toFixed(2)},{" "}
-                {fish.y.toFixed(2)})
+              <div key={fish.id} style={{ fontSize: "8px" }}>
+                {fish.species.substring(0, 5)} ({fish.size}) | ID:{" "}
+                {fish.id.substring(0, 8)}...
+              </div>
+            ))}
+          </div>
+          <div style={{ marginTop: "5px", fontSize: "9px" }}>
+            <strong>Spots:</strong>
+            {fishingService.getAllFishingSpots().map((spot, i) => (
+              <div key={i} style={{ fontSize: "8px" }}>
+                {spot.species.substring(0, 5)} at ({spot.x.toFixed(2)},
+                {spot.y.toFixed(2)})
               </div>
             ))}
           </div>
