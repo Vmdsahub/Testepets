@@ -463,65 +463,107 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = ({
 
       {/* Universal Item Dropdown */}
       <AnimatePresence>
-        {dropdownState.isOpen && dropdownState.item && (
-          <>
-            {/* Backdrop */}
-            <motion.div
-              className="fixed inset-0 z-[290]"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() =>
-                setDropdownState({ isOpen: false, item: null, position: null })
-              }
-            />
+        {dropdownState.isOpen &&
+          dropdownState.item &&
+          (console.log(
+            "Rendering dropdown for:",
+            dropdownState.item.name,
+            dropdownState.position,
+          ),
+          (
+            <>
+              {/* Backdrop */}
+              <motion.div
+                className="fixed inset-0 z-[290]"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() =>
+                  setDropdownState({
+                    isOpen: false,
+                    item: null,
+                    position: null,
+                  })
+                }
+              />
 
-            {/* Dropdown Menu */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: -5 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: -5 }}
-              className="fixed bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-[300] min-w-[200px]"
-              style={{
-                left: dropdownState.position
-                  ? `${dropdownState.position.x}px`
-                  : "50%",
-                top: dropdownState.position
-                  ? `${dropdownState.position.y}px`
-                  : "50%",
-                transform: dropdownState.position
-                  ? "translateX(-50%)"
-                  : "translate(-50%, -50%)",
-              }}
-            >
-              {/* Item Info Header */}
-              <div className="px-3 py-2 border-b border-gray-100">
-                <div className="flex items-center gap-2">
-                  <span className="text-lg">
-                    {getItemEmoji(dropdownState.item)}
-                  </span>
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">
-                      {dropdownState.item.name}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      {dropdownState.item.rarity} • {dropdownState.item.type}
-                      {dropdownState.item.type === "Fish" &&
-                        dropdownState.item.fishData && (
-                          <> • Tamanho {dropdownState.item.fishData.size}</>
-                        )}
-                    </p>
+              {/* Dropdown Menu */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: -5 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: -5 }}
+                className="fixed bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-[300] min-w-[200px]"
+                style={{
+                  left: dropdownState.position
+                    ? `${dropdownState.position.x}px`
+                    : "50%",
+                  top: dropdownState.position
+                    ? `${dropdownState.position.y}px`
+                    : "50%",
+                  transform: dropdownState.position
+                    ? "translateX(-50%)"
+                    : "translate(-50%, -50%)",
+                }}
+              >
+                {/* Item Info Header */}
+                <div className="px-3 py-2 border-b border-gray-100">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">
+                      {getItemEmoji(dropdownState.item)}
+                    </span>
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">
+                        {dropdownState.item.name}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {dropdownState.item.rarity} • {dropdownState.item.type}
+                        {dropdownState.item.type === "Fish" &&
+                          dropdownState.item.fishData && (
+                            <> • Tamanho {dropdownState.item.fishData.size}</>
+                          )}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Actions */}
-              <div className="py-1">
-                {dropdownState.item.type === "Fish" ? (
-                  <>
+                {/* Actions */}
+                <div className="py-1">
+                  {dropdownState.item.type === "Fish" ? (
+                    <>
+                      <button
+                        onClick={() => {
+                          handleFishInspect(dropdownState.item!);
+                          setDropdownState({
+                            isOpen: false,
+                            item: null,
+                            position: null,
+                          });
+                        }}
+                        className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                      >
+                        <Package className="w-4 h-4 text-blue-500" />
+                        <span>Inspecionar</span>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          handleFishFeed(dropdownState.item!);
+                          setDropdownState({
+                            isOpen: false,
+                            item: null,
+                            position: null,
+                          });
+                        }}
+                        className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                      >
+                        <Utensils className="w-4 h-4 text-green-500" />
+                        <span>Alimentar</span>
+                      </button>
+                    </>
+                  ) : (
                     <button
                       onClick={() => {
-                        handleFishInspect(dropdownState.item!);
+                        handleUseItem(dropdownState.item!);
                         setDropdownState({
                           isOpen: false,
                           item: null,
@@ -530,77 +572,46 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = ({
                       }}
                       className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                     >
-                      <Package className="w-4 h-4 text-blue-500" />
-                      <span>Inspecionar</span>
+                      <Sparkles className="w-4 h-4 text-blue-500" />
+                      <span>
+                        {dropdownState.item.type === "Equipment" ||
+                        dropdownState.item.type === "Weapon"
+                          ? "Equipar"
+                          : "Usar Item"}
+                      </span>
                     </button>
+                  )}
 
-                    <button
-                      onClick={() => {
-                        handleFishFeed(dropdownState.item!);
-                        setDropdownState({
-                          isOpen: false,
-                          item: null,
-                          position: null,
-                        });
-                      }}
-                      className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                    >
-                      <Utensils className="w-4 h-4 text-green-500" />
-                      <span>Alimentar</span>
-                    </button>
-                  </>
-                ) : (
                   <button
                     onClick={() => {
-                      handleUseItem(dropdownState.item!);
+                      handleDiscardItem(dropdownState.item!);
                       setDropdownState({
                         isOpen: false,
                         item: null,
                         position: null,
                       });
                     }}
-                    className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    className="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
                   >
-                    <Sparkles className="w-4 h-4 text-blue-500" />
-                    <span>
-                      {dropdownState.item.type === "Equipment" ||
-                      dropdownState.item.type === "Weapon"
-                        ? "Equipar"
-                        : "Usar Item"}
-                    </span>
+                    <Trash2 className="w-4 h-4" />
+                    <span>Descartar</span>
                   </button>
-                )}
-
-                <button
-                  onClick={() => {
-                    handleDiscardItem(dropdownState.item!);
-                    setDropdownState({
-                      isOpen: false,
-                      item: null,
-                      position: null,
-                    });
-                  }}
-                  className="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
-                >
-                  <Trash2 className="w-4 h-4" />
-                  <span>Descartar</span>
-                </button>
-              </div>
-
-              {/* Additional Info Footer */}
-              {dropdownState.item.fishData && (
-                <div className="px-3 py-2 border-t border-gray-100">
-                  <p className="text-xs text-gray-500">
-                    Pescado em{" "}
-                    {dropdownState.item.fishData.caughtAt.toLocaleDateString(
-                      "pt-BR",
-                    )}
-                  </p>
                 </div>
-              )}
-            </motion.div>
-          </>
-        )}
+
+                {/* Additional Info Footer */}
+                {dropdownState.item.fishData && (
+                  <div className="px-3 py-2 border-t border-gray-100">
+                    <p className="text-xs text-gray-500">
+                      Pescado em{" "}
+                      {dropdownState.item.fishData.caughtAt.toLocaleDateString(
+                        "pt-BR",
+                      )}
+                    </p>
+                  </div>
+                )}
+              </motion.div>
+            </>
+          ))}
       </AnimatePresence>
 
       {/* Fish Inspect Modal */}
