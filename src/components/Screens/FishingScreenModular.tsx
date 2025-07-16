@@ -169,9 +169,10 @@ class ModularWaterEffect {
       uniform sampler2D u_fish2Texture;
 
       // Uniforms para o segundo peixe
-      uniform vec2 u_fish2TargetPosition;
+            uniform vec2 u_fish2TargetPosition;
       uniform float u_fish2Direction;
       uniform float u_fish2Angle;
+      uniform float u_activeFish;
       
       varying vec2 v_texCoord;
       varying vec2 v_position;
