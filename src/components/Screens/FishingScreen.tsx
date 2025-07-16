@@ -1780,6 +1780,14 @@ export const FishingScreen: React.FC = () => {
     };
   }, [fishingSettings]);
 
+  // Cleanup do fishingService
+  useEffect(() => {
+    return () => {
+      console.log("🧹 Cleaning up fishingService");
+      fishingService.cleanup();
+    };
+  }, []);
+
   // Handle settings updates (admin only)
   const handleSettingUpdate = async (
     setting: keyof FishingSettings,
