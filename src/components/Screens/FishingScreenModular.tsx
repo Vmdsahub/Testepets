@@ -795,6 +795,10 @@ class ModularWaterEffect {
       this.program,
       "u_fish2Texture",
     );
+    this.uniforms.activeFish = this.gl.getUniformLocation(
+      this.program,
+      "u_activeFish",
+    );
   }
 
   createShader(type, source) {
