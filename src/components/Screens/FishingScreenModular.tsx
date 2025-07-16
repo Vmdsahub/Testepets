@@ -603,7 +603,7 @@ class ModularWaterEffect {
 
                                 // === SISTEMA DE ROTA��ÃO DIAGONAL SUAVE ===
         // Aplica rotação baseada na direção vertical do movimento
-                                // u_fishAngle contém o ângulo calculado pelo JavaScript (-30° a +30°)
+                                // u_fishAngle contém o ângulo calculado pelo JavaScript (-30�� a +30°)
                 float diagonalTilt = u_fishAngle; // 100% do ��ngulo para rotação natural
 
                 // Combinar flip horizontal com rotação diagonal
@@ -1877,6 +1877,54 @@ class ModularWaterEffect {
       return true;
     }
     return false;
+  }
+
+  // Método para capturar peixe (esconder e agendar respawn)
+  catchActiveFish() {
+    const caughtFishName = this.activeFish === 1 ? "Azul" : "Verde";
+    console.log(`🎣 Capturando peixe ${caughtFishName}...`);
+
+    if (this.activeFish === 1) {
+      // Esconder peixe azul
+      this.fish1Visible = false;
+      this.fish1RespawnTime = Date.now() + 15000; // 15 segundos
+      console.log("🐟 Peixe Azul capturado! Respawn em 15s");
+    } else {
+      // Esconder peixe verde
+      this.fish2Visible = false;
+      this.fish2RespawnTime = Date.now() + 15000; // 15 segundos
+      console.log("🐟 Peixe Verde capturado! Respawn em 15s");
+    }
+
+    // Resetar o jogo após captura
+    this.resetFishingGame();
+  }
+
+  // Método para verificar e processar respawns
+  updateRespawns() {
+    const currentTime = Date.now();
+
+    // Verificar respawn do peixe azul
+    if (
+      !this.fish1Visible &&
+      this.fish1RespawnTime > 0 &&
+      currentTime >= this.fish1RespawnTime
+    ) {
+      this.fish1Visible = true;
+      this.fish1RespawnTime = 0;
+      console.log("🔄 Peixe Azul respawnou!");
+    }
+
+    // Verificar respawn do peixe verde
+    if (
+      !this.fish2Visible &&
+      this.fish2RespawnTime > 0 &&
+      currentTime >= this.fish2RespawnTime
+    ) {
+      this.fish2Visible = true;
+      this.fish2RespawnTime = 0;
+      console.log("🔄 Peixe Verde respawnou!");
+    }
   }
 
   updateFishingGame() {
