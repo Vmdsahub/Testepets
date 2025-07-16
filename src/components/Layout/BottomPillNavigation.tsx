@@ -70,10 +70,7 @@ export const BottomPillNavigation: React.FC<BottomPillNavigationProps> = ({
         console.log(`🌍 Retornando à navegaç��o galáctica`);
         setCurrentScreen("world");
       }
-    } else if (id === "inventory") {
-      // Inventory as full screen
-      setCurrentScreen("inventory");
-    } else if (["pet", "profile", "admin"].includes(id)) {
+    } else if (["pet", "inventory", "profile", "admin"].includes(id)) {
       // Toggle modal - open if closed, close if open
       if (openModals.includes(id)) {
         closeModal(id);
