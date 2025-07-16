@@ -3600,8 +3600,7 @@ export const FishingScreenModular: React.FC = () => {
         }}
       />
 
-      {/* Fish Visualization */}
-      <FishVisualization waterArea={waterArea} visibleFish={visibleFish} />
+      {/* Os peixes são renderizados diretamente no WebGL */}
 
       {/* Overlay para mostrar posição da boca do peixe */}
       <canvas
@@ -3942,34 +3941,35 @@ export const FishingScreenModular: React.FC = () => {
           }}
         >
           <div style={{ fontWeight: "bold", marginBottom: "5px" }}>
-            🐟 SIMPLE FISH DEBUG
+            🐟 WEBGL FISH DEBUG
           </div>
-          <div>Visible Fish: {visibleFish.length}</div>
-          <div>
-            Azuis:{" "}
-            {visibleFish.filter((f) => f.species === "Peixinho Azul").length}
-          </div>
-          <div>
-            Verdes:{" "}
-            {visibleFish.filter((f) => f.species === "Peixinho Verde").length}
-          </div>
-          <div style={{ marginTop: "5px", fontSize: "9px" }}>
-            {visibleFish.map((fish) => (
-              <div key={fish.id} style={{ fontSize: "8px" }}>
-                {fish.species} ({fish.size}) at ({fish.x.toFixed(2)},
-                {fish.y.toFixed(2)})
+          <div>🔵 Peixinho Azul (tamanho 4)</div>
+          <div>🟢 Peixinho Verde (tamanho 3)</div>
+          {waterEffectRef.current && (
+            <>
+              <div style={{ marginTop: "5px" }}>
+                <strong>Estado:</strong> {waterEffectRef.current.gameState}
               </div>
-            ))}
-          </div>
-          <div style={{ marginTop: "5px", fontSize: "9px" }}>
-            <strong>Spots:</strong>
-            {fishingService.getAllFishingSpots().map((spot, i) => (
-              <div key={i} style={{ fontSize: "8px" }}>
-                {spot.species.substring(0, 5)} at ({spot.x.toFixed(2)},
-                {spot.y.toFixed(2)})
+              <div>
+                <strong>Peixe Ativo:</strong>{" "}
+                {waterEffectRef.current.activeFish === 1 ? "Azul" : "Verde"}
               </div>
-            ))}
-          </div>
+              <div style={{ fontSize: "9px", marginTop: "5px" }}>
+                Posição Azul: (
+                {waterEffectRef.current.fishCurrentPosition.x.toFixed(2)},{" "}
+                {waterEffectRef.current.fishCurrentPosition.y.toFixed(2)})
+              </div>
+              <div style={{ fontSize: "9px" }}>
+                Posição Verde: (
+                {waterEffectRef.current.fish2CurrentPosition.x.toFixed(2)},{" "}
+                {waterEffectRef.current.fish2CurrentPosition.y.toFixed(2)})
+              </div>
+              <div style={{ fontSize: "9px" }}>
+                Anzol: ({waterEffectRef.current.hookPosition.x.toFixed(2)},{" "}
+                {waterEffectRef.current.hookPosition.y.toFixed(2)})
+              </div>
+            </>
+          )}
           <button
             onClick={() => {
               spawnFish();
