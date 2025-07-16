@@ -60,11 +60,19 @@ class ModularWaterEffect {
     // Estados do jogo de pesca
     this.gameState = "idle";
     this.hookPosition = { x: 0.5, y: 0.5 };
-    this.fishTargetPosition = { x: 0.5, y: 0.65 };
-    this.fishCurrentPosition = { x: 0.5, y: 0.65 }; // Posição atual real do peixe
+    // Peixe 1 (azul) - original
+    this.fishTargetPosition = { x: 0.4, y: 0.6 };
+    this.fishCurrentPosition = { x: 0.4, y: 0.6 }; // Posição atual real do peixe
     this.fishVelocity = { x: 0, y: 0 }; // Velocidade atual do peixe
     this.fishDirection = 1; // 1 = direita, -1 = esquerda (mantido para compatibilidade)
     this.fishAngle = 0; // Ângulo real do peixe em radianos (0 = direita, PI = esquerda)
+
+    // Peixe 2 (verde) - novo
+    this.fish2TargetPosition = { x: 0.6, y: 0.7 };
+    this.fish2CurrentPosition = { x: 0.6, y: 0.7 }; // Posição atual real do peixe 2
+    this.fish2Velocity = { x: 0, y: 0 }; // Velocidade atual do peixe 2
+    this.fish2Direction = -1; // Começa nadando para esquerda
+    this.fish2Angle = 0; // Ângulo real do peixe 2
 
     // Sistema de movimento orgânico
     this.fishDesiredDirection = { x: 1, y: 0 }; // Direção desejada
