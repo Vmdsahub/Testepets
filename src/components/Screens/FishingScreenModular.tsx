@@ -317,7 +317,7 @@ class ModularWaterEffect {
         // Offset da sombra (ligeiramente para baixo e direita)
         vec2 shadowOffset = vec2(0.008, 0.015);
 
-        // Criar múltiplas sombras dispersas para efeito suave
+        // Criar m��ltiplas sombras dispersas para efeito suave
         float totalShadowAlpha = 0.0;
         vec3 totalShadowColor = vec3(0.0);
 
@@ -3827,6 +3827,73 @@ export const FishingScreenModular: React.FC = () => {
               ? "🎯 Shift ativo - arraste a área para reposicionar"
               : "⌨�� Segure Shift e arraste a área tracejada para reposicionar"}
           </div>
+        </div>
+      )}
+
+      {/* Admin Debug Panel for Fish */}
+      {isAdmin && (
+        <div
+          style={{
+            position: "fixed",
+            top: "20px",
+            right: "320px",
+            zIndex: 30,
+            background: "rgba(0, 0, 0, 0.8)",
+            color: "white",
+            border: "1px solid #555",
+            borderRadius: "8px",
+            padding: "10px",
+            fontSize: "11px",
+            minWidth: "200px",
+            maxWidth: "300px",
+          }}
+        >
+          <div style={{ fontWeight: "bold", marginBottom: "5px" }}>
+            🐟 FISH DEBUG PANEL
+          </div>
+          <div>Active Fish: {fishingService.getActiveFish().length}</div>
+          <div>
+            Azuis:{" "}
+            {
+              fishingService
+                .getActiveFish()
+                .filter((f) => f.species === "Peixinho Azul").length
+            }
+          </div>
+          <div>
+            Verdes:{" "}
+            {
+              fishingService
+                .getActiveFish()
+                .filter((f) => f.species === "Peixinho Verde").length
+            }
+          </div>
+          <div style={{ marginTop: "5px", fontSize: "10px" }}>
+            {fishingService.getActiveFish().map((fish) => (
+              <div key={fish.id}>
+                {fish.species} ({fish.size}) at ({fish.x.toFixed(2)},{" "}
+                {fish.y.toFixed(2)})
+              </div>
+            ))}
+          </div>
+          <button
+            onClick={() => {
+              fishingService.forceRespawnAll();
+              console.log("🔄 Force respawned all fish");
+            }}
+            style={{
+              marginTop: "5px",
+              padding: "3px 6px",
+              background: "#444",
+              border: "1px solid #666",
+              borderRadius: "4px",
+              color: "white",
+              fontSize: "10px",
+              cursor: "pointer",
+            }}
+          >
+            Force Respawn All
+          </button>
         </div>
       )}
 
