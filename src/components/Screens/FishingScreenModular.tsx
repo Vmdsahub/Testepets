@@ -1319,7 +1319,7 @@ class ModularWaterEffect {
       }
 
       // Aplicar força de direção suavemente à velocidade
-      const acceleration = 0.00002; // Acelera����o mais suave e lenta
+      const acceleration = 0.00002; // Aceleraç��o mais suave e lenta
       this.fishVelocity.x += targetDirection.x * acceleration;
       this.fishVelocity.y += targetDirection.y * acceleration;
 
@@ -2000,6 +2000,15 @@ class ModularWaterEffect {
     );
     this.gl.uniform1f(this.uniforms.fishDirection, this.fishDirection);
     this.gl.uniform1f(this.uniforms.fishAngle, this.fishAngle);
+
+    // Uniforms para o segundo peixe (verde)
+    this.gl.uniform2f(
+      this.uniforms.fish2TargetPosition,
+      this.fish2CurrentPosition.x,
+      this.fish2CurrentPosition.y,
+    );
+    this.gl.uniform1f(this.uniforms.fish2Direction, this.fish2Direction);
+    this.gl.uniform1f(this.uniforms.fish2Angle, this.fish2Angle || 0);
 
     // Novos uniforms para área modular
     this.gl.uniform4f(
