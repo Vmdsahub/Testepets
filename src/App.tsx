@@ -194,16 +194,15 @@ function App() {
       case "otherUserCollectibles":
         return <OtherUserCollectiblesScreen />;
       case "planet":
-        console.log("�� App.tsx: Renderizando PlanetScreen");
+        console.log("📱 App.tsx: Renderizando PlanetScreen");
         return <PlanetScreen />;
       case "exploration":
         return <ExplorationScreen />;
       case "fishing":
         return <FishingScreen />;
-      case "inventory":
-        return <InventoryScreen />;
       // Modal screens are now handled by ModalManager when on world screen
       case "pet":
+      case "inventory":
       case "profile":
       case "admin":
         // Show SpaceMap while redirect is processing
