@@ -67,7 +67,7 @@ class ModularWaterEffect {
     this.fishCurrentPosition = { x: 0.4, y: 0.6 }; // Posição atual real do peixe
     this.fishVelocity = { x: 0, y: 0 }; // Velocidade atual do peixe
     this.fishDirection = 1; // 1 = direita, -1 = esquerda (mantido para compatibilidade)
-    this.fishAngle = 0; // Ângulo real do peixe em radianos (0 = direita, PI = esquerda)
+    this.fishAngle = 0; // ��ngulo real do peixe em radianos (0 = direita, PI = esquerda)
 
     // Peixe 2 (verde) - novo
     this.fish2TargetPosition = { x: 0.6, y: 0.7 };
@@ -1845,7 +1845,18 @@ class ModularWaterEffect {
       this.gameState,
       "canClick:",
       this.canClickExclamation,
+      "callback exists:",
+      !!this.onGameStart,
+      "backup exists:",
+      !!this.onGameStartBackup,
     );
+
+    // Verificar e restaurar callback se necessário
+    if (!this.onGameStart && this.onGameStartBackup) {
+      console.log("🔄 Auto-restoring callback in handleExclamationClick");
+      this.onGameStart = this.onGameStartBackup;
+    }
+
     if (this.gameState === "fish_hooked" && this.canClickExclamation) {
       console.log("Player clicked exclamation! Showing Fisgado text.");
       this.canClickExclamation = false;
@@ -2131,7 +2142,7 @@ class ModularWaterEffect {
       );
     } else {
       // Se não, voltar ao estado idle e garantir reset completo
-      console.log("🔄 Complete reset - hook removed from water");
+      console.log("���� Complete reset - hook removed from water");
       this.gameState = "idle";
       this.hookPosition = { x: 0.5, y: 0.5 }; // Garantir reset da posição
       this.fishReactionStartTime = 0;
@@ -3119,57 +3130,10 @@ export const FishingScreenModular: React.FC = () => {
   const redefineGameStartCallback = useCallback(() => {
     if (waterEffectRef.current) {
       const callback = () => {
-        console.log("🎮 Fish caught! Using simple system...");
+        console.log("🎮 Fish caught! Opening minigame...");
 
-        // Trabalhar com os peixes WebGL existentes
-        if (waterEffectRef.current && user) {
-          const activeFish = waterEffectRef.current.activeFish; // 1 = azul, 2 = verde
-          const fishSpecies =
-            activeFish === 1 ? "Peixinho Azul" : "Peixinho Verde";
-          const fishSize = activeFish === 1 ? 4 : 3; // Tamanhos definidos
-
-          console.log(
-            `🐟 Capturando peixe WebGL: ${fishSpecies} (tamanho ${fishSize})`,
-          );
-
-          // Criar item de peixe
-          const fishItem = {
-            id: `fish_item_${Date.now()}`,
-            slug: `${fishSpecies.toLowerCase().replace(" ", "-")}-size-${fishSize}`,
-            name: `${fishSpecies} (Tamanho ${fishSize})`,
-            description: `Um ${fishSpecies} pescado recentemente`,
-            type: "Fish" as const,
-            rarity: "Common" as const,
-            quantity: 1,
-            createdAt: new Date(),
-            fishData: {
-              species: fishSpecies,
-              size: fishSize,
-              caughtAt: new Date(),
-              caughtPosition: {
-                x: waterEffectRef.current.hookPosition.x,
-                y: waterEffectRef.current.hookPosition.y,
-              },
-            },
-          };
-
-          // Esconder peixe e agendar respawn
-          waterEffectRef.current.catchActiveFish();
-
-          // Adicionar ao inventário
-          addToInventory(fishItem).then((success) => {
-            if (success) {
-              addNotification({
-                type: "success",
-                title: "Peixe pescado!",
-                message: `Você pescou um ${fishSpecies}!`,
-                isRead: false,
-              });
-              console.log(`🐟 Successfully caught ${fishSpecies}`);
-            }
-          });
-          return;
-        }
+        // Abrir o minigame primeiro
+        setShowMinigame(true);
 
         if (!waterEffectRef.current) {
           console.error("❌ WaterEffect ref is null!");
@@ -3303,10 +3267,21 @@ export const FishingScreenModular: React.FC = () => {
         redefineGameStartCallback();
 
         // Os peixes WebGL já estão nadando automaticamente
-        console.log("🐟 Os 2 peixes WebGL já estão nadando automaticamente");
+        console.log("���� Os 2 peixes WebGL já estão nadando automaticamente");
 
         // NOVA LÓGICA: Clique em QUALQUER LUGAR da tela durante mordida
         globalClickHandler = (e: MouseEvent) => {
+          const currentTime = Date.now();
+          const elapsedTime = currentTime - waterEffect.exclamationStartTime;
+          console.log("🖱️ Global click detected:", {
+            gameState: waterEffect.gameState,
+            canClick: waterEffect.canClickExclamation,
+            exclamationTime: waterEffect.exclamationTime,
+            elapsedTime: elapsedTime,
+            hasCallback: !!waterEffect.onGameStart,
+            hasBackup: !!waterEffect.onGameStartBackup,
+          });
+
           if (
             waterEffect.gameState === "fish_hooked" &&
             waterEffect.canClickExclamation
@@ -3314,7 +3289,15 @@ export const FishingScreenModular: React.FC = () => {
             console.log(
               "🎣 Player clicked anywhere during fish bite - triggering minigame!",
             );
-            waterEffect.handleExclamationClick();
+            // Garantir que o callback está definido antes de tentar abrir minigame
+            if (!waterEffect.onGameStart && waterEffect.onGameStartBackup) {
+              console.log("🔄 Restoring callback before opening minigame");
+              waterEffect.onGameStart = waterEffect.onGameStartBackup;
+            }
+            const success = waterEffect.handleExclamationClick();
+            console.log("��� Minigame trigger result:", success);
+          } else {
+            console.log("❌ Click ignored - conditions not met");
           }
         };
 
