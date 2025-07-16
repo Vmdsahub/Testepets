@@ -603,7 +603,7 @@ class ModularWaterEffect {
 
                                 // === SISTEMA DE ROTA��ÃO DIAGONAL SUAVE ===
         // Aplica rotação baseada na direção vertical do movimento
-                                // u_fishAngle contém o ângulo calculado pelo JavaScript (-30�� a +30°)
+                                // u_fishAngle contém o ângulo calculado pelo JavaScript (-30° a +30°)
                 float diagonalTilt = u_fishAngle; // 100% do ��ngulo para rotação natural
 
                 // Combinar flip horizontal com rotação diagonal
@@ -1928,6 +1928,9 @@ class ModularWaterEffect {
   }
 
   updateFishingGame() {
+    // Verificar e processar respawns
+    this.updateRespawns();
+
     // Atualizar posição do peixe 1 (azul) a cada frame
     this.updateFishPosition();
 
