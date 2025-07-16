@@ -573,7 +573,7 @@ class ModularWaterEffect {
 
                                                                                                 // === ORIENTAÇÃO EVO FISH RÁPIDA ===
 
-        // Calcular direção baseada no movimento circular principal
+        // Calcular dire��ão baseada no movimento circular principal
         float velocityX = -sin(mainAngle) * 0.8 * swimSpeed * mainRadius; // Derivada do cos
 
         // Adicionar variações de trajetória
@@ -697,7 +697,7 @@ class ModularWaterEffect {
         
                                                                                                                                 // Adicionar exclamação com imagem fornecida
         if (u_showExclamation > 0.0 && u_gameState >= 4.0) {
-                    // Posi��ão da exclamação (10px para esquerda do centro do peixe ativo, sem vibra��ão)
+                    // Posi��ão da exclamação (10px para esquerda do centro do peixe ativo, sem vibração)
           float leftOffset = 10.0 / u_resolution.x; // Converter 10px para coordenadas UV
 
           // Usar posição do peixe ativo (1 = azul, 2 = verde)
@@ -3004,6 +3004,17 @@ export const FishingScreenModular: React.FC = () => {
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
 
   const [showMinigame, setShowMinigame] = useState(false);
+
+  // Sistema simples de peixes
+  const [visibleFish, setVisibleFish] = useState<
+    Array<{
+      id: string;
+      x: number;
+      y: number;
+      species: "Peixinho Azul" | "Peixinho Verde";
+      size: number;
+    }>
+  >([]);
 
   useEffect(() => {
     console.log("🎮 showMinigame state changed:", showMinigame);
