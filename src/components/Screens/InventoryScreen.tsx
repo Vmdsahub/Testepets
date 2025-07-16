@@ -105,7 +105,7 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = ({
     position: { x: number; y: number } | null;
   }>({ isOpen: false, item: null, position: null });
 
-  const handleItemClick = (item: Item, event: React.MouseEvent) => {
+            const handleItemClick = (item: Item, event: React.MouseEvent) => {
     event.preventDefault();
     event.stopPropagation();
 
@@ -294,7 +294,7 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = ({
     </div>
   );
 
-  const inventoryContent = (
+    const inventoryContent = (
     <div className="max-w-md mx-auto pb-12 inventory-container relative">
       {/* Search Bar */}
       <motion.div
@@ -359,16 +359,17 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = ({
             </div>
           </div>
 
-          <div className="grid grid-cols-5 gap-3 mb-4">
+                    <div className="grid grid-cols-5 gap-3 mb-4 relative">
             <AnimatePresence>
               {filteredItems.map((item, index) => {
                 return (
-                  <motion.button
-                    key={item.inventoryId || item.id}
-                    onClick={(e) => handleItemClick(item, e)}
-                    className={`relative aspect-square rounded-xl border-2 p-2 transition-all hover:scale-105 ${getRarityColor(item.rarity)} ${getRarityGlow(item.rarity)} ${
-                      item.isEquipped ? "ring-2 ring-blue-500" : ""
-                    }`}
+                  <div className="relative">
+                    <motion.button
+                      key={item.inventoryId || item.id}
+                      onClick={(e) => handleItemClick(item, e, index)}
+                      className={`relative aspect-square rounded-xl border-2 p-2 transition-all hover:scale-105 w-full ${getRarityColor(item.rarity)} ${getRarityGlow(item.rarity)} ${
+                        item.isEquipped ? "ring-2 ring-blue-500" : ""
+                      }`}
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.8 }}
@@ -481,19 +482,15 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = ({
               }
             />
 
-            {/* Dropdown Menu */}
+                                    {/* Dropdown Menu */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: -5 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: -5 }}
               className="fixed bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-[300] min-w-[200px]"
-              style={{
-                left: dropdownState.position
-                  ? `${dropdownState.position.x}px`
-                  : "50%",
-                top: dropdownState.position
-                  ? `${dropdownState.position.y}px`
-                  : "50%",
+                                                                      style={{
+                left: dropdownState.position ? `${dropdownState.position.x}px` : "50%",
+                top: dropdownState.position ? `${dropdownState.position.y}px` : "50%",
                 transform: "translateX(-50%)",
               }}
             >
