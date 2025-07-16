@@ -565,7 +565,31 @@ class ModularWaterEffect {
         }
         
                                 // Imagem original com peixe
+                // Renderizar primeiro peixe (azul)
         vec4 originalColor = getColorWithFish(uv, fishX, fishY, fishAngle);
+
+        // === PEIXE 2 (VERDE) ===
+        float fish2X = u_fish2TargetPosition.x;
+        float fish2Y = u_fish2TargetPosition.y;
+
+        // Cálculo da direção do peixe 2
+        float fish2Angle = 0.0;
+        if (u_fish2Direction > 0.0) {
+            fish2Angle = 3.14159; // Direita (PI para flip correto)
+        } else {
+            fish2Angle = 0.0; // Esquerda (0 para sem flip)
+        }
+
+        // Aplicar rotação diagonal no peixe 2
+        float diagonal2Tilt = u_fish2Angle;
+        if (u_fish2Direction > 0.0) {
+            fish2Angle = 3.14159 + diagonal2Tilt;
+        } else {
+            fish2Angle = diagonal2Tilt;
+        }
+
+        // Adicionar segundo peixe (verde) por cima
+        originalColor = addSecondFish(originalColor, uv, fish2X, fish2Y, fish2Angle);
         
         // Verificar se está na área da água
         bool inWater = isInWaterArea(uv);
