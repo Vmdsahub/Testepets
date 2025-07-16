@@ -2499,21 +2499,28 @@ class ModularWaterEffect {
     );
 
     // Novos uniforms para área modular
-    this.gl.uniform4f(
-      this.uniforms.waterArea,
-      this.waterArea.x,
-      this.waterArea.y,
-      this.waterArea.width,
-      this.waterArea.height,
-    );
-    const shapeValue =
-      this.waterArea.shape === "rectangle"
-        ? 0
-        : this.waterArea.shape === "circle"
-          ? 1
-          : this.waterArea.shape === "triangle"
-            ? 2
-            : 0;
+    if (this.waterArea) {
+      this.gl.uniform4f(
+        this.uniforms.waterArea,
+        this.waterArea.x,
+        this.waterArea.y,
+        this.waterArea.width,
+        this.waterArea.height,
+      );
+      const shapeValue =
+        this.waterArea.shape === "rectangle"
+          ? 0
+          : this.waterArea.shape === "circle"
+            ? 1
+            : this.waterArea.shape === "triangle"
+              ? 2
+              : 0;
+      this.gl.uniform1f(this.uniforms.waterShape, shapeValue);
+    } else {
+      // Valores padrão se waterArea não estiver definida
+      this.gl.uniform4f(this.uniforms.waterArea, 0.1, 0.4, 0.8, 0.5);
+      this.gl.uniform1f(this.uniforms.waterShape, 0);
+    }
     this.gl.uniform1f(this.uniforms.waterShape, shapeValue);
 
     // Ativa texturas
