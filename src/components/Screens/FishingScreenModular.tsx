@@ -3005,16 +3005,7 @@ export const FishingScreenModular: React.FC = () => {
 
   const [showMinigame, setShowMinigame] = useState(false);
 
-  // Sistema simples de peixes
-  const [visibleFish, setVisibleFish] = useState<
-    Array<{
-      id: string;
-      x: number;
-      y: number;
-      species: "Peixinho Azul" | "Peixinho Verde";
-      size: number;
-    }>
-  >([]);
+  // Os peixes existem no WebGL - não precisamos de estado adicional
 
   useEffect(() => {
     console.log("🎮 showMinigame state changed:", showMinigame);
@@ -3026,44 +3017,51 @@ export const FishingScreenModular: React.FC = () => {
       const callback = () => {
         console.log("🎮 Fish caught! Using simple system...");
 
-        // Sistema simples - pegar qualquer peixe disponível
-        if (visibleFish.length > 0 && user) {
-          const fishToCatch = visibleFish[0];
-          const caughtFish = catchFish(fishToCatch.id);
+        // Trabalhar com os peixes WebGL existentes
+        if (waterEffectRef.current && user) {
+          const activeFish = waterEffectRef.current.activeFish; // 1 = azul, 2 = verde
+          const fishSpecies =
+            activeFish === 1 ? "Peixinho Azul" : "Peixinho Verde";
+          const fishSize = activeFish === 1 ? 4 : 3; // Tamanhos definidos
 
-          if (caughtFish) {
-            // Criar item de peixe
-            const fishItem = {
-              id: `fish_item_${Date.now()}`,
-              slug: `${caughtFish.species.toLowerCase().replace(" ", "-")}-size-${caughtFish.size}`,
-              name: `${caughtFish.species} (Tamanho ${caughtFish.size})`,
-              description: `Um ${caughtFish.species} pescado recentemente`,
-              type: "Fish" as const,
-              rarity: "Common" as const,
-              quantity: 1,
-              createdAt: new Date(),
-              fishData: {
-                species: caughtFish.species,
-                size: caughtFish.size,
-                caughtAt: new Date(),
-                caughtPosition: { x: caughtFish.x, y: caughtFish.y },
+          console.log(
+            `🐟 Capturando peixe WebGL: ${fishSpecies} (tamanho ${fishSize})`,
+          );
+
+          // Criar item de peixe
+          const fishItem = {
+            id: `fish_item_${Date.now()}`,
+            slug: `${fishSpecies.toLowerCase().replace(" ", "-")}-size-${fishSize}`,
+            name: `${fishSpecies} (Tamanho ${fishSize})`,
+            description: `Um ${fishSpecies} pescado recentemente`,
+            type: "Fish" as const,
+            rarity: "Common" as const,
+            quantity: 1,
+            createdAt: new Date(),
+            fishData: {
+              species: fishSpecies,
+              size: fishSize,
+              caughtAt: new Date(),
+              caughtPosition: {
+                x: waterEffectRef.current.hookPosition.x,
+                y: waterEffectRef.current.hookPosition.y,
               },
-            };
+            },
+          };
 
-            // Adicionar ao inventário
-            addToInventory(fishItem).then((success) => {
-              if (success) {
-                addNotification({
-                  type: "success",
-                  title: "Peixe pescado!",
-                  message: `Você pescou um ${caughtFish.species}!`,
-                  isRead: false,
-                });
-                console.log(`🐟 Successfully caught ${caughtFish.species}`);
-              }
-            });
-            return;
-          }
+          // Adicionar ao inventário
+          addToInventory(fishItem).then((success) => {
+            if (success) {
+              addNotification({
+                type: "success",
+                title: "Peixe pescado!",
+                message: `Você pescou um ${fishSpecies}!`,
+                isRead: false,
+              });
+              console.log(`🐟 Successfully caught ${fishSpecies}`);
+            }
+          });
+          return;
         }
 
         if (!waterEffectRef.current) {
@@ -3165,58 +3163,9 @@ export const FishingScreenModular: React.FC = () => {
 
   const isAdmin = user?.isAdmin || false;
 
-  // Função para spawnar peixes simples
-  const spawnFish = () => {
-    const newFish = [
-      {
-        id: "fish1",
-        x: 0.2,
-        y: 0.7,
-        species: "Peixinho Azul" as const,
-        size: 3,
-      },
-      {
-        id: "fish2",
-        x: 0.5,
-        y: 0.6,
-        species: "Peixinho Verde" as const,
-        size: 2,
-      },
-      {
-        id: "fish3",
-        x: 0.8,
-        y: 0.75,
-        species: "Peixinho Azul" as const,
-        size: 4,
-      },
-    ];
-    setVisibleFish(newFish);
-    console.log("🐟 Spawned 3 fish:", newFish);
-  };
+  // Os peixes do WebGL já estão sempre nadando, não precisamos spawnar
 
-  // Função para pescar um peixe
-  const catchFish = (fishId: string) => {
-    const fish = visibleFish.find((f) => f.id === fishId);
-    if (fish) {
-      // Remover peixe da tela
-      setVisibleFish((prev) => prev.filter((f) => f.id !== fishId));
-
-      // Programar respawn após 15 segundos
-      setTimeout(() => {
-        setVisibleFish((prev) => [
-          ...prev,
-          {
-            ...fish,
-            id: `${fish.id}_${Date.now()}`, // Novo ID para evitar conflitos
-          },
-        ]);
-        console.log(`🐟 Respawned ${fish.species}`);
-      }, 15000);
-
-      return fish;
-    }
-    return null;
-  };
+  // Captura é gerenciada pelo sistema WebGL
 
   // Cleanup do fishingService
   useEffect(() => {
@@ -3246,9 +3195,8 @@ export const FishingScreenModular: React.FC = () => {
         waterEffectRef.current = waterEffect;
         redefineGameStartCallback();
 
-        // Spawnar peixes simples inicial
-        console.log("🐟 Spawning initial simple fish...");
-        spawnFish();
+        // Os peixes WebGL já estão nadando automaticamente
+        console.log("🐟 Os 2 peixes WebGL já estão nadando automaticamente");
 
         // NOVA LÓGICA: Clique em QUALQUER LUGAR da tela durante mordida
         globalClickHandler = (e: MouseEvent) => {
