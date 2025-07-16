@@ -682,9 +682,15 @@ class ModularWaterEffect {
           vec2 refraction = calculateRefraction(uv, u_time) * waterMask;
           vec2 distortedUV = uv + refraction;
           
-                                                  vec4 backgroundColor = getColorWithFish(distortedUV, fishX, fishY, fishAngle);
-          // Adicionar segundo peixe na vers��o com efeitos de água
-          backgroundColor = addSecondFish(backgroundColor, distortedUV, fish2X, fish2Y, fish2Angle);
+                                                            vec4 backgroundColor = texture2D(u_backgroundTexture, distortedUV);
+
+          // Renderizar peixes na versão com efeitos de água apenas se visíveis
+          if (u_fish1Visible > 0.5) {
+            backgroundColor = getColorWithFish(backgroundColor, distortedUV, fishX, fishY, fishAngle);
+          }
+          if (u_fish2Visible > 0.5) {
+            backgroundColor = addSecondFish(backgroundColor, distortedUV, fish2X, fish2Y, fish2Angle);
+          }
           
           float depth = (sin(uv.x * 3.0) + sin(uv.y * 4.0)) * 0.1 + 0.9;
           backgroundColor.rgb *= depth;
@@ -2178,7 +2184,7 @@ class ModularWaterEffect {
     );
   }
 
-  // Método para desenhar apenas texto "Fisgado!" sem círculo da boca
+  // M��todo para desenhar apenas texto "Fisgado!" sem círculo da boca
   drawFisgadoTextOnly() {
     const overlayCanvas = document.getElementById("fishMouthOverlay");
     if (!overlayCanvas) return;
@@ -3521,7 +3527,7 @@ export const FishingScreenModular: React.FC = () => {
         );
         return distance <= radius;
       case "triangle":
-        // Implementação básica de triângulo
+        // Implementaç��o básica de triângulo
         const tx1 = waterArea.x + waterArea.width / 2;
         const ty1 = waterArea.y;
         const tx2 = waterArea.x;
