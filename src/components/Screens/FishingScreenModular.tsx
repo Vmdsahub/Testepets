@@ -1267,6 +1267,10 @@ class ModularWaterEffect {
 
   // Verificar se o anzol está dentro da área de água
   isHookInWater() {
+    if (!this.waterArea) {
+      return false; // Se não há área definida, assumir que não está na água
+    }
+
     const hookX = this.hookPosition.x;
     const hookY = this.hookPosition.y;
 
