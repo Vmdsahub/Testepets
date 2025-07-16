@@ -166,7 +166,8 @@ export interface Item {
     | "Collectible"
     | "Theme"
     | "Weapon"
-    | "Style";
+    | "Style"
+    | "Fish"; // Novo tipo para peixes
   rarity: ItemRarity;
   price?: number;
   currency?: "xenocoins" | "cash";
@@ -181,6 +182,13 @@ export interface Item {
   createdAt: Date;
   inventoryId?: string;
   equippedPetId?: string;
+  // Propriedades específicas de peixe
+  fishData?: {
+    species: "Peixinho Azul" | "Peixinho Verde";
+    size: number;
+    caughtAt: Date;
+    caughtPosition: { x: number; y: number };
+  };
 }
 
 export type ItemRarity =

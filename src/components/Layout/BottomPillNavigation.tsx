@@ -67,7 +67,7 @@ export const BottomPillNavigation: React.FC<BottomPillNavigationProps> = ({
         console.log(`🌍 Retornando ao planeta: ${currentPlanet.name}`);
         setCurrentScreen("planet");
       } else {
-        console.log(`🌍 Retornando à navegação galáctica`);
+        console.log(`🌍 Retornando à navegaç��o gal��ctica`);
         setCurrentScreen("world");
       }
     } else if (["pet", "inventory", "profile", "admin"].includes(id)) {
