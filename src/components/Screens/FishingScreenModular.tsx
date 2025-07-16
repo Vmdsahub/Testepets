@@ -4122,71 +4122,77 @@ export const FishingScreenModular: React.FC = () => {
           </div>
           <div>🔵 Peixinho Azul (tamanho 4)</div>
           <div>🟢 Peixinho Verde (tamanho 3)</div>
-          {waterEffectRef.current && (
-            <>
-              <div style={{ marginTop: "5px" }}>
-                <strong>Estado:</strong> {waterEffectRef.current.gameState}
-              </div>
-              <div>
-                <strong>Peixe Ativo:</strong>{" "}
-                {waterEffectRef.current.activeFish === 1 ? "Azul" : "Verde"}
-              </div>
-              <div style={{ fontSize: "9px", marginTop: "5px" }}>
-                <strong>Azul:</strong>{" "}
-                {waterEffectRef.current.fish1Visible
-                  ? "🐟 Visível"
-                  : "🚫 Capturado"}
-                {!waterEffectRef.current.fish1Visible &&
-                  waterEffectRef.current.fish1RespawnTime > 0 && (
-                    <span>
-                      {" "}
-                      (respawn em{" "}
-                      {Math.ceil(
-                        (waterEffectRef.current.fish1RespawnTime - Date.now()) /
-                          1000,
-                      )}
-                      s)
-                    </span>
-                  )}
-              </div>
-              <div style={{ fontSize: "9px" }}>
-                <strong>Verde:</strong>{" "}
-                {waterEffectRef.current.fish2Visible
-                  ? "🐟 Visível"
-                  : "🚫 Capturado"}
-                {!waterEffectRef.current.fish2Visible &&
-                  waterEffectRef.current.fish2RespawnTime > 0 && (
-                    <span>
-                      {" "}
-                      (respawn em{" "}
-                      {Math.ceil(
-                        (waterEffectRef.current.fish2RespawnTime - Date.now()) /
-                          1000,
-                      )}
-                      s)
-                    </span>
-                  )}
-              </div>
-              <div style={{ fontSize: "8px", marginTop: "3px", color: "#ccc" }}>
-                Pos. Azul: (
-                {waterEffectRef.current.fishCurrentPosition?.x?.toFixed(2) ||
-                  "0.00"}
-                ,{" "}
-                {waterEffectRef.current.fishCurrentPosition?.y?.toFixed(2) ||
-                  "0.00"}
-                )
-              </div>
-              <div style={{ fontSize: "8px", color: "#ccc" }}>
-                Pos. Verde: (
-                {waterEffectRef.current.fish2CurrentPosition?.x?.toFixed(2) ||
-                  "0.00"}
-                ,{" "}
-                {waterEffectRef.current.fish2CurrentPosition?.y?.toFixed(2) ||
-                  "0.00"}
-                )
-              </div>
-            </>
-          )}
+          {waterEffectRef.current &&
+            waterEffectRef.current.fishCurrentPosition &&
+            waterEffectRef.current.fish2CurrentPosition && (
+              <>
+                <div style={{ marginTop: "5px" }}>
+                  <strong>Estado:</strong> {waterEffectRef.current.gameState}
+                </div>
+                <div>
+                  <strong>Peixe Ativo:</strong>{" "}
+                  {waterEffectRef.current.activeFish === 1 ? "Azul" : "Verde"}
+                </div>
+                <div style={{ fontSize: "9px", marginTop: "5px" }}>
+                  <strong>Azul:</strong>{" "}
+                  {waterEffectRef.current.fish1Visible
+                    ? "🐟 Visível"
+                    : "🚫 Capturado"}
+                  {!waterEffectRef.current.fish1Visible &&
+                    waterEffectRef.current.fish1RespawnTime > 0 && (
+                      <span>
+                        {" "}
+                        (respawn em{" "}
+                        {Math.ceil(
+                          (waterEffectRef.current.fish1RespawnTime -
+                            Date.now()) /
+                            1000,
+                        )}
+                        s)
+                      </span>
+                    )}
+                </div>
+                <div style={{ fontSize: "9px" }}>
+                  <strong>Verde:</strong>{" "}
+                  {waterEffectRef.current.fish2Visible
+                    ? "🐟 Visível"
+                    : "🚫 Capturado"}
+                  {!waterEffectRef.current.fish2Visible &&
+                    waterEffectRef.current.fish2RespawnTime > 0 && (
+                      <span>
+                        {" "}
+                        (respawn em{" "}
+                        {Math.ceil(
+                          (waterEffectRef.current.fish2RespawnTime -
+                            Date.now()) /
+                            1000,
+                        )}
+                        s)
+                      </span>
+                    )}
+                </div>
+                <div
+                  style={{ fontSize: "8px", marginTop: "3px", color: "#ccc" }}
+                >
+                  Pos. Azul: (
+                  {waterEffectRef.current.fishCurrentPosition?.x?.toFixed(2) ||
+                    "0.00"}
+                  ,{" "}
+                  {waterEffectRef.current.fishCurrentPosition?.y?.toFixed(2) ||
+                    "0.00"}
+                  )
+                </div>
+                <div style={{ fontSize: "8px", color: "#ccc" }}>
+                  Pos. Verde: (
+                  {waterEffectRef.current.fish2CurrentPosition?.x?.toFixed(2) ||
+                    "0.00"}
+                  ,{" "}
+                  {waterEffectRef.current.fish2CurrentPosition?.y?.toFixed(2) ||
+                    "0.00"}
+                  )
+                </div>
+              </>
+            )}
           <div style={{ fontSize: "9px", marginTop: "5px", color: "#ccc" }}>
             Os peixes WebGL nadam automaticamente
           </div>
