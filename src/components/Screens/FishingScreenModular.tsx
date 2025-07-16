@@ -761,6 +761,7 @@ class ModularWaterEffect {
     this.createBackgroundTexture();
     this.createNoiseTexture();
     this.createFishTexture();
+    this.createFish2Texture(); // Textura do peixe verde
   }
 
   createBackgroundTexture() {
