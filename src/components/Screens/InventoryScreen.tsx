@@ -77,6 +77,7 @@ export const InventoryScreen: React.FC = () => {
       (activeTab === "consumables" && ["Food", "Potion"].includes(item.type)) ||
       (activeTab === "equipment" &&
         ["Equipment", "Weapon"].includes(item.type)) ||
+      (activeTab === "fish" && item.type === "Fish") ||
       (activeTab === "special" &&
         ["Special", "Theme", "Collectible", "Style"].includes(item.type));
 
