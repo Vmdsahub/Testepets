@@ -370,9 +370,8 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = ({
             <AnimatePresence>
               {filteredItems.map((item, index) => {
                 return (
-                  <div className="relative">
+                  <div key={item.inventoryId || item.id} className="relative">
                     <motion.button
-                      key={item.inventoryId || item.id}
                       onClick={(e) => handleItemClick(item, e, index)}
                       className={`relative aspect-square rounded-xl border-2 p-2 transition-all hover:scale-105 w-full ${getRarityColor(item.rarity)} ${getRarityGlow(item.rarity)} ${
                         item.isEquipped ? "ring-2 ring-blue-500" : ""
