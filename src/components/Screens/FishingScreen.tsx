@@ -1355,7 +1355,7 @@ class WaterEffect {
     const resultX = Math.max(0.05, Math.min(0.95, naturalFishX));
     const resultY = Math.max(0.45, Math.min(0.95, naturalFishY));
     console.log(
-      `🎯 OFFSET DEBUG - Target: (${targetX.toFixed(3)}, ${targetY.toFixed(3)}) -> Result: (${resultX.toFixed(3)}, ${resultY.toFixed(3)})`,
+      `�� OFFSET DEBUG - Target: (${targetX.toFixed(3)}, ${targetY.toFixed(3)}) -> Result: (${resultX.toFixed(3)}, ${resultY.toFixed(3)})`,
     );
   }
 
@@ -1578,7 +1578,7 @@ class WaterEffect {
 
 export const FishingScreen: React.FC = () => {
   console.log("🏏 FishingScreen component rendering...");
-  const { setCurrentScreen } = useGameStore();
+  const { setCurrentScreen, addToInventory, addNotification } = useGameStore();
   const { user } = useAuthStore();
   const waterEffectRef = useRef<WaterEffect | null>(null);
   const [fishingSettings, setFishingSettings] =
