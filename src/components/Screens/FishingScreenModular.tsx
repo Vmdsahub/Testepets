@@ -369,6 +369,48 @@ class ModularWaterEffect {
           }
         }
 
+                return bgColor;
+      }
+
+      // Função para adicionar o segundo peixe por cima
+      vec4 addSecondFish(vec4 bgColor, vec2 coords, float fish2X, float fish2Y, float fish2Angle) {
+        vec2 fish2Pos = vec2(fish2X, fish2Y);
+        vec2 fish2Size = vec2(0.08, 0.06);
+
+        // Converter para coordenadas centradas (-0.5 a 0.5)
+        vec2 centered2UV = (coords - fish2Pos + fish2Size * 0.5) / fish2Size - 0.5;
+
+        // Aplicar rotação diagonal do segundo peixe
+        float rotation2Angle = u_fish2Angle;
+        if (fish2Angle > 1.5) {
+            // Quando peixe 2 nada para direita (flipado), inverter rotação
+            rotation2Angle = -rotation2Angle;
+        }
+        float cos2Angle = cos(rotation2Angle);
+        float sin2Angle = sin(rotation2Angle);
+
+        // Matrix de rotação 2D para peixe 2
+        vec2 rotated2UV = vec2(
+            centered2UV.x * cos2Angle - centered2UV.y * sin2Angle,
+            centered2UV.x * sin2Angle + centered2UV.y * cos2Angle
+        );
+
+        // Voltar para coordenadas 0-1
+        vec2 fish2UV = rotated2UV + 0.5;
+
+        // Aplicar flip horizontal baseado na direção do peixe 2
+        if (fish2Angle > 1.5) {
+            fish2UV.x = 1.0 - fish2UV.x;
+        }
+
+        // Renderizar peixe 2 se estiver na área válida
+        if (fish2UV.x >= 0.0 && fish2UV.x <= 1.0 && fish2UV.y >= 0.0 && fish2UV.y <= 1.0 && isInWaterArea(coords)) {
+          vec4 fish2Color = texture2D(u_fish2Texture, fish2UV);
+          if (fish2Color.a > 0.1) {
+            bgColor = mix(bgColor, vec4(fish2Color.rgb, 1.0), fish2Color.a);
+          }
+        }
+
         return bgColor;
       }
 
