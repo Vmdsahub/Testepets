@@ -464,23 +464,15 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = ({
         </div>
       </motion.div>
 
-      {/* Item Detail Modal */}
+            {/* Item Detail Modal */}
       <AnimatePresence>
         {selectedItem && (
-          <>
-            <motion.div
-              className="fixed inset-0 bg-black/50 z-40"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setSelectedItem(null)}
-            />
-            <motion.div
-              className="fixed inset-0 flex items-center justify-center p-4 z-50"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-            >
+          <motion.div
+            className="fixed inset-0 flex items-center justify-center p-4 z-50"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+          >
               <div className="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-gray-100">
                 <div className="text-center mb-6">
                   <div
