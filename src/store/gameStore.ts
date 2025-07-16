@@ -1370,6 +1370,22 @@ export const useGameStore = create<GameStore>()(
         if (!state.user) return false;
 
         try {
+          // Para peixes, adicionar diretamente ao inventário local
+          if (item.type === "Fish") {
+            console.log("🐟 Adding fish directly to local inventory:", item);
+            // Gerar um inventoryId único para o peixe
+            const inventoryId = `fish_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+            // Adicionar diretamente ao estado local
+            set((state) => ({
+              inventory: [...state.inventory, { ...item, inventoryId }],
+            }));
+
+            console.log("🐟 Fish added to local inventory successfully");
+            return true;
+          }
+
+          // Para outros itens, usar gameService
           const result = await gameService.addItemToInventory(
             state.user.id,
             item.id,
