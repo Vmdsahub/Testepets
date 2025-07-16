@@ -924,7 +924,7 @@ class ModularWaterEffect {
       );
     };
     img.src =
-      "https://cdn.builder.io/api/v1/image/assets%2Fae8512d3d0df4d1f8f1504a06406c6ba%2F62141810443b4226b05ad6c4f3dcd94e?format=webp&width=800";
+      "https://cdn.builder.io/api/v1/image/assets%2Fc79b00ce148640919b4d22fcf2a41b59%2F2856af704b4e406cb206025a802b3bdc?format=webp&width=800";
   }
 
   // Atualizar área da água
