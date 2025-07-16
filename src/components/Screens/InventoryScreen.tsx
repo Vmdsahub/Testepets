@@ -105,16 +105,23 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = ({
     position: { x: number; y: number } | null;
   }>({ isOpen: false, item: null, position: null });
 
-  const handleItemClick = (item: Item, event: React.MouseEvent) => {
+  const handleItemClick = (
+    item: Item,
+    event: React.MouseEvent,
+    itemIndex: number,
+  ) => {
     event.preventDefault();
     event.stopPropagation();
 
-    const button = event.currentTarget as HTMLElement;
-    const buttonRect = button.getBoundingClientRect();
+    // Calculate position based on grid layout
+    const gridCols = 5;
+    const row = Math.floor(itemIndex / gridCols);
+    const col = itemIndex % gridCols;
 
+    // Position relative to the grid container
     const position = {
-      x: buttonRect.left + buttonRect.width / 2,
-      y: buttonRect.bottom + 5,
+      x: col * 76 + 38, // 76px = item width + gap, 38px = center of item
+      y: row * 76 + 80, // Position below the item
     };
 
     setDropdownState({ isOpen: true, item, position });
