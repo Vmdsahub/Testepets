@@ -1847,7 +1847,7 @@ class ModularWaterEffect {
       this.gameState === "fish_reacting" ||
       this.gameState === "fish_moving"
     ) {
-      // VERIFICAÇÃO CONTÍNUA: Se anzol saiu da água durante movimento, resetar
+      // VERIFICAÇÃO CONTÍNUA: Se anzol saiu da ��gua durante movimento, resetar
       if (!this.isHookInWater()) {
         console.log(
           "🎣 Hook removed from water during fish movement - resetting",
@@ -3728,19 +3728,7 @@ export const FishingScreenModular: React.FC = () => {
       )}
 
       {/* Minigame de Pesca estilo Stardew Valley */}
-      {showMinigame && (
-        <FishingMinigame
-          onComplete={(success) => {
-            setShowMinigame(false);
-            // Sucesso ou falha, apenas fecha o minigame
-            if (waterEffectRef.current) {
-              waterEffectRef.current.resetFishingGame();
-              // IMPORTANTE: Redefinir o callback onGameStart após o reset
-              redefineGameStartCallback();
-            }
-          }}
-        />
-      )}
+      {showMinigame && <FishingMinigame onComplete={handleMinigameComplete} />}
 
       {/* Modal removido - showFishingModal */}
       {false && (
