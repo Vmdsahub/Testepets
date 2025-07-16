@@ -775,6 +775,24 @@ class ModularWaterEffect {
       this.program,
       "u_waterShape",
     );
+
+    // Uniforms para o segundo peixe (verde)
+    this.uniforms.fish2TargetPosition = this.gl.getUniformLocation(
+      this.program,
+      "u_fish2TargetPosition",
+    );
+    this.uniforms.fish2Direction = this.gl.getUniformLocation(
+      this.program,
+      "u_fish2Direction",
+    );
+    this.uniforms.fish2Angle = this.gl.getUniformLocation(
+      this.program,
+      "u_fish2Angle",
+    );
+    this.uniforms.fish2Texture = this.gl.getUniformLocation(
+      this.program,
+      "u_fish2Texture",
+    );
   }
 
   createShader(type, source) {
@@ -1301,7 +1319,7 @@ class ModularWaterEffect {
       }
 
       // Aplicar força de direção suavemente à velocidade
-      const acceleration = 0.00002; // Aceleraç��o mais suave e lenta
+      const acceleration = 0.00002; // Acelera����o mais suave e lenta
       this.fishVelocity.x += targetDirection.x * acceleration;
       this.fishVelocity.y += targetDirection.y * acceleration;
 
