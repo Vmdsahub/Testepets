@@ -3222,16 +3222,77 @@ export const FishingScreenModular: React.FC = () => {
 
   // Callback otimizado para o minigame
   const handleMinigameComplete = useCallback(
-    (success: boolean) => {
+    async (success: boolean) => {
+      console.log("🎮 Minigame completed with result:", success);
       setShowMinigame(false);
-      // Sucesso ou falha, apenas fecha o minigame
-      if (waterEffectRef.current) {
-        waterEffectRef.current.resetFishingGame();
-        // IMPORTANTE: Redefinir o callback onGameStart após o reset
-        redefineGameStartCallback();
+
+      if (success && waterEffectRef.current && user) {
+        // Se minigame foi bem-sucedido, capturar peixe do WebGL
+        const caughtFishData = waterEffectRef.current.catchActiveFish();
+        console.log(
+          "🐟 Fish caught after successful minigame:",
+          caughtFishData,
+        );
+
+        if (caughtFishData) {
+          // Criar peixe com tamanho aleatório
+          const { createFish } = await import("../../types/fish");
+          const newFish = createFish(
+            caughtFishData.species as "Peixinho Azul" | "Peixinho Verde",
+            caughtFishData.position.x,
+            caughtFishData.position.y,
+          );
+
+          // Marcar como capturado
+          newFish.stats.caught = true;
+          newFish.stats.caughtAt = new Date();
+          newFish.stats.caughtByUserId = user.id;
+
+          // Converter para item e adicionar ao inventário
+          const fishItem = fishingService.convertFishToItem(newFish);
+
+          try {
+            const inventorySuccess = await addToInventory(fishItem);
+            if (inventorySuccess) {
+              addNotification({
+                type: "success",
+                title: "Peixe capturado!",
+                message: `Você capturou um ${newFish.name} (Tamanho ${newFish.size})!`,
+                isRead: false,
+              });
+              console.log(`🎣 Successfully added ${newFish.name} to inventory`);
+            } else {
+              throw new Error("Failed to add to inventory");
+            }
+          } catch (error) {
+            console.error("Error adding fish to inventory:", error);
+            addNotification({
+              type: "error",
+              title: "Erro",
+              message: "Falha ao adicionar peixe ao inventário.",
+              isRead: false,
+            });
+          }
+        }
+      } else if (!success) {
+        console.log("🐟 Fish escaped during minigame");
+        addNotification({
+          type: "warning",
+          title: "Peixe escapou!",
+          message: "O peixe conseguiu escapar. Tente novamente!",
+          isRead: false,
+        });
       }
+
+      // Reset do jogo e redefinir callback apenas se não foi sucesso (pois catchActiveFish já resetou)
+      if (waterEffectRef.current && !success) {
+        waterEffectRef.current.resetFishingGame();
+      }
+
+      // IMPORTANTE: Redefinir o callback onGameStart após o reset
+      redefineGameStartCallback();
     },
-    [redefineGameStartCallback],
+    [redefineGameStartCallback, user, addToInventory, addNotification],
   );
   const [fishingSettings, setFishingSettings] =
     useState<FishingSettings | null>(null);
