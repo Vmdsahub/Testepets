@@ -633,7 +633,7 @@ class ModularWaterEffect {
           float leftOffset = 10.0 / u_resolution.x; // Converter 10px para coordenadas UV
           vec2 exclamationPos = vec2(fishX - leftOffset, fishY);
 
-          // Pulsação suave para chamar atenção
+          // Pulsaç��o suave para chamar atenção
           float pulse = 0.98 + 0.02 * sin(u_time * 8.0);
 
                     // Tamanho da exclamação (82% maior que o original)
@@ -1426,7 +1426,7 @@ class ModularWaterEffect {
       // Manter sistema original para direção horizontal
       this.fishDirection = this.fishVelocity.x > 0 ? 1 : -1;
 
-      // NOVA IMPLEMENTAÇÃO: Rotação diagonal suave baseada na direção do movimento
+      // NOVA IMPLEMENTAÇÃO: Rotação diagonal suave baseada na direç��o do movimento
       const horizontalComponent = this.fishVelocity.x;
       const verticalComponent = this.fishVelocity.y;
 
@@ -2040,6 +2040,10 @@ class ModularWaterEffect {
     this.gl.activeTexture(this.gl.TEXTURE2);
     this.gl.bindTexture(this.gl.TEXTURE_2D, this.fishTexture);
     this.gl.uniform1i(this.uniforms.fishTexture, 2);
+
+    this.gl.activeTexture(this.gl.TEXTURE3);
+    this.gl.bindTexture(this.gl.TEXTURE_2D, this.fish2Texture);
+    this.gl.uniform1i(this.uniforms.fish2Texture, 3);
 
     // Desenha
     this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
