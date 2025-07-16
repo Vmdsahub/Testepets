@@ -109,13 +109,15 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = ({
     event.preventDefault();
     event.stopPropagation();
 
-    console.log("Item clicked:", item.name);
-    setDropdownState({
-      isOpen: true,
-      item,
-      position: { x: window.innerWidth / 2, y: window.innerHeight / 2 },
-    });
-    console.log("Dropdown state set to center screen");
+    const button = event.currentTarget as HTMLElement;
+    const rect = button.getBoundingClientRect();
+    const position = {
+      x: rect.left + rect.width / 2,
+      y: rect.bottom + 8,
+    };
+
+    console.log("Item clicked:", item.name, "Position:", position);
+    setDropdownState({ isOpen: true, item, position });
   };
 
   const handleUseItem = (item: Item) => {
