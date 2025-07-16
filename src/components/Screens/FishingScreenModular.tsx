@@ -3119,7 +3119,7 @@ export const FishingScreenModular: React.FC = () => {
   // Cleanup do fishingService
   useEffect(() => {
     return () => {
-      console.log("��� Cleaning up fishingService");
+      console.log("🧹 Cleaning up fishingService");
       fishingService.cleanup();
     };
   }, []);
@@ -3554,6 +3554,9 @@ export const FishingScreenModular: React.FC = () => {
           }
         }}
       />
+
+      {/* Fish Visualization */}
+      <FishVisualization waterArea={waterArea} />
 
       {/* Overlay para mostrar posição da boca do peixe */}
       <canvas
