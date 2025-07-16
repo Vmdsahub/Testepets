@@ -1955,7 +1955,7 @@ class ModularWaterEffect {
     return fishData;
   }
 
-  // Método para verificar e processar respawns
+  // M��todo para verificar e processar respawns
   updateRespawns() {
     const currentTime = Date.now();
 
@@ -3164,16 +3164,9 @@ export const FishingScreenModular: React.FC = () => {
         const hookY = waterEffectRef.current.hookPosition.y;
         console.log(`🎣 Hook position: (${hookX}, ${hookY})`);
 
-        // Debug: listar todos os peixes ativos
-        const allFish = fishingService.getActiveFish();
-        console.log("🐟 All active fish:", allFish);
-
-        const nearbyFish = fishingService.getFishNearPosition(
-          hookX,
-          hookY,
-          0.2,
-        );
-        console.log("🐟 Nearby fish:", nearbyFish);
+        // Apenas abrir o minigame - a captura será feita após o sucesso do minigame
+        console.log("🎮 Opening fishing minigame...");
+        setShowMinigame(true);
 
         if (nearbyFish && user) {
           console.log(`�� Attempting to catch fish: ${nearbyFish.name}`);
