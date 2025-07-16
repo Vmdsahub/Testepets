@@ -573,7 +573,7 @@ class ModularWaterEffect {
 
                                                                                                 // === ORIENTAÇÃO EVO FISH RÁPIDA ===
 
-        // Calcular dire��ão baseada no movimento circular principal
+        // Calcular direção baseada no movimento circular principal
         float velocityX = -sin(mainAngle) * 0.8 * swimSpeed * mainRadius; // Derivada do cos
 
         // Adicionar variações de trajetória
@@ -3126,6 +3126,59 @@ export const FishingScreenModular: React.FC = () => {
   const [isShiftPressed, setIsShiftPressed] = useState(false);
 
   const isAdmin = user?.isAdmin || false;
+
+  // Função para spawnar peixes simples
+  const spawnFish = () => {
+    const newFish = [
+      {
+        id: "fish1",
+        x: 0.2,
+        y: 0.7,
+        species: "Peixinho Azul" as const,
+        size: 3,
+      },
+      {
+        id: "fish2",
+        x: 0.5,
+        y: 0.6,
+        species: "Peixinho Verde" as const,
+        size: 2,
+      },
+      {
+        id: "fish3",
+        x: 0.8,
+        y: 0.75,
+        species: "Peixinho Azul" as const,
+        size: 4,
+      },
+    ];
+    setVisibleFish(newFish);
+    console.log("🐟 Spawned 3 fish:", newFish);
+  };
+
+  // Função para pescar um peixe
+  const catchFish = (fishId: string) => {
+    const fish = visibleFish.find((f) => f.id === fishId);
+    if (fish) {
+      // Remover peixe da tela
+      setVisibleFish((prev) => prev.filter((f) => f.id !== fishId));
+
+      // Programar respawn após 15 segundos
+      setTimeout(() => {
+        setVisibleFish((prev) => [
+          ...prev,
+          {
+            ...fish,
+            id: `${fish.id}_${Date.now()}`, // Novo ID para evitar conflitos
+          },
+        ]);
+        console.log(`🐟 Respawned ${fish.species}`);
+      }, 15000);
+
+      return fish;
+    }
+    return null;
+  };
 
   // Cleanup do fishingService
   useEffect(() => {
