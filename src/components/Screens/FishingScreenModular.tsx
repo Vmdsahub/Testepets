@@ -1564,8 +1564,11 @@ class ModularWaterEffect {
   }
 
   updateFishingGame() {
-    // Atualizar posição do peixe a cada frame
+    // Atualizar posição do peixe 1 (azul) a cada frame
     this.updateFishPosition();
+
+    // Atualizar posição do peixe 2 (verde) a cada frame
+    this.updateFish2Position();
 
     if (this.gameState === "hook_cast") {
       const elapsedTime = Date.now() - this.fishReactionStartTime;
