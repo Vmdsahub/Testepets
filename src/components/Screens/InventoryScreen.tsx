@@ -547,7 +547,11 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = ({
                   <button
                     onClick={() => {
                       handleUseItem(dropdownState.item!);
-                      setDropdownState({ isOpen: false, item: null });
+                      setDropdownState({
+                        isOpen: false,
+                        item: null,
+                        position: null,
+                      });
                     }}
                     className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                   >
