@@ -566,7 +566,7 @@ class ModularWaterEffect {
           naturalFishY = mix(naturalFishY, targetY, attractionStrength);
         }
 
-        // Pequena variação orgânica sutil
+        // Pequena varia��ão orgânica sutil
         naturalFishX += sin(time * 0.006) * areaW * 0.008;
         naturalFishY += cos(time * 0.004) * areaH * 0.006;
 
@@ -3119,7 +3119,7 @@ export const FishingScreenModular: React.FC = () => {
   console.log("🐟 FishingService loaded:", !!fishingService);
   console.log("🐟 Active fish count:", fishingService.getActiveFish().length);
   console.log("🐟 Active fish details:", fishingService.getActiveFish());
-  console.log("🐟 Fishing stats:", fishingService.getFishingStats());
+  console.log("���� Fishing stats:", fishingService.getFishingStats());
   const { setCurrentScreen, addToInventory, addNotification } = useGameStore();
   const { user } = useAuthStore();
   const waterEffectRef = useRef<ModularWaterEffect | null>(null);
@@ -3207,11 +3207,9 @@ export const FishingScreenModular: React.FC = () => {
             console.error("❌ Failed to catch fish");
           }
         } else {
-          console.log("🎣 No fish nearby to catch or no user");
-          console.log("🎣 Fish count:", allFish.length);
+          console.log("🎣 Fallback case - no legacy logic needed");
           console.log("🎣 User exists:", !!user);
-          // Ainda abre o modal de minigame como fallback
-          setShowMinigame(true);
+          // Esse bloco não é mais necessário pois não fazemos captura aqui
         }
       };
 
