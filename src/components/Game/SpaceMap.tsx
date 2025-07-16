@@ -3531,12 +3531,26 @@ const SpaceMapComponent: React.FC = () => {
               ctx.translate(-screenX, -screenY);
             }
 
-            const imageSize = planet.size * 2; // Use diameter as image size
-            const drawX = screenX - imageSize / 2;
-            const drawY = screenY - imageSize / 2;
+            const baseSize = planet.size * 2; // Use diameter as base size
 
-            // Draw the planet image with antialiasing (no glow)
-            ctx.drawImage(img, drawX, drawY, imageSize, imageSize);
+            // Calculate aspect ratio to preserve image proportions
+            const aspectRatio = img.naturalWidth / img.naturalHeight;
+            let drawWidth = baseSize;
+            let drawHeight = baseSize;
+
+            if (aspectRatio > 1) {
+              // Image is wider than tall
+              drawHeight = baseSize / aspectRatio;
+            } else {
+              // Image is taller than wide
+              drawWidth = baseSize * aspectRatio;
+            }
+
+            const drawX = screenX - drawWidth / 2;
+            const drawY = screenY - drawHeight / 2;
+
+            // Draw the planet image with antialiasing preserving aspect ratio
+            ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
 
             // Reset smoothing
             ctx.imageSmoothingEnabled = false; // Reset for other elements
