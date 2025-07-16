@@ -373,7 +373,7 @@ export const FinalWebGLStars: React.FC<FinalWebGLStarsProps> = ({
   return (
     <div
       ref={mountRef}
-      className={className}
+      className={`${className} space-background`}
       style={{
         position: "absolute",
         top: 0,

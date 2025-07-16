@@ -82,14 +82,13 @@
 /* Canvas rendering optimizations - uncapped FPS */
 .hardware-canvas {
   image-rendering: -webkit-optimize-contrast;
-  image-rendering: -moz-crisp-edges;
-  image-rendering: -o-crisp-edges;
-  image-rendering: pixelated;
+  image-rendering: optimize-contrast;
   image-rendering: optimizeSpeed;
   transform: translate3d(0, 0, 0);
   will-change: transform;
   backface-visibility: hidden;
   /* No refresh rate limits - allow unlimited FPS */
+  /* Removido crisp-edges que causava grid visual no espaço */
 }
 
 /* Otimizações para scroll performance */
@@ -124,4 +123,24 @@
   isolation: isolate;
   /* Reduzir motion blur durante transições */
   image-rendering: optimizeSpeed;
+}
+
+/* Classe específica para fundo de estrelas sem grid */
+.space-background {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: optimize-contrast;
+  image-rendering: optimizeSpeed;
+  /* SEM crisp-edges para evitar grid no espaço */
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* Classe para elementos UI que precisam de nitidez */
+.crisp-ui {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: optimize-contrast;
+  image-rendering: crisp-edges;
+  /* Para elementos de interface que precisam de nitidez */
 }

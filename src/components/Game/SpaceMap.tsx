@@ -4141,7 +4141,7 @@ const SpaceMapComponent: React.FC = () => {
 
       <canvas
         ref={canvasRef}
-        className="w-full h-full game-canvas gpu-accelerated hardware-canvas force-gpu-layer"
+        className="w-full h-full game-canvas gpu-accelerated space-background force-gpu-layer"
         style={{
           position: "relative",
           zIndex: 1,
