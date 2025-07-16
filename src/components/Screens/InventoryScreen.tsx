@@ -9,6 +9,7 @@ import {
   Heart,
   Utensils,
   Shield,
+  X,
 } from "lucide-react";
 import { useGameStore } from "../../store/gameStore";
 import { Item } from "../../types/game";
@@ -30,7 +31,15 @@ const tabs = [
   { id: "special", name: "Special", icon: Sparkles, color: "text-purple-600" },
 ];
 
-export const InventoryScreen: React.FC = () => {
+interface InventoryScreenProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export const InventoryScreen: React.FC<InventoryScreenProps> = ({
+  isOpen,
+  onClose,
+}) => {
   const [activeTab, setActiveTab] = useState("all");
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -38,6 +47,8 @@ export const InventoryScreen: React.FC = () => {
     isOpen: boolean;
     fish: Item | null;
   }>({ isOpen: false, fish: null });
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
 
   const {
     activePet,
@@ -192,47 +203,79 @@ export const InventoryScreen: React.FC = () => {
   const maxSlots = 30;
   const usedSlots = filteredItems.length;
 
-  // Show empty state if no items
-  if (inventory.filter((item) => item.quantity > 0).length === 0) {
-    return (
-      <div className="max-w-md mx-auto pb-12">
-        <motion.div
-          className="bg-white rounded-3xl shadow-xl p-8 border border-gray-100 text-center"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Package className="w-12 h-12 text-gray-400" />
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            Empty Inventory
-          </h2>
-          <p className="text-gray-600 mb-6">
-            Your inventory is empty. Explore the world, complete quests, and
-            visit shops to collect items!
-          </p>
-          <motion.button
-            className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all font-semibold shadow-lg"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => {
-              addNotification({
-                type: "info",
-                title: "Explore the World",
-                message:
-                  "Visit shops and complete quests to find amazing items!",
-                isRead: false,
-              });
-            }}
-          >
-            Start Exploring
-          </motion.button>
-        </motion.div>
-      </div>
-    );
-  }
+  const getSavedPosition = () => {
+    const saved = localStorage.getItem(`modal-position-inventory`);
+    if (saved) {
+      return JSON.parse(saved);
+    }
+    return { x: 0, y: 0 };
+  };
 
-  return (
+  React.useEffect(() => {
+    if (isOpen) {
+      setPosition(getSavedPosition());
+    }
+  }, [isOpen]);
+
+  const handleDragEnd = (event: any, info: any) => {
+    setIsDragging(false);
+    const newPosition = {
+      x: position.x + info.offset.x,
+      y: position.y + info.offset.y,
+    };
+    setPosition(newPosition);
+    localStorage.setItem(
+      `modal-position-inventory`,
+      JSON.stringify(newPosition),
+    );
+  };
+
+  const handleClose = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onClose();
+  };
+
+  if (!isOpen) return null;
+
+  // Show empty state if no items
+  const emptyInventoryContent = (
+    <div className="max-w-md mx-auto pb-12">
+      <motion.div
+        className="bg-white rounded-3xl shadow-xl p-8 border border-gray-100 text-center"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <Package className="w-12 h-12 text-gray-400" />
+        </div>
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">
+          Empty Inventory
+        </h2>
+        <p className="text-gray-600 mb-6">
+          Your inventory is empty. Explore the world, complete quests, and visit
+          shops to collect items!
+        </p>
+        <motion.button
+          className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all font-semibold shadow-lg"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={() => {
+            addNotification({
+              type: "info",
+              title: "Explore the World",
+              message: "Visit shops and complete quests to find amazing items!",
+              isRead: false,
+            });
+          }}
+        >
+          Start Exploring
+        </motion.button>
+      </motion.div>
+    </div>
+  );
+
+  const inventoryContent = (
     <div className="max-w-md mx-auto pb-12">
       {/* Search Bar */}
       <motion.div
@@ -590,6 +633,75 @@ export const InventoryScreen: React.FC = () => {
         onFeed={handleFishFeed}
         onDiscard={handleFishDiscard}
       />
+    </div>
+  );
+
+  return (
+    <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 200 }}>
+      <motion.div
+        className="absolute pointer-events-auto bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden flex flex-col"
+        style={{
+          width: "636px",
+          height: "750px",
+          maxWidth: "95vw",
+          maxHeight: "90vh",
+          left: "50%",
+          top: "50%",
+          transform: "translate(-50%, -50%)",
+        }}
+        initial={{
+          opacity: 0,
+          scale: 0.8,
+          x: position.x,
+          y: position.y,
+        }}
+        animate={{
+          opacity: 1,
+          scale: 1,
+          x: position.x,
+          y: position.y,
+        }}
+        exit={{
+          opacity: 0,
+          scale: 0.8,
+          x: position.x,
+          y: position.y,
+        }}
+        transition={{
+          type: "spring",
+          stiffness: 300,
+          damping: 25,
+          duration: 0.4,
+        }}
+        drag={true}
+        dragElastic={0.1}
+        dragMomentum={false}
+        onDragStart={() => setIsDragging(true)}
+        onDragEnd={handleDragEnd}
+        whileDrag={{ scale: 1.02 }}
+      >
+        {/* Header */}
+        <div className="bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between select-none cursor-move">
+          <h2 className="text-lg font-semibold text-gray-900">Inventário</h2>
+          <div className="flex items-center space-x-2">
+            <motion.button
+              onClick={handleClose}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <X className="w-4 h-4 text-gray-500" />
+            </motion.button>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-auto">
+          {inventory.filter((item) => item.quantity > 0).length === 0
+            ? emptyInventoryContent
+            : inventoryContent}
+        </div>
+      </motion.div>
     </div>
   );
 };
