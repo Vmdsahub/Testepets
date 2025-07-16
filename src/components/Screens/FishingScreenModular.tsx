@@ -2635,7 +2635,7 @@ const FishingMinigame: React.FC<FishingMinigameProps> = ({ onComplete }) => {
                     repeat: isLowTime ? Infinity : 0,
                   }}
                 >
-                  {isLowTime ? "����" : "⏱️"}
+                  {isLowTime ? "🚨" : "⏱️"}
                 </motion.span>
                 <motion.span
                   className={`text-lg font-bold ${
@@ -3033,12 +3033,12 @@ export const FishingScreenModular: React.FC = () => {
         const nearbyFish = fishingService.getFishNearPosition(
           hookX,
           hookY,
-          0.1,
+          0.2,
         );
         console.log("🐟 Nearby fish:", nearbyFish);
 
         if (nearbyFish && user) {
-          console.log(`🎣 Attempting to catch fish: ${nearbyFish.name}`);
+          console.log(`�� Attempting to catch fish: ${nearbyFish.name}`);
           // Pescar o peixe
           const caughtFish = fishingService.catchFish(nearbyFish.id, user.id);
           console.log("🐟 Caught fish result:", caughtFish);
