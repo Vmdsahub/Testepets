@@ -2111,7 +2111,7 @@ class ModularWaterEffect {
     // Verificar se o anzol ainda está na água para permitir novo interesse
     const hookInWater = this.isHookInWater();
     console.log(
-      `🔄 RESET DEBUG - Hook position: (${this.hookPosition.x.toFixed(3)}, ${this.hookPosition.y.toFixed(3)}) - isHookInWater: ${hookInWater}`,
+      `��� RESET DEBUG - Hook position: (${this.hookPosition.x.toFixed(3)}, ${this.hookPosition.y.toFixed(3)}) - isHookInWater: ${hookInWater}`,
     );
 
     // CORREÇÃO: Só reagir novamente se o anzol foi genuinamente lançado pela vara
@@ -4063,18 +4063,50 @@ export const FishingScreenModular: React.FC = () => {
                 {waterEffectRef.current.activeFish === 1 ? "Azul" : "Verde"}
               </div>
               <div style={{ fontSize: "9px", marginTop: "5px" }}>
-                Posição Azul: (
+                <strong>Azul:</strong>{" "}
+                {waterEffectRef.current.fish1Visible
+                  ? "🐟 Visível"
+                  : "🚫 Capturado"}
+                {!waterEffectRef.current.fish1Visible &&
+                  waterEffectRef.current.fish1RespawnTime > 0 && (
+                    <span>
+                      {" "}
+                      (respawn em{" "}
+                      {Math.ceil(
+                        (waterEffectRef.current.fish1RespawnTime - Date.now()) /
+                          1000,
+                      )}
+                      s)
+                    </span>
+                  )}
+              </div>
+              <div style={{ fontSize: "9px" }}>
+                <strong>Verde:</strong>{" "}
+                {waterEffectRef.current.fish2Visible
+                  ? "🐟 Visível"
+                  : "🚫 Capturado"}
+                {!waterEffectRef.current.fish2Visible &&
+                  waterEffectRef.current.fish2RespawnTime > 0 && (
+                    <span>
+                      {" "}
+                      (respawn em{" "}
+                      {Math.ceil(
+                        (waterEffectRef.current.fish2RespawnTime - Date.now()) /
+                          1000,
+                      )}
+                      s)
+                    </span>
+                  )}
+              </div>
+              <div style={{ fontSize: "8px", marginTop: "3px", color: "#ccc" }}>
+                Pos. Azul: (
                 {waterEffectRef.current.fishCurrentPosition.x.toFixed(2)},{" "}
                 {waterEffectRef.current.fishCurrentPosition.y.toFixed(2)})
               </div>
-              <div style={{ fontSize: "9px" }}>
-                Posição Verde: (
+              <div style={{ fontSize: "8px", color: "#ccc" }}>
+                Pos. Verde: (
                 {waterEffectRef.current.fish2CurrentPosition.x.toFixed(2)},{" "}
                 {waterEffectRef.current.fish2CurrentPosition.y.toFixed(2)})
-              </div>
-              <div style={{ fontSize: "9px" }}>
-                Anzol: ({waterEffectRef.current.hookPosition.x.toFixed(2)},{" "}
-                {waterEffectRef.current.hookPosition.y.toFixed(2)})
               </div>
             </>
           )}
